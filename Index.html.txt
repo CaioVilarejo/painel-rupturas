@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html class="light" lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Login - Painel de Rupturas</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: { "primary": "#ea2a33", "background-dark": "#211111" } } }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 font-['Spline_Sans'] antialiased">
+    <div class="flex h-screen w-full">
+        <div class="hidden lg:flex lg:w-1/2 bg-gray-900 relative items-center justify-center">
+            <div class="absolute inset-0 bg-gradient-to-br from-red-600/40 to-black/90 z-10"></div>
+            <div class="relative z-20 p-12 text-center text-white">
+                <span class="material-symbols-outlined text-6xl mb-4">inventory_2</span>
+                <h2 class="text-4xl font-bold mb-4">Vilarejo Monitor</h2>
+                <p class="text-lg opacity-80">Gestão inteligente de rupturas H, B e TH em tempo real.</p>
+            </div>
+        </div>
+        <div class="flex-1 flex flex-col items-center justify-center p-8 bg-white">
+            <div class="w-full max-w-md space-y-8">
+                <div class="text-center">
+                    <h1 class="text-3xl font-bold text-gray-900">Acesse o Painel</h1>
+                    <p class="text-gray-500 mt-2">Use suas credenciais de compras</p>
+                </div>
+                <form class="space-y-6" id="loginForm">
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Usuário</label>
+                        <input type="text" id="username" class="w-full rounded-xl border-gray-200 bg-gray-50 h-14 px-4" placeholder="compras" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Senha</label>
+                        <input type="password" id="password" class="w-full rounded-xl border-gray-200 bg-gray-50 h-14 px-4" placeholder="123" required>
+                    </div>
+                    <button type="submit" class="w-full h-14 bg-primary text-white rounded-xl font-bold shadow-lg hover:bg-red-700 transition-all">Entrar</button>
+                </form>
+                <div class="text-center text-xs text-gray-400">© 2024 Painel de Rupturas. v1.0.2</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            // Validação simples solicitada
+            if(u === 'compras' && p === '123') {
+                window.location.href = 'dashboard.html';
+            } else {
+                alert('Usuário ou senha incorretos!');
+            }
+        });
+    </script>
+</body>
+</html>
