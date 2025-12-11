@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html class="light" lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Histórico de Rupturas - Vilarejo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: { extend: { colors: { "primary": "#E30613", "sheets-green": "#1ea362", "background-dark": "#121212", "blue-custom": "#3B82F6", "gray-custom": "#6B7280" } } }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 font-['Spline_Sans'] antialiased">
+    <div class="flex h-screen overflow-hidden">
+        <aside class="w-64 bg-white border-r border-gray-200 p-6 flex flex-col justify-between hidden md:flex">
+            <div>
+                <div class="flex items-center gap-3 mb-10">
+                    <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold">V</div>
+                    <span class="text-xl font-bold">Vilarejo<span class="text-primary">Monitor</span></span>
+                </div>
+                <nav class="space-y-2">
+                    <a href="dashboard.html" class="flex items-center gap-3 p-3 text-gray-500 hover:bg-gray-100 rounded-lg font-medium">
+                        <span class="material-symbols-outlined">analytics</span> Rupturas
+                    </a>
+                    <a href="historico.html" class="flex items-center gap-3 p-3 bg-primary text-white rounded-lg font-medium shadow-md">
+                        <span class="material-symbols-outlined">timeline</span> Histórico
+                    </a>
+                </nav>
+            </div>
+            <button onclick="window.location.href='index.html'" class="flex items-center gap-3 p-3 text-gray-500 hover:text-red-600 transition-colors">
+                <span class="material-symbols-outlined">logout</span> Sair
+            </button>
+        </aside>
+
+        <main class="flex-1 overflow-y-auto p-6 lg:p-10">
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 border-b pb-6">
+                <div>
+                    <h1 class="text-3xl font-black">Histórico de Rupturas (Banco de Dados)</h1>
+                    <div class="flex items-center gap-2 text-gray-500 text-sm mt-1">
+                        <span class="relative flex h-2 w-2">
+                            <span class="relative rounded-full h-2 w-2 bg-blue-500"></span>
+                        </span>
+                        <span id="lastUpdate">Aguardando dados...</span>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="carregarDados()" class="flex items-center gap-2 px-4 py-2 bg-white border rounded-lg font-bold text-sm hover:bg-gray-50">
+                        <span class="material-symbols-outlined text-sm">refresh</span> Recarregar Histórico
+                    </button>
+                </div>
+            </header>
+            
+            <div class="mb-8 flex items-center gap-4">
+                <label class="font-bold text-gray-700">Visualizar Categoria:</label>
+                <select id="hbtSelector" onchange="mudarGrafico()" class="border-gray-300 rounded-lg text-lg px-4 py-2 font-bold">
+                    <option value="H">Item H (Alto)</option>
+                    <option value="B">Item B (Médio)</option>
+                    <option value="TH">Item TH (Baixo)</option>
+                </select>
+            </div>
+
+            <div class="bg-white rounded-xl border shadow-lg p-6 mb-10">
+                <h3 class="font-bold text-xl mb-4" id="chartTitle">Tendência Mensal - Item H</h3>
+                <div class="relative h-96 w-full">
+                    <canvas id="historicoChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
+                <div class="p-6 border-b">
+                    <h3 class="font-bold text-lg">Dados Brutos do Histórico</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm" id="tabelaHistorico">
+                        <thead class="bg-gray-50 border-b" id="tabelaHistoricoHead">
+                            </thead>
+                        <tbody class="divide-y divide-gray-100" id="tabelaHistoricoBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Use o mesmo link do CSV, pois o PapaParse lê a planilha inteira. 
+        // Se o "Banco de Dados" estiver em outra planilha, o link CSV tem que ser o dela!
+        // IMPORTANTE: Se o "Banco de Dados" for uma ABA na mesma planilha, o link PUBLICADO CSV é o mesmo.
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?output=csv';
+        let historicoChart;
+        let dadosHistorico = {}; // Objeto para armazenar e facilitar a troca de H, B, TH
+
+        const itemColors = {
+            'H': { atual: 'rgba(227, 6, 19, 1)', futuro: 'rgba(227, 6, 19, 0.4)' },
+            'B': { atual: 'rgba(59, 130, 246, 1)', futuro: 'rgba(59, 130, 246, 0.4)' },
+            'TH': { atual: 'rgba(107, 114, 128, 1)', futuro: 'rgba(107, 114, 128, 0.4)' }
+        };
+
+        async function carregarDados() {
+            document.getElementById('lastUpdate').innerText = "Processando banco de dados...";
+            Papa.parse(CSV_URL, {
+                download: true,
+                header: true,
+                complete: function(results) {
+                    processarHistorico(results.data);
+                },
+                error: function(error) {
+                    console.error("Erro ao carregar histórico:", error);
+                    document.getElementById('lastUpdate').innerText = "Erro ao carregar dados do histórico.";
+                }
+            });
+        }
+
+        function processarHistorico(dados) {
+            
+            // Reorganizar os dados para o gráfico e para a tabela
+            const labels = [];
+            const dataH = { atual: [], futuro: [] };
+            const dataB = { atual: [], futuro: [] };
+            const dataTH = { atual: [], futuro: [] };
+            
+            const dadosTabela = [];
+
+            dados.forEach(item => {
+                // A data (coluna A) será o label do gráfico
+                if (item['Data']) {
+                    labels.push(item['Data']);
+                    
+                    // Dados para o Histórico (Gráficos)
+                    dataH.atual.push(parseInt(item['Romp.Atual (H)']) || 0);
+                    dataH.futuro.push(parseInt(item['Romp.Futuro (H)']) || 0);
+                    
+                    dataB.atual.push(parseInt(item['Romp.Atual (B)']) || 0);
+                    dataB.futuro.push(parseInt(item['Romp.Futuro (B)']) || 0);
+                    
+                    dataTH.atual.push(parseInt(item['Romp.Atual (TH)']) || 0);
+                    dataTH.futuro.push(parseInt(item['Romp.Futuro (TH)']) || 0);
+
+                    // Dados para a Tabela
+                    dadosTabela.push(item);
+                }
+            });
+            
+            // Armazena no objeto global para fácil acesso
+            dadosHistorico = {
+                labels: labels,
+                H: dataH,
+                B: dataB,
+                TH: dataTH,
+                tabela: dadosTabela
+            };
+
+            // 1. Desenhar o gráfico inicial (H)
+            mudarGrafico();
+            
+            // 2. Preencher a Tabela de Dados Brutos
+            preencherTabelaHistorico(dadosHistorico.tabela);
+
+            document.getElementById('lastUpdate').innerText = `Última atualização: ${new Date().toLocaleTimeString()}`;
+        }
+
+        function preencherTabelaHistorico(data) {
+            const thead = document.getElementById('tabelaHistoricoHead');
+            const tbody = document.getElementById('tabelaHistoricoBody');
+            tbody.innerHTML = '';
+            
+            if (data.length === 0) return;
+            
+            // Pega os cabeçalhos da primeira linha de dados
+            const headers = Object.keys(data[0]);
+            
+            // Cria o cabeçalho da tabela
+            thead.innerHTML = '<tr>' + headers.map(h => `<th class="px-6 py-3 font-bold text-xs uppercase">${h}</th>`).join('') + '</tr>';
+            
+            // Preenche o corpo da tabela
+            data.reverse().forEach(row => { // Mostra as datas mais recentes primeiro
+                const cells = headers.map(h => `<td class="px-6 py-3 text-gray-700">${row[h] || 0}</td>`).join('');
+                tbody.innerHTML += `<tr class="hover:bg-gray-50">${cells}</tr>`;
+            });
+        }
+        
+        function mudarGrafico() {
+            const selector = document.getElementById('hbtSelector');
+            const hbt = selector.value;
+            const data = dadosHistorico[hbt];
+
+            if (!data || !dadosHistorico.labels.length) {
+                if (historicoChart) historicoChart.destroy();
+                return;
+            }
+
+            document.getElementById('chartTitle').innerText = `Tendência Mensal - Item ${hbt} (${hbt === 'H' ? 'Alto' : hbt === 'B' ? 'Médio' : 'Baixo'})`;
+
+            const chartData = {
+                labels: dadosHistorico.labels,
+                datasets: [
+                    {
+                        label: `Ruptura ATUAL (${hbt})`,
+                        data: data.atual,
+                        borderColor: itemColors[hbt].atual,
+                        backgroundColor: itemColors[hbt].atual,
+                        tension: 0.3,
+                        borderWidth: 2,
+                        fill: false
+                    },
+                    {
+                        label: `Ruptura FUTURA (${hbt}) - CRÍTICO`,
+                        data: data.futuro,
+                        borderColor: itemColors[hbt].futuro,
+                        backgroundColor: itemColors[hbt].futuro,
+                        tension: 0.3,
+                        borderWidth: 2,
+                        borderDash: [5, 5], // Linha tracejada
+                        fill: false
+                    }
+                ]
+            };
+
+            const chartConfig = {
+                type: 'line',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Quantidade de Itens Rompidos' }
+                        },
+                        x: {
+                            title: { display: true, text: 'Mês' }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: { mode: 'index', intersect: false }
+                    }
+                }
+            };
+
+            if (historicoChart) {
+                historicoChart.destroy();
+            }
+            historicoChart = new Chart(document.getElementById('historicoChart'), chartConfig);
+        }
+
+        // Iniciar
+        carregarDados();
+    </script>
+</body>
+</html>
