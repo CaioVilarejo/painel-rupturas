@@ -1,145 +1,4 @@
-<!DOCTYPE html>
-<html class="light" lang="pt-BR">
-<head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Rupturas - Vilarejo Monitor</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
-    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
-
 <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: { extend: { colors: { "primary": "#E30613", "sheets-green": "#1ea362", "background-dark": "#121212", "blue-custom": "#3B82F6", "gray-custom": "#6B7280" } } }
-        }
-    </script>
-    <style>
-        body { font-family: 'Roboto', sans-serif; }
-        .ping-animation {
-            animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
-        }
-        @keyframes ping {
-            75%, 100% { transform: scale(2); opacity: 0; }
-        }
-    </style>
-</head>
-<body class="bg-gray-100 antialiased">
-    <div class="flex h-screen overflow-hidden">
-        <aside class="w-64 bg-white border-r border-gray-200 p-6 flex flex-col justify-between hidden md:flex">
-            <div>
-                <div class="flex items-center gap-3 mb-10 pb-4 border-b border-gray-100">
-                    <img src="https://i.ibb.co/tPcWfmjT/VI-logo-novo-sem-fundo.png" alt="Logo Vilarejo" class="h-8 w-auto object-contain"/>
-                    <span class="text-xl font-bold">Monitor</span>
-                </div>
-                <nav class="space-y-2">
-                    <a href="dashboard.html" class="flex items-center gap-3 p-3 bg-primary text-white rounded-lg font-medium shadow-md">
-                        <span class="material-symbols-outlined">analytics</span> Rupturas
-                    </a>
-                    <a href="historico.html" class="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg font-medium">
-                        <span class="material-symbols-outlined">timeline</span> Histórico
-                    </a>
-                </nav>
-            </div>
-            <button onclick="window.location.href='index.html'" class="flex items-center gap-3 p-3 text-gray-500 hover:text-red-600 transition-colors border-t pt-4">
-                <span class="material-symbols-outlined">logout</span> Sair
-            </button>
-        </aside>
-
-        <main class="flex-1 overflow-y-auto p-6 lg:p-10">
-            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 border-b pb-6">
-                <div>
-                    <h1 class="text-3xl font-black">Visão Geral de Rupturas</h1>
-                    <div class="flex items-center gap-2 text-gray-500 text-sm mt-1">
-                        <span class="relative flex h-2 w-2">
-                            <span class="animate-ping absolute h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                            <span class="relative rounded-full h-2 w-2 bg-green-500"></span>
-                        </span>
-                        <span id="lastUpdate">Sincronizando com Google Sheets...</span>
-                    </div>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="carregarDados()" class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg font-bold text-sm text-gray-700 hover:bg-gray-50">
-                        <span class="material-symbols-outlined text-sm">refresh</span> Sincronizar
-                    </button>
-                </div>
-            </header>
-
-            <div id="alertaRuptura" class="hidden mb-8 bg-primary/10 border-l-4 border-primary p-4 rounded-lg shadow-sm flex items-center justify-between animate-pulse">
-                <div class="flex items-center gap-4">
-                    <div>
-                        <p class="font-black text-xl text-primary">ALERTA CRÍTICO: Rupturas Futuras!</p>
-                        <p class="text-base text-gray-700"></p> 
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                <div class="bg-white p-6 rounded-xl border shadow-lg flex flex-col justify-between">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Item H</h3>
-                    <div id="countH" class="text-4xl font-black text-primary mt-2"></div>
-                </div>
-                <div class="bg-white p-6 rounded-xl border shadow-lg flex flex-col justify-between">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Item B</h3>
-                    <div id="countB" class="text-4xl font-black text-blue-custom mt-2"></div>
-                </div>
-                <div class="bg-white p-6 rounded-xl border shadow-lg flex flex-col justify-between">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Item TH</h3>
-                    <div id="countTH" class="text-4xl font-black text-gray-custom mt-2"></div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl border shadow-sm p-6 mb-10">
-                <h3 class="font-bold text-lg mb-4">Visão Geral de Rupturas por Classificação</h3>
-                <div class="relative h-64 w-full">
-                    <canvas id="rupturaChart"></canvas>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
-                <div class="p-6 border-b flex justify-between items-center flex-wrap gap-4">
-                    <h3 class="font-bold text-lg w-full md:w-auto">Detalhe dos Itens em Ruptura</h3>
-                    
-                    <div class="flex gap-4 w-full md:w-auto flex-wrap">
-                        <select id="groupFilter" onchange="aplicarFiltros()" class="border-gray-300 rounded-lg text-sm px-4 py-2">
-                            <option value="todos">Filtrar por Grupo (Todos)</option>
-                            </select>
-                        
-                        <select id="statusFilter" onchange="aplicarFiltros()" class="border-gray-300 rounded-lg text-sm px-4 py-2">
-                            <option value="todos">Status (Atual e Futuro)</option>
-                            <option value="atual">Somente Ruptura Atual</option>
-                            <option value="futuro">Somente Ruptura Futura (Críticos)</option>
-                        </select>
-
-                        <input type="text" id="searchInput" onkeyup="aplicarFiltros()" placeholder="Buscar produto ou código..." class="border-gray-300 rounded-lg text-sm w-full md:w-48 px-4 py-2">
-                    </div>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm" id="tabelaDados">
-                        <thead class="bg-gray-50 border-b">
-                            <tr>
-                                <th class="px-6 py-4 font-bold">Descrição do Produto</th>
-                                <th class="px-6 py-4 font-bold">Código</th>
-                                <th class="px-6 py-4 font-bold">Classificação</th>
-                                <th class="px-6 py-4 font-bold">Grupo</th> 
-                                <th class="px-6 py-4 font-bold">Estoque Total</th>
-                                <th class="px-6 py-4 font-bold">Pedido</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            </tbody>
-                    </table>
-                </div>
-                <div class="p-4 bg-gray-100 text-xs text-gray-500 font-medium" id="tableFooter">
-                    Carregando dados...
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <script>
         // CORREÇÃO: URL forçada para o GID 0 (primeira aba), garantindo a sincronização.
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?gid=0&single=true&output=csv';
         let rupturaChart;
@@ -229,6 +88,61 @@
             tbody.innerHTML = htmlContent;
         }
 
+        // NOVO: Função para criar o gráfico
+        function criarGraficoRuptura(contadores) {
+            const ctx = document.getElementById('rupturaChart').getContext('2d');
+            
+            const labels = ['Item H', 'Item B', 'Item TH'];
+            const dataAtual = [contadores.H.atual, contadores.B.atual, contadores.TH.atual];
+            const dataFutura = [contadores.H.futuro, contadores.B.futuro, contadores.TH.futuro];
+            const cores = [itemColors['H'], itemColors['B'], itemColors['TH']];
+
+            if (rupturaChart) {
+                rupturaChart.destroy();
+            }
+
+            rupturaChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Ruptura Atual',
+                            data: dataAtual,
+                            backgroundColor: cores.map(c => `${c}B0`), // Cor um pouco mais clara
+                            borderColor: cores,
+                            borderWidth: 1
+                        },
+                         {
+                            label: 'Ruptura Futura (Crítico)',
+                            data: dataFutura,
+                            backgroundColor: cores.map(c => `${c}FF`), // Cor original mais escura/sólida
+                            borderColor: cores,
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Total de Itens Rompidos'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    }
+                }
+            });
+        }
+        
         function processarPlanilha(dados) {
             
             const rompidos = dados.filter(item => isRompido(item['Romp.Atual']));
@@ -242,9 +156,18 @@
             const futurosB = rompidosB.filter(i => isRompido(i['Romp.Futuro'])).length;
             const futurosTH = rompidosTH.filter(i => isRompido(i['Romp.Futuro'])).length;
 
-            atualizarCard('countH', rompidosH.length, futurosH);
-            atualizarCard('countB', rompidosB.length, futurosB);
-            atualizarCard('countTH', rompidosTH.length, futurosTH);
+            const contadores = {
+                H: { atual: rompidosH.length, futuro: futurosH },
+                B: { atual: rompidosB.length, futuro: futurosB },
+                TH: { atual: rompidosTH.length, futuro: futurosTH }
+            };
+
+            atualizarCard('countH', contadores.H.atual, contadores.H.futuro);
+            atualizarCard('countB', contadores.B.atual, contadores.B.futuro);
+            atualizarCard('countTH', contadores.TH.atual, contadores.TH.futuro);
+            
+            // CHAMA A FUNÇÃO DO GRÁFICO AQUI
+            criarGraficoRuptura(contadores);
 
             // Alerta Geral
             const totalFuturoGeral = futurosH + futurosB + futurosTH;
@@ -255,8 +178,6 @@
             } else {
                 alertaDiv.style.display = 'none';
             }
-
-            // Gráfico (mantido inalterado)
 
             // Tabela
             const dadosOrdenados = rompidos.sort((a, b) => {
@@ -329,5 +250,3 @@
         carregarDados();
         setInterval(carregarDados, 300000);
     </script>
-</body>
-</html>
