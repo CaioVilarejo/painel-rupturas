@@ -310,7 +310,7 @@
             document.getElementById('lastUpdate').innerText = `Sincronizado: ${new Date().toLocaleTimeString()} • Próxima: ${new Date(new Date().getTime() + 300000).toLocaleTimeString()}`;
         }
 
-        // NOVO DESIGN DE CARD PARA DAR DESTAQUE À RUPTURA FUTURA
+       // NOVO DESIGN DE CARD PARA DAR DESTAQUE À RUPTURA FUTURA
         function atualizarCard(id, total, futuro) {
             const elemento = document.getElementById(id);
             const mainColorClass = id === 'countH' ? 'text-primary' : id === 'countB' ? 'text-blue-custom' : 'text-gray-custom';
@@ -318,7 +318,7 @@
             elemento.innerHTML = `
                 <div class="flex flex-col items-start pb-3 border-b-2 border-gray-100 mb-2">
                     <span class="text-xs font-bold text-primary uppercase mb-1 flex items-center gap-1">
-                        <span class="material-symbols-outlined text-sm">emergency</span> ALVO CRÍTICO
+                        <span class="material-symbols-outlined text-sm">warning</span> RUPTURA FUTURA
                     </span>
                     <div class="flex items-center gap-2">
                         <span class="text-4xl font-black ${futuro > 0 ? 'text-primary' : 'text-gray-400'}">
@@ -329,7 +329,7 @@
                 </div>
                 
                 <div class="flex flex-col items-start mt-2">
-                    <span class="text-xs font-bold text-gray-400 uppercase mb-1">Ruptura ATUAL (Total)</span>
+                    <span class="text-xs font-bold text-gray-400 uppercase mb-1">Ruptura Atual</span>
                     <span class="text-2xl font-bold ${mainColorClass}">${total}</span>
                 </div>
             `;
@@ -368,3 +368,4 @@
     </script>
 </body>
 </html>
+
