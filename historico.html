@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Histórico de Rupturas - Vilarejo</title>
-    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <title>Histórico - Vilarejo Monitor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
@@ -15,17 +15,20 @@
             theme: { extend: { colors: { "primary": "#E30613", "sheets-green": "#1ea362", "background-dark": "#121212", "blue-custom": "#3B82F6", "gray-custom": "#6B7280" } } }
         }
     </script>
+    <style>
+        body { font-family: 'Roboto', sans-serif; }
+    </style>
 </head>
-<body class="bg-gray-100 font-['Spline_Sans'] antialiased">
+<body class="bg-gray-100 antialiased">
     <div class="flex h-screen overflow-hidden">
         <aside class="w-64 bg-white border-r border-gray-200 p-6 flex flex-col justify-between hidden md:flex">
             <div>
-                <div class="flex items-center gap-3 mb-10">
-                    <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold">V</div>
-                    <span class="text-xl font-bold">Vilarejo<span class="text-primary">Monitor</span></span>
+                <div class="flex items-center gap-3 mb-10 pb-4 border-b border-gray-100">
+                    <img src="https://vilarejoacabamentos.com.br/wp-content/themes/vilarejo/img/logo.svg" alt="Logo Vilarejo" class="h-8"/>
+                    <span class="text-xl font-bold">Monitor</span>
                 </div>
                 <nav class="space-y-2">
-                    <a href="dashboard.html" class="flex items-center gap-3 p-3 text-gray-500 hover:bg-gray-100 rounded-lg font-medium">
+                    <a href="dashboard.html" class="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg font-medium">
                         <span class="material-symbols-outlined">analytics</span> Rupturas
                     </a>
                     <a href="historico.html" class="flex items-center gap-3 p-3 bg-primary text-white rounded-lg font-medium shadow-md">
@@ -33,7 +36,7 @@
                     </a>
                 </nav>
             </div>
-            <button onclick="window.location.href='index.html'" class="flex items-center gap-3 p-3 text-gray-500 hover:text-red-600 transition-colors">
+            <button onclick="window.location.href='index.html'" class="flex items-center gap-3 p-3 text-gray-500 hover:text-red-600 transition-colors border-t pt-4">
                 <span class="material-symbols-outlined">logout</span> Sair
             </button>
         </aside>
@@ -41,7 +44,7 @@
         <main class="flex-1 overflow-y-auto p-6 lg:p-10">
             <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 border-b pb-6">
                 <div>
-                    <h1 class="text-3xl font-black">Histórico de Rupturas (Banco de Dados)</h1>
+                    <h1 class="text-3xl font-black">Histórico de Rupturas</h1>
                     <div class="flex items-center gap-2 text-gray-500 text-sm mt-1">
                         <span class="relative flex h-2 w-2">
                             <span class="relative rounded-full h-2 w-2 bg-blue-500"></span>
@@ -50,7 +53,7 @@
                     </div>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="carregarDados()" class="flex items-center gap-2 px-4 py-2 bg-white border rounded-lg font-bold text-sm hover:bg-gray-50">
+                    <button onclick="carregarDados()" class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg font-bold text-sm text-gray-700 hover:bg-gray-50">
                         <span class="material-symbols-outlined text-sm">refresh</span> Recarregar Histórico
                     </button>
                 </div>
@@ -59,41 +62,24 @@
             <div class="mb-8 flex items-center gap-4">
                 <label class="font-bold text-gray-700">Visualizar Categoria:</label>
                 <select id="hbtSelector" onchange="mudarGrafico()" class="border-gray-300 rounded-lg text-lg px-4 py-2 font-bold">
-                    <option value="H">Item H (Alto)</option>
-                    <option value="B">Item B (Médio)</option>
-                    <option value="TH">Item TH (Baixo)</option>
-                </select>
+                    <option value="H">Item H</option> <option value="B">Item B</option> <option value="TH">Item TH</option> </select>
             </div>
 
             <div class="bg-white rounded-xl border shadow-lg p-6 mb-10">
-                <h3 class="font-bold text-xl mb-4" id="chartTitle">Tendência Mensal - Item H</h3>
+                <h3 class="font-black text-2xl mb-4 text-gray-800" id="chartTitle">Tendência Mensal - Item H</h3>
                 <div class="relative h-96 w-full">
                     <canvas id="historicoChart"></canvas>
                 </div>
             </div>
-
-            <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
-                <div class="p-6 border-b">
-                    <h3 class="font-bold text-lg">Dados Brutos do Histórico</h3>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm" id="tabelaHistorico">
-                        <thead class="bg-gray-50 border-b" id="tabelaHistoricoHead">
-                            </thead>
-                        <tbody class="divide-y divide-gray-100" id="tabelaHistoricoBody">
-                            </tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
+            
+            </main>
     </div>
 
     <script>
-        // Use o mesmo link do CSV, pois o PapaParse lê a planilha inteira. 
-        // Se o "Banco de Dados" estiver em outra planilha, o link CSV tem que ser o dela!
-        // IMPORTANTE: Se o "Banco de Dados" for uma ABA na mesma planilha, o link PUBLICADO CSV é o mesmo.
-const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?gid=291718870&single=true&output=csv';        let historicoChart;
-        let dadosHistorico = {}; // Objeto para armazenar e facilitar a troca de H, B, TH
+        // O link DEVE conter o GID da aba "banco de dados"
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?gid=291718870&single=true&output=csv';
+        let historicoChart;
+        let dadosHistorico = {}; 
 
         const itemColors = {
             'H': { atual: 'rgba(227, 6, 19, 1)', futuro: 'rgba(227, 6, 19, 0.4)' },
@@ -111,77 +97,50 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00g
                 },
                 error: function(error) {
                     console.error("Erro ao carregar histórico:", error);
-                    document.getElementById('lastUpdate').innerText = "Erro ao carregar dados do histórico.";
+                    document.getElementById('lastUpdate').innerText = "Erro ao carregar dados do histórico. Verifique o GID no CSV_URL.";
                 }
             });
         }
 
         function processarHistorico(dados) {
             
-            // Reorganizar os dados para o gráfico e para a tabela
             const labels = [];
             const dataH = { atual: [], futuro: [] };
             const dataB = { atual: [], futuro: [] };
             const dataTH = { atual: [], futuro: [] };
             
-            const dadosTabela = [];
+            // Colunas de histórico
+            const cols = {
+                'H': { atual: 'Romp.Atual (H)', futuro: 'Romp.Futuro (H)' },
+                'B': { atual: 'Romp.Atual (B)', futuro: 'Romp.Futuro (B)' },
+                'TH': { atual: 'Romp.Atual (TH)', futuro: 'Romp.Futuro (TH)' }
+            };
+
 
             dados.forEach(item => {
-                // A data (coluna A) será o label do gráfico
                 if (item['Data']) {
                     labels.push(item['Data']);
                     
-                    // Dados para o Histórico (Gráficos)
-                    dataH.atual.push(parseInt(item['Romp.Atual (H)']) || 0);
-                    dataH.futuro.push(parseInt(item['Romp.Futuro (H)']) || 0);
+                    dataH.atual.push(parseInt(item[cols.H.atual]) || 0);
+                    dataH.futuro.push(parseInt(item[cols.H.futuro]) || 0);
                     
-                    dataB.atual.push(parseInt(item['Romp.Atual (B)']) || 0);
-                    dataB.futuro.push(parseInt(item['Romp.Futuro (B)']) || 0);
+                    dataB.atual.push(parseInt(item[cols.B.atual]) || 0);
+                    dataB.futuro.push(parseInt(item[cols.B.futuro]) || 0);
                     
-                    dataTH.atual.push(parseInt(item['Romp.Atual (TH)']) || 0);
-                    dataTH.futuro.push(parseInt(item['Romp.Futuro (TH)']) || 0);
-
-                    // Dados para a Tabela
-                    dadosTabela.push(item);
+                    dataTH.atual.push(parseInt(item[cols.TH.atual]) || 0);
+                    dataTH.futuro.push(parseInt(item[cols.TH.futuro]) || 0);
                 }
             });
             
-            // Armazena no objeto global para fácil acesso
             dadosHistorico = {
                 labels: labels,
                 H: dataH,
                 B: dataB,
                 TH: dataTH,
-                tabela: dadosTabela
             };
 
-            // 1. Desenhar o gráfico inicial (H)
             mudarGrafico();
-            
-            // 2. Preencher a Tabela de Dados Brutos
-            preencherTabelaHistorico(dadosHistorico.tabela);
-
             document.getElementById('lastUpdate').innerText = `Última atualização: ${new Date().toLocaleTimeString()}`;
-        }
-
-        function preencherTabelaHistorico(data) {
-            const thead = document.getElementById('tabelaHistoricoHead');
-            const tbody = document.getElementById('tabelaHistoricoBody');
-            tbody.innerHTML = '';
-            
-            if (data.length === 0) return;
-            
-            // Pega os cabeçalhos da primeira linha de dados
-            const headers = Object.keys(data[0]);
-            
-            // Cria o cabeçalho da tabela
-            thead.innerHTML = '<tr>' + headers.map(h => `<th class="px-6 py-3 font-bold text-xs uppercase">${h}</th>`).join('') + '</tr>';
-            
-            // Preenche o corpo da tabela
-            data.reverse().forEach(row => { // Mostra as datas mais recentes primeiro
-                const cells = headers.map(h => `<td class="px-6 py-3 text-gray-700">${row[h] || 0}</td>`).join('');
-                tbody.innerHTML += `<tr class="hover:bg-gray-50">${cells}</tr>`;
-            });
         }
         
         function mudarGrafico() {
@@ -189,12 +148,13 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00g
             const hbt = selector.value;
             const data = dadosHistorico[hbt];
 
-            if (!data || !dadosHistorico.labels.length) {
+            if (!data || !dadosHistorico.labels || dadosHistorico.labels.length === 0) {
                 if (historicoChart) historicoChart.destroy();
+                document.getElementById('chartTitle').innerText = `Tendência Mensal - Item ${hbt} (Sem Dados)`;
                 return;
             }
 
-            document.getElementById('chartTitle').innerText = `Tendência Mensal - Item ${hbt} (${hbt === 'H' ? 'Alto' : hbt === 'B' ? 'Médio' : 'Baixo'})`;
+            document.getElementById('chartTitle').innerText = `Tendência Mensal - Item ${hbt}`;
 
             const chartData = {
                 labels: dadosHistorico.labels,
@@ -205,7 +165,8 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00g
                         borderColor: itemColors[hbt].atual,
                         backgroundColor: itemColors[hbt].atual,
                         tension: 0.3,
-                        borderWidth: 2,
+                        borderWidth: 3,
+                        pointRadius: 5,
                         fill: false
                     },
                     {
@@ -214,8 +175,9 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00g
                         borderColor: itemColors[hbt].futuro,
                         backgroundColor: itemColors[hbt].futuro,
                         tension: 0.3,
-                        borderWidth: 2,
-                        borderDash: [5, 5], // Linha tracejada
+                        borderWidth: 3,
+                        borderDash: [8, 4], // Linha tracejada mais destacada
+                        pointRadius: 5,
                         fill: false
                     }
                 ]
@@ -249,7 +211,6 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00g
             historicoChart = new Chart(document.getElementById('historicoChart'), chartConfig);
         }
 
-        // Iniciar
         carregarDados();
     </script>
 </body>
