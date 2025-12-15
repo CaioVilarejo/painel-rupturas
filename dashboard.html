@@ -3,21 +3,21 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Painel de Rupturas - Vilarejo</title>
-    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <title>Rupturas - Vilarejo Monitor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
 
-    <script>
+<script>
         tailwind.config = {
             darkMode: "class",
             theme: { extend: { colors: { "primary": "#E30613", "sheets-green": "#1ea362", "background-dark": "#121212", "blue-custom": "#3B82F6", "gray-custom": "#6B7280" } } }
         }
     </script>
     <style>
-        /* Estilos para o efeito de ping no ícone de alerta */
+        body { font-family: 'Roboto', sans-serif; }
         .ping-animation {
             animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
         }
@@ -26,24 +26,24 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 font-['Spline_Sans'] antialiased">
+<body class="bg-gray-100 antialiased">
     <div class="flex h-screen overflow-hidden">
         <aside class="w-64 bg-white border-r border-gray-200 p-6 flex flex-col justify-between hidden md:flex">
             <div>
-                <div class="flex items-center gap-3 mb-10">
-                    <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold">V</div>
-                    <span class="text-xl font-bold">Vilarejo<span class="text-primary">Monitor</span></span>
+                <div class="flex items-center gap-3 mb-10 pb-4 border-b border-gray-100">
+                    <img src="https://vilarejoacabamentos.com.br/wp-content/themes/vilarejo/img/logo.svg" alt="Logo Vilarejo" class="h-8"/>
+                    <span class="text-xl font-bold">Monitor</span>
                 </div>
                 <nav class="space-y-2">
-    <a href="dashboard.html" class="flex items-center gap-3 p-3 bg-primary text-white rounded-lg font-medium shadow-md">
-        <span class="material-symbols-outlined">analytics</span> Rupturas
-    </a>
-    <a href="historico.html" class="flex items-center gap-3 p-3 text-gray-500 hover:bg-gray-100 rounded-lg font-medium">
-        <span class="material-symbols-outlined">timeline</span> Histórico
-    </a>
-</nav>
+                    <a href="dashboard.html" class="flex items-center gap-3 p-3 bg-primary text-white rounded-lg font-medium shadow-md">
+                        <span class="material-symbols-outlined">analytics</span> Rupturas
+                    </a>
+                    <a href="historico.html" class="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg font-medium">
+                        <span class="material-symbols-outlined">timeline</span> Histórico
+                    </a>
+                </nav>
             </div>
-            <button onclick="window.location.href='index.html'" class="flex items-center gap-3 p-3 text-gray-500 hover:text-red-600 transition-colors">
+            <button onclick="window.location.href='index.html'" class="flex items-center gap-3 p-3 text-gray-500 hover:text-red-600 transition-colors border-t pt-4">
                 <span class="material-symbols-outlined">logout</span> Sair
             </button>
         </aside>
@@ -61,42 +61,33 @@
                     </div>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="carregarDados()" class="flex items-center gap-2 px-4 py-2 bg-white border rounded-lg font-bold text-sm hover:bg-gray-50">
+                    <button onclick="carregarDados()" class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg font-bold text-sm text-gray-700 hover:bg-gray-50">
                         <span class="material-symbols-outlined text-sm">refresh</span> Sincronizar
                     </button>
                 </div>
             </header>
 
-            <div id="alertaRuptura" class="hidden mb-8 bg-white border-l-4 border-primary p-4 rounded-lg shadow-sm flex items-center justify-between animate-pulse">
+            <div id="alertaRuptura" class="hidden mb-8 bg-primary/10 border-l-4 border-primary p-4 rounded-lg shadow-sm flex items-center justify-between animate-pulse">
                 <div class="flex items-center gap-4">
-                    <span class="material-symbols-outlined text-primary text-2xl">error</span>
+                    <span class="material-symbols-outlined text-primary text-3xl">error_circle</span>
                     <div>
-                        <p class="font-bold text-lg text-primary">ALERTA CRÍTICO: Rupturas Futuras!</p>
-                        <p class="text-sm text-gray-600"></p>
+                        <p class="font-black text-xl text-primary">ALERTA CRÍTICO: Rupturas Futuras!</p>
+                        <p class="text-base text-gray-700"></p> 
                     </div>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                <div class="bg-white p-6 rounded-xl border shadow-sm flex flex-col justify-between">
-                    <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase">Rupturas Atuais</p>
-                        <h3 class="text-xl font-bold">Item H</h3>
-                    </div>
+                <div class="bg-white p-6 rounded-xl border shadow-lg flex flex-col justify-between">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Item H</h3>
                     <div id="countH" class="text-4xl font-black text-primary mt-2"></div>
                 </div>
-                <div class="bg-white p-6 rounded-xl border shadow-sm flex flex-col justify-between">
-                    <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase">Rupturas Atuais</p>
-                        <h3 class="text-xl font-bold">Item B</h3>
-                    </div>
+                <div class="bg-white p-6 rounded-xl border shadow-lg flex flex-col justify-between">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Item B</h3>
                     <div id="countB" class="text-4xl font-black text-blue-custom mt-2"></div>
                 </div>
-                <div class="bg-white p-6 rounded-xl border shadow-sm flex flex-col justify-between">
-                    <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase">Rupturas Atuais</p>
-                        <h3 class="text-xl font-bold">Item TH</h3>
-                    </div>
+                <div class="bg-white p-6 rounded-xl border shadow-lg flex flex-col justify-between">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Item TH</h3>
                     <div id="countTH" class="text-4xl font-black text-gray-custom mt-2"></div>
                 </div>
             </div>
@@ -113,17 +104,17 @@
                     <h3 class="font-bold text-lg w-full md:w-auto">Detalhe dos Itens em Ruptura</h3>
                     
                     <div class="flex gap-4 w-full md:w-auto flex-wrap">
-                        <select id="groupFilter" onchange="aplicarFiltros()" class="border-gray-200 rounded-lg text-sm px-4 py-2">
+                        <select id="groupFilter" onchange="aplicarFiltros()" class="border-gray-300 rounded-lg text-sm px-4 py-2">
                             <option value="todos">Filtrar por Grupo (Todos)</option>
                             </select>
                         
-                        <select id="statusFilter" onchange="aplicarFiltros()" class="border-gray-200 rounded-lg text-sm px-4 py-2">
+                        <select id="statusFilter" onchange="aplicarFiltros()" class="border-gray-300 rounded-lg text-sm px-4 py-2">
                             <option value="todos">Status (Atual e Futuro)</option>
                             <option value="atual">Somente Ruptura Atual</option>
                             <option value="futuro">Somente Ruptura Futura (Críticos)</option>
                         </select>
 
-                        <input type="text" id="searchInput" onkeyup="aplicarFiltros()" placeholder="Buscar produto ou código..." class="border-gray-200 rounded-lg text-sm w-full md:w-48 px-4 py-2">
+                        <input type="text" id="searchInput" onkeyup="aplicarFiltros()" placeholder="Buscar produto ou código..." class="border-gray-300 rounded-lg text-sm w-full md:w-48 px-4 py-2">
                     </div>
                 </div>
                 <div class="overflow-x-auto">
@@ -133,7 +124,8 @@
                                 <th class="px-6 py-4 font-bold">Descrição do Produto</th>
                                 <th class="px-6 py-4 font-bold">Código</th>
                                 <th class="px-6 py-4 font-bold">Classificação</th>
-                                <th class="px-6 py-4 font-bold">Grupo</th> <th class="px-6 py-4 font-bold">Estoque Total</th>
+                                <th class="px-6 py-4 font-bold">Grupo</th> 
+                                <th class="px-6 py-4 font-bold">Estoque Total</th>
                                 <th class="px-6 py-4 font-bold">Pedido</th>
                                 <th class="px-6 py-4 font-bold text-right">Sugestão Compra</th>
                             </tr>
@@ -142,7 +134,7 @@
                             </tbody>
                     </table>
                 </div>
-                <div class="p-4 bg-gray-50 text-xs text-gray-500" id="tableFooter">
+                <div class="p-4 bg-gray-100 text-xs text-gray-500 font-medium" id="tableFooter">
                     Carregando dados...
                 </div>
             </div>
@@ -150,9 +142,9 @@
     </div>
 
     <script>
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?gid=0&single=true&output=csv';
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?output=csv';
         let rupturaChart;
-        let todosItensRompidos = []; // Armazena a lista inicial de itens rompidos
+        let todosItensRompidos = []; 
 
         const itemColors = {
             'H': '#E30613',
@@ -160,7 +152,6 @@
             'TH': '#6B7280'
         };
 
-        // Função auxiliar para verificar se o status é de ruptura
         function isRompido(status) {
             if (!status) return false;
             return status.trim().toUpperCase() === 'ROMPIDO';
@@ -184,13 +175,13 @@
 
         function popularFiltrosGrupo(dados) {
             const filter = document.getElementById('groupFilter');
-            filter.innerHTML = '<option value="todos">Filtrar por Grupo (Todos)</option>'; // Resetar
+            filter.innerHTML = '<option value="todos">Filtrar por Grupo (Todos)</option>'; 
             
             const gruposUnicos = [...new Set(dados.map(item => (item['Grupo'] || 'Sem Grupo').trim()))].sort();
             
             gruposUnicos.forEach(grupo => {
                 const option = document.createElement('option');
-                option.value = grupo;
+                option.value = grupo.toLowerCase(); // Armazena em minúsculo para filtro
                 option.textContent = grupo;
                 filter.appendChild(option);
             });
@@ -198,14 +189,15 @@
 
         function preencherTabela(dadosOrdenados) {
             const tbody = document.querySelector('#tabelaDados tbody');
-            tbody.innerHTML = ''; // Limpa a tabela
+            tbody.innerHTML = ''; 
             
             let htmlContent = '';
 
             dadosOrdenados.forEach(item => {
                 const ehCritico = isRompido(item['Romp.Futuro']);
+                // Visual Aprimorado para Ruptura Futura
                 const rowClass = ehCritico 
-                    ? "bg-red-50/50 hover:bg-red-100 transition-colors border-l-4 border-primary"
+                    ? "bg-primary/5 hover:bg-primary/10 transition-colors border-l-4 border-primary shadow-sm"
                     : "hover:bg-gray-50 transition-colors";
                 
                 const pedidoValue = (item['Pedido'] === '0' || !item['Pedido']) ? 'N/A' : item['Pedido'];
@@ -230,7 +222,8 @@
                             <span class="inline-block w-3 h-3 rounded-full mr-2" style="background-color: ${corHBT};"></span>
                             ${hbt}
                         </td>
-                        <td class="px-6 py-4 text-gray-700 font-medium">${grupoValue}</td> <td class="px-6 py-4">${item['Estoque Total'] || '0'}</td>
+                        <td class="px-6 py-4 text-gray-700 font-medium">${grupoValue}</td> 
+                        <td class="px-6 py-4">${item['Estoque Total'] || '0'}</td>
                         <td class="px-6 py-4">${pedidoValue}</td>
                         <td class="px-6 py-4 text-right">
                             <div class="flex flex-col items-end">
@@ -247,11 +240,8 @@
         function processarPlanilha(dados) {
             
             const rompidos = dados.filter(item => isRompido(item['Romp.Atual']));
-            
-            // Armazena a lista completa de rompidos
             todosItensRompidos = rompidos;
 
-            // 1. Contagens para os Cards e Gráfico
             const rompidosH = rompidos.filter(i => i['HBT'].trim() === 'H');
             const rompidosB = rompidos.filter(i => i['HBT'].trim() === 'B');
             const rompidosTH = rompidos.filter(i => i['HBT'].trim() === 'TH');
@@ -260,36 +250,33 @@
             const futurosB = rompidosB.filter(i => isRompido(i['Romp.Futuro'])).length;
             const futurosTH = rompidosTH.filter(i => isRompido(i['Romp.Futuro'])).length;
 
-            // 2. Atualizar os Cards Principais
             atualizarCard('countH', rompidosH.length, futurosH);
             atualizarCard('countB', rompidosB.length, futurosB);
             atualizarCard('countTH', rompidosTH.length, futurosTH);
 
-            // 3. Alerta Geral
+            // Alerta Geral
             const totalFuturoGeral = futurosH + futurosB + futurosTH;
             const alertaDiv = document.getElementById('alertaRuptura');
             if (totalFuturoGeral > 0) {
                 alertaDiv.style.display = 'flex';
-                alertaDiv.querySelector('p.text-sm').innerText = `Existem ${totalFuturoGeral} itens críticos que continuarão rompidos por falta de pedido.`;
+                alertaDiv.querySelector('p.text-base').innerText = `Existem ${totalFuturoGeral} itens críticos que continuarão rompidos por falta de pedido.`;
             } else {
                 alertaDiv.style.display = 'none';
             }
 
-            // 4. Desenhar o Gráfico de Barras
+            // Gráfico
             const rupturaData = {
                 labels: ['Item H', 'Item B', 'Item TH'],
                 datasets: [{
                     label: 'Rompidos Atualmente',
                     data: [rompidosH.length, rompidosB.length, rompidosTH.length],
                     backgroundColor: [itemColors['H'], itemColors['B'], itemColors['TH']],
-                    borderColor: [itemColors['H'], itemColors['B'], itemColors['TH']],
                     borderWidth: 1
                 },
                 {
                     label: 'Ruptura Futura (Críticos)',
                     data: [futurosH, futurosB, futurosTH],
                     backgroundColor: ['#e3061380', '#3b82f680', '#6b728080'],
-                    borderColor: [itemColors['H'], itemColors['B'], itemColors['TH']],
                     borderWidth: 1
                 }]
             };
@@ -307,7 +294,7 @@
             if (rupturaChart) { rupturaChart.destroy(); }
             rupturaChart = new Chart(document.getElementById('rupturaChart'), chartConfig);
 
-            // 5. Ordenar dados: Ruptura Futura primeiro
+            // Tabela
             const dadosOrdenados = rompidos.sort((a, b) => {
                 const aCritico = isRompido(a['Romp.Futuro']);
                 const bCritico = isRompido(b['Romp.Futuro']);
@@ -316,40 +303,55 @@
                 return 0;
             });
             
-            // 6. Popular o filtro de Grupos com base em todos os dados
             popularFiltrosGrupo(dados);
-
-            // 7. Preencher a Tabela com a lista completa de rompidos (para depois aplicar os filtros)
             preencherTabela(dadosOrdenados);
-
-            // 8. Aplica os filtros e atualiza o rodapé
             aplicarFiltros(); 
             
             document.getElementById('lastUpdate').innerText = `Sincronizado: ${new Date().toLocaleTimeString()} • Próxima: ${new Date(new Date().getTime() + 300000).toLocaleTimeString()}`;
         }
 
-        // Função que aplica TODOS os filtros (Busca, Grupo, Status)
+        // NOVO DESIGN DE CARD PARA DAR DESTAQUE À RUPTURA FUTURA
+        function atualizarCard(id, total, futuro) {
+            const elemento = document.getElementById(id);
+            const mainColorClass = id === 'countH' ? 'text-primary' : id === 'countB' ? 'text-blue-custom' : 'text-gray-custom';
+
+            elemento.innerHTML = `
+                <div class="flex flex-col items-start pb-3 border-b-2 border-gray-100 mb-2">
+                    <span class="text-xs font-bold text-primary uppercase mb-1 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">emergency</span> ALVO CRÍTICO
+                    </span>
+                    <div class="flex items-center gap-2">
+                        <span class="text-4xl font-black ${futuro > 0 ? 'text-primary' : 'text-gray-400'}">
+                            ${futuro}
+                        </span>
+                        ${futuro > 0 ? `<span class="material-symbols-outlined text-xl text-primary ping-animation">priority_high</span>` : ''}
+                    </div>
+                </div>
+                
+                <div class="flex flex-col items-start mt-2">
+                    <span class="text-xs font-bold text-gray-400 uppercase mb-1">Ruptura ATUAL (Total)</span>
+                    <span class="text-2xl font-bold ${mainColorClass}">${total}</span>
+                </div>
+            `;
+        }
+
         function aplicarFiltros() {
             const searchInput = document.getElementById('searchInput').value.toUpperCase();
             const groupFilter = document.getElementById('groupFilter').value.toLowerCase();
-            const statusFilter = document.getElementById('statusFilter').value; // 'todos', 'atual', 'futuro'
+            const statusFilter = document.getElementById('statusFilter').value;
             const trs = document.querySelectorAll('#tabelaDados tbody tr');
             let visibleCount = 0;
 
             trs.forEach(tr => {
-                // 1. Filtragem por Grupo
                 const grupoDaLinha = tr.getAttribute('data-grupo');
                 const matchGrupo = (groupFilter === 'todos' || grupoDaLinha === groupFilter);
 
-                // 2. Filtragem por Status
-                const statusDaLinha = tr.getAttribute('data-status'); // 'atual' ou 'futuro'
+                const statusDaLinha = tr.getAttribute('data-status');
                 const matchStatus = (statusFilter === 'todos' || statusDaLinha === statusFilter);
 
-                // 3. Filtragem por Busca de Texto (usa o atributo data-search que criamos no preencherTabela)
                 const searchData = tr.getAttribute('data-search');
                 const matchSearch = searchData.includes(searchInput);
 
-                // 4. Mostrar/Esconder
                 if (matchGrupo && matchStatus && matchSearch) {
                     tr.style.display = '';
                     visibleCount++;
@@ -361,32 +363,8 @@
             document.getElementById('tableFooter').innerText = `Exibindo ${visibleCount} itens que atendem aos filtros. Total de itens com ruptura atual: ${todosItensRompidos.length}`;
         }
 
-
-        // ... A função atualizarCard e as chamadas iniciais permanecem as mesmas ...
-
-        // Função auxiliar para atualizar o card com sub-indicador de ruptura futura
-        function atualizarCard(id, total, futuro) {
-            const elemento = document.getElementById(id);
-            elemento.innerHTML = `
-                ${total}
-                <div class="text-sm font-semibold mt-2 flex items-center gap-1 ${futuro > 0 ? 'text-primary' : 'text-gray-500'}">
-                    ${futuro > 0 
-                        ? `<span class="material-symbols-outlined text-base ping-animation">priority_high</span>` 
-                        : `<span class="material-symbols-outlined text-base">check_circle</span>`}
-                    ${futuro} sem pedido (Futuro)
-                </div>
-            `;
-            if (id === 'countH') elemento.classList.add('text-primary');
-            else if (id === 'countB') elemento.classList.add('text-blue-custom');
-            else if (id === 'countTH') elemento.classList.add('text-gray-custom');
-        }
-
-        // Iniciar carregamento de dados
         carregarDados();
-        // Sincronizar automaticamente a cada 5 minutos (300000 ms)
         setInterval(carregarDados, 300000);
     </script>
 </body>
 </html>
-
-
