@@ -24,7 +24,7 @@
         <aside class="w-64 bg-white border-r border-gray-200 p-6 flex flex-col justify-between hidden md:flex">
             <div>
                 <div class="flex items-center gap-3 mb-10 pb-4 border-b border-gray-100">
-                    <img src="https://vilarejoacabamentos.com.br/wp-content/themes/vilarejo/img/logo.svg" alt="Logo Vilarejo" class="h-8"/>
+                    <img src="https://i.ibb.co/tPcWfmjT/VI-logo-novo-sem-fundo.png" alt="Logo Vilarejo" class="h-8 w-auto object-contain"/>
                     <span class="text-xl font-bold">Monitor</span>
                 </div>
                 <nav class="space-y-2">
@@ -62,7 +62,10 @@
             <div class="mb-8 flex items-center gap-4">
                 <label class="font-bold text-gray-700">Visualizar Categoria:</label>
                 <select id="hbtSelector" onchange="mudarGrafico()" class="border-gray-300 rounded-lg text-lg px-4 py-2 font-bold">
-                    <option value="H">Item H</option> <option value="B">Item B</option> <option value="TH">Item TH</option> </select>
+                    <option value="H">Item H</option>
+                    <option value="B">Item B</option>
+                    <option value="TH">Item TH</option>
+                </select>
             </div>
 
             <div class="bg-white rounded-xl border shadow-lg p-6 mb-10">
@@ -72,11 +75,10 @@
                 </div>
             </div>
             
-            </main>
+        </main>
     </div>
 
     <script>
-        // O link DEVE conter o GID da aba "banco de dados"
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?gid=291718870&single=true&output=csv';
         let historicoChart;
         let dadosHistorico = {}; 
@@ -109,7 +111,6 @@
             const dataB = { atual: [], futuro: [] };
             const dataTH = { atual: [], futuro: [] };
             
-            // Colunas de histórico
             const cols = {
                 'H': { atual: 'Romp.Atual (H)', futuro: 'Romp.Futuro (H)' },
                 'B': { atual: 'Romp.Atual (B)', futuro: 'Romp.Futuro (B)' },
@@ -176,7 +177,7 @@
                         backgroundColor: itemColors[hbt].futuro,
                         tension: 0.3,
                         borderWidth: 3,
-                        borderDash: [8, 4], // Linha tracejada mais destacada
+                        borderDash: [8, 4], 
                         pointRadius: 5,
                         fill: false
                     }
