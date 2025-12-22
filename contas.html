@@ -17,8 +17,11 @@
     <style>
         body { font-family: 'Roboto', sans-serif; }
         .truncate-custom { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        /* Coluna Fornecedor ajustada: Maior e com quebra de linha */
-        .col-fornecedor { width: 220px; min-width: 220px; word-break: break-word; }
+        
+        /* Ajustes de Largura das Colunas */
+        .col-fornecedor { width: 180px; min-width: 180px; max-width: 180px; word-break: break-word; }
+        .col-saldo { width: 115px; min-width: 115px; white-space: nowrap; }
+        .col-texto-curto { width: 130px; min-width: 130px; max-width: 130px; }
     </style>
 </head>
 <body class="bg-gray-100 antialiased">
@@ -49,37 +52,31 @@
         <main class="flex-1 overflow-y-auto p-6 lg:p-10">
             <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 border-b pb-6">
                 <div>
-                    <h1 class="text-3xl font-black">Controle de Contas</h1>
-                    <p class="text-gray-500 text-sm mt-1" id="lastUpdate">Sincronizando com a aba Contas...</p>
+                    <h1 class="text-3xl font-black text-gray-800">Controle de Contas</h1>
+                    <p class="text-gray-500 text-sm mt-1" id="lastUpdate">Sincronizando...</p>
                 </div>
             </header>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="bg-white p-6 rounded-xl border-l-8 border-primary shadow-sm">
-                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Saldo Total Filtrado</h3>
-                    <div id="totalSaldoCard" class="text-3xl font-black text-gray-900">R$ 0,00</div>
-                    <p class="text-[10px] text-gray-400 mt-2 font-medium" id="itemsCount">Processando itens...</p>
+                    <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Saldo Total Filtrado</h3>
+                    <div id="totalSaldoCard" class="text-3xl font-black text-gray-900 leading-none">R$ 0,00</div>
+                    <p class="text-[10px] text-gray-400 mt-2 font-medium" id="itemsCount">Aguardando dados...</p>
                 </div>
             </div>
 
             <div class="bg-white p-4 rounded-xl border shadow-sm mb-6 flex flex-wrap gap-4">
-                <div class="flex-1 min-w-[180px]">
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Fornecedor</label>
-                    <select id="filterD" onchange="aplicarFiltros()" class="w-full border-gray-300 rounded-lg text-xs">
-                        <option value="todos">Todos</option>
-                    </select>
+                <div class="flex-1 min-w-[160px]">
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 tracking-tighter">Fornecedor</label>
+                    <select id="filterD" onchange="aplicarFiltros()" class="w-full border-gray-300 rounded-lg text-xs"></select>
                 </div>
-                <div class="flex-1 min-w-[180px]">
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Grupo</label>
-                    <select id="filterE" onchange="aplicarFiltros()" class="w-full border-gray-300 rounded-lg text-xs">
-                        <option value="todos">Todos</option>
-                    </select>
+                <div class="flex-1 min-w-[160px]">
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 tracking-tighter">Grupo</label>
+                    <select id="filterE" onchange="aplicarFiltros()" class="w-full border-gray-300 rounded-lg text-xs"></select>
                 </div>
-                <div class="flex-1 min-w-[180px]">
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Responsável</label>
-                    <select id="filterF" onchange="aplicarFiltros()" class="w-full border-gray-300 rounded-lg text-xs">
-                        <option value="todos">Todos</option>
-                    </select>
+                <div class="flex-1 min-w-[160px]">
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 tracking-tighter">Responsável</label>
+                    <select id="filterF" onchange="aplicarFiltros()" class="w-full border-gray-300 rounded-lg text-xs"></select>
                 </div>
             </div>
 
@@ -88,18 +85,17 @@
                     <table class="w-full text-left text-sm" id="tabelaContas">
                         <thead class="bg-gray-50 border-b text-gray-700">
                             <tr>
-                                <th class="px-4 py-3 font-bold uppercase text-[10px]">Data Solicit.</th>
-                                <th class="px-4 py-3 font-bold uppercase text-[10px]">Status / Operação</th>
-                                <th class="px-4 py-3 font-bold uppercase text-[10px] col-fornecedor">Fornecedor / Grupo</th>
-                                <th class="px-4 py-3 font-bold uppercase text-[10px]">Observação (H)</th>
-                                <th class="px-4 py-3 font-bold uppercase text-[10px]">Saldo (R$)</th>
-                                <th class="px-4 py-3 font-bold uppercase text-[10px]">Descrição (L)</th>
-                                <th class="px-4 py-3 font-bold uppercase text-[10px]">Comentário (M)</th>
-                                <th class="px-4 py-3 font-bold uppercase text-[10px]">Controle (N)</th>
+                                <th class="px-3 py-3 font-bold uppercase text-[9px]">Data Sol.</th>
+                                <th class="px-3 py-3 font-bold uppercase text-[9px]">Status/Op.</th>
+                                <th class="px-3 py-3 font-bold uppercase text-[9px] col-fornecedor">Fornecedor / Grupo</th>
+                                <th class="px-3 py-3 font-bold uppercase text-[9px] col-texto-curto">Observação (H)</th>
+                                <th class="px-3 py-3 font-bold uppercase text-[9px] col-saldo text-center">Saldo (R$)</th>
+                                <th class="px-3 py-3 font-bold uppercase text-[9px]">Descrição (L)</th>
+                                <th class="px-3 py-3 font-bold uppercase text-[9px] col-texto-curto">Comentário (M)</th>
+                                <th class="px-3 py-3 font-bold uppercase text-[9px] text-center">Controle (N)</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            </tbody>
+                        <tbody class="divide-y divide-gray-100"></tbody>
                     </table>
                 </div>
             </div>
@@ -116,7 +112,7 @@
             </div>
             <div id="modalBody" class="p-8 overflow-y-auto text-gray-700 text-base leading-relaxed whitespace-pre-wrap font-medium"></div>
             <div class="p-4 border-t bg-gray-50 text-right">
-                <button onclick="closeModal()" class="bg-gray-200 hover:bg-gray-300 px-6 py-2 rounded-lg font-bold text-xs uppercase transition-colors">Fechar Janela</button>
+                <button onclick="closeModal()" class="bg-gray-200 hover:bg-gray-300 px-6 py-2 rounded-lg font-bold text-xs uppercase transition-colors">Fechar</button>
             </div>
         </div>
     </div>
@@ -136,7 +132,7 @@
                     dadosCompletos = results.data.filter(i => i['Fornecedor'] && i['Fornecedor'].trim() !== "");
                     dadosFiltrados = [...dadosCompletos]; 
                     popularFiltros();
-                    aplicarFiltros(); // Chama o filtro inicial para calcular o card
+                    aplicarFiltros();
                     document.getElementById('lastUpdate').innerText = `Sincronizado: ${new Date().toLocaleTimeString()}`;
                 }
             });
@@ -150,9 +146,7 @@
             const populate = (id, list) => {
                 const el = document.getElementById(id);
                 el.innerHTML = `<option value="todos">Todos</option>`;
-                list.forEach(item => {
-                    if(item) el.innerHTML += `<option value="${item}">${item}</option>`;
-                });
+                list.forEach(item => { if(item) el.innerHTML += `<option value="${item}">${item}</option>`; });
             };
 
             populate('filterD', suppliers);
@@ -160,7 +154,6 @@
             populate('filterF', buyers);
         }
 
-        // Função para converter "R$ 1.234,56" em número puro (1234.56)
         function parseCurrency(str) {
             if (!str) return 0;
             const cleanValue = str.replace(/[R$\s.]/g, '').replace(',', '.');
@@ -170,22 +163,16 @@
 
         function atualizarResumoFinanceiro(dados) {
             const total = dados.reduce((acc, item) => acc + parseCurrency(item['R$ Total Saldo']), 0);
-            
             document.getElementById('totalSaldoCard').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('itemsCount').innerText = `${dados.length} solicitações encontradas para este filtro.`;
+            document.getElementById('itemsCount').innerText = `${dados.length} solicitações exibidas.`;
         }
 
         function getColorByDate(dateStr) {
             if (!dateStr || dateStr.trim() === "") return 'bg-gray-100 text-gray-400';
             const parts = dateStr.split('/');
-            if(parts.length < 3) return 'bg-gray-100 text-gray-400';
-            
             const dueDate = new Date(parts[2], parts[1] - 1, parts[0]);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-
-            const diffTime = dueDate - today;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const today = new Date(); today.setHours(0,0,0,0);
+            const diffDays = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
 
             if (diffDays < 0) return 'bg-red-600 text-white font-black';
             if (diffDays <= 5) return 'bg-warning text-white font-black';
@@ -194,17 +181,12 @@
 
         function openModalSafe(index, campo) {
             const item = dadosFiltrados[index];
-            const titulo = campo === 'H' ? `Observação - ${item['Fornecedor']}` : `Comentário Comprador`;
-            const texto = campo === 'H' ? item['Observação'] : item['Comentário Comprador'];
-            
-            document.getElementById('modalTitle').innerText = titulo;
-            document.getElementById('modalBody').innerText = texto || 'Nenhuma informação registrada.';
+            document.getElementById('modalTitle').innerText = campo === 'H' ? `Obs - ${item['Fornecedor']}` : `Comentário do Comprador`;
+            document.getElementById('modalBody').innerText = (campo === 'H' ? item['Observação'] : item['Comentário Comprador']) || 'Nenhuma informação.';
             document.getElementById('textModal').classList.remove('hidden');
         }
 
-        function closeModal() {
-            document.getElementById('textModal').classList.add('hidden');
-        }
+        function closeModal() { document.getElementById('textModal').classList.add('hidden'); }
 
         function renderizarTabela(dados) {
             const tbody = document.querySelector('#tabelaContas tbody');
@@ -212,37 +194,34 @@
 
             dados.forEach((item, index) => {
                 const dateClass = getColorByDate(item['Data Definida P/ Controle']);
-                
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-gray-50 transition-colors";
                 tr.innerHTML = `
-                    <td class="px-4 py-4 text-gray-500 text-[11px] font-medium">${item['Data Solicitação'] || ''}</td>
-                    <td class="px-4 py-4">
-                        <span class="block font-bold text-gray-800 text-xs">${item['Operação']}</span>
-                        <span class="text-[9px] uppercase px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded font-bold">${item['Status']}</span>
+                    <td class="px-3 py-4 text-gray-500 text-[10px]">${item['Data Solicitação'] || ''}</td>
+                    <td class="px-3 py-4">
+                        <span class="block font-bold text-gray-800 text-[11px] leading-tight">${item['Operação']}</span>
+                        <span class="text-[8px] uppercase px-1 bg-gray-100 text-gray-400 rounded font-bold">${item['Status']}</span>
                     </td>
-                    <td class="px-4 py-4 col-fornecedor">
+                    <td class="px-3 py-4 col-fornecedor">
                         <span class="block font-black text-blue-custom text-xs">${item['Fornecedor']}</span>
-                        <span class="text-[10px] text-gray-400 italic block">${item['Grupo']}</span>
+                        <span class="text-[9px] text-gray-400 italic block leading-tight">${item['Grupo']}</span>
                     </td>
-                    <td class="px-4 py-4">
-                        <div onclick="openModalSafe(${index}, 'H')" 
-                             class="text-[11px] text-gray-600 truncate-custom cursor-pointer hover:text-primary leading-tight">
+                    <td class="px-3 py-4 col-texto-curto">
+                        <div onclick="openModalSafe(${index}, 'H')" class="text-[10px] text-gray-600 truncate-custom cursor-pointer hover:text-primary leading-tight">
                             ${item['Observação'] || '-'}
                         </div>
                     </td>
-                    <td class="px-4 py-4">
+                    <td class="px-3 py-4 col-saldo text-right">
                         <span class="font-black text-gray-900 text-xs">${item['R$ Total Saldo'] || 'R$ 0,00'}</span>
                     </td>
-                    <td class="px-4 py-4 text-[11px] text-gray-500 leading-tight">${item['Descrição'] || ''}</td>
-                    <td class="px-4 py-4">
-                        <div onclick="openModalSafe(${index}, 'M')" 
-                             class="text-[11px] text-gray-600 truncate-custom cursor-pointer hover:text-primary leading-tight">
+                    <td class="px-3 py-4 text-[10px] text-gray-500 leading-tight">${item['Descrição'] || ''}</td>
+                    <td class="px-3 py-4 col-texto-curto">
+                        <div onclick="openModalSafe(${index}, 'M')" class="text-[10px] text-gray-600 truncate-custom cursor-pointer hover:text-primary leading-tight">
                             ${item['Comentário Comprador'] || '-'}
                         </div>
                     </td>
-                    <td class="px-4 py-4">
-                        <span class="px-2.5 py-1 rounded text-[10px] uppercase tracking-tighter ${dateClass}">
+                    <td class="px-3 py-4 text-center">
+                        <span class="px-2 py-0.5 rounded text-[9px] uppercase font-bold ${dateClass}">
                             ${item['Data Definida P/ Controle'] || 'N/D'}
                         </span>
                     </td>
@@ -257,10 +236,10 @@
             const valF = document.getElementById('filterF').value;
 
             dadosFiltrados = dadosCompletos.filter(i => {
-                const matchD = (valD === 'todos' || i['Fornecedor'] === valD);
-                const matchE = (valE === 'todos' || i['Grupo'] === valE);
-                const matchF = (valF === 'todos' || i['Comprador Responsável'] === valF);
-                return matchD && matchE && matchF;
+                const mD = (valD === 'todos' || i['Fornecedor'] === valD);
+                const mE = (valE === 'todos' || i['Grupo'] === valE);
+                const mF = (valF === 'todos' || i['Comprador Responsável'] === valF);
+                return mD && mE && mF;
             });
 
             renderizarTabela(dadosFiltrados);
