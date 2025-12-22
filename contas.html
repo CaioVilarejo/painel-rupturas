@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html class="light" lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Contas - Vilarejo Monitor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: { extend: { colors: { "primary": "#E30613", "blue-custom": "#3B82F6", "success": "#1ea362", "warning": "#f59e0b" } } }
+        }
+    </script>
+    <style>
+        body { font-family: 'Roboto', sans-serif; }
+        .truncate-custom { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+    </style>
+</head>
+<body class="bg-gray-100 antialiased">
+    <div class="flex h-screen overflow-hidden">
+        <aside class="w-64 bg-white border-r border-gray-200 p-6 flex flex-col justify-between hidden md:flex">
+            <div>
+                <div class="flex items-center gap-3 mb-10 pb-4 border-b border-gray-100">
+                    <img src="https://i.ibb.co/tPcWfmjT/VI-logo-novo-sem-fundo.png" alt="Logo Vilarejo" class="h-8 w-auto object-contain"/>
+                    <span class="text-xl font-bold">Monitor</span>
+                </div>
+                <nav class="space-y-2">
+                    <a href="dashboard.html" class="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg font-medium">
+                        <span class="material-symbols-outlined">analytics</span> Rupturas
+                    </a>
+                    <a href="historico.html" class="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg font-medium">
+                        <span class="material-symbols-outlined">timeline</span> Histórico
+                    </a>
+                    <a href="contas.html" class="flex items-center gap-3 p-3 bg-primary text-white rounded-lg font-medium shadow-md">
+                        <span class="material-symbols-outlined">payments</span> Contas
+                    </a>
+                </nav>
+            </div>
+            <button onclick="window.location.href='index.html'" class="flex items-center gap-3 p-3 text-gray-500 hover:text-red-600 border-t pt-4">
+                <span class="material-symbols-outlined">logout</span> Sair
+            </button>
+        </aside>
+
+        <main class="flex-1 overflow-y-auto p-6 lg:p-10">
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 border-b pb-6">
+                <div>
+                    <h1 class="text-3xl font-black">Controle de Contas</h1>
+                    <p class="text-gray-500 text-sm mt-1" id="lastUpdate">Sincronizando com a aba Contas...</p>
+                </div>
+            </header>
+
+            <div class="bg-white p-4 rounded-xl border shadow-sm mb-6 flex flex-wrap gap-4">
+                <div class="flex-1 min-w-[200px]">
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Fornecedor (D)</label>
+                    <select id="filterD" onchange="aplicarFiltros()" class="w-full border-gray-300 rounded-lg text-sm italic">
+                        <option value="todos">Todos os Fornecedores</option>
+                    </select>
+                </div>
+                <div class="flex-1 min-w-[200px]">
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Grupo (E)</label>
+                    <select id="filterE" onchange="aplicarFiltros()" class="w-full border-gray-300 rounded-lg text-sm italic">
+                        <option value="todos">Todos os Grupos</option>
+                    </select>
+                </div>
+                <div class="flex-1 min-w-[200px]">
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Comprador Responsável (F)</label>
+                    <select id="filterF" onchange="aplicarFiltros()" class="w-full border-gray-300 rounded-lg text-sm italic">
+                        <option value="todos">Todos os Responsáveis</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm" id="tabelaContas">
+                        <thead class="bg-gray-50 border-b text-gray-700">
+                            <tr>
+                                <th class="px-4 py-3 font-bold uppercase text-[10px]">Data Solicit.</th>
+                                <th class="px-4 py-3 font-bold uppercase text-[10px]">Status / Operação</th>
+                                <th class="px-4 py-3 font-bold uppercase text-[10px]">Fornecedor / Grupo</th>
+                                <th class="px-4 py-3 font-bold uppercase text-[10px]">Observação (H)</th>
+                                <th class="px-4 py-3 font-bold uppercase text-[10px]">Financeiro (R$)</th>
+                                <th class="px-4 py-3 font-bold uppercase text-[10px]">Descrição (L)</th>
+                                <th class="px-4 py-3 font-bold uppercase text-[10px]">Comentário (M)</th>
+                                <th class="px-4 py-3 font-bold uppercase text-[10px]">Controle (N)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="textModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col">
+            <div class="p-4 border-b flex justify-between items-center">
+                <h3 id="modalTitle" class="font-bold text-lg text-gray-800">Detalhes</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div id="modalBody" class="p-6 overflow-y-auto text-gray-700 leading-relaxed whitespace-pre-wrap"></div>
+            <div class="p-4 border-t text-right">
+                <button onclick="closeModal()" class="bg-gray-100 px-6 py-2 rounded-lg font-bold text-sm">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const GID = '186982841';
+        const CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?gid=${GID}&single=true&output=csv`;
+
+        let dadosCompletos = [];
+
+        async function carregarDados() {
+            Papa.parse(CSV_URL, {
+                download: true,
+                header: true,
+                complete: (results) => {
+                    dadosCompletos = results.data.filter(i => i['Fornecedor']);
+                    popularFiltros();
+                    renderizarTabela(dadosCompletos);
+                    document.getElementById('lastUpdate').innerText = `Última atualização: ${new Date().toLocaleTimeString()}`;
+                }
+            });
+        }
+
+        function popularFiltros() {
+            const suppliers = [...new Set(dadosCompletos.map(i => i['Fornecedor']))].sort();
+            const groups = [...new Set(dadosCompletos.map(i => i['Grupo']))].sort();
+            const buyers = [...new Set(dadosCompletos.map(i => i['Comprador Responsável']))].sort();
+
+            const populate = (id, list) => {
+                const el = document.getElementById(id);
+                list.forEach(item => {
+                    if(item) el.innerHTML += `<option value="${item}">${item}</option>`;
+                });
+            };
+
+            populate('filterD', suppliers);
+            populate('filterE', groups);
+            populate('filterF', buyers);
+        }
+
+        function getColorByDate(dateStr) {
+            if (!dateStr) return 'bg-gray-100 text-gray-400';
+            
+            // Assume formato DD/MM/YYYY
+            const parts = dateStr.split('/');
+            const dueDate = new Date(parts[2], parts[1] - 1, parts[0]);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const diffTime = dueDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays < 0) return 'bg-red-100 text-red-700 border border-red-200 font-bold'; // Vencido
+            if (diffDays <= 5) return 'bg-yellow-100 text-yellow-700 border border-yellow-200 font-bold'; // Alerta (0-5 dias)
+            return 'bg-green-100 text-green-700 border border-green-200'; // Seguro (>5 dias)
+        }
+
+        function openModal(title, text) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalBody').innerText = text || 'Sem informação adicional.';
+            document.getElementById('textModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('textModal').classList.add('hidden');
+        }
+
+        function renderizarTabela(dados) {
+            const tbody = document.querySelector('#tabelaContas tbody');
+            tbody.innerHTML = '';
+
+            dados.forEach(item => {
+                const dateClass = getColorByDate(item['Data Definida P/ Controle']);
+                
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition-colors cursor-default";
+                tr.innerHTML = `
+                    <td class="px-4 py-4 text-gray-500 text-xs">${item['Data Solicitação'] || ''}</td>
+                    <td class="px-4 py-4">
+                        <span class="block font-bold text-gray-800">${item['Operação']}</span>
+                        <span class="text-[10px] uppercase text-gray-400 font-medium">${item['Status']}</span>
+                    </td>
+                    <td class="px-4 py-4">
+                        <span class="block font-bold text-blue-custom">${item['Fornecedor']}</span>
+                        <span class="text-[10px] text-gray-500 italic">${item['Grupo']} • ${item['Comprador Responsável']}</span>
+                    </td>
+                    <td class="px-4 py-4 max-w-[150px]">
+                        <div onclick="openModal('Observação - ${item['Fornecedor']}', '${item['Observação']?.replace(/'/g, "\\'")}')" 
+                             class="text-xs text-gray-600 truncate-custom cursor-pointer hover:text-primary underline decoration-dotted">
+                            ${item['Observação'] || '-'}
+                        </div>
+                    </td>
+                    <td class="px-4 py-4">
+                        <div class="text-[11px] font-bold text-gray-700">Total: ${item['R$ Total Custo']}</div>
+                        <div class="text-[10px] text-red-500">Saldo: ${item['R$ Total Saldo']}</div>
+                    </td>
+                    <td class="px-4 py-4 text-xs text-gray-500">${item['Descrição'] || ''}</td>
+                    <td class="px-4 py-4 max-w-[150px]">
+                        <div onclick="openModal('Comentário do Comprador', '${item['Comentário Comprador']?.replace(/'/g, "\\'")}')" 
+                             class="text-xs text-gray-600 truncate-custom cursor-pointer hover:text-primary underline decoration-dotted">
+                            ${item['Comentário Comprador'] || '-'}
+                        </div>
+                    </td>
+                    <td class="px-4 py-4">
+                        <span class="px-3 py-1 rounded-full text-[11px] ${dateClass}">
+                            ${item['Data Definida P/ Controle'] || 'N/D'}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function aplicarFiltros() {
+            const valD = document.getElementById('filterD').value;
+            const valE = document.getElementById('filterE').value;
+            const valF = document.getElementById('filterF').value;
+
+            const filtrados = dadosCompletos.filter(i => {
+                const matchD = (valD === 'todos' || i['Fornecedor'] === valD);
+                const matchE = (valE === 'todos' || i['Grupo'] === valE);
+                const matchF = (valF === 'todos' || i['Comprador Responsável'] === valF);
+                return matchD && matchE && matchF;
+            });
+
+            renderizarTabela(filtrados);
+        }
+
+        carregarDados();
+    </script>
+</body>
+</html>
