@@ -59,24 +59,36 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="bg-white p-6 rounded-xl border-l-8 border-primary shadow-sm">
-                    <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Saldo Total Filtrado</h3>
+                    <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Saldo Total a Receber</h3>
                     <div id="totalSaldoCard" class="text-3xl font-black text-gray-900 leading-none">R$ 0,00</div>
                     <p class="text-[10px] text-gray-400 mt-2 font-medium" id="itemsCount">Aguardando dados...</p>
                 </div>
             </div>
 
             <div class="bg-white p-4 rounded-xl border shadow-sm mb-6 flex flex-wrap gap-4">
-                <div class="flex-1 min-w-[160px]">
+                <div class="flex-1 min-w-[150px]">
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 tracking-tighter">Status</label>
+                    <select id="filterC" onchange="aplicarFiltros()" class="w-full border-gray-300 rounded-lg text-xs">
+                        <option value="todos">Todos</option>
+                    </select>
+                </div>
+                <div class="flex-1 min-w-[150px]">
                     <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 tracking-tighter">Fornecedor</label>
-                    <select id="filterD" onchange="aplicarFiltros()" class="w-full border-gray-300 rounded-lg text-xs"></select>
+                    <select id="filterD" onchange="aplicarFiltros()" class="w-full border-gray-300 rounded-lg text-xs">
+                        <option value="todos">Todos</option>
+                    </select>
                 </div>
-                <div class="flex-1 min-w-[160px]">
+                <div class="flex-1 min-w-[150px]">
                     <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 tracking-tighter">Grupo</label>
-                    <select id="filterE" onchange="aplicarFiltros()" class="w-full border-gray-300 rounded-lg text-xs"></select>
+                    <select id="filterE" onchange="aplicarFiltros()" class="w-full border-gray-300 rounded-lg text-xs">
+                        <option value="todos">Todos</option>
+                    </select>
                 </div>
-                <div class="flex-1 min-w-[160px]">
+                <div class="flex-1 min-w-[150px]">
                     <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 tracking-tighter">Responsável</label>
-                    <select id="filterF" onchange="aplicarFiltros()" class="w-full border-gray-300 rounded-lg text-xs"></select>
+                    <select id="filterF" onchange="aplicarFiltros()" class="w-full border-gray-300 rounded-lg text-xs">
+                        <option value="todos">Todos</option>
+                    </select>
                 </div>
             </div>
 
@@ -88,11 +100,11 @@
                                 <th class="px-3 py-3 font-bold uppercase text-[9px]">Data Sol.</th>
                                 <th class="px-3 py-3 font-bold uppercase text-[9px]">Status/Op.</th>
                                 <th class="px-3 py-3 font-bold uppercase text-[9px] col-fornecedor">Fornecedor / Grupo</th>
-                                <th class="px-3 py-3 font-bold uppercase text-[9px] col-texto-curto">Observação (H)</th>
+                                <th class="px-3 py-3 font-bold uppercase text-[9px] col-texto-curto">Observação</th>
                                 <th class="px-3 py-3 font-bold uppercase text-[9px] col-saldo text-center">Saldo (R$)</th>
-                                <th class="px-3 py-3 font-bold uppercase text-[9px]">Descrição (L)</th>
-                                <th class="px-3 py-3 font-bold uppercase text-[9px] col-texto-curto">Comentário (M)</th>
-                                <th class="px-3 py-3 font-bold uppercase text-[9px] text-center">Controle (N)</th>
+                                <th class="px-3 py-3 font-bold uppercase text-[9px]">Descrição</th>
+                                <th class="px-3 py-3 font-bold uppercase text-[9px] col-texto-curto">Comentário</th>
+                                <th class="px-3 py-3 font-bold uppercase text-[9px] text-center">Controle</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100"></tbody>
@@ -139,6 +151,7 @@
         }
 
         function popularFiltros() {
+            const statuses = [...new Set(dadosCompletos.map(i => i['Status']))].sort();
             const suppliers = [...new Set(dadosCompletos.map(i => i['Fornecedor']))].sort();
             const groups = [...new Set(dadosCompletos.map(i => i['Grupo']))].sort();
             const buyers = [...new Set(dadosCompletos.map(i => i['Comprador Responsável']))].sort();
@@ -149,6 +162,7 @@
                 list.forEach(item => { if(item) el.innerHTML += `<option value="${item}">${item}</option>`; });
             };
 
+            populate('filterC', statuses);
             populate('filterD', suppliers);
             populate('filterE', groups);
             populate('filterF', buyers);
@@ -231,15 +245,17 @@
         }
 
         function aplicarFiltros() {
+            const valC = document.getElementById('filterC').value;
             const valD = document.getElementById('filterD').value;
             const valE = document.getElementById('filterE').value;
             const valF = document.getElementById('filterF').value;
 
             dadosFiltrados = dadosCompletos.filter(i => {
+                const mC = (valC === 'todos' || i['Status'] === valC);
                 const mD = (valD === 'todos' || i['Fornecedor'] === valD);
                 const mE = (valE === 'todos' || i['Grupo'] === valE);
                 const mF = (valF === 'todos' || i['Comprador Responsável'] === valF);
-                return mD && mE && mF;
+                return mC && mD && mE && mF;
             });
 
             renderizarTabela(dadosFiltrados);
