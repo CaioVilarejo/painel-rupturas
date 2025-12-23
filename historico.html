@@ -47,8 +47,11 @@
         <main class="flex-1 overflow-y-auto p-6 lg:p-10">
             <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 border-b pb-6">
                 <div>
-                    <h1 class="text-3xl font-black">Histórico de Rupturas</h1>
-                    <div class="flex items-center gap-2 text-gray-500 text-sm mt-1">
+                    <div class="flex flex-col md:flex-row md:items-baseline gap-3">
+                        <h1 class="text-3xl font-black text-gray-800">Histórico de Rupturas</h1>
+                        <span id="baseUpdateDate" class="text-xs font-bold text-gray-400 bg-gray-200 px-2 py-1 rounded-md uppercase tracking-tighter">Base: Carregando...</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-gray-500 text-[10px] mt-1 italic">
                         <span class="relative flex h-2 w-2">
                             <span class="relative rounded-full h-2 w-2 bg-blue-500"></span>
                         </span>
@@ -82,7 +85,14 @@
     </div>
 
     <script>
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?gid=291718870&single=true&output=csv';
+        // ALTERAÇÃO 2: DEFINIÇÃO DE GIDS E URLS
+        const GID_HISTORICO = '291718870';
+        const GID_AUX = '2012060533';
+        const BASE_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?';
+        
+        const CSV_URL = `${BASE_CSV_URL}gid=${GID_HISTORICO}&single=true&output=csv`;
+        const AUX_CSV_URL = `${BASE_CSV_URL}gid=${GID_AUX}&single=true&output=csv`;
+
         let historicoChart;
         let dadosHistorico = {}; 
 
@@ -92,8 +102,21 @@
             'TH': { atual: 'rgba(107, 114, 128, 1)', futuro: 'rgba(107, 114, 128, 0.4)' }
         };
 
+        // ALTERAÇÃO 3: FUNÇÃO DE CARREGAMENTO BUSCANDO A DATA
         async function carregarDados() {
             document.getElementById('lastUpdate').innerText = "Processando banco de dados...";
+
+            // Busca data na aba Auxiliar (B2 para Rupturas/Geral)
+            Papa.parse(AUX_CSV_URL, {
+                download: true,
+                header: false,
+                complete: (results) => {
+                    const dataRupturas = results.data[1][1]; // Célula B2
+                    document.getElementById('baseUpdateDate').innerText = `Base: ${dataRupturas}`;
+                }
+            });
+
+            // Busca dados do histórico
             Papa.parse(CSV_URL, {
                 download: true,
                 header: true,
@@ -102,13 +125,12 @@
                 },
                 error: function(error) {
                     console.error("Erro ao carregar histórico:", error);
-                    document.getElementById('lastUpdate').innerText = "Erro ao carregar dados do histórico. Verifique o GID no CSV_URL.";
+                    document.getElementById('lastUpdate').innerText = "Erro ao carregar dados.";
                 }
             });
         }
 
         function processarHistorico(dados) {
-            
             const labels = [];
             const dataH = { atual: [], futuro: [] };
             const dataB = { atual: [], futuro: [] };
@@ -120,17 +142,13 @@
                 'TH': { atual: 'Romp.Atual (TH)', futuro: 'Romp.Futuro (TH)' }
             };
 
-
             dados.forEach(item => {
                 if (item['Data']) {
                     labels.push(item['Data']);
-                    
                     dataH.atual.push(parseInt(item[cols.H.atual]) || 0);
                     dataH.futuro.push(parseInt(item[cols.H.futuro]) || 0);
-                    
                     dataB.atual.push(parseInt(item[cols.B.atual]) || 0);
                     dataB.futuro.push(parseInt(item[cols.B.futuro]) || 0);
-                    
                     dataTH.atual.push(parseInt(item[cols.TH.atual]) || 0);
                     dataTH.futuro.push(parseInt(item[cols.TH.futuro]) || 0);
                 }
@@ -144,7 +162,7 @@
             };
 
             mudarGrafico();
-            document.getElementById('lastUpdate').innerText = `Última atualização: ${new Date().toLocaleTimeString()}`;
+            document.getElementById('lastUpdate').innerText = `Sincronizado: ${new Date().toLocaleTimeString()}`;
         }
         
         function mudarGrafico() {
@@ -199,7 +217,7 @@
                             title: { display: true, text: 'Quantidade de Itens Rompidos' }
                         },
                         x: {
-                            title: { display: true, text: 'Mês' }
+                            title: { display: true, text: 'Data da Leitura' }
                         }
                     },
                     plugins: {
