@@ -10,7 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
 
-<script>
+    <script>
         tailwind.config = {
             darkMode: "class",
             theme: { extend: { colors: { "primary": "#E30613", "sheets-green": "#1ea362", "background-dark": "#121212", "blue-custom": "#3B82F6", "gray-custom": "#6B7280" } } }
@@ -51,7 +51,10 @@
         <main class="flex-1 overflow-y-auto p-6 lg:p-10">
             <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 border-b pb-6">
                 <div>
-                    <h1 class="text-3xl font-black">Visão Geral de Rupturas</h1>
+                    <div class="flex flex-col md:flex-row md:items-center gap-3">
+                        <h1 class="text-3xl font-black text-gray-800">Visão Geral de Rupturas</h1>
+                        <span id="baseUpdateDate" class="text-xs font-bold text-gray-400 bg-gray-200 px-2 py-1 rounded-md uppercase tracking-tighter">Base: Carregando...</span>
+                    </div>
                     <div class="flex items-center gap-2 text-gray-500 text-sm mt-1">
                         <span class="relative flex h-2 w-2">
                             <span class="animate-ping absolute h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -77,18 +80,9 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                <div class="bg-white p-6 rounded-xl border shadow-lg flex flex-col justify-between">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Item H</h3>
-                    <div id="countH" class="text-4xl font-black text-primary mt-2"></div>
-                </div>
-                <div class="bg-white p-6 rounded-xl border shadow-lg flex flex-col justify-between">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Item B</h3>
-                    <div id="countB" class="text-4xl font-black text-blue-custom mt-2"></div>
-                </div>
-                <div class="bg-white p-6 rounded-xl border shadow-lg flex flex-col justify-between">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Item TH</h3>
-                    <div id="countTH" class="text-4xl font-black text-gray-custom mt-2"></div>
-                </div>
+                <div class="bg-white p-6 rounded-xl border shadow-lg flex flex-col justify-between" id="countH"></div>
+                <div class="bg-white p-6 rounded-xl border shadow-lg flex flex-col justify-between" id="countB"></div>
+                <div class="bg-white p-6 rounded-xl border shadow-lg flex flex-col justify-between" id="countTH"></div>
             </div>
 
             <div class="bg-white rounded-xl border shadow-sm p-6 mb-10">
@@ -105,7 +99,7 @@
                     <div class="flex gap-4 w-full md:w-auto flex-wrap">
                         <select id="groupFilter" onchange="aplicarFiltros()" class="border-gray-300 rounded-lg text-sm px-4 py-2">
                             <option value="todos">Filtrar por Grupo (Todos)</option>
-                            </select>
+                        </select>
                         
                         <select id="statusFilter" onchange="aplicarFiltros()" class="border-gray-300 rounded-lg text-sm px-4 py-2">
                             <option value="todos">Status (Atual e Futuro)</option>
@@ -128,8 +122,7 @@
                                 <th class="px-6 py-4 font-bold">Pedido</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            </tbody>
+                        <tbody class="divide-y divide-gray-100"></tbody>
                     </table>
                 </div>
                 <div class="p-4 bg-gray-100 text-xs text-gray-500 font-medium" id="tableFooter">
@@ -140,181 +133,74 @@
     </div>
 
     <script>
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?gid=0&single=true&output=csv';
+        const BASE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?';
+        const CSV_URL = `${BASE_SHEET_URL}gid=0&single=true&output=csv`;
+        const AUX_URL = `${BASE_SHEET_URL}gid=2012060533&single=true&output=csv`;
+
         let rupturaChart;
         let todosItensRompidos = []; 
 
-        const itemColors = {
-            'H': '#E30613',
-            'B': '#3B82F6',
-            'TH': '#6B7280'
-        };
+        const itemColors = { 'H': '#E30613', 'B': '#3B82F6', 'TH': '#6B7280' };
 
         function isRompido(status) {
-            if (!status) return false;
-            return status.trim().toUpperCase() === 'ROMPIDO';
+            return status && status.trim().toUpperCase() === 'ROMPIDO';
         }
 
         async function carregarDados() {
             document.getElementById('lastUpdate').innerText = "Sincronizando...";
+
+            // 1. Busca Data na aba Auxiliar (Célula B2)
+            Papa.parse(AUX_URL, {
+                download: true,
+                header: false,
+                complete: function(results) {
+                    if (results.data && results.data[1] && results.data[1][1]) {
+                        document.getElementById('baseUpdateDate').innerText = `Base: ${results.data[1][1]}`;
+                    }
+                }
+            });
+
+            // 2. Busca Dados Principais
             Papa.parse(CSV_URL, {
                 download: true,
                 header: true,
                 complete: function(results) {
-                    // Adicionando verificação de dados antes de processar
                     if (results.data && results.data.length > 0) {
                         const dadosLimpos = results.data.filter(item => item['Descrição do produto'] && item['HBT']);
                         processarPlanilha(dadosLimpos);
                     } else {
-                        document.getElementById('lastUpdate').innerText = "Nenhum dado encontrado na planilha.";
+                        document.getElementById('lastUpdate').innerText = "Nenhum dado encontrado.";
                     }
                 },
-                error: function(error) {
-                    console.error("Erro ao carregar dados:", error);
-                    document.getElementById('lastUpdate').innerText = "Erro ao sincronizar. Verifique o link CSV ou a publicação da planilha.";
+                error: function() {
+                    document.getElementById('lastUpdate').innerText = "Erro na conexão.";
                 }
             });
         }
 
-        function popularFiltrosGrupo(dados) {
-            const filter = document.getElementById('groupFilter');
-            filter.innerHTML = '<option value="todos">Filtrar por Grupo (Todos)</option>'; 
-            
-            const gruposUnicos = [...new Set(dados.map(item => (item['Grupo'] || 'Sem Grupo').trim()))].sort();
-            
-            gruposUnicos.forEach(grupo => {
-                const option = document.createElement('option');
-                option.value = grupo.toLowerCase(); 
-                option.textContent = grupo;
-                filter.appendChild(option);
-            });
-        }
-
-        function preencherTabela(dadosOrdenados) {
-            const tbody = document.querySelector('#tabelaDados tbody');
-            tbody.innerHTML = ''; 
-            
-            let htmlContent = '';
-
-            dadosOrdenados.forEach(item => {
-                const ehCritico = isRompido(item['Romp.Futuro']);
-                const rowClass = ehCritico 
-                    ? "bg-primary/5 hover:bg-primary/10 transition-colors border-l-4 border-primary shadow-sm"
-                    : "hover:bg-gray-50 transition-colors";
-                
-                const pedidoValue = (item['Pedido'] === '0' || !item['Pedido']) ? 'N/A' : item['Pedido'];
-                const grupoValue = (item['Grupo'] || 'Sem Grupo').trim();
-                const hbt = (item['HBT'] || 'N/A').trim();
-                const corHBT = itemColors[hbt] || '#ccc';
-
-                htmlContent += `
-                    <tr class="${rowClass}" 
-                        data-grupo="${grupoValue.toLowerCase()}" 
-                        data-status="${ehCritico ? 'futuro' : 'atual'}"
-                        data-search="${item['Descrição do produto'].toUpperCase() + item['Código'].toUpperCase() + grupoValue.toUpperCase()}">
-                        
-                        <td class="px-6 py-4">
-                            <div class="flex flex-col">
-                                <span class="font-bold text-gray-800">${item['Descrição do produto'] || 'Desconhecida'}</span>
-                                <span class="text-xs text-gray-500">${item['Fornecedor'] || 'Desconhecido'}</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-gray-500 font-mono">${item['Código'] || 'N/A'}</td>
-                        <td class="px-6 py-4 font-medium">
-                            <span class="inline-block w-3 h-3 rounded-full mr-2" style="background-color: ${corHBT};"></span>
-                            ${hbt}
-                        </td>
-                        <td class="px-6 py-4 text-gray-700 font-medium">${grupoValue}</td> 
-                        <td class="px-6 py-4">${item['Estoque Total'] || '0'}</td>
-                        <td class="px-6 py-4">${pedidoValue}</td>
-                    </tr>
-                `;
-            });
-            tbody.innerHTML = htmlContent;
-        }
-        
-        // Função para criar o gráfico (revisada)
-        function criarGraficoRuptura(contadores) {
-            const ctx = document.getElementById('rupturaChart');
-            
-            const labels = ['Item H', 'Item B', 'Item TH'];
-            const dataAtual = [contadores.H.atual, contadores.B.atual, contadores.TH.atual];
-            const dataFutura = [contadores.H.futuro, contadores.B.futuro, contadores.TH.futuro];
-            const cores = [itemColors['H'], itemColors['B'], itemColors['TH']];
-
-            if (rupturaChart) {
-                rupturaChart.destroy();
-            }
-
-            rupturaChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Ruptura Atual',
-                            data: dataAtual,
-                            backgroundColor: cores.map(c => `${c}B0`), 
-                            borderColor: cores,
-                            borderWidth: 1
-                        },
-                         {
-                            label: 'Ruptura Futura (Crítico)',
-                            data: dataFutura,
-                            backgroundColor: cores.map(c => `${c}FF`), 
-                            borderColor: cores,
-                            borderWidth: 1
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Total de Itens Rompidos'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        }
-                    }
-                }
-            });
-        }
-        
         function processarPlanilha(dados) {
-            
-            const rompidos = dados.filter(item => isRompido(item['Romp.Atual']));
+            // Filtra o que está em ruptura (atual ou futura)
+            const rompidos = dados.filter(item => isRompido(item['Romp.Atual']) || isRompido(item['Romp.Futuro']));
             todosItensRompidos = rompidos;
 
             const rompidosH = rompidos.filter(i => i['HBT'].trim() === 'H');
             const rompidosB = rompidos.filter(i => i['HBT'].trim() === 'B');
             const rompidosTH = rompidos.filter(i => i['HBT'].trim() === 'TH');
 
-            const futurosH = rompidosH.filter(i => isRompido(i['Romp.Futuro'])).length;
-            const futurosB = rompidosB.filter(i => isRompido(i['Romp.Futuro'])).length;
-            const futurosTH = rompidosTH.filter(i => isRompido(i['Romp.Futuro'])).length;
-
             const contadores = {
-                H: { atual: rompidosH.length, futuro: futurosH },
-                B: { atual: rompidosB.length, futuro: futurosB },
-                TH: { atual: rompidosTH.length, futuro: futurosTH }
+                H: { atual: rompidosH.filter(i => isRompido(i['Romp.Atual'])).length, futuro: rompidosH.filter(i => isRompido(i['Romp.Futuro'])).length },
+                B: { atual: rompidosB.filter(i => isRompido(i['Romp.Atual'])).length, futuro: rompidosB.filter(i => isRompido(i['Romp.Futuro'])).length },
+                TH: { atual: rompidosTH.filter(i => isRompido(i['Romp.Atual'])).length, futuro: rompidosTH.filter(i => isRompido(i['Romp.Futuro'])).length }
             };
 
-            atualizarCard('countH', contadores.H.atual, contadores.H.futuro);
-            atualizarCard('countB', contadores.B.atual, contadores.B.futuro);
-            atualizarCard('countTH', contadores.TH.atual, contadores.TH.futuro);
+            atualizarCard('countH', 'Item H', contadores.H.atual, contadores.H.futuro);
+            atualizarCard('countB', 'Item B', contadores.B.atual, contadores.B.futuro);
+            atualizarCard('countTH', 'Item TH', contadores.TH.atual, contadores.TH.futuro);
             
             criarGraficoRuptura(contadores);
 
             // Alerta Geral
-            const totalFuturoGeral = futurosH + futurosB + futurosTH;
+            const totalFuturoGeral = contadores.H.futuro + contadores.B.futuro + contadores.TH.futuro;
             const alertaDiv = document.getElementById('alertaRuptura');
             if (totalFuturoGeral > 0) {
                 alertaDiv.style.display = 'flex';
@@ -323,39 +209,27 @@
                 alertaDiv.style.display = 'none';
             }
 
-            // Tabela
-            const dadosOrdenados = rompidos.sort((a, b) => {
-                const aCritico = isRompido(a['Romp.Futuro']);
-                const bCritico = isRompido(b['Romp.Futuro']);
-                if (aCritico && !bCritico) return -1;
-                if (!aCritico && bCritico) return 1;
-                return 0;
-            });
-            
             popularFiltrosGrupo(dados);
-            preencherTabela(dadosOrdenados);
             aplicarFiltros(); 
             
-            document.getElementById('lastUpdate').innerText = `Sincronizado: ${new Date().toLocaleTimeString()} • Próxima: ${new Date(new Date().getTime() + 300000).toLocaleTimeString()}`;
+            document.getElementById('lastUpdate').innerText = `Sincronizado: ${new Date().toLocaleTimeString()}`;
         }
 
-        function atualizarCard(id, total, futuro) {
+        function atualizarCard(id, titulo, total, futuro) {
             const elemento = document.getElementById(id);
             const mainColorClass = id === 'countH' ? 'text-primary' : id === 'countB' ? 'text-blue-custom' : 'text-gray-custom';
 
             elemento.innerHTML = `
+                <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">${titulo}</h3>
                 <div class="flex flex-col items-start pb-3 border-b-2 border-gray-100 mb-2">
                     <span class="text-xs font-bold text-primary uppercase mb-1 flex items-center gap-1">
                         <span class="material-symbols-outlined text-sm">warning</span> RUPTURA FUTURA
                     </span>
                     <div class="flex items-center gap-2">
-                        <span class="text-4xl font-black ${futuro > 0 ? 'text-primary' : 'text-gray-400'}">
-                            ${futuro}
-                        </span>
+                        <span class="text-4xl font-black ${futuro > 0 ? 'text-primary' : 'text-gray-400'}">${futuro}</span>
                         ${futuro > 0 ? `<span class="material-symbols-outlined text-xl text-primary ping-animation">priority_high</span>` : ''}
                     </div>
                 </div>
-                
                 <div class="flex flex-col items-start mt-2">
                     <span class="text-xs font-bold text-gray-400 uppercase mb-1">Ruptura Atual</span>
                     <span class="text-2xl font-bold ${mainColorClass}">${total}</span>
@@ -363,32 +237,78 @@
             `;
         }
 
+        function popularFiltrosGrupo(dados) {
+            const filter = document.getElementById('groupFilter');
+            const gruposUnicos = [...new Set(dados.map(item => (item['Grupo'] || 'Sem Grupo').trim()))].sort();
+            filter.innerHTML = '<option value="todos">Filtrar por Grupo (Todos)</option>'; 
+            gruposUnicos.forEach(grupo => {
+                const option = document.createElement('option');
+                option.value = grupo.toLowerCase(); 
+                option.textContent = grupo;
+                filter.appendChild(option);
+            });
+        }
+
         function aplicarFiltros() {
             const searchInput = document.getElementById('searchInput').value.toUpperCase();
             const groupFilter = document.getElementById('groupFilter').value.toLowerCase();
             const statusFilter = document.getElementById('statusFilter').value;
-            const trs = document.querySelectorAll('#tabelaDados tbody tr');
-            let visibleCount = 0;
+            const tbody = document.querySelector('#tabelaDados tbody');
+            
+            const filtrados = todosItensRompidos.filter(item => {
+                const hbt = (item['HBT'] || '').trim();
+                const grupo = (item['Grupo'] || 'Sem Grupo').trim();
+                const desc = (item['Descrição do produto'] || '').toUpperCase();
+                const cod = (item['Código'] || '').toUpperCase();
 
-            trs.forEach(tr => {
-                const grupoDaLinha = tr.getAttribute('data-grupo');
-                const matchGrupo = (groupFilter === 'todos' || grupoDaLinha === groupFilter);
+                const matchGrupo = groupFilter === 'todos' || grupo.toLowerCase() === groupFilter;
+                const matchSearch = desc.includes(searchInput) || cod.includes(searchInput);
+                const matchStatus = statusFilter === 'todos' || 
+                                   (statusFilter === 'atual' && isRompido(item['Romp.Atual'])) || 
+                                   (statusFilter === 'futuro' && isRompido(item['Romp.Futuro']));
 
-                const statusDaLinha = tr.getAttribute('data-status');
-                const matchStatus = (statusFilter === 'todos' || statusDaLinha === statusFilter);
-
-                const searchData = tr.getAttribute('data-search');
-                const matchSearch = searchData.includes(searchInput);
-
-                if (matchGrupo && matchStatus && matchSearch) {
-                    tr.style.display = '';
-                    visibleCount++;
-                } else {
-                    tr.style.display = 'none';
-                }
+                return matchGrupo && matchSearch && matchStatus;
             });
 
-            document.getElementById('tableFooter').innerText = `Exibindo ${visibleCount} itens que atendem aos filtros. Total de itens com ruptura atual: ${todosItensRompidos.length}`;
+            tbody.innerHTML = filtrados.map(item => {
+                const ehFuturo = isRompido(item['Romp.Futuro']);
+                const corHBT = itemColors[item['HBT'].trim()] || '#ccc';
+                return `
+                    <tr class="${ehFuturo ? 'bg-primary/5 border-l-4 border-primary' : ''} hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-gray-800">${item['Descrição do produto']}</span>
+                                <span class="text-xs text-gray-500">${item['Fornecedor'] || ''}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-gray-500 font-mono">${item['Código']}</td>
+                        <td class="px-6 py-4">
+                            <span class="inline-block w-3 h-3 rounded-full mr-2" style="background-color: ${corHBT}"></span>${item['HBT']}
+                        </td>
+                        <td class="px-6 py-4 text-gray-700 font-medium">${item['Grupo']}</td>
+                        <td class="px-6 py-4 font-bold text-center">${item['Estoque Total']}</td>
+                        <td class="px-6 py-4 text-center">${item['Pedido'] || '0'}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('tableFooter').innerText = `Exibindo ${filtrados.length} itens.`;
+        }
+
+        function criarGraficoRuptura(contadores) {
+            const ctx = document.getElementById('rupturaChart');
+            if (rupturaChart) rupturaChart.destroy();
+            rupturaChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Item H', 'Item B', 'Item TH'],
+                    datasets: [
+                        { label: 'Ruptura Atual', data: [contadores.H.atual, contadores.B.atual, contadores.TH.atual], backgroundColor: ['#E30613B0', '#3B82F6B0', '#6B7280B0'] },
+                        { label: 'Ruptura Futura', data: [contadores.H.futuro, contadores.B.futuro, contadores.TH.futuro], backgroundColor: ['#E30613', '#3B82F6', '#6B7280'] }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+            });
         }
 
         carregarDados();
