@@ -1,543 +1,291 @@
 <!DOCTYPE html>
-
 <html class="light" lang="pt-BR">
-
 <head>
-
     <meta charset="utf-8"/>
-
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-
     <title>Rupturas - Vilarejo Monitor</title>
-
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
-
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
-
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
 
-
-
-<script>
-
+    <script>
         tailwind.config = {
-
             darkMode: "class",
-
             theme: { extend: { colors: { "primary": "#E30613", "sheets-green": "#1ea362", "background-dark": "#121212", "blue-custom": "#3B82F6", "gray-custom": "#6B7280" } } }
-
         }
-
     </script>
-
     <style>
-
         body { font-family: 'Roboto', sans-serif; }
-
         .ping-animation {
-
             animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
-
         }
-
         @keyframes ping {
-
             75%, 100% { transform: scale(2); opacity: 0; }
-
         }
-
     </style>
-
 </head>
-
 <body class="bg-gray-100 antialiased">
-
     <div class="flex h-screen overflow-hidden">
-
         <aside class="w-64 bg-white border-r border-gray-200 p-6 flex flex-col justify-between hidden md:flex">
-
             <div>
-
                 <div class="flex items-center gap-3 mb-10 pb-4 border-b border-gray-100">
-
                     <img src="https://i.ibb.co/tPcWfmjT/VI-logo-novo-sem-fundo.png" alt="Logo Vilarejo" class="h-8 w-auto object-contain"/>
-
                     <span class="text-xl font-bold">Monitor</span>
-
                 </div>
-
                 <nav class="space-y-2">
-
                     <a href="dashboard.html" class="flex items-center gap-3 p-3 bg-primary text-white rounded-lg font-medium shadow-md">
-
                         <span class="material-symbols-outlined">analytics</span> Rupturas
-
                     </a>
-
                     <a href="historico.html" class="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg font-medium">
-
                         <span class="material-symbols-outlined">timeline</span> Histórico
-
                     </a>
-
                     <a href="contas.html" class="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg font-medium">
-
                         <span class="material-symbols-outlined">payments</span> Contas
-
                     </a>
-
                 </nav>
-
             </div>
-
             <button onclick="window.location.href='index.html'" class="flex items-center gap-3 p-3 text-gray-500 hover:text-red-600 transition-colors border-t pt-4">
-
                 <span class="material-symbols-outlined">logout</span> Sair
-
             </button>
-
         </aside>
 
-
-
         <main class="flex-1 overflow-y-auto p-6 lg:p-10">
-
             <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 border-b pb-6">
-
                 <div>
-
-                    <h1 class="text-3xl font-black">Visão Geral de Rupturas</h1>
-
-                    <div class="flex items-center gap-2 text-gray-500 text-sm mt-1">
-
-                        <span class="relative flex h-2 w-2">
-
-                            <span class="animate-ping absolute h-full w-full rounded-full bg-green-400 opacity-75"></span>
-
-                            <span class="relative rounded-full h-2 w-2 bg-green-500"></span>
-
-                        </span>
-
-                        <span id="lastUpdate">Sincronizando com Google Sheets...</span>
-
+                    <div class="flex flex-col md:flex-row md:items-baseline gap-3">
+                        <h1 class="text-3xl font-black text-gray-800">Visão Geral de Rupturas</h1>
+                        <span id="baseUpdateDate" class="text-xs font-bold text-gray-400 bg-gray-200 px-2 py-1 rounded-md uppercase tracking-tighter">Base: Carregando...</span>
                     </div>
-
+                    <div class="flex items-center gap-2 text-gray-500 text-[10px] mt-1 italic">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                            <span class="relative rounded-full h-2 w-2 bg-blue-500"></span>
+                        </span>
+                        <span id="lastUpdate">Sincronizando com Google Sheets...</span>
+                    </div>
                 </div>
-
                 <div class="flex gap-2">
-
                     <button onclick="carregarDados()" class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg font-bold text-sm text-gray-700 hover:bg-gray-50">
-
                         <span class="material-symbols-outlined text-sm">refresh</span> Sincronizar
-
                     </button>
-
                 </div>
-
             </header>
 
-
-
             <div id="alertaRuptura" class="hidden mb-8 bg-primary/10 border-l-4 border-primary p-4 rounded-lg shadow-sm flex items-center justify-between animate-pulse">
-
                 <div class="flex items-center gap-4">
-
                     <div>
-
                         <p class="font-black text-xl text-primary">ALERTA CRÍTICO: Rupturas Futuras!</p>
-
-                        <p class="text-base text-gray-700"></p> 
-
+                        <p id="alertaTexto" class="text-base text-gray-700"></p> 
                     </div>
-
                 </div>
-
             </div>
-
-
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-
                 <div class="bg-white p-6 rounded-xl border shadow-lg flex flex-col justify-between">
-
                     <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Item H</h3>
-
-                    <div id="countH" class="text-4xl font-black text-primary mt-2"></div>
-
+                    <div id="countH" class="text-4xl font-black text-primary mt-2">0</div>
                 </div>
-
                 <div class="bg-white p-6 rounded-xl border shadow-lg flex flex-col justify-between">
-
                     <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Item B</h3>
-
-                    <div id="countB" class="text-4xl font-black text-blue-custom mt-2"></div>
-
+                    <div id="countB" class="text-4xl font-black text-blue-custom mt-2">0</div>
                 </div>
-
                 <div class="bg-white p-6 rounded-xl border shadow-lg flex flex-col justify-between">
-
                     <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Item TH</h3>
-
-                    <div id="countTH" class="text-4xl font-black text-gray-custom mt-2"></div>
-
+                    <div id="countTH" class="text-4xl font-black text-gray-custom mt-2">0</div>
                 </div>
-
             </div>
-
-
 
             <div class="bg-white rounded-xl border shadow-sm p-6 mb-10">
-
                 <h3 class="font-bold text-lg mb-4">Visão Geral de Rupturas por Classificação</h3>
-
                 <div class="relative h-64 w-full">
-
                     <canvas id="rupturaChart"></canvas>
-
                 </div>
-
             </div>
-
-
 
             <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
-
                 <div class="p-6 border-b flex justify-between items-center flex-wrap gap-4">
-
                     <h3 class="font-bold text-lg w-full md:w-auto">Detalhe dos Itens em Ruptura</h3>
-
                     
-
                     <div class="flex gap-4 w-full md:w-auto flex-wrap">
-
                         <select id="groupFilter" onchange="aplicarFiltros()" class="border-gray-300 rounded-lg text-sm px-4 py-2">
-
                             <option value="todos">Filtrar por Grupo (Todos)</option>
-
-                            </select>
-
+                        </select>
                         
-
                         <select id="statusFilter" onchange="aplicarFiltros()" class="border-gray-300 rounded-lg text-sm px-4 py-2">
-
                             <option value="todos">Status (Atual e Futuro)</option>
-
                             <option value="atual">Somente Ruptura Atual</option>
-
                             <option value="futuro">Somente Ruptura Futura (Críticos)</option>
-
                         </select>
 
-
-
-                        <input type="text" id="searchInput" onkeyup="aplicarFiltros()" placeholder="Buscar produto ou código..." class="border-gray-300 rounded-lg text-sm w-full md:w-48 px-4 py-2">
-
+                        <input type="text" id="searchInput" onkeyup="aplicarFiltros()" placeholder="Buscar produto..." class="border-gray-300 rounded-lg text-sm w-full md:w-48 px-4 py-2">
                     </div>
-
                 </div>
-
                 <div class="overflow-x-auto">
-
                     <table class="w-full text-left text-sm" id="tabelaDados">
-
                         <thead class="bg-gray-50 border-b">
-
                             <tr>
-
                                 <th class="px-6 py-4 font-bold">Descrição do Produto</th>
-
                                 <th class="px-6 py-4 font-bold">Código</th>
-
-                                <th class="px-6 py-4 font-bold">Classificação</th>
-
+                                <th class="px-6 py-4 font-bold text-center">Classificação</th>
                                 <th class="px-6 py-4 font-bold">Grupo</th> 
-
-                                <th class="px-6 py-4 font-bold">Estoque Total</th>
-
-                                <th class="px-6 py-4 font-bold">Pedido</th>
-
+                                <th class="px-6 py-4 font-bold text-center">Estoque Total</th>
+                                <th class="px-6 py-4 font-bold text-center">Pedido</th>
                             </tr>
-
                         </thead>
-
                         <tbody class="divide-y divide-gray-100">
-
-                            </tbody>
-
+                        </tbody>
                     </table>
-
                 </div>
-
-                <div class="p-4 bg-gray-100 text-xs text-gray-500 font-medium" id="tableFooter">
-
+                <div class="p-4 bg-gray-100 text-[10px] text-gray-500 font-medium uppercase tracking-wider" id="tableFooter">
                     Carregando dados...
-
                 </div>
-
             </div>
-
         </main>
-
     </div>
 
-
-
     <script>
-
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?gid=0&single=true&output=csv';
+        const GID_AUX = '2012060533';
+        const GID_DADOS = '0';
+        const BASE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?';
+        
+        const CSV_URL = `${BASE_URL}gid=${GID_DADOS}&single=true&output=csv`;
+        const AUX_URL = `${BASE_URL}gid=${GID_AUX}&single=true&output=csv`;
 
         let rupturaChart;
-
         let todosItensRompidos = []; 
 
-
-
-        const itemColors = {
-
-            'H': '#E30613',
-
-            'B': '#3B82F6',
-
-            'TH': '#6B7280'
-
-        };
-
-
+        const itemColors = { 'H': '#E30613', 'B': '#3B82F6', 'TH': '#6B7280' };
 
         function isRompido(status) {
-
-            if (!status) return false;
-
-            return status.trim().toUpperCase() === 'ROMPIDO';
-
+            return status && status.trim().toUpperCase() === 'ROMPIDO';
         }
-
-
 
         async function carregarDados() {
-
             document.getElementById('lastUpdate').innerText = "Sincronizando...";
 
-            Papa.parse(CSV_URL, {
-
+            // BUSCA DATA NA ABA AUXILIAR
+            Papa.parse(AUX_URL, {
                 download: true,
-
-                header: true,
-
-                complete: function(results) {
-
-                    // Adicionando verificação de dados antes de processar
-
-                    if (results.data && results.data.length > 0) {
-
-                        const dadosLimpos = results.data.filter(item => item['Descrição do produto'] && item['HBT']);
-
-                        processarPlanilha(dadosLimpos);
-
-                    } else {
-
-                        document.getElementById('lastUpdate').innerText = "Nenhum dado encontrado na planilha.";
-
+                header: false,
+                complete: (results) => {
+                    if (results.data && results.data[1] && results.data[1][1]) {
+                        document.getElementById('baseUpdateDate').innerText = `Base: ${results.data[1][1]}`;
                     }
-
-                },
-
-                error: function(error) {
-
-                    console.error("Erro ao carregar dados:", error);
-
-                    document.getElementById('lastUpdate').innerText = "Erro ao sincronizar. Verifique o link CSV ou a publicação da planilha.";
-
                 }
-
             });
 
+            // BUSCA DADOS PRINCIPAIS
+            Papa.parse(CSV_URL, {
+                download: true,
+                header: true,
+                complete: function(results) {
+                    if (results.data && results.data.length > 0) {
+                        const dadosLimpos = results.data.filter(item => item['Descrição do produto'] && item['HBT']);
+                        processarPlanilha(dadosLimpos);
+                        document.getElementById('lastUpdate').innerText = `Sincronizado: ${new Date().toLocaleTimeString()}`;
+                    }
+                }
+            });
         }
 
+        function processarPlanilha(dados) {
+            todosItensRompidos = dados.filter(item => isRompido(item['Romp.Atual']) || isRompido(item['Romp.Futuro']));
+            
+            const contadores = {
+                H: { atual: 0, futuro: 0 },
+                B: { atual: 0, futuro: 0 },
+                TH: { atual: 0, futuro: 0 }
+            };
 
+            todosItensRompidos.forEach(item => {
+                const cat = item['HBT'];
+                if (contadores[cat]) {
+                    if (isRompido(item['Romp.Atual'])) contadores[cat].atual++;
+                    if (isRompido(item['Romp.Futuro'])) contadores[cat].futuro++;
+                }
+            });
+
+            document.getElementById('countH').innerText = contadores.H.atual;
+            document.getElementById('countB').innerText = contadores.B.atual;
+            document.getElementById('countTH').innerText = contadores.TH.atual;
+
+            popularFiltrosGrupo(todosItensRompidos);
+            criarGraficoRuptura(contadores);
+            aplicarFiltros();
+        }
 
         function popularFiltrosGrupo(dados) {
-
             const filter = document.getElementById('groupFilter');
-
-            filter.innerHTML = '<option value="todos">Filtrar por Grupo (Todos)</option>'; 
-
-            
-
-            const gruposUnicos = [...new Set(dados.map(item => (item['Grupo'] || 'Sem Grupo').trim()))].sort();
-
-            
-
-            gruposUnicos.forEach(grupo => {
-
-                const option = document.createElement('option');
-
-                option.value = grupo.toLowerCase(); 
-
-                option.textContent = grupo;
-
-                filter.appendChild(option);
-
+            const grupos = [...new Set(dados.map(item => (item['Grupo'] || 'Sem Grupo').trim()))].sort();
+            filter.innerHTML = '<option value="todos">Filtrar por Grupo (Todos)</option>';
+            grupos.forEach(g => {
+                const opt = document.createElement('option');
+                opt.value = g.toLowerCase();
+                opt.textContent = g;
+                filter.appendChild(opt);
             });
-
         }
 
+        function aplicarFiltros() {
+            const grupoBusca = document.getElementById('groupFilter').value;
+            const statusBusca = document.getElementById('statusFilter').value;
+            const termoBusca = document.getElementById('searchInput').value.toUpperCase();
 
-
-        function preencherTabela(dadosOrdenados) {
-
-            const tbody = document.querySelector('#tabelaDados tbody');
-
-            tbody.innerHTML = ''; 
-
-            
-
-            let htmlContent = '';
-
-
-
-            dadosOrdenados.forEach(item => {
-
-                const ehCritico = isRompido(item['Romp.Futuro']);
-
-                const rowClass = ehCritico 
-
-                    ? "bg-primary/5 hover:bg-primary/10 transition-colors border-l-4 border-primary shadow-sm"
-
-                    : "hover:bg-gray-50 transition-colors";
-
+            const filtrados = todosItensRompidos.filter(item => {
+                const matchGrupo = grupoBusca === 'todos' || (item['Grupo'] || '').toLowerCase() === grupoBusca;
+                const matchStatus = statusBusca === 'todos' || 
+                                   (statusBusca === 'atual' && isRompido(item['Romp.Atual'])) || 
+                                   (statusBusca === 'futuro' && isRompido(item['Romp.Futuro']));
+                const matchTermo = item['Descrição do produto'].toUpperCase().includes(termoBusca) || 
+                                   item['Código'].toUpperCase().includes(termoBusca);
                 
-
-                const pedidoValue = (item['Pedido'] === '0' || !item['Pedido']) ? 'N/A' : item['Pedido'];
-
-                const grupoValue = (item['Grupo'] || 'Sem Grupo').trim();
-
-                const hbt = (item['HBT'] || 'N/A').trim();
-
-                const corHBT = itemColors[hbt] || '#ccc';
-
-
-
-                htmlContent += `
-
-                    <tr class="${rowClass}" 
-
-                        data-grupo="${grupoValue.toLowerCase()}" 
-
-                        data-status="${ehCritico ? 'futuro' : 'atual'}"
-
-                        data-search="${item['Descrição do produto'].toUpperCase() + item['Código'].toUpperCase() + grupoValue.toUpperCase()}">
-
-                        
-
-                        <td class="px-6 py-4">
-
-                            <div class="flex flex-col">
-
-                                <span class="font-bold text-gray-800">${item['Descrição do produto'] || 'Desconhecida'}</span>
-
-                                <span class="text-xs text-gray-500">${item['Fornecedor'] || 'Desconhecido'}</span>
-
-                            </div>
-
-                        </td>
-
-                        <td class="px-6 py-4 text-gray-500 font-mono">${item['Código'] || 'N/A'}</td>
-
-                        <td class="px-6 py-4 font-medium">
-
-                            <span class="inline-block w-3 h-3 rounded-full mr-2" style="background-color: ${corHBT};"></span>
-
-                            ${hbt}
-
-                        </td>
-
-                        <td class="px-6 py-4 text-gray-700 font-medium">${grupoValue}</td> 
-
-                        <td class="px-6 py-4">${item['Estoque Total'] || '0'}</td>
-
-                        <td class="px-6 py-4">${pedidoValue}</td>
-
-                    </tr>
-
-                `;
-
+                return matchGrupo && matchStatus && matchTermo;
             });
 
-            tbody.innerHTML = htmlContent;
-
+            renderizarTabela(filtrados);
         }
 
-        
-
-        // Função para criar o gráfico (revisada)
+        function renderizarTabela(dados) {
+            const tbody = document.querySelector('#tabelaDados tbody');
+            tbody.innerHTML = dados.map(item => {
+                const ehFuturo = isRompido(item['Romp.Futuro']);
+                const corHBT = itemColors[item['HBT']] || '#ccc';
+                return `
+                    <tr class="${ehFuturo ? 'bg-red-50 border-l-4 border-primary' : ''} hover:bg-gray-50">
+                        <td class="px-6 py-4 font-bold text-gray-800">${item['Descrição do produto']}</td>
+                        <td class="px-6 py-4 font-mono text-xs">${item['Código']}</td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="inline-block w-2 h-2 rounded-full mr-1" style="background-color:${corHBT}"></span>
+                            ${item['HBT']}
+                        </td>
+                        <td class="px-6 py-4 text-xs">${item['Grupo']}</td>
+                        <td class="px-6 py-4 text-center font-bold">${item['Estoque Total']}</td>
+                        <td class="px-6 py-4 text-center">${item['Pedido'] || '0'}</td>
+                    </tr>
+                `;
+            }).join('');
+            document.getElementById('tableFooter').innerText = `${dados.length} itens encontrados`;
+        }
 
         function criarGraficoRuptura(contadores) {
-
-            const ctx = document.getElementById('rupturaChart');
-
-            
-
-            const labels = ['Item H', 'Item B', 'Item TH'];
-
-            const dataAtual = [contadores.H.atual, contadores.B.atual, contadores.TH.atual];
-
-            const dataFutura = [contadores.H.futuro, contadores.B.futuro, contadores.TH.futuro];
-
-            const cores = [itemColors['H'], itemColors['B'], itemColors['TH']];
-
-
-
-            if (rupturaChart) {
-
-                rupturaChart.destroy();
-
-            }
-
-
-
+            const ctx = document.getElementById('rupturaChart').getContext('2d');
+            if (rupturaChart) rupturaChart.destroy();
             rupturaChart = new Chart(ctx, {
-
                 type: 'bar',
-
                 data: {
-
-                    labels: labels,
-
+                    labels: ['Item H', 'Item B', 'Item TH'],
                     datasets: [
-
-                        {
-
-                            label: 'Ruptura Atual',
-
-                            data: dataAtual,
-
-                            backgroundColor: cores.map(c => `${c}B0`), 
-
-                            borderColor: cores,
-
-                            borderWidth: 1
-
-                        },
-
-                         {
-
-                            label: 'Ruptura Futura (Crítico)',
-
-                            data: dataFutura,
-
-                            backgroundColor: cores.map(c => `${c}FF`), 
-
-                            borderColor: cores,
-
-                            borderWidth: 1
-
-                        }
-
+                        { label: 'Atual', data: [contadores.H.atual, contadores.B.atual, contadores.TH.atual], backgroundColor: '#E30613' },
+                        { label: 'Futuro', data: [contadores.H.futuro, contadores.B.futuro, contadores.TH.futuro], backgroundColor: '#3B82F6' }
                     ]
-
                 },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        carregarDados();
+    </script>
+</body>
+</html>
