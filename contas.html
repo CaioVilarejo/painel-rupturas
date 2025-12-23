@@ -17,8 +17,6 @@
     <style>
         body { font-family: 'Roboto', sans-serif; }
         .truncate-custom { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        
-        /* Ajustes de Largura das Colunas */
         .col-fornecedor { width: 180px; min-width: 180px; max-width: 180px; word-break: break-word; }
         .col-saldo { width: 115px; min-width: 115px; white-space: nowrap; }
         .col-texto-curto { width: 130px; min-width: 130px; max-width: 130px; }
@@ -52,8 +50,11 @@
         <main class="flex-1 overflow-y-auto p-6 lg:p-10">
             <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 border-b pb-6">
                 <div>
-                    <h1 class="text-3xl font-black text-gray-800">Controle de Contas</h1>
-                    <p class="text-gray-500 text-sm mt-1" id="lastUpdate">Sincronizando...</p>
+                    <div class="flex flex-col md:flex-row md:items-baseline gap-3">
+                        <h1 class="text-3xl font-black text-gray-800">Controle de Contas</h1>
+                        <span id="baseUpdateDate" class="text-xs font-bold text-gray-400 bg-gray-200 px-2 py-1 rounded-md uppercase tracking-tighter">Base: Carregando...</span>
+                    </div>
+                    <p class="text-gray-500 text-[10px] mt-1 italic" id="lastSyncTime">Sincronizando com site...</p>
                 </div>
             </header>
 
@@ -124,12 +125,10 @@
             </div>
             <div id="modalContainer" class="p-8 overflow-y-auto">
                 <div id="modalViewText" class="text-gray-700 text-base leading-relaxed whitespace-pre-wrap font-medium"></div>
-                
                 <div id="modalEditComentario" class="hidden">
                     <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Editar Comentário:</label>
                     <textarea id="comentarioInput" class="w-full h-40 border-gray-300 rounded-lg focus:ring-primary focus:border-primary font-medium text-gray-700"></textarea>
                 </div>
-
                 <div id="modalEditControle" class="hidden">
                     <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Alterar Data de Controle:</label>
                     <input type="date" id="controleInput" class="w-full border-gray-300 rounded-lg focus:ring-primary focus:border-primary font-medium text-gray-700">
@@ -146,11 +145,13 @@
     </div>
 
     <script>
-        // CONFIGURAÇÕES
         const GID = '186982841';
-        const CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?gid=${GID}&single=true&output=csv`;
+        const GID_AUX = '2012060533';
+        const BASE_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?';
         
-        // COLE SUA URL DO APPS SCRIPT AQUI:
+        const CSV_URL = `${BASE_CSV_URL}gid=${GID}&single=true&output=csv`;
+        const AUX_CSV_URL = `${BASE_CSV_URL}gid=${GID_AUX}&single=true&output=csv`;
+        
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwcBYDMTzHyNV18US_GtTr3RbO69kIc5ZhixlSEV1206RszPrfawfXGLGBIgHffLOGF/exec'; 
 
         let dadosCompletos = [];
@@ -158,8 +159,18 @@
         let itemEmEdicao = null;
         let campoSendoEditado = '';
 
-        // CARREGAMENTO
         async function carregarDados() {
+            // 1. Carregar data de atualização da base
+            Papa.parse(AUX_CSV_URL, {
+                download: true,
+                header: false,
+                complete: (results) => {
+                    const dataContas = results.data[2][1]; // Célula B3
+                    document.getElementById('baseUpdateDate').innerText = `Base: ${dataContas}`;
+                }
+            });
+
+            // 2. Carregar dados das contas
             Papa.parse(CSV_URL, {
                 download: true,
                 header: true,
@@ -168,66 +179,52 @@
                     dadosFiltrados = [...dadosCompletos]; 
                     popularFiltros();
                     aplicarFiltros();
-                    document.getElementById('lastUpdate').innerText = `Sincronizado: ${new Date().toLocaleTimeString()}`;
+                    document.getElementById('lastSyncTime').innerText = `Sincronizado com site em: ${new Date().toLocaleTimeString()}`;
                 }
             });
         }
 
-        // AUXILIARES DE DATA
+        // Funções de data, modal, salvar e filtros permanecem as mesmas
         function dataParaInput(dataBr) {
             if(!dataBr || dataBr === 'N/D') return '';
             const [d, m, a] = dataBr.split('/');
             return `${a}-${m}-${d}`;
         }
-
         function dataParaPlanilha(dataIso) {
             if(!dataIso) return '';
             const [a, m, d] = dataIso.split('-');
             return `${d}/${m}/${a}`;
         }
-
-        // MODAL E LOGICA DE EDIÇÃO
         function openModalSafe(index, campo) {
             const item = dadosFiltrados[index];
             itemEmEdicao = { ...item, indexOriginal: index };
-            
-            // Reset visibilidade
             document.getElementById('modalViewText').classList.add('hidden');
             document.getElementById('modalEditComentario').classList.add('hidden');
             document.getElementById('modalEditControle').classList.add('hidden');
             document.getElementById('btnSalvar').classList.add('hidden');
-
-            if (campo === 'M') { // Comentário
+            if (campo === 'M') {
                 campoSendoEditado = 'comentario';
                 document.getElementById('modalTitle').innerText = 'Editar Comentário';
                 document.getElementById('modalEditComentario').classList.remove('hidden');
                 document.getElementById('comentarioInput').value = item['Comentário Comprador'] || '';
                 document.getElementById('btnSalvar').classList.remove('hidden');
-            } 
-            else if (campo === 'N') { // Controle
+            } else if (campo === 'N') {
                 campoSendoEditado = 'controle';
                 document.getElementById('modalTitle').innerText = 'Alterar Data de Controle';
                 document.getElementById('modalEditControle').classList.remove('hidden');
                 document.getElementById('controleInput').value = dataParaInput(item['Data Definida P/ Controle']);
                 document.getElementById('btnSalvar').classList.remove('hidden');
-            }
-            else { // Observação
+            } else {
                 document.getElementById('modalTitle').innerText = `Obs - ${item['Fornecedor']}`;
                 document.getElementById('modalViewText').classList.remove('hidden');
                 document.getElementById('modalViewText').innerText = item['Observação'] || 'Nenhuma informação registrada.';
             }
-            
             document.getElementById('textModal').classList.remove('hidden');
         }
-
-        function closeModal() {
-            document.getElementById('textModal').classList.add('hidden');
-        }
-
+        function closeModal() { document.getElementById('textModal').classList.add('hidden'); }
         async function salvarAlteracao() {
             let novoValor = '';
             let nomeColunaLocal = '';
-
             if (campoSendoEditado === 'comentario') {
                 novoValor = document.getElementById('comentarioInput').value;
                 nomeColunaLocal = 'Comentário Comprador';
@@ -235,89 +232,55 @@
                 novoValor = dataParaPlanilha(document.getElementById('controleInput').value);
                 nomeColunaLocal = 'Data Definida P/ Controle';
             }
-
             const btn = document.getElementById('btnSalvar');
             const label = document.getElementById('labelSalvar');
             const spinner = document.getElementById('spinnerSalvar');
-
-            btn.disabled = true;
-            label.innerText = 'Salvando...';
-            spinner.classList.remove('hidden');
-
+            btn.disabled = true; label.innerText = 'Salvando...'; spinner.classList.remove('hidden');
             try {
-                await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify({
-                        fornecedor: itemEmEdicao['Fornecedor'],
-                        codigo: itemEmEdicao['Cód.Fornecedor'],
-                        campo: campoSendoEditado,
-                        valor: novoValor
-                    })
-                });
-
+                await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ fornecedor: itemEmEdicao['Fornecedor'], codigo: itemEmEdicao['Cód.Fornecedor'], campo: campoSendoEditado, valor: novoValor }) });
                 alert('Alteração enviada com sucesso!');
                 dadosFiltrados[itemEmEdicao.indexOriginal][nomeColunaLocal] = novoValor;
                 renderizarTabela(dadosFiltrados);
                 closeModal();
-
-            } catch (error) {
-                alert('Erro de conexão ao salvar.');
-            } finally {
-                btn.disabled = false;
-                label.innerText = 'Salvar na Planilha';
-                spinner.classList.add('hidden');
-            }
+            } catch (error) { alert('Erro de conexão ao salvar.'); }
+            finally { btn.disabled = false; label.innerText = 'Salvar na Planilha'; spinner.classList.add('hidden'); }
         }
-
-        // FILTROS E RENDERIZAÇÃO
         function popularFiltros() {
             const statuses = [...new Set(dadosCompletos.map(i => i['Status']))].sort();
             const suppliers = [...new Set(dadosCompletos.map(i => i['Fornecedor']))].sort();
             const groups = [...new Set(dadosCompletos.map(i => i['Grupo']))].sort();
             const buyers = [...new Set(dadosCompletos.map(i => i['Comprador Responsável']))].sort();
-
             const populate = (id, list) => {
                 const el = document.getElementById(id);
                 el.innerHTML = `<option value="todos">Todos</option>`;
                 list.forEach(item => { if(item) el.innerHTML += `<option value="${item}">${item}</option>`; });
             };
-
-            populate('filterC', statuses);
-            populate('filterD', suppliers);
-            populate('filterE', groups);
-            populate('filterF', buyers);
+            populate('filterC', statuses); populate('filterD', suppliers); populate('filterE', groups); populate('filterF', buyers);
         }
-
         function parseCurrency(str) {
             if (!str) return 0;
             const cleanValue = str.replace(/[R$\s.]/g, '').replace(',', '.');
             const num = parseFloat(cleanValue);
             return isNaN(num) ? 0 : num;
         }
-
         function atualizarResumoFinanceiro(dados) {
             const total = dados.reduce((acc, item) => acc + parseCurrency(item['R$ Total Saldo']), 0);
             document.getElementById('totalSaldoCard').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('itemsCount').innerText = `${dados.length} solicitações exibidas.`;
         }
-
         function getColorByDate(dateStr) {
             if (!dateStr || dateStr.trim() === "" || dateStr === 'N/D') return 'bg-gray-100 text-gray-400';
             const parts = dateStr.split('/');
             const dueDate = new Date(parts[2], parts[1] - 1, parts[0]);
             const today = new Date(); today.setHours(0,0,0,0);
             const diffDays = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
-
             if (diffDays < 0) return 'bg-red-600 text-white font-black';
             if (diffDays <= 5) return 'bg-warning text-white font-black';
             return 'bg-success text-white font-medium';
         }
-
         function renderizarTabela(dados) {
             const tbody = document.querySelector('#tabelaContas tbody');
             tbody.innerHTML = '';
-
             dados.forEach((item, index) => {
                 const dateClass = getColorByDate(item['Data Definida P/ Controle']);
                 const tr = document.createElement('tr');
@@ -355,13 +318,11 @@
                 tbody.appendChild(tr);
             });
         }
-
         function aplicarFiltros() {
             const valC = document.getElementById('filterC').value;
             const valD = document.getElementById('filterD').value;
             const valE = document.getElementById('filterE').value;
             const valF = document.getElementById('filterF').value;
-
             dadosFiltrados = dadosCompletos.filter(i => {
                 const mC = (valC === 'todos' || i['Status'] === valC);
                 const mD = (valD === 'todos' || i['Fornecedor'] === valD);
@@ -369,11 +330,9 @@
                 const mF = (valF === 'todos' || i['Comprador Responsável'] === valF);
                 return mC && mD && mE && mF;
             });
-
             renderizarTabela(dadosFiltrados);
             atualizarResumoFinanceiro(dadosFiltrados);
         }
-
         carregarDados();
     </script>
 </body>
