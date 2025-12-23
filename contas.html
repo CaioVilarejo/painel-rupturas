@@ -115,154 +115,238 @@
     </div>
 
     <div id="textModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col overflow-hidden">
-            <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
-                <h3 id="modalTitle" class="font-black text-primary uppercase text-sm tracking-widest">Detalhes</h3>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-red-600 transition-colors">
-                    <span class="material-symbols-outlined">close</span>
-                </button>
-            </div>
-            <div id="modalBody" class="p-8 overflow-y-auto text-gray-700 text-base leading-relaxed whitespace-pre-wrap font-medium"></div>
-            <div class="p-4 border-t bg-gray-50 text-right">
-                <button onclick="closeModal()" class="bg-gray-200 hover:bg-gray-300 px-6 py-2 rounded-lg font-bold text-xs uppercase transition-colors">Fechar</button>
+    <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col overflow-hidden">
+        <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
+            <h3 id="modalTitle" class="font-black text-primary uppercase text-sm tracking-widest">Detalhes</h3>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-red-600 transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div id="modalContainer" class="p-8 overflow-y-auto">
+            <div id="modalViewText" class="text-gray-700 text-base leading-relaxed whitespace-pre-wrap font-medium"></div>
+            
+            <div id="modalEditContainer" class="hidden">
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Editar Comentário Comprador:</label>
+                <textarea id="comentarioInput" class="w-full h-40 border-gray-300 rounded-lg focus:ring-primary focus:border-primary font-medium text-gray-700"></textarea>
+                <p class="text-[10px] text-gray-400 mt-2 italic">* A alteração será salva diretamente na planilha do Google.</p>
             </div>
         </div>
+        <div class="p-4 border-t bg-gray-50 flex justify-end gap-3">
+            <button onclick="closeModal()" class="bg-gray-200 hover:bg-gray-300 px-6 py-2 rounded-lg font-bold text-xs uppercase transition-colors">Cancelar</button>
+            <button id="btnSalvar" onclick="salvarComentario()" class="hidden bg-primary hover:bg-red-700 text-white px-6 py-2 rounded-lg font-bold text-xs uppercase transition-all flex items-center gap-2">
+                <span id="labelSalvar">Salvar na Planilha</span>
+                <span id="spinnerSalvar" class="hidden animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
+            </button>
+        </div>
     </div>
+</div>
 
     <script>
-        const GID = '186982841';
-        const CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?gid=${GID}&single=true&output=csv`;
+    // 1. CONFIGURAÇÕES INICIAIS
+    const GID = '186982841';
+    const CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?gid=${GID}&single=true&output=csv`;
+    
+    // ABAIXO: Cole a URL que você copiou do Google Apps Script (Passo 1 do tópico anterior)
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwcBYDMTzHyNV18US_GtTr3RbO69kIc5ZhixlSEV1206RszPrfawfXGLGBIgHffLOGF/exec'; 
 
-        let dadosCompletos = [];
-        let dadosFiltrados = [];
+    let dadosCompletos = [];
+    let dadosFiltrados = [];
+    let itemEmEdicao = null; // Guarda qual linha estamos editando no momento
 
-        async function carregarDados() {
-            Papa.parse(CSV_URL, {
-                download: true,
-                header: true,
-                complete: (results) => {
-                    dadosCompletos = results.data.filter(i => i['Fornecedor'] && i['Fornecedor'].trim() !== "");
-                    dadosFiltrados = [...dadosCompletos]; 
-                    popularFiltros();
-                    aplicarFiltros();
-                    document.getElementById('lastUpdate').innerText = `Sincronizado: ${new Date().toLocaleTimeString()}`;
-                }
-            });
+    // 2. CARREGAMENTO DE DADOS
+    async function carregarDados() {
+        Papa.parse(CSV_URL, {
+            download: true,
+            header: true,
+            complete: (results) => {
+                dadosCompletos = results.data.filter(i => i['Fornecedor'] && i['Fornecedor'].trim() !== "");
+                dadosFiltrados = [...dadosCompletos]; 
+                popularFiltros();
+                aplicarFiltros();
+                document.getElementById('lastUpdate').innerText = `Sincronizado: ${new Date().toLocaleTimeString()}`;
+            }
+        });
+    }
+
+    // 3. FUNÇÕES DE MODAL (ABRIR E FECHAR)
+    function openModalSafe(index, campo) {
+        const item = dadosFiltrados[index];
+        // Salvamos uma cópia do item e o índice para saber o que atualizar depois
+        itemEmEdicao = { ...item, indexOriginal: index }; 
+        
+        const isComentario = (campo === 'M'); // Se clicou na coluna M
+        document.getElementById('modalTitle').innerText = isComentario ? `Editar Comentário` : `Obs - ${item['Fornecedor']}`;
+        
+        const viewDiv = document.getElementById('modalViewText');
+        const editDiv = document.getElementById('modalEditContainer');
+        const btnSalvar = document.getElementById('btnSalvar');
+
+        if (isComentario) {
+            // Se for comentário, esconde o texto fixo e mostra a caixa de edição
+            viewDiv.classList.add('hidden');
+            editDiv.classList.remove('hidden');
+            btnSalvar.classList.remove('hidden');
+            document.getElementById('comentarioInput').value = item['Comentário Comprador'] || '';
+        } else {
+            // Se for observação, mostra apenas o texto fixo e esconde o botão salvar
+            viewDiv.classList.remove('hidden');
+            editDiv.classList.add('hidden');
+            btnSalvar.classList.add('hidden');
+            viewDiv.innerText = item['Observação'] || 'Nenhuma informação registrada.';
         }
+        
+        document.getElementById('textModal').classList.remove('hidden');
+    }
 
-        function popularFiltros() {
-            const statuses = [...new Set(dadosCompletos.map(i => i['Status']))].sort();
-            const suppliers = [...new Set(dadosCompletos.map(i => i['Fornecedor']))].sort();
-            const groups = [...new Set(dadosCompletos.map(i => i['Grupo']))].sort();
-            const buyers = [...new Set(dadosCompletos.map(i => i['Comprador Responsável']))].sort();
+    function closeModal() {
+        document.getElementById('textModal').classList.add('hidden');
+    }
 
-            const populate = (id, list) => {
-                const el = document.getElementById(id);
-                el.innerHTML = `<option value="todos">Todos</option>`;
-                list.forEach(item => { if(item) el.innerHTML += `<option value="${item}">${item}</option>`; });
-            };
+    // 4. FUNÇÃO PARA SALVAR NO GOOGLE SHEETS
+    async function salvarComentario() {
+        const novoTexto = document.getElementById('comentarioInput').value;
+        const btn = document.getElementById('btnSalvar');
+        const label = document.getElementById('labelSalvar');
+        const spinner = document.getElementById('spinnerSalvar');
 
-            populate('filterC', statuses);
-            populate('filterD', suppliers);
-            populate('filterE', groups);
-            populate('filterF', buyers);
-        }
+        // Ativa estado de carregamento no botão
+        btn.disabled = true;
+        label.innerText = 'Salvando...';
+        spinner.classList.remove('hidden');
 
-        function parseCurrency(str) {
-            if (!str) return 0;
-            const cleanValue = str.replace(/[R$\s.]/g, '').replace(',', '.');
-            const num = parseFloat(cleanValue);
-            return isNaN(num) ? 0 : num;
-        }
-
-        function atualizarResumoFinanceiro(dados) {
-            const total = dados.reduce((acc, item) => acc + parseCurrency(item['R$ Total Saldo']), 0);
-            document.getElementById('totalSaldoCard').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('itemsCount').innerText = `${dados.length} solicitações exibidas.`;
-        }
-
-        function getColorByDate(dateStr) {
-            if (!dateStr || dateStr.trim() === "") return 'bg-gray-100 text-gray-400';
-            const parts = dateStr.split('/');
-            const dueDate = new Date(parts[2], parts[1] - 1, parts[0]);
-            const today = new Date(); today.setHours(0,0,0,0);
-            const diffDays = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
-
-            if (diffDays < 0) return 'bg-red-600 text-white font-black';
-            if (diffDays <= 5) return 'bg-warning text-white font-black';
-            return 'bg-success text-white font-medium';
-        }
-
-        function openModalSafe(index, campo) {
-            const item = dadosFiltrados[index];
-            document.getElementById('modalTitle').innerText = campo === 'H' ? `Obs - ${item['Fornecedor']}` : `Comentário do Comprador`;
-            document.getElementById('modalBody').innerText = (campo === 'H' ? item['Observação'] : item['Comentário Comprador']) || 'Nenhuma informação.';
-            document.getElementById('textModal').classList.remove('hidden');
-        }
-
-        function closeModal() { document.getElementById('textModal').classList.add('hidden'); }
-
-        function renderizarTabela(dados) {
-            const tbody = document.querySelector('#tabelaContas tbody');
-            tbody.innerHTML = '';
-
-            dados.forEach((item, index) => {
-                const dateClass = getColorByDate(item['Data Definida P/ Controle']);
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-gray-50 transition-colors";
-                tr.innerHTML = `
-                    <td class="px-3 py-4 text-gray-500 text-[10px]">${item['Data Solicitação'] || ''}</td>
-                    <td class="px-3 py-4">
-                        <span class="block font-bold text-gray-800 text-[11px] leading-tight">${item['Operação']}</span>
-                        <span class="text-[8px] uppercase px-1 bg-gray-100 text-gray-400 rounded font-bold">${item['Status']}</span>
-                    </td>
-                    <td class="px-3 py-4 col-fornecedor">
-                        <span class="block font-black text-blue-custom text-xs">${item['Fornecedor']}</span>
-                        <span class="text-[9px] text-gray-400 italic block leading-tight">${item['Grupo']}</span>
-                    </td>
-                    <td class="px-3 py-4 col-texto-curto">
-                        <div onclick="openModalSafe(${index}, 'H')" class="text-[10px] text-gray-600 truncate-custom cursor-pointer hover:text-primary leading-tight">
-                            ${item['Observação'] || '-'}
-                        </div>
-                    </td>
-                    <td class="px-3 py-4 col-saldo text-right">
-                        <span class="font-black text-gray-900 text-xs">${item['R$ Total Saldo'] || 'R$ 0,00'}</span>
-                    </td>
-                    <td class="px-3 py-4 text-[10px] text-gray-500 leading-tight">${item['Descrição'] || ''}</td>
-                    <td class="px-3 py-4 col-texto-curto">
-                        <div onclick="openModalSafe(${index}, 'M')" class="text-[10px] text-gray-600 truncate-custom cursor-pointer hover:text-primary leading-tight">
-                            ${item['Comentário Comprador'] || '-'}
-                        </div>
-                    </td>
-                    <td class="px-3 py-4 text-center">
-                        <span class="px-2 py-0.5 rounded text-[9px] uppercase font-bold ${dateClass}">
-                            ${item['Data Definida P/ Controle'] || 'N/D'}
-                        </span>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function aplicarFiltros() {
-            const valC = document.getElementById('filterC').value;
-            const valD = document.getElementById('filterD').value;
-            const valE = document.getElementById('filterE').value;
-            const valF = document.getElementById('filterF').value;
-
-            dadosFiltrados = dadosCompletos.filter(i => {
-                const mC = (valC === 'todos' || i['Status'] === valC);
-                const mD = (valD === 'todos' || i['Fornecedor'] === valD);
-                const mE = (valE === 'todos' || i['Grupo'] === valE);
-                const mF = (valF === 'todos' || i['Comprador Responsável'] === valF);
-                return mC && mD && mE && mF;
+        try {
+            // Envia os dados para o Google Apps Script via POST
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors', // Necessário para evitar erros de política de segurança do Google
+                body: JSON.stringify({
+                    fornecedor: itemEmEdicao['Fornecedor'],
+                    codigo: itemEmEdicao['Cód.Fornecedor'],
+                    novoComentario: novoTexto
+                })
             });
 
+            // Como usamos 'no-cors', não conseguimos ler a resposta JSON, 
+            // então assumimos sucesso se não der erro de rede
+            alert('Comentário enviado! Aguarde alguns instantes para a planilha processar.');
+            
+            // Atualiza a tabela na tela imediatamente para o usuário ver a mudança
+            dadosFiltrados[itemEmEdicao.indexOriginal]['Comentário Comprador'] = novoTexto;
             renderizarTabela(dadosFiltrados);
-            atualizarResumoFinanceiro(dadosFiltrados);
-        }
+            closeModal();
 
-        carregarDados();
-    </script>
+        } catch (error) {
+            console.error(error);
+            alert('Erro de conexão ao tentar salvar.');
+        } finally {
+            // Volta o botão ao estado normal
+            btn.disabled = false;
+            label.innerText = 'Salvar na Planilha';
+            spinner.classList.add('hidden');
+        }
+    }
+
+    // 5. FILTROS E RENDERIZAÇÃO (Mantidos da versão anterior)
+    function popularFiltros() {
+        const statuses = [...new Set(dadosCompletos.map(i => i['Status']))].sort();
+        const suppliers = [...new Set(dadosCompletos.map(i => i['Fornecedor']))].sort();
+        const groups = [...new Set(dadosCompletos.map(i => i['Grupo']))].sort();
+        const buyers = [...new Set(dadosCompletos.map(i => i['Comprador Responsável']))].sort();
+
+        const populate = (id, list) => {
+            const el = document.getElementById(id);
+            el.innerHTML = `<option value="todos">Todos</option>`;
+            list.forEach(item => { if(item) el.innerHTML += `<option value="${item}">${item}</option>`; });
+        };
+
+        populate('filterC', statuses);
+        populate('filterD', suppliers);
+        populate('filterE', groups);
+        populate('filterF', buyers);
+    }
+
+    function parseCurrency(str) {
+        if (!str) return 0;
+        const cleanValue = str.replace(/[R$\s.]/g, '').replace(',', '.');
+        const num = parseFloat(cleanValue);
+        return isNaN(num) ? 0 : num;
+    }
+
+    function atualizarResumoFinanceiro(dados) {
+        const total = dados.reduce((acc, item) => acc + parseCurrency(item['R$ Total Saldo']), 0);
+        document.getElementById('totalSaldoCard').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        document.getElementById('itemsCount').innerText = `${dados.length} solicitações exibidas.`;
+    }
+
+    function getColorByDate(dateStr) {
+        if (!dateStr || dateStr.trim() === "") return 'bg-gray-100 text-gray-400';
+        const parts = dateStr.split('/');
+        const dueDate = new Date(parts[2], parts[1] - 1, parts[0]);
+        const today = new Date(); today.setHours(0,0,0,0);
+        const diffDays = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+        if (diffDays < 0) return 'bg-red-600 text-white font-black';
+        if (diffDays <= 5) return 'bg-warning text-white font-black';
+        return 'bg-success text-white font-medium';
+    }
+
+    function renderizarTabela(dados) {
+        const tbody = document.querySelector('#tabelaContas tbody');
+        tbody.innerHTML = '';
+        dados.forEach((item, index) => {
+            const dateClass = getColorByDate(item['Data Definida P/ Controle']);
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-gray-50 transition-colors";
+            tr.innerHTML = `
+                <td class="px-3 py-4 text-gray-500 text-[10px]">${item['Data Solicitação'] || ''}</td>
+                <td class="px-3 py-4">
+                    <span class="block font-bold text-gray-800 text-[11px] leading-tight">${item['Operação']}</span>
+                    <span class="text-[8px] uppercase px-1 bg-gray-100 text-gray-400 rounded font-bold">${item['Status']}</span>
+                </td>
+                <td class="px-3 py-4 col-fornecedor">
+                    <span class="block font-black text-blue-custom text-xs">${item['Fornecedor']}</span>
+                    <span class="text-[9px] text-gray-400 italic block leading-tight">${item['Grupo']}</span>
+                </td>
+                <td class="px-3 py-4 col-texto-curto">
+                    <div onclick="openModalSafe(${index}, 'H')" class="text-[10px] text-gray-600 truncate-custom cursor-pointer hover:text-primary leading-tight">
+                        ${item['Observação'] || '-'}
+                    </div>
+                </td>
+                <td class="px-3 py-4 col-saldo text-right">
+                    <span class="font-black text-gray-900 text-xs">${item['R$ Total Saldo'] || 'R$ 0,00'}</span>
+                </td>
+                <td class="px-3 py-4 text-[10px] text-gray-500 leading-tight">${item['Descrição'] || ''}</td>
+                <td class="px-3 py-4 col-texto-curto">
+                    <div onclick="openModalSafe(${index}, 'M')" class="text-[10px] text-gray-600 truncate-custom cursor-pointer hover:text-primary leading-tight">
+                        ${item['Comentário Comprador'] || '-'}
+                    </div>
+                </td>
+                <td class="px-3 py-4 text-center">
+                    <span class="px-2 py-0.5 rounded text-[9px] uppercase font-bold ${dateClass}">
+                        ${item['Data Definida P/ Controle'] || 'N/D'}
+                    </span>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function aplicarFiltros() {
+        const valC = document.getElementById('filterC').value;
+        const valD = document.getElementById('filterD').value;
+        const valE = document.getElementById('filterE').value;
+        const valF = document.getElementById('filterF').value;
+        dadosFiltrados = dadosCompletos.filter(i => {
+            const mC = (valC === 'todos' || i['Status'] === valC);
+            const mD = (valD === 'todos' || i['Fornecedor'] === valD);
+            const mE = (valE === 'todos' || i['Grupo'] === valE);
+            const mF = (valF === 'todos' || i['Comprador Responsável'] === valF);
+            return mC && mD && mE && mF;
+        });
+        renderizarTabela(dadosFiltrados);
+        atualizarResumoFinanceiro(dadosFiltrados);
+    }
+
+    carregarDados();
+</script>
 </body>
 </html>
