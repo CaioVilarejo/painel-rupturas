@@ -13,7 +13,7 @@
         body { font-family: 'Roboto', sans-serif; }
         
         @media print {
-            @page { size: portrait; margin: 0.8cm; }
+            @page { size: portrait; margin: 0.6cm; }
             aside, .no-print { display: none !important; }
             main { padding: 0 !important; margin: 0 !important; width: 100% !important; }
             .print-container { border: none !important; box-shadow: none !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; }
@@ -70,33 +70,31 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-12 gap-4 mb-4">
-                    <div class="col-span-4 space-y-3 border-r pr-4">
-                        <h3 class="font-black text-red-600 text-[10px] uppercase border-b pb-1">1. Identificação</h3>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label>Vendedor</label>
-                                <input type="text" class="input-field font-bold">
-                            </div>
-                            <div>
-                                <label>Loja</label>
-                                <select class="input-field font-bold bg-transparent">
-                                    <option value="">Selecione...</option>
-                                    <option>Barra</option><option>Cabo Frio</option><option>Niterói</option>
-                                    <option>Macaé</option><option>Campos</option><option>Búzios</option>
-                                    <option>R.Ostras</option><option>Araruama</option><option>Maricá</option>
-                                    <option>TeleVendas</option>
-                                </select>
-                            </div>
+                <div class="grid grid-cols-12 gap-6 mb-4">
+                    <div class="col-span-4 space-y-4 border-r pr-6">
+                        <h3 class="font-black text-red-600 text-[10px] uppercase border-b pb-1 tracking-widest">1. Identificação</h3>
+                        <div>
+                            <label>Vendedor</label>
+                            <input type="text" class="input-field font-bold text-sm" placeholder="Nome Completo">
                         </div>
                         <div>
-                            <label>Data</label>
+                            <label>Loja / Filial</label>
+                            <select class="input-field font-bold bg-transparent">
+                                <option value="">Selecione a Loja...</option>
+                                <option>Barra</option><option>Cabo Frio</option><option>Niterói</option>
+                                <option>Macaé</option><option>Campos</option><option>Búzios</option>
+                                <option>R.Ostras</option><option>Araruama</option><option>Maricá</option>
+                                <option>TeleVendas</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Data da Cotação</label>
                             <input type="text" id="dataAtual" class="input-field" readonly>
                         </div>
                     </div>
 
                     <div class="col-span-8 space-y-3">
-                        <h3 class="font-black text-red-600 text-[10px] uppercase border-b pb-1">2. Dados do Cliente</h3>
+                        <h3 class="font-black text-red-600 text-[10px] uppercase border-b pb-1 tracking-widest">2. Dados do Cliente</h3>
                         <div class="grid grid-cols-12 gap-2">
                             <div class="col-span-3">
                                 <label>Cód. Cliente</label>
@@ -135,11 +133,9 @@
                                 <input type="text" class="input-field text-[11px]">
                             </div>
                         </div>
-                        <div class="grid grid-cols-12 gap-2">
-                            <div class="col-span-12">
-                                <label>Ponto de Referência</label>
-                                <input type="text" class="input-field text-[11px]">
-                            </div>
+                        <div>
+                            <label>Ponto de Referência</label>
+                            <input type="text" class="input-field text-[11px]">
                         </div>
                         <div class="grid grid-cols-12 gap-2">
                             <div class="col-span-5">
@@ -164,10 +160,11 @@
                             <tr class="text-[9px] uppercase font-bold text-gray-600">
                                 <th class="border p-1 w-20">Código</th>
                                 <th class="border p-1 text-left">Descrição</th>
-                                <th class="border p-1 w-14">Tam.</th>
-                                <th class="border p-1 w-10 text-center">Un.</th>
+                                <th class="border p-1 w-12 text-center">Tam.</th>
+                                <th class="border p-1 w-8 text-center">Un.</th>
+                                <th class="border p-1 w-16 text-center text-red-600">Peso Un.</th>
                                 <th class="border p-1 w-20 text-right">Val. Un.</th>
-                                <th class="border p-1 w-12 text-center">Qtd.</th>
+                                <th class="border p-1 w-10 text-center">Qtd.</th>
                                 <th class="border p-1 w-24 text-right">Subtotal</th>
                             </tr>
                         </thead>
@@ -197,7 +194,7 @@
                             <div class="mt-4">
                                 <label>Valor Frete (R$)</label>
                                 <input type="text" class="input-field font-bold text-red-600" placeholder="">
-                                <p class="text-[8px] text-red-500 font-bold italic mt-1">Frete pago a parte</p>
+                                <p class="text-[8px] text-red-500 font-bold italic mt-1 uppercase tracking-tighter">Frete pago a parte</p>
                             </div>
                         </div>
                     </div>
@@ -240,13 +237,14 @@
             const row = document.createElement('tr');
             row.className = "item-row";
             row.innerHTML = `
-                <td class="border p-1"><input type="text" class="input-field text-center font-bold cod-input uppercase" onchange="buscarProduto(this)"></td>
+                <td class="border p-1 text-center"><input type="text" class="input-field text-center font-bold cod-input uppercase" onchange="buscarProduto(this)"></td>
                 <td class="border p-1 desc-cel text-gray-500">-</td>
                 <td class="border p-1 text-center tam-cel">-</td>
                 <td class="border p-1 text-center un-cel">-</td>
+                <td class="border p-1 text-center peso-display-cel">-</td>
                 <td class="border p-1 text-right valor-cel font-mono">0.00</td>
-                <td class="border p-1"><input type="number" class="input-field text-center qtd-input" value="0" oninput="calcularTotais()"></td>
-                <td class="border p-1 text-right font-bold subtotal-cel font-mono">0.00</td>
+                <td class="border p-1"><input type="number" class="input-field text-center qtd-input font-bold" value="0" oninput="calcularTotais()"></td>
+                <td class="border p-1 text-right font-bold subtotal-cel font-mono text-gray-800">0.00</td>
                 <input type="hidden" class="peso-un-input" value="0">
             `;
             tbody.appendChild(row);
@@ -269,10 +267,16 @@
                 row.querySelector('.desc-cel').innerText = produto['Descrição'] || produto['Produto'] || '-';
                 row.querySelector('.tam-cel').innerText = produto['TAM.'] || '-';
                 row.querySelector('.un-cel').innerText = produto['Um.'] || '-';
+                
+                // Exibir Peso na Tabela (Coluna I)
+                let pesoStr = produto['PESO UN.'] ? produto['PESO UN.'].replace(',', '.') : '0';
+                row.querySelector('.peso-display-cel').innerText = parseFloat(pesoStr).toFixed(2);
+                row.querySelector('.peso-un-input').value = pesoStr;
+
+                // Valor (Coluna F)
                 let valorStr = produto['VALOR'] ? produto['VALOR'].replace(/\./g, '').replace(',', '.') : '0';
                 row.querySelector('.valor-cel').innerText = parseFloat(valorStr).toFixed(2);
-                let pesoStr = produto['PESO UN.'] ? produto['PESO UN.'].replace(',', '.') : '0';
-                row.querySelector('.peso-un-input').value = pesoStr;
+                
                 calcularTotais();
             } else if (codigo !== "") {
                 alert("Código não localizado.");
@@ -305,7 +309,6 @@
             document.getElementById('valorFinal').innerText = valorFinal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
         }
 
-        // Iniciar com 5 linhas conforme solicitado
         for(let i=0; i<5; i++) adicionarLinha();
     </script>
 </body>
