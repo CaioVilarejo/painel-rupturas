@@ -20,14 +20,18 @@
             input, select { border: none !important; border-bottom: 1px solid #ddd !important; -webkit-appearance: none; appearance: none; }
             .input-field { border-bottom: 1px solid #ccc !important; }
             th { background-color: #f3f4f6 !important; -webkit-print-color-adjust: exact; }
+            .signature-space { margin-top: 50px !important; }
         }
 
         .input-field { border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; padding: 1px 4px; width: 100%; outline: none; font-size: 12px; }
         .input-field:focus { border-bottom-color: #ea2a33; }
         label { display: block; text-transform: uppercase; font-weight: 900; color: #94a3b8; font-size: 8px; letter-spacing: 0.05em; margin-bottom: 1px; }
         
-        /* Setas reativadas para o campo de quantidade */
-        .qtd-input { -webkit-appearance: number-input; appearance: number-input; }
+        /* Garante que os controles (setas) do input number apareçam */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="bg-gray-100 antialiased">
@@ -78,12 +82,12 @@
                         <h3 class="font-black text-red-600 text-[10px] uppercase border-b pb-1 tracking-widest">1. Identificação</h3>
                         <div>
                             <label>Vendedor</label>
-                            <input type="text" class="input-field font-bold text-sm" placeholder="Nome Completo">
+                            <input type="text" class="input-field font-bold text-sm">
                         </div>
                         <div>
                             <label>Loja / Filial</label>
                             <select class="input-field font-bold bg-transparent">
-                                <option value="">Selecione a Loja...</option>
+                                <option value="">Selecione...</option>
                                 <option>Barra</option><option>Cabo Frio</option><option>Niterói</option>
                                 <option>Macaé</option><option>Campos</option><option>Búzios</option>
                                 <option>R.Ostras</option><option>Araruama</option><option>Maricá</option>
@@ -158,7 +162,7 @@
                 </div>
 
                 <div class="mb-4">
-                    <table class="w-full border-collapse border border-gray-300" id="tabelaItens">
+                    <table class="w-full border-collapse border border-gray-300">
                         <thead class="bg-gray-50">
                             <tr class="text-[9px] uppercase font-bold text-gray-600">
                                 <th class="border p-1 w-20">Código</th>
@@ -167,12 +171,11 @@
                                 <th class="border p-1 w-8 text-center">Un.</th>
                                 <th class="border p-1 w-16 text-center">Peso Un.</th>
                                 <th class="border p-1 w-20 text-right">Val. Un.</th>
-                                <th class="border p-1 w-14 text-center">Qtd.</th>
+                                <th class="border p-1 w-16 text-center">Qtd.</th>
                                 <th class="border p-1 w-24 text-right">Subtotal</th>
                             </tr>
                         </thead>
-                        <tbody id="corpoTabela" class="text-[10px]">
-                            </tbody>
+                        <tbody id="corpoTabela" class="text-[10px]"></tbody>
                     </table>
                     <div class="flex gap-4 no-print mt-2">
                         <button onclick="adicionarLinha()" class="text-[10px] font-bold text-red-600 flex items-center gap-1 hover:underline">
@@ -185,7 +188,7 @@
                 </div>
 
                 <div class="grid grid-cols-12 gap-6 items-start">
-                    <div class="col-span-6 space-y-4">
+                    <div class="col-span-6 space-y-8">
                         <div class="border p-3 rounded bg-gray-50/50">
                             <label>Condição de Pagamento</label>
                             <select id="formaPagamento" onchange="calcularTotais()" class="input-field font-bold text-xs bg-transparent">
@@ -193,11 +196,16 @@
                                 <option value="boleto">Boleto 30 Dias - SEM DESC.</option>
                                 <option value="credito">Crédito até 3x - SEM DESC. / JUROS</option>
                             </select>
-                            
                             <div class="mt-4">
                                 <label>Valor Frete (R$)</label>
                                 <input type="text" class="input-field font-bold text-red-600" placeholder="">
                                 <p class="text-[8px] text-red-500 font-bold italic mt-1 uppercase tracking-tighter">Frete pago a parte</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-10 signature-space">
+                            <div class="w-full border-t border-gray-400 pt-1 text-center">
+                                <p class="text-[10px] font-black text-gray-700 uppercase tracking-widest">Assinatura do Cliente</p>
                             </div>
                         </div>
                     </div>
@@ -230,9 +238,7 @@
         Papa.parse(CSV_URL, {
             download: true,
             header: true,
-            complete: function(results) {
-                baseProdutos = results.data;
-            }
+            complete: function(results) { baseProdutos = results.data; }
         });
 
         function adicionarLinha() {
@@ -248,8 +254,8 @@
                 <td class="border p-1 text-right valor-cel font-mono">0.00</td>
                 <td class="border p-1">
                     <input type="number" class="input-field text-center qtd-input font-bold" 
-                           value="0" min="0" step="any"
-                           oninput="this.value = Math.max(0, this.value); calcularTotais()">
+                           value="0" min="0" step="any" lang="pt-BR"
+                           oninput="validarEInput(this)">
                 </td>
                 <td class="border p-1 text-right font-bold subtotal-cel font-mono text-gray-800">0.00</td>
                 <input type="hidden" class="peso-un-input" value="0">
@@ -257,12 +263,14 @@
             tbody.appendChild(row);
         }
 
+        function validarEInput(input) {
+            if (input.value < 0) input.value = 0;
+            calcularTotais();
+        }
+
         function removerLinha() {
             const rows = document.querySelectorAll('.item-row');
-            if (rows.length > 0) {
-                rows[rows.length - 1].remove();
-                calcularTotais();
-            }
+            if (rows.length > 0) { rows[rows.length - 1].remove(); calcularTotais(); }
         }
 
         function buscarProduto(input) {
@@ -271,17 +279,14 @@
             const produto = baseProdutos.find(p => p['Código'] && p['Código'].trim().toUpperCase() === codigo);
 
             if (produto) {
-                row.querySelector('.desc-cel').innerText = produto['Descrição'] || produto['Produto'] || '-';
+                row.querySelector('.desc-cel').innerText = produto['Descrição'] || '-';
                 row.querySelector('.tam-cel').innerText = produto['TAM.'] || '-';
                 row.querySelector('.un-cel').innerText = produto['Um.'] || '-';
-                
                 let pesoStr = produto['PESO UN.'] ? produto['PESO UN.'].replace(',', '.') : '0';
                 row.querySelector('.peso-display-cel').innerText = parseFloat(pesoStr).toFixed(2);
                 row.querySelector('.peso-un-input').value = pesoStr;
-
                 let valorStr = produto['VALOR'] ? produto['VALOR'].replace(/\./g, '').replace(',', '.') : '0';
                 row.querySelector('.valor-cel').innerText = parseFloat(valorStr).toFixed(2);
-                
                 calcularTotais();
             } else if (codigo !== "") {
                 alert("Código não localizado.");
@@ -295,16 +300,15 @@
             let subtotalGeral = 0;
 
             document.querySelectorAll('.item-row').forEach(row => {
-                let valRaw = row.querySelector('.qtd-input').value.replace(',', '.');
+                // Aqui garantimos a leitura do valor independentemente de vírgula ou ponto
+                let valRaw = row.querySelector('.qtd-input').value.toString().replace(',', '.');
                 let qtd = parseFloat(valRaw) || 0;
                 
-                if(qtd < 0) qtd = 0;
-
                 const valorUn = parseFloat(row.querySelector('.valor-cel').innerText) || 0;
                 const pesoUn = parseFloat(row.querySelector('.peso-un-input').value) || 0;
                 
                 const subtotal = qtd * valorUn;
-                row.querySelector('.subtotal-cel').innerText = subtotal.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+                row.querySelector('.subtotal-cel').innerText = subtotal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
                 
                 totalQtd += qtd;
                 totalPeso += (qtd * pesoUn);
@@ -315,7 +319,7 @@
             let valorFinal = subtotalGeral;
             if (forma === 'pix') valorFinal = subtotalGeral * 0.95;
 
-            document.getElementById('totalQtd').innerText = totalQtd.toLocaleString('pt-BR', { maximumFractionDigits: 2 });
+            document.getElementById('totalQtd').innerText = totalQtd.toLocaleString('pt-BR', { maximumFractionDigits: 3 });
             document.getElementById('totalPeso').innerText = totalPeso.toFixed(2).replace('.', ',') + ' kg';
             document.getElementById('valorFinal').innerText = valorFinal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
         }
