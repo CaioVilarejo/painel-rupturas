@@ -108,13 +108,17 @@
                             </div>
                         </div>
                         <div class="grid grid-cols-12 gap-2">
-                            <div class="col-span-6">
+                            <div class="col-span-4">
                                 <label>CPF / CNPJ</label>
                                 <input type="text" class="input-field">
                             </div>
-                            <div class="col-span-6">
+                            <div class="col-span-4">
                                 <label>Telefone / WhatsApp</label>
                                 <input type="text" class="input-field">
+                            </div>
+                            <div class="col-span-4">
+                                <label>E-mail</label>
+                                <input type="email" class="input-field text-[11px]">
                             </div>
                         </div>
                         <div class="grid grid-cols-12 gap-2">
@@ -134,7 +138,7 @@
                         <div class="grid grid-cols-12 gap-2">
                             <div class="col-span-12">
                                 <label>Ponto de Referência</label>
-                                <input type="text" class="input-field text-[11px]" placeholder="Ex: Próximo ao mercado...">
+                                <input type="text" class="input-field text-[11px]">
                             </div>
                         </div>
                         <div class="grid grid-cols-12 gap-2">
@@ -147,7 +151,7 @@
                                 <input type="text" class="input-field text-[11px]">
                             </div>
                             <div class="col-span-2">
-                                <label>Estado (UF)</label>
+                                <label>UF</label>
                                 <input type="text" class="input-field text-[11px] text-center" maxlength="2">
                             </div>
                         </div>
@@ -155,7 +159,7 @@
                 </div>
 
                 <div class="mb-4">
-                    <table class="w-full border-collapse border border-gray-300">
+                    <table class="w-full border-collapse border border-gray-300" id="tabelaItens">
                         <thead class="bg-gray-50">
                             <tr class="text-[9px] uppercase font-bold text-gray-600">
                                 <th class="border p-1 w-20">Código</th>
@@ -170,9 +174,14 @@
                         <tbody id="corpoTabela" class="text-[10px]">
                             </tbody>
                     </table>
-                    <button onclick="adicionarLinha()" class="mt-1 text-[10px] font-bold text-red-600 flex items-center gap-1 no-print">
-                        <span class="material-symbols-outlined text-sm">add</span> Adicionar Item
-                    </button>
+                    <div class="flex gap-4 no-print mt-2">
+                        <button onclick="adicionarLinha()" class="text-[10px] font-bold text-red-600 flex items-center gap-1 hover:underline">
+                            <span class="material-symbols-outlined text-sm">add</span> Adicionar Item
+                        </button>
+                        <button onclick="removerLinha()" class="text-[10px] font-bold text-gray-500 flex items-center gap-1 hover:text-red-600 hover:underline">
+                            <span class="material-symbols-outlined text-sm">delete</span> Remover Último
+                        </button>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-12 gap-6 items-start">
@@ -208,10 +217,6 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="mt-6 text-[8px] text-gray-400 text-center uppercase font-bold">
-                    © 2025 Caio.L Gomes (Compras) | Validade da cotação: 03 dias úteis
-                </div>
             </div>
         </main>
     </div>
@@ -245,6 +250,14 @@
                 <input type="hidden" class="peso-un-input" value="0">
             `;
             tbody.appendChild(row);
+        }
+
+        function removerLinha() {
+            const rows = document.querySelectorAll('.item-row');
+            if (rows.length > 0) {
+                rows[rows.length - 1].remove();
+                calcularTotais();
+            }
         }
 
         function buscarProduto(input) {
@@ -292,8 +305,8 @@
             document.getElementById('valorFinal').innerText = valorFinal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
         }
 
-        // Iniciar com 10 linhas para garantir espaço
-        for(let i=0; i<10; i++) adicionarLinha();
+        // Iniciar com 5 linhas conforme solicitado
+        for(let i=0; i<5; i++) adicionarLinha();
     </script>
 </body>
 </html>
