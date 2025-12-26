@@ -26,9 +26,8 @@
         .input-field:focus { border-bottom-color: #ea2a33; }
         label { display: block; text-transform: uppercase; font-weight: 900; color: #94a3b8; font-size: 8px; letter-spacing: 0.05em; margin-bottom: 1px; }
         
-        /* Remove setas do input number */
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        /* Setas reativadas para o campo de quantidade */
+        .qtd-input { -webkit-appearance: number-input; appearance: number-input; }
     </style>
 </head>
 <body class="bg-gray-100 antialiased">
@@ -166,8 +165,9 @@
                                 <th class="border p-1 text-left">Descrição</th>
                                 <th class="border p-1 w-12 text-center">Tam.</th>
                                 <th class="border p-1 w-8 text-center">Un.</th>
-                                <th class="border p-1 w-16 text-center">Peso Un.</th> <th class="border p-1 w-20 text-right">Val. Un.</th>
-                                <th class="border p-1 w-10 text-center">Qtd.</th>
+                                <th class="border p-1 w-16 text-center">Peso Un.</th>
+                                <th class="border p-1 w-20 text-right">Val. Un.</th>
+                                <th class="border p-1 w-14 text-center">Qtd.</th>
                                 <th class="border p-1 w-24 text-right">Subtotal</th>
                             </tr>
                         </thead>
@@ -247,7 +247,9 @@
                 <td class="border p-1 text-center peso-display-cel">-</td>
                 <td class="border p-1 text-right valor-cel font-mono">0.00</td>
                 <td class="border p-1">
-                    <input type="number" class="input-field text-center qtd-input font-bold" value="0" min="0" oninput="this.value = Math.max(0, this.value); calcularTotais()">
+                    <input type="number" class="input-field text-center qtd-input font-bold" 
+                           value="0" min="0" step="any"
+                           oninput="this.value = Math.max(0, this.value); calcularTotais()">
                 </td>
                 <td class="border p-1 text-right font-bold subtotal-cel font-mono text-gray-800">0.00</td>
                 <input type="hidden" class="peso-un-input" value="0">
@@ -293,8 +295,10 @@
             let subtotalGeral = 0;
 
             document.querySelectorAll('.item-row').forEach(row => {
-                let qtd = parseFloat(row.querySelector('.qtd-input').value) || 0;
-                if(qtd < 0) qtd = 0; // Garantia extra no cálculo
+                let valRaw = row.querySelector('.qtd-input').value.replace(',', '.');
+                let qtd = parseFloat(valRaw) || 0;
+                
+                if(qtd < 0) qtd = 0;
 
                 const valorUn = parseFloat(row.querySelector('.valor-cel').innerText) || 0;
                 const pesoUn = parseFloat(row.querySelector('.peso-un-input').value) || 0;
@@ -311,7 +315,7 @@
             let valorFinal = subtotalGeral;
             if (forma === 'pix') valorFinal = subtotalGeral * 0.95;
 
-            document.getElementById('totalQtd').innerText = totalQtd;
+            document.getElementById('totalQtd').innerText = totalQtd.toLocaleString('pt-BR', { maximumFractionDigits: 2 });
             document.getElementById('totalPeso').innerText = totalPeso.toFixed(2).replace('.', ',') + ' kg';
             document.getElementById('valorFinal').innerText = valorFinal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
         }
