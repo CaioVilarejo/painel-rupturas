@@ -25,6 +25,10 @@
         .input-field { border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; padding: 1px 4px; width: 100%; outline: none; font-size: 12px; }
         .input-field:focus { border-bottom-color: #ea2a33; }
         label { display: block; text-transform: uppercase; font-weight: 900; color: #94a3b8; font-size: 8px; letter-spacing: 0.05em; margin-bottom: 1px; }
+        
+        /* Remove setas do input number */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
 </head>
 <body class="bg-gray-100 antialiased">
@@ -162,8 +166,7 @@
                                 <th class="border p-1 text-left">Descrição</th>
                                 <th class="border p-1 w-12 text-center">Tam.</th>
                                 <th class="border p-1 w-8 text-center">Un.</th>
-                                <th class="border p-1 w-16 text-center text-red-600">Peso Un.</th>
-                                <th class="border p-1 w-20 text-right">Val. Un.</th>
+                                <th class="border p-1 w-16 text-center">Peso Un.</th> <th class="border p-1 w-20 text-right">Val. Un.</th>
                                 <th class="border p-1 w-10 text-center">Qtd.</th>
                                 <th class="border p-1 w-24 text-right">Subtotal</th>
                             </tr>
@@ -243,7 +246,9 @@
                 <td class="border p-1 text-center un-cel">-</td>
                 <td class="border p-1 text-center peso-display-cel">-</td>
                 <td class="border p-1 text-right valor-cel font-mono">0.00</td>
-                <td class="border p-1"><input type="number" class="input-field text-center qtd-input font-bold" value="0" oninput="calcularTotais()"></td>
+                <td class="border p-1">
+                    <input type="number" class="input-field text-center qtd-input font-bold" value="0" min="0" oninput="this.value = Math.max(0, this.value); calcularTotais()">
+                </td>
                 <td class="border p-1 text-right font-bold subtotal-cel font-mono text-gray-800">0.00</td>
                 <input type="hidden" class="peso-un-input" value="0">
             `;
@@ -268,12 +273,10 @@
                 row.querySelector('.tam-cel').innerText = produto['TAM.'] || '-';
                 row.querySelector('.un-cel').innerText = produto['Um.'] || '-';
                 
-                // Exibir Peso na Tabela (Coluna I)
                 let pesoStr = produto['PESO UN.'] ? produto['PESO UN.'].replace(',', '.') : '0';
                 row.querySelector('.peso-display-cel').innerText = parseFloat(pesoStr).toFixed(2);
                 row.querySelector('.peso-un-input').value = pesoStr;
 
-                // Valor (Coluna F)
                 let valorStr = produto['VALOR'] ? produto['VALOR'].replace(/\./g, '').replace(',', '.') : '0';
                 row.querySelector('.valor-cel').innerText = parseFloat(valorStr).toFixed(2);
                 
@@ -290,11 +293,15 @@
             let subtotalGeral = 0;
 
             document.querySelectorAll('.item-row').forEach(row => {
-                const qtd = parseFloat(row.querySelector('.qtd-input').value) || 0;
+                let qtd = parseFloat(row.querySelector('.qtd-input').value) || 0;
+                if(qtd < 0) qtd = 0; // Garantia extra no cálculo
+
                 const valorUn = parseFloat(row.querySelector('.valor-cel').innerText) || 0;
                 const pesoUn = parseFloat(row.querySelector('.peso-un-input').value) || 0;
+                
                 const subtotal = qtd * valorUn;
                 row.querySelector('.subtotal-cel').innerText = subtotal.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+                
                 totalQtd += qtd;
                 totalPeso += (qtd * pesoUn);
                 subtotalGeral += subtotal;
