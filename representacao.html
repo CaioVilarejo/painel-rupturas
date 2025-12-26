@@ -132,6 +132,12 @@
                             </div>
                         </div>
                         <div class="grid grid-cols-12 gap-2">
+                            <div class="col-span-12">
+                                <label>Ponto de Referência</label>
+                                <input type="text" class="input-field text-[11px]" placeholder="Ex: Próximo ao mercado...">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-12 gap-2">
                             <div class="col-span-5">
                                 <label>Bairro</label>
                                 <input type="text" class="input-field text-[11px]">
@@ -181,7 +187,7 @@
                             
                             <div class="mt-4">
                                 <label>Valor Frete (R$)</label>
-                                <input type="text" class="input-field font-bold text-red-600" placeholder="0,00">
+                                <input type="text" class="input-field font-bold text-red-600" placeholder="">
                                 <p class="text-[8px] text-red-500 font-bold italic mt-1">Frete pago a parte</p>
                             </div>
                         </div>
@@ -286,7 +292,7 @@
             document.getElementById('valorFinal').innerText = valorFinal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
         }
 
-        // Começar com 10 linhas para preenchimento manual
+        // Iniciar com 10 linhas para garantir espaço
         for(let i=0; i<10; i++) adicionarLinha();
     </script>
 </body>
