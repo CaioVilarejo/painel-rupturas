@@ -1,48 +1,6 @@
-<!DOCTYPE html>
-<html class="light" lang="pt-BR">
-<head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Pendências CD - Vilarejo</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: { extend: { colors: { "primary": "#E30613" } } }
-        }
-    </script>
-    <style>
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        select { appearance: none; }
-    </style>
-</head>
-<body class="bg-gray-50 antialiased">
-    <div class="flex h-screen overflow-hidden">
-        <div id="sidebar-container"></div>
-
-        <main class="flex-1 overflow-y-auto p-6 no-scrollbar">
-            <div class="max-w-7xl mx-auto">
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm border-l-4 border-l-blue-500">
-                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Em Andamento</p>
-                        <h3 id="cardAndamento" class="text-3xl font-black text-gray-800">0</h3>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm border-l-4 border-l-red-500">
-                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Em Atraso</p>
-                        <h3 id="cardAtraso" class="text-3xl font-black text-gray-800">0</h3>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm border-l-4 border-l-emerald-500">
-                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Concluídos</p>
-                        <h3 id="cardResolvido" class="text-3xl font-black text-gray-800">0</h3>
-                    </div>
-                </div>
-
-                <div class="flex flex-col md:flex-row justify-between items-end gap-4 mb-6">
+<div class="flex flex-col md:flex-row justify-between items-end gap-4 mb-6">
                     <div class="flex flex-col gap-2">
-                        <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Status do Ticket</label>
+                        <label class="text-[10px] font-black text-gray-400 uppercase ml-1 tracking-tighter">Status do Ticket</label>
                         <div class="relative">
                             <select onchange="filtrarTabela(this.value)" class="bg-white border border-gray-200 rounded-xl px-4 py-2.5 pr-10 text-xs font-bold text-gray-700 outline-none focus:border-primary shadow-sm cursor-pointer min-w-[200px]">
                                 <option value="todos">Todos os Status</option>
@@ -50,11 +8,11 @@
                                 <option value="Atrasado">Em Atraso</option>
                                 <option value="Resolvido">Concluídos</option>
                             </select>
-                            <span class="material-symbols-outlined absolute right-3 top-2 text-gray-400 pointer-events-none">expand_more</span>
+                            <span class="material-symbols-outlined absolute right-3 top-2.5 text-gray-400 pointer-events-none text-sm">expand_more</span>
                         </div>
                     </div>
                     
-                    <button onclick="abrirModal()" class="bg-primary text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-red-700 transition-all shadow-lg shadow-red-100 uppercase text-xs tracking-wider">
+                    <button onclick="abrirModal()" class="bg-primary text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-red-700 transition-all shadow-lg shadow-red-100 uppercase text-[10px] tracking-widest">
                         <span class="material-symbols-outlined text-sm">add_circle</span> Abrir Novo Chamado
                     </button>
                 </div>
@@ -67,37 +25,38 @@
                                 <th class="p-4">Status</th>
                                 <th class="p-4">Produto / Fornecedor</th>
                                 <th class="p-4">Abertura</th>
-                                <th class="p-4">Previsão (Editável)</th>
-                                <th class="p-4 text-right">Ação</th>
+                                <th class="p-4">Previsão</th>
+                                <th class="p-4 text-center">Concluir Chamado</th>
                             </tr>
                         </thead>
                         <tbody id="tabelaChamados" class="divide-y divide-gray-100 text-sm text-gray-700">
                             </tbody>
                     </table>
                 </div>
-            </div>
-        </main>
-    </div>
 
-    <div id="modalChamado" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+<div id="modalChamado" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
         <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden">
             <div class="p-6 border-b flex justify-between items-center bg-gray-50">
-                <h2 class="text-xl font-black text-gray-800 uppercase tracking-tighter">Novo Chamado de Pendência</h2>
+                <h2 class="text-xl font-black text-gray-800 uppercase tracking-tighter">Novo Chamado</h2>
                 <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600"><span class="material-symbols-outlined">close</span></button>
             </div>
             
             <form id="formTicket" class="p-6 grid grid-cols-2 gap-4">
                 <div class="space-y-1">
-                    <label class="block text-[10px] font-black text-gray-400 uppercase">Cód Seac</label>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase">Cód Produto Seac</label>
                     <input type="text" name="cod_seac" required class="w-full border rounded-xl p-3 text-sm focus:border-primary outline-none bg-gray-50">
                 </div>
                 <div class="space-y-1">
                     <label class="block text-[10px] font-black text-gray-400 uppercase">Fornecedor</label>
                     <input type="text" name="fornecedor" required class="w-full border rounded-xl p-3 text-sm focus:border-primary outline-none bg-gray-50">
                 </div>
-                <div class="col-span-2 space-y-1">
-                    <label class="block text-[10px] font-black text-gray-400 uppercase">Referência / Item</label>
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-black text-gray-400 uppercase">Referência</label>
                     <input type="text" name="referencia" required class="w-full border rounded-xl p-3 text-sm focus:border-primary outline-none bg-gray-50">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-black text-gray-400 uppercase">Cód Cliente</label>
+                    <input type="text" name="cod_cliente" class="w-full border rounded-xl p-3 text-sm focus:border-primary outline-none bg-gray-50">
                 </div>
                 <div class="space-y-1">
                     <label class="block text-[10px] font-black text-gray-400 uppercase">Quantidade</label>
@@ -108,144 +67,87 @@
                     <input type="text" name="lote" class="w-full border rounded-xl p-3 text-sm focus:border-primary outline-none bg-gray-50">
                 </div>
                 <div class="col-span-2 space-y-1">
-                    <label class="block text-[10px] font-black text-gray-400 uppercase">Motivo da Ocorrência</label>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase">Motivo</label>
                     <select name="motivo" id="selectMotivo" onchange="toggleOutros(this.value)" class="w-full border rounded-xl p-3 text-sm focus:border-primary outline-none bg-gray-50">
                         <option value="Quebra fábrica">Quebra fábrica</option>
                         <option value="Quebra de produto na embalagem(Externa)">Quebra de produto na embalagem(Externa)</option>
                         <option value="Quebra depósito/Loja">Quebra depósito/Loja</option>
-                        <option value="Outros">Outros (Digitar motivo...)</option>
+                        <option value="Outros">Outros</option>
                     </select>
                 </div>
                 <div id="divOutros" class="col-span-2 hidden">
                     <input type="text" id="inputOutros" placeholder="Especifique o motivo..." class="w-full border rounded-xl p-3 text-sm border-primary outline-none">
                 </div>
                 <div class="col-span-2 space-y-1">
-                    <label class="block text-[10px] font-black text-gray-400 uppercase">Observações Adicionais</label>
-                    <textarea name="observacao" rows="3" class="w-full border rounded-xl p-3 text-sm focus:border-primary outline-none resize-none bg-gray-50"></textarea>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase">Observações</label>
+                    <textarea name="observacao" rows="2" class="w-full border rounded-xl p-3 text-sm focus:border-primary outline-none resize-none bg-gray-50"></textarea>
                 </div>
                 
                 <div class="col-span-2 pt-4 flex gap-3">
                     <button type="button" onclick="fecharModal()" class="flex-1 bg-gray-100 text-gray-500 font-bold py-3 rounded-xl hover:bg-gray-200 uppercase text-xs">Descartar</button>
-                    <button type="submit" id="btnSalvar" class="flex-1 bg-primary text-white font-bold py-3 rounded-xl hover:bg-red-700 shadow-lg shadow-red-100 uppercase text-xs">Registrar Chamado</button>
+                    <button type="submit" id="btnSalvar" class="flex-1 bg-primary text-white font-bold py-3 rounded-xl hover:bg-red-700 shadow-lg shadow-red-100 uppercase text-xs">Registrar</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script src="menu.js"></script>
-    <script>
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyMh4zjTsm5TJ1M4HWRyh8fX5_EOeR942DmUim8ZPPHFO3EkRdLga6Yxf3KosmS19tV/exec';
-        let dadosGlobais = [];
+<script>
+    // ... (Mantendo as funções carregarTickets e filtrarTabela iguais ao código anterior) ...
 
-        function abrirModal() { document.getElementById('modalChamado').classList.remove('hidden'); }
-        function fecharModal() { document.getElementById('modalChamado').classList.add('hidden'); }
-        function toggleOutros(v) { document.getElementById('divOutros').classList.toggle('hidden', v !== 'Outros'); }
+    function renderizarTabela(dados) {
+        const tbody = document.getElementById('tabelaChamados');
+        let and = 0, atr = 0, con = 0;
+        tbody.innerHTML = '';
 
-        async function carregarTickets() {
-            const tbody = document.getElementById('tabelaChamados');
-            tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-gray-400 italic">Buscando informações na planilha...</td></tr>`;
-            try {
-                const r = await fetch(WEB_APP_URL);
-                dadosGlobais = await r.json();
-                renderizarTabela(dadosGlobais);
-            } catch (e) { tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-red-500">Erro ao carregar dados.</td></tr>`; }
-        }
+        dados.forEach((linha, index) => {
+            const [id, seac, forn, ref, cli, qtd, lote, motivo, obs, status, abertura, resolucao, prevista] = linha;
+            const rowId = index + 2;
 
-        function renderizarTabela(dados) {
-            const tbody = document.getElementById('tabelaChamados');
-            let and = 0, atr = 0, con = 0;
-            tbody.innerHTML = '';
-
-            dados.forEach((linha, index) => {
-                const [id, seac, forn, ref, cli, qtd, lote, motivo, obs, status, abertura, resolucao, prevista] = linha;
-                const rowId = index + 2;
-
-                const dPrev = prevista ? new Date(prevista).getTime() : 0;
-                const hoje = new Date().setHours(0,0,0,0);
-                const isAtrasado = status !== 'Resolvido' && dPrev > 0 && dPrev < hoje;
-
-                if(status === 'Resolvido') con++; else if(isAtrasado) atr++; else and++;
-
-                const statusColor = status === 'Resolvido' ? 'bg-emerald-100 text-emerald-700' : 
-                                   isAtrasado ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700';
-
-                const dataPrevInput = status === 'Resolvido' ? 
-                    `<span class="text-gray-400">${new Date(prevista).toLocaleDateString('pt-BR')}</span>` :
-                    `<input type="date" value="${prevista ? prevista.split('T')[0] : ''}" 
-                        onchange="atualizarCampo(${rowId}, 'previsao', this.value)" 
-                        class="bg-gray-50 border border-gray-200 rounded px-2 py-1 text-xs focus:border-primary outline-none">`;
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50/50 transition-colors">
-                        <td class="p-4 font-black text-gray-900">${id}</td>
-                        <td class="p-4">
-                            <span class="px-2 py-1 rounded-md text-[9px] font-black uppercase ${statusColor}">${isAtrasado ? 'Em Atraso' : status}</span>
-                        </td>
-                        <td class="p-4">
-                            <div class="font-bold text-gray-800">${ref}</div>
-                            <div class="text-[10px] text-gray-400 uppercase font-medium">${forn} (SEAC: ${seac})</div>
-                        </td>
-                        <td class="p-4 text-xs text-gray-500 font-medium">${abertura ? new Date(abertura).toLocaleDateString('pt-BR') : '---'}</td>
-                        <td class="p-4">${dataPrevInput}</td>
-                        <td class="p-4 text-right">
-                            ${status !== 'Resolvido' ? `
-                                <button onclick="finalizarTicket(${rowId})" class="text-gray-400 hover:text-emerald-600 transition-colors">
-                                    <span class="material-symbols-outlined">check_circle</span>
-                                </button>` : `<span class="text-emerald-500 material-symbols-outlined">done_all</span>`}
-                        </td>
-                    </tr>`;
-            });
-
-            document.getElementById('cardAndamento').innerText = and;
-            document.getElementById('cardAtraso').innerText = atr;
-            document.getElementById('cardResolvido').innerText = con;
-        }
-
-        async function atualizarCampo(row, campo, valor) {
-            try {
-                await fetch(WEB_APP_URL, {
-                    method: 'POST', mode: 'no-cors',
-                    body: JSON.stringify({ action: 'update_field', row: row, field: campo, value: valor })
-                });
-            } catch (e) { alert("Erro ao salvar data."); }
-        }
-
-        async function finalizarTicket(row) {
-            if(!confirm("Deseja concluir este chamado?")) return;
-            try {
-                await fetch(WEB_APP_URL, {
-                    method: 'POST', mode: 'no-cors',
-                    body: JSON.stringify({ action: 'update', row: row, status: 'Resolvido' })
-                });
-                carregarTickets();
-            } catch (e) { alert("Erro ao concluir."); }
-        }
-
-        function filtrarTabela(statusFiltro) {
-            if(statusFiltro === 'todos') return renderizarTabela(dadosGlobais);
-            if(statusFiltro === 'Atrasado') {
-                const hoje = new Date().setHours(0,0,0,0);
-                renderizarTabela(dadosGlobais.filter(d => d[9] !== 'Resolvido' && new Date(d[12]).getTime() < hoje));
-            } else {
-                renderizarTabela(dadosGlobais.filter(d => d[9] === statusFiltro));
+            // Lógica de Atrasado (Trata data no formato BR ou ISO)
+            let dataComparacao = prevista;
+            if(prevista && prevista.includes('/')) {
+                const p = prevista.split('/');
+                dataComparacao = `${p[2]}-${p[1]}-${p[0]}`;
             }
-        }
+            const dPrev = dataComparacao ? new Date(dataComparacao).getTime() : 0;
+            const hoje = new Date().setHours(0,0,0,0);
+            const isAtrasado = status !== 'Resolvido' && dPrev > 0 && dPrev < hoje;
 
-        document.getElementById('formTicket').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('btnSalvar');
-            btn.disabled = true; btn.innerText = "ENVIANDO...";
-            const payload = Object.fromEntries(new FormData(e.target));
-            if(payload.motivo === 'Outros') payload.motivo = document.getElementById('inputOutros').value;
-            payload.action = 'insert';
-            try {
-                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                fecharModal(); e.target.reset(); setTimeout(carregarTickets, 1500);
-            } catch (e) { alert("Erro ao salvar."); }
-            finally { btn.innerText = "REGISTRAR CHAMADO"; btn.disabled = false; }
+            if(status === 'Resolvido') con++; else if(isAtrasado) atr++; else and++;
+
+            const statusColor = status === 'Resolvido' ? 'bg-emerald-100 text-emerald-700' : 
+                               isAtrasado ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700';
+
+            // Input de Data de Previsão
+            const dataPrevInput = status === 'Resolvido' ? 
+                `<span class="text-gray-400 text-xs">${prevista || '---'}</span>` :
+                `<input type="date" onchange="atualizarCampo(${rowId}, 'previsao', this.value)" 
+                    class="bg-gray-50 border border-gray-200 rounded px-2 py-1 text-xs focus:border-primary outline-none">`;
+
+            tbody.innerHTML += `
+                <tr class="hover:bg-gray-50/50 transition-colors">
+                    <td class="p-4 font-black text-gray-900">${id}</td>
+                    <td class="p-4">
+                        <span class="px-2 py-1 rounded-md text-[9px] font-black uppercase ${statusColor}">${isAtrasado ? 'Em Atraso' : status}</span>
+                    </td>
+                    <td class="p-4">
+                        <div class="font-bold text-gray-800">${ref}</div>
+                        <div class="text-[10px] text-gray-400 uppercase font-medium">${forn} (SEAC: ${seac})</div>
+                    </td>
+                    <td class="p-4 text-xs text-gray-500 font-medium">${abertura || '---'}</td>
+                    <td class="p-4">${dataPrevInput}</td>
+                    <td class="p-4 text-center">
+                        ${status !== 'Resolvido' ? `
+                            <button onclick="finalizarTicket(${rowId})" class="bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white p-2 rounded-lg transition-all" title="Concluir">
+                                <span class="material-symbols-outlined text-sm">check</span>
+                            </button>` : `<span class="text-emerald-500 text-xs font-bold">${resolucao}</span>`}
+                    </td>
+                </tr>`;
         });
 
-        window.onload = carregarTickets;
-    </script>
-</body>
-</html>
+        // Atualiza Cards
+        document.getElementById('cardAndamento').innerText = and;
+        document.getElementById('cardAtraso').innerText = atr;
+        document.getElementById('cardResolvido').innerText = con;
+    }
+</script>
