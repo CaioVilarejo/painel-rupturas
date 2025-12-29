@@ -13,42 +13,53 @@
         }
     </script>
     <style>
-        .status-pendente { @apply bg-amber-100 text-amber-700 border-amber-200; }
-        .status-resolvido { @apply bg-emerald-100 text-emerald-700 border-emerald-200; }
-        .status-atraso { @apply bg-red-100 text-red-700 border-red-200; }
+        body { font-family: 'Roboto', sans-serif; }
+        .status-pendente { background-color: #fef3c7; color: #92400e; border-color: #fde68a; }
+        .status-resolvido { background-color: #d1fae5; color: #065f46; border-color: #a7f3d0; }
+        .status-atraso { background-color: #fee2e2; color: #991b1b; border-color: #fecaca; }
+        
+        /* Esconder scrollbar mantendo funcionalidade */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-gray-50 antialiased">
+<body class="bg-gray-100 antialiased">
     <div class="flex h-screen overflow-hidden">
+        
         <div id="sidebar-container"></div>
 
-        <main class="flex-1 overflow-y-auto p-6">
-            <div class="max-w-7xl mx-auto">
-                <div class="flex justify-between items-center mb-8">
+        <main class="flex-1 overflow-y-auto p-4 lg:p-8 no-scrollbar">
+            <div class="max-w-6xl mx-auto">
+                
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                     <div>
-                        <h1 class="text-2xl font-black text-gray-800 tracking-tight">PENDÊNCIAS CD</h1>
-                        <p class="text-gray-500 text-sm font-medium uppercase tracking-widest">Controle de Avarias e Chamados</p>
+                        <h1 class="text-3xl font-black text-gray-800 tracking-tighter">PENDÊNCIAS CD</h1>
+                        <p class="text-gray-500 font-medium text-sm uppercase tracking-widest">Gestão de Chamados e Avarias</p>
                     </div>
-                    <button onclick="abrirModal()" class="bg-primary text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:bg-red-700 transition-all shadow-lg shadow-red-200">
-                        <span class="material-symbols-outlined">add_circle</span> Novo Chamado
+                    <button onclick="abrirModal()" class="bg-primary text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-red-700 transition-all shadow-lg shadow-red-200 active:scale-95">
+                        <span class="material-symbols-outlined">add_circle</span> NOVO CHAMADO
                     </button>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="bg-gray-50 border-b border-gray-100">
-                                    <th class="p-4 text-[10px] font-black text-gray-400 uppercase">Status</th>
-                                    <th class="p-4 text-[10px] font-black text-gray-400 uppercase">Item / Fornecedor</th>
-                                    <th class="p-4 text-[10px] font-black text-gray-400 uppercase">Qtd / Lote</th>
-                                    <th class="p-4 text-[10px] font-black text-gray-400 uppercase">Motivo</th>
-                                    <th class="p-4 text-[10px] font-black text-gray-400 uppercase text-right">Ações</th>
+                                <tr class="bg-gray-50 border-b border-gray-200">
+                                    <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-wider">Status</th>
+                                    <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-wider">Cód. Seac / Fornecedor</th>
+                                    <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-wider">Referência / Cliente</th>
+                                    <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-wider text-center">Qtd</th>
+                                    <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-wider text-right">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="tabelaChamados" class="divide-y divide-gray-50 text-sm">
+                            <tbody id="tabelaChamados" class="divide-y divide-gray-100 text-sm">
                                 </tbody>
                         </table>
+                    </div>
+                    <div id="loadingState" class="p-12 text-center text-gray-400 hidden">
+                        <span class="animate-spin material-symbols-outlined text-4xl mb-2">sync</span>
+                        <p class="font-medium">Sincronizando com a planilha...</p>
                     </div>
                 </div>
             </div>
@@ -56,10 +67,10 @@
     </div>
 
     <div id="modalChamado" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
-        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in duration-200">
             <div class="p-6 border-b flex justify-between items-center bg-gray-50">
                 <h2 class="text-xl font-black text-gray-800">ABRIR NOVO CHAMADO</h2>
-                <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600">
                     <span class="material-symbols-outlined">close</span>
                 </button>
             </div>
@@ -67,50 +78,48 @@
             <form id="formTicket" class="p-6 grid grid-cols-2 gap-4">
                 <div class="space-y-1">
                     <label class="block text-[10px] font-black text-gray-400 uppercase ml-1">Cód Seac</label>
-                    <input type="text" name="cod_seac" required class="w-full border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all">
+                    <input type="text" name="cod_seac" required class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-primary outline-none transition-all">
                 </div>
                 <div class="space-y-1">
                     <label class="block text-[10px] font-black text-gray-400 uppercase ml-1">Fornecedor</label>
-                    <input type="text" name="fornecedor" required class="w-full border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all">
+                    <input type="text" name="fornecedor" required class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-primary outline-none transition-all">
                 </div>
                 <div class="space-y-1">
                     <label class="block text-[10px] font-black text-gray-400 uppercase ml-1">Referência</label>
-                    <input type="text" name="referencia" required class="w-full border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all">
+                    <input type="text" name="referencia" required class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-primary outline-none transition-all">
                 </div>
                 <div class="space-y-1">
                     <label class="block text-[10px] font-black text-gray-400 uppercase ml-1">Cód Cliente</label>
-                    <input type="text" name="cod_cliente" class="w-full border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all">
+                    <input type="text" name="cod_cliente" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-primary outline-none transition-all">
                 </div>
                 <div class="space-y-1">
                     <label class="block text-[10px] font-black text-gray-400 uppercase ml-1">Quantidade</label>
-                    <input type="number" name="quantidade" required class="w-full border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all">
+                    <input type="number" name="quantidade" required class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-primary outline-none transition-all">
                 </div>
                 <div class="space-y-1">
                     <label class="block text-[10px] font-black text-gray-400 uppercase ml-1">Tonalidade / Lote</label>
-                    <input type="text" name="lote" class="w-full border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all">
+                    <input type="text" name="lote" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-primary outline-none transition-all">
                 </div>
                 <div class="col-span-2 space-y-1">
                     <label class="block text-[10px] font-black text-gray-400 uppercase ml-1">Motivo</label>
-                    <select name="motivo" id="selectMotivo" onchange="toggleOutros(this.value)" class="w-full border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-primary bg-white">
+                    <select name="motivo" id="selectMotivo" onchange="toggleOutros(this.value)" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-primary outline-none bg-white">
                         <option value="Quebra fábrica">Quebra fábrica</option>
                         <option value="Quebra de produto na embalagem(Externa)">Quebra de produto na embalagem (Externa)</option>
                         <option value="Quebra depósito/Loja">Quebra depósito/Loja</option>
                         <option value="Outros">Outros (Especificar...)</option>
                     </select>
                 </div>
-                <div id="divOutros" class="col-span-2 hidden animate-in slide-in-from-top-2 duration-200">
-                    <input type="text" id="inputOutros" placeholder="Digite o motivo detalhado..." class="w-full border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-primary">
+                <div id="divOutros" class="col-span-2 hidden">
+                    <input type="text" id="inputOutros" placeholder="Digite o motivo..." class="w-full border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-primary">
                 </div>
                 <div class="col-span-2 space-y-1">
                     <label class="block text-[10px] font-black text-gray-400 uppercase ml-1">Observação</label>
-                    <textarea name="observacao" rows="3" class="w-full border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-primary resize-none transition-all"></textarea>
+                    <textarea name="observacao" rows="3" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-primary outline-none resize-none"></textarea>
                 </div>
                 
                 <div class="col-span-2 pt-4 flex gap-3">
-                    <button type="button" onclick="fecharModal()" class="flex-1 bg-gray-100 text-gray-600 font-bold py-3 rounded-xl hover:bg-gray-200 transition-all">Cancelar</button>
-                    <button type="submit" id="btnSalvar" class="flex-1 bg-primary text-white font-bold py-3 rounded-xl hover:bg-red-700 transition-all shadow-lg shadow-red-200 flex justify-center items-center gap-2">
-                        Salvar Chamado
-                    </button>
+                    <button type="button" onclick="fecharModal()" class="flex-1 bg-gray-100 text-gray-600 font-bold py-3 rounded-xl hover:bg-gray-200 transition-all">CANCELAR</button>
+                    <button type="submit" id="btnSalvar" class="flex-1 bg-primary text-white font-bold py-3 rounded-xl hover:bg-red-700 transition-all shadow-lg shadow-red-200">SALVAR CHAMADO</button>
                 </div>
             </form>
         </div>
@@ -130,56 +139,65 @@
 
         async function carregarTickets() {
             const tbody = document.getElementById('tabelaChamados');
-            tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-gray-400 italic">Buscando pendências na planilha...</td></tr>`;
+            const loading = document.getElementById('loadingState');
+            
+            tbody.innerHTML = '';
+            loading.classList.remove('hidden');
             
             try {
                 const response = await fetch(WEB_APP_URL);
                 const data = await response.json();
                 
-                tbody.innerHTML = '';
+                loading.classList.add('hidden');
                 
-                // data é um array de arrays enviado pelo Apps Script
+                if (data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-12 text-center text-gray-400 italic">Nenhum chamado encontrado.</td></tr>`;
+                    return;
+                }
+
                 data.forEach((linha, index) => {
                     const [seac, forn, ref, cli, qtd, lote, motivo, obs, status] = linha;
-                    const rowId = index + 2; // Referência da linha na planilha (index 0 + header 1)
+                    const rowNum = index + 2; // Linha real na planilha
 
                     const statusClass = status.toLowerCase() === 'resolvido' ? 'status-resolvido' : 
                                       status.toLowerCase() === 'em atraso' ? 'status-atraso' : 'status-pendente';
 
                     tbody.innerHTML += `
-                        <tr class="hover:bg-gray-50/50 transition-colors">
+                        <tr class="hover:bg-gray-50/50 transition-all">
                             <td class="p-4">
-                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold border ${statusClass} uppercase">
+                                <span class="px-3 py-1 rounded-full text-[10px] font-black border uppercase ${statusClass}">
                                     ${status}
                                 </span>
                             </td>
-                            <td class="p-4">
+                            <td class="p-4 text-xs">
                                 <div class="font-bold text-gray-800">${seac}</div>
-                                <div class="text-[10px] text-gray-400 uppercase font-medium">${forn}</div>
+                                <div class="text-gray-400 uppercase font-medium">${forn}</div>
                             </td>
-                            <td class="p-4 font-medium text-gray-600">
-                                ${qtd} un <span class="text-gray-300 mx-1">|</span> ${lote || 'N/A'}
+                            <td class="p-4 text-xs">
+                                <div class="text-gray-700 font-medium">${ref}</div>
+                                <div class="text-[10px] text-gray-400 uppercase">Cli: ${cli || '---'}</div>
                             </td>
-                            <td class="p-4">
-                                <div class="text-gray-700 max-w-[200px] truncate" title="${obs}">${motivo}</div>
-                            </td>
+                            <td class="p-4 text-center font-bold text-gray-600">${qtd}</td>
                             <td class="p-4 text-right">
-                                <button onclick="atualizarStatus(${rowId}, '${status}')" class="text-gray-400 hover:text-primary transition-colors p-1" title="Alterar Status">
-                                    <span class="material-symbols-outlined text-xl">sync_alt</span>
+                                <button onclick="mudarStatus(${rowNum}, '${status}')" class="text-gray-300 hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined">sync_alt</span>
                                 </button>
                             </td>
                         </tr>
                     `;
                 });
             } catch (err) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-red-500">Erro ao carregar dados. Verifique a URL do script.</td></tr>`;
+                loading.classList.add('hidden');
+                tbody.innerHTML = `<tr><td colspan="5" class="p-12 text-center text-red-500">Erro ao carregar dados. Verifique a conexão.</td></tr>`;
             }
         }
 
         document.getElementById('formTicket').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnSalvar');
-            btn.innerHTML = `<span class="animate-spin material-symbols-outlined">sync</span> Salvando...`;
+            const originalText = btn.innerText;
+            
+            btn.innerText = "ENVIANDO...";
             btn.disabled = true;
 
             const formData = new FormData(e.target);
@@ -187,39 +205,42 @@
             
             if(payload.motivo === 'Outros') payload.motivo = document.getElementById('inputOutros').value;
             payload.status = 'Pendente';
-            payload.action = 'insert'; // Define a ação para o Apps Script
+            payload.action = 'insert';
 
             try {
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
+                    mode: 'no-cors',
                     body: JSON.stringify(payload)
                 });
+                
                 fecharModal();
                 e.target.reset();
-                carregarTickets();
+                setTimeout(carregarTickets, 1000);
             } catch (err) {
-                alert("Erro ao salvar chamado.");
+                alert("Erro ao salvar. Verifique o Script.");
             } finally {
-                btn.innerText = "Salvar Chamado";
+                btn.innerText = originalText;
                 btn.disabled = false;
             }
         });
 
-        async function atualizarStatus(rowId, statusAtual) {
+        async function mudarStatus(row, statusAtual) {
             let novoStatus = 'Pendente';
             if(statusAtual === 'Pendente') novoStatus = 'Resolvido';
             else if(statusAtual === 'Resolvido') novoStatus = 'Em atraso';
 
-            if(!confirm(`Mudar status para ${novoStatus}?`)) return;
+            if(!confirm(`Deseja alterar o status para: ${novoStatus}?`)) return;
 
             try {
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
-                    body: JSON.stringify({ action: 'update', row: rowId, status: novoStatus })
+                    mode: 'no-cors',
+                    body: JSON.stringify({ action: 'update', row: row, status: novoStatus })
                 });
-                carregarTickets();
+                setTimeout(carregarTickets, 1000);
             } catch (err) {
-                alert("Erro ao atualizar status.");
+                alert("Erro ao atualizar.");
             }
         }
 
