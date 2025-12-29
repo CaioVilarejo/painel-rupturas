@@ -28,28 +28,8 @@
 </head>
 <body class="bg-gray-100 antialiased">
     <div class="flex h-screen overflow-hidden">
-        <aside class="w-64 bg-white border-r border-gray-200 p-6 flex flex-col justify-between hidden md:flex">
-            <div>
-                <div class="flex items-center gap-3 mb-10 pb-4 border-b border-gray-100">
-                    <img src="https://i.ibb.co/tPcWfmjT/VI-logo-novo-sem-fundo.png" alt="Logo Vilarejo" class="h-8 w-auto object-contain"/>
-                    <span class="text-xl font-bold">Monitor</span>
-                </div>
-                <nav class="space-y-2">
-                    <a href="dashboard.html" class="flex items-center gap-3 p-3 bg-primary text-white rounded-lg font-medium shadow-md">
-                        <span class="material-symbols-outlined">analytics</span> Rupturas
-                    </a>
-                    <a href="historico.html" class="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg font-medium">
-                        <span class="material-symbols-outlined">timeline</span> Histórico
-                    </a>
-                    <a href="contas.html" class="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg font-medium">
-                        <span class="material-symbols-outlined">payments</span> Contas
-                    </a>
-                </nav>
-            </div>
-            <button onclick="window.location.href='index.html'" class="flex items-center gap-3 p-3 text-gray-500 hover:text-red-600 transition-colors border-t pt-4">
-                <span class="material-symbols-outlined">logout</span> Sair
-            </button>
-        </aside>
+        
+        <div id="sidebar-container"></div>
 
         <main class="flex-1 overflow-y-auto p-6 lg:p-10">
             <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 border-b pb-6">
@@ -135,6 +115,8 @@
         </main>
     </div>
 
+    <script src="menu.js"></script>
+
     <script>
         // Configurações das abas do Google Sheets
         const BASE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?';
@@ -152,7 +134,6 @@
         async function carregarDados() {
             document.getElementById('lastUpdate').innerText = "Sincronizando...";
 
-            // 1. Busca Data na aba Auxiliar (Célula B2)
             Papa.parse(AUX_URL, {
                 download: true,
                 header: false,
@@ -163,7 +144,6 @@
                 }
             });
 
-            // 2. Busca Dados da Planilha Principal
             Papa.parse(CSV_URL, {
                 download: true,
                 header: true,
@@ -196,7 +176,6 @@
             
             criarGraficoRuptura(contadores);
 
-            // Alerta Crítico
             const totalFuturoGeral = contadores.H.futuro + contadores.B.futuro + contadores.TH.futuro;
             const alertaDiv = document.getElementById('alertaRuptura');
             if (totalFuturoGeral > 0) {
