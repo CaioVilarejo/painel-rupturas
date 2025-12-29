@@ -40,8 +40,15 @@ function carregarMenu() {
         `;
     });
 
+    // Fecha o nav e adiciona o botão de Sair na parte inferior (dentro do flex-col justify-between)
     menuHTML += `
                 </nav>
+            </div>
+
+            <div class="border-t pt-4">
+                <button onclick="window.location.href='index.html'" class="flex items-center gap-3 p-3 w-full text-gray-500 hover:text-red-600 transition-colors font-medium">
+                    <span class="material-symbols-outlined">logout</span> Sair
+                </button>
             </div>
         </aside>
     `;
