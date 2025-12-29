@@ -8,11 +8,12 @@ function carregarMenu() {
 
     // Definição dos links do menu
     const menuItens = [
-        { nome: 'Rupturas', icone: 'analytics', link: 'dashboard.html' },
-        { nome: 'Histórico', icone: 'timeline', link: 'historico.html' },
-        { nome: 'Representação', icone: 'description', link: 'representacao.html' },
-        { nome: 'Contas', icone: 'payments', link: 'contas.html' }
-    ];
+    { nome: 'Rupturas', icone: 'analytics', link: 'dashboard.html' },
+    { nome: 'Histórico', icone: 'timeline', link: 'historico.html' },
+    { nome: 'Representação', icone: 'description', link: 'representacao.html' },
+    { nome: 'Contas', icone: 'payments', link: 'contas.html' },
+    { nome: 'Pendências CD', icone: 'confirmation_number', link: 'pendencias.html' } // Novo item
+];
 
     // Gera o HTML do Menu
     let menuHTML = `
