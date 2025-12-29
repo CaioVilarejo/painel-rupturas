@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html class="light" lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Pendências CD - Gestão de Tickets</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: { "primary": "#E30613" } } }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 antialiased">
+    <div class="flex h-screen overflow-hidden">
+        <div id="sidebar-container"></div>
+
+        <main class="flex-1 overflow-y-auto p-6">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 class="text-2xl font-black text-gray-800 tracking-tight">PENDÊNCIAS CD</h1>
+                        <p class="text-gray-500 text-sm font-medium">Gestão de chamados e avarias</p>
+                    </div>
+                    <button onclick="abrirModal()" class="bg-primary text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:bg-red-700 transition-all shadow-lg shadow-red-200">
+                        <span class="material-symbols-outlined">add_circle</span> Novo Chamado
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-100">
+                                <th class="p-4 text-[11px] font-black text-gray-400 uppercase">Status</th>
+                                <th class="p-4 text-[11px] font-black text-gray-400 uppercase">Cód Seac / Fornecedor</th>
+                                <th class="p-4 text-[11px] font-black text-gray-400 uppercase">Referência</th>
+                                <th class="p-4 text-[11px] font-black text-gray-400 uppercase">Qtd</th>
+                                <th class="p-4 text-[11px] font-black text-gray-400 uppercase">Motivo</th>
+                                <th class="p-4 text-[11px] font-black text-gray-400 uppercase text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaChamados" class="divide-y divide-gray-50 text-sm">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="modalChamado" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h2 class="text-xl font-black text-gray-800">ABRIR NOVO CHAMADO</h2>
+                <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            
+            <form id="formTicket" class="p-6 grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Cód Seac</label>
+                    <input type="text" name="cod_seac" required class="w-full border rounded-lg p-2.5 text-sm outline-none focus:border-primary">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Fornecedor</label>
+                    <input type="text" name="fornecedor" required class="w-full border rounded-lg p-2.5 text-sm outline-none focus:border-primary">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Referência</label>
+                    <input type="text" name="referencia" required class="w-full border rounded-lg p-2.5 text-sm outline-none focus:border-primary">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Cód Cliente</label>
+                    <input type="text" name="cod_cliente" class="w-full border rounded-lg p-2.5 text-sm outline-none focus:border-primary">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Quantidade</label>
+                    <input type="number" name="quantidade" required class="w-full border rounded-lg p-2.5 text-sm outline-none focus:border-primary">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Tonalidade / Lote</label>
+                    <input type="text" name="lote" class="w-full border rounded-lg p-2.5 text-sm outline-none focus:border-primary">
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Motivo</label>
+                    <select name="motivo" id="selectMotivo" onchange="toggleOutros(this.value)" class="w-full border rounded-lg p-2.5 text-sm outline-none focus:border-primary">
+                        <option value="Quebra fábrica">Quebra fábrica</option>
+                        <option value="Quebra de produto na embalagem(Externa)">Quebra externa</option>
+                        <option value="Quebra depósito/Loja">Quebra depósito/Loja</option>
+                        <option value="Outros">Outros (Especificar)</option>
+                    </select>
+                </div>
+                <div id="divOutros" class="col-span-2 hidden">
+                    <input type="text" id="inputOutros" placeholder="Digite o motivo..." class="w-full border rounded-lg p-2.5 text-sm outline-none focus:border-primary">
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Observação</label>
+                    <textarea name="observacao" rows="3" class="w-full border rounded-lg p-2.5 text-sm outline-none focus:border-primary"></textarea>
+                </div>
+                
+                <div class="col-span-2 pt-4 flex gap-3">
+                    <button type="button" onclick="fecharModal()" class="flex-1 bg-gray-100 text-gray-600 font-bold py-3 rounded-xl hover:bg-gray-200 transition-all">Cancelar</button>
+                    <button type="submit" class="flex-1 bg-primary text-white font-bold py-3 rounded-xl hover:bg-red-700 transition-all shadow-lg shadow-red-200">Salvar Chamado</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="menu.js"></script>
+    <script>
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyMh4zjTsm5TJ1M4HWRyh8fX5_EOeR942DmUim8ZPPHFO3EkRdLga6Yxf3KosmS19tV/exec';
+
+        function abrirModal() { document.getElementById('modalChamado').classList.remove('hidden'); }
+        function fecharModal() { document.getElementById('modalChamado').classList.add('hidden'); }
+        
+        function toggleOutros(valor) {
+            const div = document.getElementById('divOutros');
+            valor === 'Outros' ? div.classList.remove('hidden') : div.classList.add('hidden');
+        }
+
+        // Simulação de carregamento (Você precisará conectar ao GET do Apps Script)
+        async function carregarTickets() {
+            // Aqui faremos o fetch da planilha
+            const tbody = document.getElementById('tabelaChamados');
+            tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-gray-400 italic">Carregando chamados...</td></tr>`;
+            
+            // Lógica de fetch virá aqui
+        }
+
+        document.getElementById('formTicket').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.innerText = "Enviando...";
+            btn.disabled = true;
+
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            
+            if(data.motivo === 'Outros') data.motivo = document.getElementById('inputOutros').value;
+            data.status = 'Pendente';
+
+            try {
+                // Enviar para o Google Apps Script via POST
+                console.log("Dados a enviar:", data);
+                alert("Chamado registrado com sucesso! (Integração requer Apps Script)");
+                fecharModal();
+                e.target.reset();
+            } catch (err) {
+                alert("Erro ao salvar");
+            } finally {
+                btn.innerText = "Salvar Chamado";
+                btn.disabled = false;
+            }
+        });
+
+        window.onload = carregarTickets;
+    </script>
+</body>
+</html>
