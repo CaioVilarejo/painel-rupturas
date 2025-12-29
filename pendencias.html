@@ -11,11 +11,7 @@
 
     <script>
         tailwind.config = {
-            theme: { 
-                extend: { 
-                    colors: { "primary": "#E30613" } 
-                } 
-            }
+            theme: { extend: { colors: { "primary": "#E30613" } } }
         }
     </script>
 
@@ -23,7 +19,6 @@
         body { font-family: 'Roboto', sans-serif; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        /* Garante que o modal apareça acima de tudo */
         #modalChamado { z-index: 9999; }
     </style>
 </head>
@@ -62,7 +57,6 @@
                             <span class="material-symbols-outlined absolute right-3 top-3 text-gray-400 pointer-events-none">expand_more</span>
                         </div>
                     </div>
-                    
                     <button onclick="abrirModal()" class="w-full md:w-auto bg-primary text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-red-700 transition-all shadow-lg shadow-red-100 uppercase text-[10px] tracking-widest">
                         <span class="material-symbols-outlined">add_circle</span> Abrir Novo Chamado
                     </button>
@@ -75,10 +69,11 @@
                                 <tr class="bg-gray-50 border-b border-gray-200 text-[10px] font-black text-gray-400 uppercase">
                                     <th class="p-4">Ticket</th>
                                     <th class="p-4">Status</th>
-                                    <th class="p-4">Produto / Fornecedor</th>
+                                    <th class="p-4">Cód. Prod / Fornecedor</th>
+                                    <th class="p-4">Referência</th>
                                     <th class="p-4 text-center">Abertura</th>
                                     <th class="p-4 text-center">Previsão</th>
-                                    <th class="p-4 text-center">Concluir Chamado</th>
+                                    <th class="p-4 text-center">Concluir</th>
                                 </tr>
                             </thead>
                             <tbody id="tabelaChamados" class="divide-y divide-gray-100 text-sm text-gray-700">
@@ -94,38 +89,17 @@
         <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in duration-200">
             <div class="p-6 border-b flex justify-between items-center bg-gray-50">
                 <h2 class="text-xl font-black text-gray-800 uppercase tracking-tighter">Novo Chamado</h2>
-                <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600">
-                    <span class="material-symbols-outlined">close</span>
-                </button>
+                <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600"><span class="material-symbols-outlined">close</span></button>
             </div>
-            
             <form id="formTicket" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="space-y-1">
-                    <label class="block text-[10px] font-black text-gray-400 uppercase">Cód Produto Seac</label>
-                    <input type="text" name="cod_seac" required class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-primary outline-none bg-gray-50">
-                </div>
-                <div class="space-y-1">
-                    <label class="block text-[10px] font-black text-gray-400 uppercase">Fornecedor</label>
-                    <input type="text" name="fornecedor" required class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-primary outline-none bg-gray-50">
-                </div>
-                <div class="space-y-1">
-                    <label class="block text-[10px] font-black text-gray-400 uppercase">Referência</label>
-                    <input type="text" name="referencia" required class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-primary outline-none bg-gray-50">
-                </div>
-                <div class="space-y-1">
-                    <label class="block text-[10px] font-black text-gray-400 uppercase">Cód Cliente</label>
-                    <input type="text" name="cod_cliente" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-primary outline-none bg-gray-50">
-                </div>
-                <div class="space-y-1">
-                    <label class="block text-[10px] font-black text-gray-400 uppercase">Quantidade</label>
-                    <input type="number" name="quantidade" required class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-primary outline-none bg-gray-50">
-                </div>
-                <div class="space-y-1">
-                    <label class="block text-[10px] font-black text-gray-400 uppercase">Tonalidade / Lote</label>
-                    <input type="text" name="lote" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-primary outline-none bg-gray-50">
-                </div>
+                <div class="space-y-1"><label class="text-[10px] font-black text-gray-400 uppercase">Cód Produto Seac</label><input type="text" name="cod_seac" required class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-primary outline-none bg-gray-50"></div>
+                <div class="space-y-1"><label class="text-[10px] font-black text-gray-400 uppercase">Fornecedor</label><input type="text" name="fornecedor" required class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-primary outline-none bg-gray-50"></div>
+                <div class="space-y-1"><label class="text-[10px] font-black text-gray-400 uppercase">Referência</label><input type="text" name="referencia" required class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-primary outline-none bg-gray-50"></div>
+                <div class="space-y-1"><label class="text-[10px] font-black text-gray-400 uppercase">Cód Cliente</label><input type="text" name="cod_cliente" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-primary outline-none bg-gray-50"></div>
+                <div class="space-y-1"><label class="text-[10px] font-black text-gray-400 uppercase">Quantidade</label><input type="number" name="quantidade" required class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-primary outline-none bg-gray-50"></div>
+                <div class="space-y-1"><label class="text-[10px] font-black text-gray-400 uppercase">Tonalidade / Lote</label><input type="text" name="lote" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-primary outline-none bg-gray-50"></div>
                 <div class="col-span-1 md:col-span-2 space-y-1">
-                    <label class="block text-[10px] font-black text-gray-400 uppercase">Motivo</label>
+                    <label class="text-[10px] font-black text-gray-400 uppercase">Motivo</label>
                     <select name="motivo" id="selectMotivo" onchange="toggleOutros(this.value)" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-primary outline-none bg-gray-50 appearance-none">
                         <option value="Quebra fábrica">Quebra fábrica</option>
                         <option value="Quebra de produto na embalagem(Externa)">Quebra de produto na embalagem(Externa)</option>
@@ -133,14 +107,8 @@
                         <option value="Outros">Outros</option>
                     </select>
                 </div>
-                <div id="divOutros" class="col-span-1 md:col-span-2 hidden">
-                    <input type="text" id="inputOutros" placeholder="Especifique o motivo..." class="w-full border border-primary rounded-xl p-3 text-sm outline-none">
-                </div>
-                <div class="col-span-1 md:col-span-2 space-y-1">
-                    <label class="block text-[10px] font-black text-gray-400 uppercase">Observações</label>
-                    <textarea name="observacao" rows="2" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-primary outline-none resize-none bg-gray-50"></textarea>
-                </div>
-                
+                <div id="divOutros" class="col-span-1 md:col-span-2 hidden"><input type="text" id="inputOutros" placeholder="Especifique o motivo..." class="w-full border border-primary rounded-xl p-3 text-sm outline-none"></div>
+                <div class="col-span-1 md:col-span-2 space-y-1"><label class="text-[10px] font-black text-gray-400 uppercase">Observações</label><textarea name="observacao" rows="2" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-primary outline-none resize-none bg-gray-50"></textarea></div>
                 <div class="col-span-1 md:col-span-2 pt-4 flex gap-3">
                     <button type="button" onclick="fecharModal()" class="flex-1 bg-gray-100 text-gray-500 font-bold py-3 rounded-xl hover:bg-gray-200 uppercase text-[10px]">Descartar</button>
                     <button type="submit" id="btnSalvar" class="flex-1 bg-primary text-white font-bold py-3 rounded-xl hover:bg-red-700 shadow-lg shadow-red-100 uppercase text-[10px]">Registrar</button>
@@ -158,15 +126,35 @@
         function fecharModal() { document.getElementById('modalChamado').classList.add('hidden'); }
         function toggleOutros(v) { document.getElementById('divOutros').classList.toggle('hidden', v !== 'Outros'); }
 
+        // NOVA FUNÇÃO PARA TRATAR DATA ESTRANHA
+        function formatarDataBR(dataStr) {
+            if (!dataStr || dataStr === "") return "---";
+            
+            // Se já estiver no formato DD/MM/AAAA, retorna como está
+            if (/^\d{2}\/\d{2}\/\d{4}$/.test(dataStr)) return dataStr;
+
+            try {
+                const data = new Date(dataStr);
+                if (isNaN(data.getTime())) return dataStr; // Se falhar, mostra o original
+
+                const dia = String(data.getUTCDate()).padStart(2, '0');
+                const mes = String(data.getUTCMonth() + 1).padStart(2, '0');
+                const ano = data.getUTCFullYear();
+                return `${dia}/${mes}/${ano}`;
+            } catch (e) {
+                return dataStr;
+            }
+        }
+
         async function carregarTickets() {
             const tbody = document.getElementById('tabelaChamados');
-            tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-gray-400 italic">Sincronizando dados...</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-gray-400 italic">Sincronizando dados...</td></tr>`;
             try {
                 const r = await fetch(WEB_APP_URL);
                 dadosGlobais = await r.json();
                 renderizarTabela(dadosGlobais);
             } catch (e) { 
-                tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-red-500 font-bold">Erro ao carregar. Verifique sua conexão.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-red-500 font-bold">Erro ao carregar.</td></tr>`;
             }
         }
 
@@ -179,24 +167,40 @@
                 const [id, seac, forn, ref, cli, qtd, lote, motivo, obs, status, abertura, resolucao, prevista] = linha;
                 const rowId = index + 2;
 
-                // Converter data prevista para comparação
-                let dataComparacao = prevista;
+                // Lógica de Atraso
+                let dPrevRaw = prevista;
                 if(prevista && prevista.includes('/')) {
                     const p = prevista.split('/');
-                    dataComparacao = `${p[2]}-${p[1]}-${p[0]}`;
+                    dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`;
                 }
-                const dPrev = dataComparacao ? new Date(dataComparacao).getTime() : 0;
+                const dPrevTime = dPrevRaw ? new Date(dPrevRaw).getTime() : 0;
                 const hoje = new Date().setHours(0,0,0,0);
-                const isAtrasado = status !== 'Resolvido' && dPrev > 0 && dPrev < hoje;
+                const isAtrasado = status !== 'Resolvido' && dPrevTime > 0 && dPrevTime < hoje;
 
                 if(status === 'Resolvido') con++; else if(isAtrasado) atr++; else and++;
 
                 const statusColor = status === 'Resolvido' ? 'bg-emerald-100 text-emerald-700' : 
                                    isAtrasado ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700';
 
+                // Formatar datas para exibição
+                const dataAberturaExibicao = formatarDataBR(abertura);
+                const dataResolExibicao = formatarDataBR(resolucao);
+                const dataPrevExibicao = formatarDataBR(prevista);
+
+                // Input de Data (trata para o campo de data entender)
+                let dataInputVal = "";
+                if (prevista) {
+                    if (prevista.includes('/')) {
+                        const p = prevista.split('/');
+                        dataInputVal = `${p[2]}-${p[1]}-${p[0]}`;
+                    } else {
+                        dataInputVal = prevista.split('T')[0];
+                    }
+                }
+
                 const dataPrevInput = status === 'Resolvido' ? 
-                    `<span class="text-gray-400 text-xs">${prevista || '---'}</span>` :
-                    `<input type="date" value="${dataComparacao || ''}" 
+                    `<span class="text-gray-400 text-xs">${dataPrevExibicao}</span>` :
+                    `<input type="date" value="${dataInputVal}" 
                         onchange="atualizarCampo(${rowId}, 'previsao', this.value)" 
                         class="bg-gray-50 border border-gray-200 rounded px-2 py-1 text-xs focus:border-primary outline-none">`;
 
@@ -207,16 +211,17 @@
                             <span class="px-2 py-1 rounded-md text-[9px] font-black uppercase ${statusColor}">${isAtrasado ? 'Em Atraso' : status}</span>
                         </td>
                         <td class="p-4">
-                            <div class="font-bold text-gray-800">${ref}</div>
-                            <div class="text-[10px] text-gray-400 uppercase font-medium">${forn} (SEAC: ${seac})</div>
+                            <div class="font-bold text-gray-800">${seac}</div>
+                            <div class="text-[10px] text-gray-400 uppercase font-medium">${forn}</div>
                         </td>
-                        <td class="p-4 text-center text-xs text-gray-500 font-medium">${abertura || '---'}</td>
+                        <td class="p-4 font-medium text-gray-600">${ref}</td>
+                        <td class="p-4 text-center text-xs text-gray-500 font-medium">${dataAberturaExibicao}</td>
                         <td class="p-4 text-center">${dataPrevInput}</td>
                         <td class="p-4 text-center">
                             ${status !== 'Resolvido' ? `
-                                <button onclick="finalizarTicket(${rowId})" class="bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white p-2 rounded-lg transition-all shadow-sm" title="Concluir Chamado">
+                                <button onclick="finalizarTicket(${rowId})" class="bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white p-2 rounded-lg transition-all" title="Concluir">
                                     <span class="material-symbols-outlined text-sm">check</span>
-                                </button>` : `<span class="text-emerald-500 text-xs font-black uppercase">${resolucao}</span>`}
+                                </button>` : `<span class="text-emerald-500 text-[10px] font-black uppercase">${dataResolExibicao}</span>`}
                         </td>
                     </tr>`;
             });
@@ -232,13 +237,12 @@
                     method: 'POST', mode: 'no-cors',
                     body: JSON.stringify({ action: 'update_field', row: row, field: campo, value: valor })
                 });
-                // Recarregar apenas os indicadores após pequena espera
                 setTimeout(carregarTickets, 1000);
-            } catch (e) { alert("Erro ao salvar alteração."); }
+            } catch (e) { alert("Erro ao salvar."); }
         }
 
         async function finalizarTicket(row) {
-            if(!confirm("Deseja marcar este chamado como CONCLUÍDO?")) return;
+            if(!confirm("Concluir chamado?")) return;
             try {
                 await fetch(WEB_APP_URL, {
                     method: 'POST', mode: 'no-cors',
@@ -268,32 +272,15 @@
         document.getElementById('formTicket').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnSalvar');
-            btn.disabled = true; btn.innerText = "REGISTRANDO...";
-            
-            const formData = new FormData(e.target);
-            const payload = Object.fromEntries(formData);
-            
-            if(payload.motivo === 'Outros') {
-                payload.motivo = document.getElementById('inputOutros').value;
-            }
-            
+            btn.disabled = true; btn.innerText = "AGUARDE...";
+            const payload = Object.fromEntries(new FormData(e.target));
+            if(payload.motivo === 'Outros') payload.motivo = document.getElementById('inputOutros').value;
             payload.action = 'insert';
-            
             try {
-                await fetch(WEB_APP_URL, { 
-                    method: 'POST', 
-                    mode: 'no-cors', 
-                    body: JSON.stringify(payload) 
-                });
-                fecharModal();
-                e.target.reset();
-                setTimeout(carregarTickets, 1500);
-            } catch (e) { 
-                alert("Erro ao salvar chamado."); 
-            } finally { 
-                btn.innerText = "Registrar"; 
-                btn.disabled = false; 
-            }
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                fecharModal(); e.target.reset(); setTimeout(carregarTickets, 1500);
+            } catch (e) { alert("Erro ao salvar."); }
+            finally { btn.innerText = "Registrar"; btn.disabled = false; }
         });
 
         window.onload = carregarTickets;
