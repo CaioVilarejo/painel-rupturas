@@ -12,6 +12,11 @@
             theme: { extend: { colors: { "primary": "#E30613" } } }
         }
     </script>
+    <style>
+        .status-pendente { @apply bg-amber-100 text-amber-700 border-amber-200; }
+        .status-resolvido { @apply bg-emerald-100 text-emerald-700 border-emerald-200; }
+        .status-atraso { @apply bg-red-100 text-red-700 border-red-200; }
+    </style>
 </head>
 <body class="bg-gray-50 antialiased">
     <div class="flex h-screen overflow-hidden">
@@ -22,7 +27,7 @@
                 <div class="flex justify-between items-center mb-8">
                     <div>
                         <h1 class="text-2xl font-black text-gray-800 tracking-tight">PENDÊNCIAS CD</h1>
-                        <p class="text-gray-500 text-sm font-medium">Gestão de chamados e avarias</p>
+                        <p class="text-gray-500 text-sm font-medium uppercase tracking-widest">Controle de Avarias e Chamados</p>
                     </div>
                     <button onclick="abrirModal()" class="bg-primary text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:bg-red-700 transition-all shadow-lg shadow-red-200">
                         <span class="material-symbols-outlined">add_circle</span> Novo Chamado
@@ -30,77 +35,82 @@
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-gray-50 border-b border-gray-100">
-                                <th class="p-4 text-[11px] font-black text-gray-400 uppercase">Status</th>
-                                <th class="p-4 text-[11px] font-black text-gray-400 uppercase">Cód Seac / Fornecedor</th>
-                                <th class="p-4 text-[11px] font-black text-gray-400 uppercase">Referência</th>
-                                <th class="p-4 text-[11px] font-black text-gray-400 uppercase">Qtd</th>
-                                <th class="p-4 text-[11px] font-black text-gray-400 uppercase">Motivo</th>
-                                <th class="p-4 text-[11px] font-black text-gray-400 uppercase text-right">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabelaChamados" class="divide-y divide-gray-50 text-sm">
-                            </tbody>
-                    </table>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-100">
+                                    <th class="p-4 text-[10px] font-black text-gray-400 uppercase">Status</th>
+                                    <th class="p-4 text-[10px] font-black text-gray-400 uppercase">Item / Fornecedor</th>
+                                    <th class="p-4 text-[10px] font-black text-gray-400 uppercase">Qtd / Lote</th>
+                                    <th class="p-4 text-[10px] font-black text-gray-400 uppercase">Motivo</th>
+                                    <th class="p-4 text-[10px] font-black text-gray-400 uppercase text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaChamados" class="divide-y divide-gray-50 text-sm">
+                                </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <div id="modalChamado" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
-        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden">
-            <div class="p-6 border-b flex justify-between items-center">
+    <div id="modalChamado" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div class="p-6 border-b flex justify-between items-center bg-gray-50">
                 <h2 class="text-xl font-black text-gray-800">ABRIR NOVO CHAMADO</h2>
-                <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600"><span class="material-symbols-outlined">close</span></button>
+                <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
             </div>
             
             <form id="formTicket" class="p-6 grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Cód Seac</label>
-                    <input type="text" name="cod_seac" required class="w-full border rounded-lg p-2.5 text-sm outline-none focus:border-primary">
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-black text-gray-400 uppercase ml-1">Cód Seac</label>
+                    <input type="text" name="cod_seac" required class="w-full border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all">
                 </div>
-                <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Fornecedor</label>
-                    <input type="text" name="fornecedor" required class="w-full border rounded-lg p-2.5 text-sm outline-none focus:border-primary">
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-black text-gray-400 uppercase ml-1">Fornecedor</label>
+                    <input type="text" name="fornecedor" required class="w-full border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all">
                 </div>
-                <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Referência</label>
-                    <input type="text" name="referencia" required class="w-full border rounded-lg p-2.5 text-sm outline-none focus:border-primary">
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-black text-gray-400 uppercase ml-1">Referência</label>
+                    <input type="text" name="referencia" required class="w-full border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all">
                 </div>
-                <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Cód Cliente</label>
-                    <input type="text" name="cod_cliente" class="w-full border rounded-lg p-2.5 text-sm outline-none focus:border-primary">
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-black text-gray-400 uppercase ml-1">Cód Cliente</label>
+                    <input type="text" name="cod_cliente" class="w-full border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all">
                 </div>
-                <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Quantidade</label>
-                    <input type="number" name="quantidade" required class="w-full border rounded-lg p-2.5 text-sm outline-none focus:border-primary">
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-black text-gray-400 uppercase ml-1">Quantidade</label>
+                    <input type="number" name="quantidade" required class="w-full border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all">
                 </div>
-                <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Tonalidade / Lote</label>
-                    <input type="text" name="lote" class="w-full border rounded-lg p-2.5 text-sm outline-none focus:border-primary">
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-black text-gray-400 uppercase ml-1">Tonalidade / Lote</label>
+                    <input type="text" name="lote" class="w-full border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all">
                 </div>
-                <div class="col-span-2">
-                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Motivo</label>
-                    <select name="motivo" id="selectMotivo" onchange="toggleOutros(this.value)" class="w-full border rounded-lg p-2.5 text-sm outline-none focus:border-primary">
+                <div class="col-span-2 space-y-1">
+                    <label class="block text-[10px] font-black text-gray-400 uppercase ml-1">Motivo</label>
+                    <select name="motivo" id="selectMotivo" onchange="toggleOutros(this.value)" class="w-full border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-primary bg-white">
                         <option value="Quebra fábrica">Quebra fábrica</option>
-                        <option value="Quebra de produto na embalagem(Externa)">Quebra externa</option>
+                        <option value="Quebra de produto na embalagem(Externa)">Quebra de produto na embalagem (Externa)</option>
                         <option value="Quebra depósito/Loja">Quebra depósito/Loja</option>
-                        <option value="Outros">Outros (Especificar)</option>
+                        <option value="Outros">Outros (Especificar...)</option>
                     </select>
                 </div>
-                <div id="divOutros" class="col-span-2 hidden">
-                    <input type="text" id="inputOutros" placeholder="Digite o motivo..." class="w-full border rounded-lg p-2.5 text-sm outline-none focus:border-primary">
+                <div id="divOutros" class="col-span-2 hidden animate-in slide-in-from-top-2 duration-200">
+                    <input type="text" id="inputOutros" placeholder="Digite o motivo detalhado..." class="w-full border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-primary">
                 </div>
-                <div class="col-span-2">
-                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Observação</label>
-                    <textarea name="observacao" rows="3" class="w-full border rounded-lg p-2.5 text-sm outline-none focus:border-primary"></textarea>
+                <div class="col-span-2 space-y-1">
+                    <label class="block text-[10px] font-black text-gray-400 uppercase ml-1">Observação</label>
+                    <textarea name="observacao" rows="3" class="w-full border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-primary resize-none transition-all"></textarea>
                 </div>
                 
                 <div class="col-span-2 pt-4 flex gap-3">
                     <button type="button" onclick="fecharModal()" class="flex-1 bg-gray-100 text-gray-600 font-bold py-3 rounded-xl hover:bg-gray-200 transition-all">Cancelar</button>
-                    <button type="submit" class="flex-1 bg-primary text-white font-bold py-3 rounded-xl hover:bg-red-700 transition-all shadow-lg shadow-red-200">Salvar Chamado</button>
+                    <button type="submit" id="btnSalvar" class="flex-1 bg-primary text-white font-bold py-3 rounded-xl hover:bg-red-700 transition-all shadow-lg shadow-red-200 flex justify-center items-center gap-2">
+                        Salvar Chamado
+                    </button>
                 </div>
             </form>
         </div>
@@ -118,40 +128,100 @@
             valor === 'Outros' ? div.classList.remove('hidden') : div.classList.add('hidden');
         }
 
-        // Simulação de carregamento (Você precisará conectar ao GET do Apps Script)
         async function carregarTickets() {
-            // Aqui faremos o fetch da planilha
             const tbody = document.getElementById('tabelaChamados');
-            tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-gray-400 italic">Carregando chamados...</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-gray-400 italic">Buscando pendências na planilha...</td></tr>`;
             
-            // Lógica de fetch virá aqui
+            try {
+                const response = await fetch(WEB_APP_URL);
+                const data = await response.json();
+                
+                tbody.innerHTML = '';
+                
+                // data é um array de arrays enviado pelo Apps Script
+                data.forEach((linha, index) => {
+                    const [seac, forn, ref, cli, qtd, lote, motivo, obs, status] = linha;
+                    const rowId = index + 2; // Referência da linha na planilha (index 0 + header 1)
+
+                    const statusClass = status.toLowerCase() === 'resolvido' ? 'status-resolvido' : 
+                                      status.toLowerCase() === 'em atraso' ? 'status-atraso' : 'status-pendente';
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-gray-50/50 transition-colors">
+                            <td class="p-4">
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold border ${statusClass} uppercase">
+                                    ${status}
+                                </span>
+                            </td>
+                            <td class="p-4">
+                                <div class="font-bold text-gray-800">${seac}</div>
+                                <div class="text-[10px] text-gray-400 uppercase font-medium">${forn}</div>
+                            </td>
+                            <td class="p-4 font-medium text-gray-600">
+                                ${qtd} un <span class="text-gray-300 mx-1">|</span> ${lote || 'N/A'}
+                            </td>
+                            <td class="p-4">
+                                <div class="text-gray-700 max-w-[200px] truncate" title="${obs}">${motivo}</div>
+                            </td>
+                            <td class="p-4 text-right">
+                                <button onclick="atualizarStatus(${rowId}, '${status}')" class="text-gray-400 hover:text-primary transition-colors p-1" title="Alterar Status">
+                                    <span class="material-symbols-outlined text-xl">sync_alt</span>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-red-500">Erro ao carregar dados. Verifique a URL do script.</td></tr>`;
+            }
         }
 
         document.getElementById('formTicket').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]');
-            btn.innerText = "Enviando...";
+            const btn = document.getElementById('btnSalvar');
+            btn.innerHTML = `<span class="animate-spin material-symbols-outlined">sync</span> Salvando...`;
             btn.disabled = true;
 
             const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData);
+            const payload = Object.fromEntries(formData);
             
-            if(data.motivo === 'Outros') data.motivo = document.getElementById('inputOutros').value;
-            data.status = 'Pendente';
+            if(payload.motivo === 'Outros') payload.motivo = document.getElementById('inputOutros').value;
+            payload.status = 'Pendente';
+            payload.action = 'insert'; // Define a ação para o Apps Script
 
             try {
-                // Enviar para o Google Apps Script via POST
-                console.log("Dados a enviar:", data);
-                alert("Chamado registrado com sucesso! (Integração requer Apps Script)");
+                await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
                 fecharModal();
                 e.target.reset();
+                carregarTickets();
             } catch (err) {
-                alert("Erro ao salvar");
+                alert("Erro ao salvar chamado.");
             } finally {
                 btn.innerText = "Salvar Chamado";
                 btn.disabled = false;
             }
         });
+
+        async function atualizarStatus(rowId, statusAtual) {
+            let novoStatus = 'Pendente';
+            if(statusAtual === 'Pendente') novoStatus = 'Resolvido';
+            else if(statusAtual === 'Resolvido') novoStatus = 'Em atraso';
+
+            if(!confirm(`Mudar status para ${novoStatus}?`)) return;
+
+            try {
+                await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'update', row: rowId, status: novoStatus })
+                });
+                carregarTickets();
+            } catch (err) {
+                alert("Erro ao atualizar status.");
+            }
+        }
 
         window.onload = carregarTickets;
     </script>
