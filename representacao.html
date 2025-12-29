@@ -9,12 +9,19 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: { extend: { colors: { "primary": "#E30613", "sheets-green": "#1ea362", "background-dark": "#121212", "blue-custom": "#3B82F6", "gray-custom": "#6B7280" } } }
+        }
+    </script>
+
     <style>
         body { font-family: 'Roboto', sans-serif; }
         
         @media print {
             @page { size: portrait; margin: 0.6cm; }
-            aside, .no-print { display: none !important; }
+            aside, #sidebar-container, .no-print { display: none !important; }
             main { padding: 0 !important; margin: 0 !important; width: 100% !important; }
             .print-container { border: none !important; box-shadow: none !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; }
             input, select { border: none !important; border-bottom: 1px solid #ddd !important; -webkit-appearance: none; appearance: none; }
@@ -27,7 +34,6 @@
         .input-field:focus { border-bottom-color: #ea2a33; }
         label { display: block; text-transform: uppercase; font-weight: 900; color: #94a3b8; font-size: 8px; letter-spacing: 0.05em; margin-bottom: 1px; }
         
-        /* Garante que os controles (setas) do input number apareçam */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
             opacity: 1;
@@ -36,28 +42,8 @@
 </head>
 <body class="bg-gray-100 antialiased">
     <div class="flex h-screen overflow-hidden">
-        <aside class="w-64 bg-white border-r border-gray-200 p-6 flex flex-col justify-between hidden md:flex no-print">
-            <div>
-                <div class="flex items-center gap-3 mb-10 pb-4 border-b border-gray-100">
-                    <img src="https://i.ibb.co/tPcWfmjT/VI-logo-novo-sem-fundo.png" alt="Logo Vilarejo" class="h-8 w-auto object-contain"/>
-                    <span class="text-xl font-bold">Monitor</span>
-                </div>
-                <nav class="space-y-2">
-                    <a href="dashboard.html" class="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg font-medium">
-                        <span class="material-symbols-outlined">analytics</span> Rupturas
-                    </a>
-                    <a href="historico.html" class="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg font-medium">
-                        <span class="material-symbols-outlined">timeline</span> Histórico
-                    </a>
-                    <a href="representacao.html" class="flex items-center gap-3 p-3 bg-primary text-white rounded-lg font-medium shadow-md" style="background-color: #ea2a33;">
-                        <span class="material-symbols-outlined">description</span> Representação
-                    </a>
-                    <a href="contas.html" class="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg font-medium">
-                        <span class="material-symbols-outlined">payments</span> Contas
-                    </a>
-                </nav>
-            </div>
-        </aside>
+        
+        <div id="sidebar-container"></div>
 
         <main class="flex-1 overflow-y-auto p-4 lg:p-6">
             <div class="max-w-5xl mx-auto bg-white p-6 rounded-lg shadow-sm border print-container">
@@ -72,7 +58,7 @@
                     </div>
                     <div class="text-right no-print">
                         <button onclick="window.print()" class="bg-gray-800 text-white px-4 py-2 rounded flex items-center gap-2 font-bold hover:bg-black text-xs transition-all">
-                            <span class="material-symbols-outlined text-sm">print</span> PDF
+                            <span class="material-symbols-outlined text-sm">print</span> PDF / IMPRIMIR
                         </button>
                     </div>
                 </div>
@@ -229,6 +215,8 @@
         </main>
     </div>
 
+    <script src="menu.js"></script>
+
     <script>
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?gid=826009273&single=true&output=csv';
         let baseProdutos = [];
@@ -300,7 +288,6 @@
             let subtotalGeral = 0;
 
             document.querySelectorAll('.item-row').forEach(row => {
-                // Aqui garantimos a leitura do valor independentemente de vírgula ou ponto
                 let valRaw = row.querySelector('.qtd-input').value.toString().replace(',', '.');
                 let qtd = parseFloat(valRaw) || 0;
                 
