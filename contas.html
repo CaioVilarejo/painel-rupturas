@@ -24,28 +24,8 @@
 </head>
 <body class="bg-gray-100 antialiased">
     <div class="flex h-screen overflow-hidden">
-        <aside class="w-64 bg-white border-r border-gray-200 p-6 flex flex-col justify-between hidden md:flex">
-            <div>
-                <div class="flex items-center gap-3 mb-10 pb-4 border-b border-gray-100">
-                    <img src="https://i.ibb.co/tPcWfmjT/VI-logo-novo-sem-fundo.png" alt="Logo Vilarejo" class="h-8 w-auto object-contain"/>
-                    <span class="text-xl font-bold">Monitor</span>
-                </div>
-                <nav class="space-y-2">
-                    <a href="dashboard.html" class="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg font-medium">
-                        <span class="material-symbols-outlined">analytics</span> Rupturas
-                    </a>
-                    <a href="historico.html" class="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg font-medium">
-                        <span class="material-symbols-outlined">timeline</span> Histórico
-                    </a>
-                    <a href="contas.html" class="flex items-center gap-3 p-3 bg-primary text-white rounded-lg font-medium shadow-md">
-                        <span class="material-symbols-outlined">payments</span> Contas
-                    </a>
-                </nav>
-            </div>
-            <button onclick="window.location.href='index.html'" class="flex items-center gap-3 p-3 text-gray-500 hover:text-red-600 border-t pt-4">
-                <span class="material-symbols-outlined">logout</span> Sair
-            </button>
-        </aside>
+        
+        <div id="sidebar-container"></div>
 
         <main class="flex-1 overflow-y-auto p-6 lg:p-10">
             <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 border-b pb-6">
@@ -144,6 +124,8 @@
         </div>
     </div>
 
+    <script src="menu.js"></script>
+
     <script>
         const GID = '186982841';
         const GID_AUX = '2012060533';
@@ -160,7 +142,6 @@
         let campoSendoEditado = '';
 
         async function carregarDados() {
-            // 1. Carregar data de atualização da base
             Papa.parse(AUX_CSV_URL, {
                 download: true,
                 header: false,
@@ -170,7 +151,6 @@
                 }
             });
 
-            // 2. Carregar dados das contas
             Papa.parse(CSV_URL, {
                 download: true,
                 header: true,
@@ -179,12 +159,11 @@
                     dadosFiltrados = [...dadosCompletos]; 
                     popularFiltros();
                     aplicarFiltros();
-                    document.getElementById('lastSyncTime').innerText = `Sincronizado com site em: ${new Date().toLocaleTimeString()}`;
+                    document.getElementById('lastSyncTime').innerText = `Sincronizado em: ${new Date().toLocaleTimeString()}`;
                 }
             });
         }
 
-        // Funções de data, modal, salvar e filtros permanecem as mesmas
         function dataParaInput(dataBr) {
             if(!dataBr || dataBr === 'N/D') return '';
             const [d, m, a] = dataBr.split('/');
@@ -222,6 +201,7 @@
             document.getElementById('textModal').classList.remove('hidden');
         }
         function closeModal() { document.getElementById('textModal').classList.add('hidden'); }
+        
         async function salvarAlteracao() {
             let novoValor = '';
             let nomeColunaLocal = '';
@@ -245,6 +225,7 @@
             } catch (error) { alert('Erro de conexão ao salvar.'); }
             finally { btn.disabled = false; label.innerText = 'Salvar na Planilha'; spinner.classList.add('hidden'); }
         }
+
         function popularFiltros() {
             const statuses = [...new Set(dadosCompletos.map(i => i['Status']))].sort();
             const suppliers = [...new Set(dadosCompletos.map(i => i['Fornecedor']))].sort();
@@ -257,17 +238,20 @@
             };
             populate('filterC', statuses); populate('filterD', suppliers); populate('filterE', groups); populate('filterF', buyers);
         }
+
         function parseCurrency(str) {
             if (!str) return 0;
             const cleanValue = str.replace(/[R$\s.]/g, '').replace(',', '.');
             const num = parseFloat(cleanValue);
             return isNaN(num) ? 0 : num;
         }
+
         function atualizarResumoFinanceiro(dados) {
             const total = dados.reduce((acc, item) => acc + parseCurrency(item['R$ Total Saldo']), 0);
             document.getElementById('totalSaldoCard').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('itemsCount').innerText = `${dados.length} solicitações exibidas.`;
         }
+
         function getColorByDate(dateStr) {
             if (!dateStr || dateStr.trim() === "" || dateStr === 'N/D') return 'bg-gray-100 text-gray-400';
             const parts = dateStr.split('/');
@@ -278,6 +262,7 @@
             if (diffDays <= 5) return 'bg-warning text-white font-black';
             return 'bg-success text-white font-medium';
         }
+
         function renderizarTabela(dados) {
             const tbody = document.querySelector('#tabelaContas tbody');
             tbody.innerHTML = '';
@@ -318,6 +303,7 @@
                 tbody.appendChild(tr);
             });
         }
+
         function aplicarFiltros() {
             const valC = document.getElementById('filterC').value;
             const valD = document.getElementById('filterD').value;
