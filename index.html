@@ -3,13 +3,13 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Login - Painel de Rupturas</title>
+    <title>Acesso - Vilarejo Monitor</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
     <script>
         tailwind.config = {
-            theme: { extend: { colors: { "primary": "#ea2a33", "background-dark": "#211111" } } }
+            theme: { extend: { colors: { "primary": "#ea2a33" } } }
         }
     </script>
 </head>
@@ -20,41 +20,132 @@
             <div class="relative z-20 p-12 text-center text-white">
                 <span class="material-symbols-outlined text-6xl mb-4">inventory_2</span>
                 <h2 class="text-4xl font-bold mb-4">Vilarejo Monitor</h2>
-                <p class="text-lg opacity-80">gestão inteligente de compras</p>
+                <p class="text-lg opacity-80 italic">Gestão Inteligente de Compras</p>
             </div>
         </div>
-        <div class="flex-1 flex flex-col items-center justify-center p-8 bg-white">
+
+        <div class="flex-1 flex flex-col items-center justify-center p-8 bg-white overflow-y-auto">
             <div class="w-full max-w-md space-y-8">
-                <div class="text-center">
-                    <h1 class="text-3xl font-bold text-gray-900">Acesse o Painel</h1>
-                    <p class="text-gray-500 mt-2">Use suas credenciais de compras</p>
+                
+                <div class="flex bg-gray-100 p-1 rounded-2xl mb-8">
+                    <button id="tabLogin" onclick="showForm('login')" class="flex-1 py-3 text-sm font-bold rounded-xl bg-white shadow-sm transition-all">Entrar</button>
+                    <button id="tabRegister" onclick="showForm('register')" class="flex-1 py-3 text-sm font-bold text-gray-500 hover:text-gray-700 transition-all">Criar Conta</button>
                 </div>
-                <form class="space-y-6" id="loginForm">
-                    <div>
-                        <label class="block text-sm font-semibold mb-2">Usuário</label>
-                        <input type="text" id="username" class="w-full rounded-xl border-gray-200 bg-gray-50 h-14 px-4" placeholder="compras" required>
+
+                <div id="formLogin" class="space-y-6">
+                    <div class="text-center">
+                        <h1 class="text-2xl font-bold text-gray-900">Bem-vindo de volta</h1>
+                        <p class="text-gray-500 text-sm mt-2">Acesse suas pendências e dashboards</p>
                     </div>
-                    <div>
-                        <label class="block text-sm font-semibold mb-2">Senha</label>
-                        <input type="password" id="password" class="w-full rounded-xl border-gray-200 bg-gray-50 h-14 px-4" placeholder="123" required>
+                    <form class="space-y-4" id="loginForm">
+                        <input type="text" id="userLogin" class="w-full rounded-xl border-gray-200 bg-gray-50 h-14 px-4 font-semibold" placeholder="Usuário (Nome Sobrenome)" required>
+                        <input type="password" id="passLogin" class="w-full rounded-xl border-gray-200 bg-gray-50 h-14 px-4 font-semibold" placeholder="Sua senha" required>
+                        <button type="submit" class="w-full h-14 bg-primary text-white rounded-xl font-bold shadow-lg hover:bg-red-700 transition-all">Acessar Painel</button>
+                    </form>
+                </div>
+
+                <div id="formRegister" class="hidden space-y-6">
+                    <div class="text-center">
+                        <h1 class="text-2xl font-bold text-gray-900">Novo Cadastro</h1>
+                        <p class="text-gray-500 text-sm mt-2">Siga as orientações de padronização:</p>
                     </div>
-                    <button type="submit" class="w-full h-14 bg-primary text-white rounded-xl font-bold shadow-lg hover:bg-red-700 transition-all">Entrar</button>
-                </form>
-                <div class="text-center text-xs text-gray-400">© 2025 Caio.L Gomes (Compras)</div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 space-y-2">
+                        <p class="text-[11px] text-blue-700 leading-tight">
+                            <strong>👤 USUÁRIO:</strong> Use <strong>Nome + Sobrenome</strong> (Ex: Caio Gomes).<br>
+                            <strong>🔑 SENHA:</strong> Use <strong>Primeiro Nome + 4 números</strong> (Ex: Caio2025).
+                        </p>
+                    </div>
+
+                    <form class="space-y-4" id="registerForm">
+                        <input type="text" id="userReg" class="w-full rounded-xl border-gray-200 bg-gray-50 h-14 px-4 font-semibold text-sm" placeholder="Seu Nome e Sobrenome" required>
+                        <input type="password" id="passReg" class="w-full rounded-xl border-gray-200 bg-gray-50 h-14 px-4 font-semibold text-sm" placeholder="Crie sua Senha" required>
+                        <button type="submit" id="btnReg" class="w-full h-14 bg-gray-900 text-white rounded-xl font-bold shadow-lg hover:bg-black transition-all">Finalizar Cadastro</button>
+                    </form>
+                </div>
+
+                <div class="text-center text-[10px] text-gray-400 font-bold uppercase tracking-widest">© 2025 Caio.L Gomes • CD Compras</div>
             </div>
         </div>
     </div>
 
     <script>
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        const WEB_APP_URL = 'SUA_URL_DO_APPS_SCRIPT_AQUI'; // <--- INSIRA SUA URL AQUI
+
+        function showForm(type) {
+            const isLogin = type === 'login';
+            document.getElementById('formLogin').classList.toggle('hidden', !isLogin);
+            document.getElementById('formRegister').classList.toggle('hidden', isLogin);
+            
+            document.getElementById('tabLogin').className = isLogin 
+                ? "flex-1 py-3 text-sm font-bold rounded-xl bg-white shadow-sm transition-all"
+                : "flex-1 py-3 text-sm font-bold text-gray-500 transition-all";
+                
+            document.getElementById('tabRegister').className = !isLogin 
+                ? "flex-1 py-3 text-sm font-bold rounded-xl bg-white shadow-sm transition-all"
+                : "flex-1 py-3 text-sm font-bold text-gray-500 transition-all";
+        }
+
+        // Lógica de Login (Verifica na Planilha)
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const u = document.getElementById('username').value;
-            const p = document.getElementById('password').value;
-            // Validação simples solicitada
-            if(u === 'compras' && p === '123') {
-                window.location.href = 'dashboard.html';
-            } else {
-                alert('Usuário ou senha incorretos!');
+            const u = document.getElementById('userLogin').value.trim();
+            const p = document.getElementById('passLogin').value;
+
+            try {
+                const response = await fetch(WEB_APP_URL);
+                const usuarios = await response.json();
+                
+                // Busca usuário na coluna A e senha na B
+                const validUser = usuarios.find(user => user[0] === u && String(user[1]) === p);
+
+                if (validUser) {
+                    localStorage.setItem('vilarejo_user', u);
+                    localStorage.setItem('vilarejo_perm', validUser[2]); // Salva permissão
+                    window.location.href = 'pendencias.html';
+                } else {
+                    alert('Usuário ou senha inválidos!');
+                }
+            } catch (err) {
+                alert('Erro ao conectar ao banco de dados.');
+            }
+        });
+
+        // Lógica de Cadastro (Envia para Planilha)
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnReg');
+            const user = document.getElementById('userReg').value.trim();
+            const pass = document.getElementById('passReg').value;
+
+            if (user.split(' ').length < 2) {
+                alert("Por favor, digite Nome e Sobrenome para o usuário.");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Cadastrando...";
+
+            const payload = {
+                action: 'register',
+                username: user,
+                password: pass
+            };
+
+            try {
+                await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify(payload)
+                });
+                alert('Cadastro realizado com sucesso! Agora faça login.');
+                e.target.reset();
+                showForm('login');
+            } catch (err) {
+                alert('Erro ao realizar cadastro.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Finalizar Cadastro";
             }
         });
     </script>
