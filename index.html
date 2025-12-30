@@ -19,8 +19,8 @@
             <div class="absolute inset-0 bg-gradient-to-br from-red-600/40 to-black/90 z-10"></div>
             <div class="relative z-20 p-12 text-center text-white">
                 <span class="material-symbols-outlined text-6xl mb-4">inventory_2</span>
-                <h2 class="text-4xl font-bold mb-4">Vilarejo Monitor</h2>
-                <p class="text-lg opacity-80 italic">Gestão Inteligente de Compras</p>
+                <h2 class="text-4xl font-bold mb-4 uppercase tracking-tighter">Vilarejo Monitor</h2>
+                <p class="text-lg opacity-80 italic">Gestão de Rupturas e Ocorrências</p>
             </div>
         </div>
 
@@ -34,43 +34,51 @@
 
                 <div id="formLogin" class="space-y-6">
                     <div class="text-center">
-                        <h1 class="text-2xl font-bold text-gray-900">Bem-vindo de volta</h1>
-                        <p class="text-gray-500 text-sm mt-2">Acesse suas pendências e dashboards</p>
+                        <h1 class="text-2xl font-bold text-gray-900">Acessar Painel</h1>
+                        <p class="text-gray-500 text-sm mt-2">Digite suas credenciais abaixo</p>
                     </div>
                     <form class="space-y-4" id="loginForm">
-                        <input type="text" id="userLogin" class="w-full rounded-xl border-gray-200 bg-gray-50 h-14 px-4 font-semibold" placeholder="Usuário (Nome Sobrenome)" required>
-                        <input type="password" id="passLogin" class="w-full rounded-xl border-gray-200 bg-gray-50 h-14 px-4 font-semibold" placeholder="Sua senha" required>
-                        <button type="submit" class="w-full h-14 bg-primary text-white rounded-xl font-bold shadow-lg hover:bg-red-700 transition-all">Acessar Painel</button>
+                        <div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Usuário</label>
+                            <input type="text" id="userLogin" class="w-full rounded-xl border-gray-200 bg-gray-50 h-14 px-4 font-semibold" placeholder="Nome Sobrenome" required>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Senha</label>
+                            <input type="password" id="passLogin" class="w-full rounded-xl border-gray-200 bg-gray-50 h-14 px-4 font-semibold" placeholder="••••••••" required>
+                        </div>
+                        <button type="submit" id="btnLogin" class="w-full h-14 bg-primary text-white rounded-xl font-bold shadow-lg hover:bg-red-700 transition-all flex items-center justify-center gap-2">
+                            Entrar no Sistema
+                        </button>
                     </form>
                 </div>
 
                 <div id="formRegister" class="hidden space-y-6">
                     <div class="text-center">
                         <h1 class="text-2xl font-bold text-gray-900">Novo Cadastro</h1>
-                        <p class="text-gray-500 text-sm mt-2">Siga as orientações de padronização:</p>
+                        <p class="text-gray-500 text-sm mt-2">Siga o padrão estabelecido:</p>
                     </div>
                     
-                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 space-y-2">
-                        <p class="text-[11px] text-blue-700 leading-tight">
-                            <strong>👤 USUÁRIO:</strong> Use <strong>Nome + Sobrenome</strong> (Ex: Caio Gomes).<br>
-                            <strong>🔑 SENHA:</strong> Use <strong>Primeiro Nome + 4 números</strong> (Ex: Caio2025).
+                    <div class="bg-red-50 p-4 rounded-xl border border-red-100 space-y-2">
+                        <p class="text-[11px] text-red-700 leading-tight font-medium">
+                            <strong>👤 LOGIN:</strong> Nome + Sobrenome (Ex: Caio Gomes)<br>
+                            <strong>🔑 SENHA:</strong> Primeiro Nome + 4 números (Ex: Caio2025)
                         </p>
                     </div>
 
                     <form class="space-y-4" id="registerForm">
-                        <input type="text" id="userReg" class="w-full rounded-xl border-gray-200 bg-gray-50 h-14 px-4 font-semibold text-sm" placeholder="Seu Nome e Sobrenome" required>
-                        <input type="password" id="passReg" class="w-full rounded-xl border-gray-200 bg-gray-50 h-14 px-4 font-semibold text-sm" placeholder="Crie sua Senha" required>
+                        <input type="text" id="userReg" class="w-full rounded-xl border-gray-200 bg-gray-50 h-14 px-4 font-semibold text-sm" placeholder="Nome e Sobrenome" required>
+                        <input type="password" id="passReg" class="w-full rounded-xl border-gray-200 bg-gray-50 h-14 px-4 font-semibold text-sm" placeholder="Sua Senha Padrão" required>
                         <button type="submit" id="btnReg" class="w-full h-14 bg-gray-900 text-white rounded-xl font-bold shadow-lg hover:bg-black transition-all">Finalizar Cadastro</button>
                     </form>
                 </div>
 
-                <div class="text-center text-[10px] text-gray-400 font-bold uppercase tracking-widest">© 2025 Caio.L Gomes • CD Compras</div>
+                <div class="text-center text-[10px] text-gray-400 font-bold uppercase tracking-widest pt-4">© 2025 Vilarejo CD • Gestão de Compras</div>
             </div>
         </div>
     </div>
 
     <script>
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbznCForFxpY6CAU6W3UgglusC8oqyfDz0dqM-l_95xtr9CK9TcFvbw_V7LJQk8jTZH-/exec'; // <--- INSIRA SUA URL AQUI
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbznCForFxpY6CAU6W3UgglusC8oqyfDz0dqM-l_95xtr9CK9TcFvbw_V7LJQk8jTZH-/exec';
 
         function showForm(type) {
             const isLogin = type === 'login';
@@ -86,45 +94,56 @@
                 : "flex-1 py-3 text-sm font-bold text-gray-500 transition-all";
         }
 
-        // Lógica de Login (Verifica na Planilha)
+        // LÓGICA DE LOGIN (Ignora Maiúsculas/Minúsculas)
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const u = document.getElementById('userLogin').value.trim();
-            const p = document.getElementById('passLogin').value;
+            const btn = document.getElementById('btnLogin');
+            const uInput = document.getElementById('userLogin').value.trim().toLowerCase();
+            const pInput = document.getElementById('passLogin').value.trim().toLowerCase();
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="animate-spin material-symbols-outlined text-sm">sync</span> Validando...';
 
             try {
                 const response = await fetch(WEB_APP_URL);
                 const usuarios = await response.json();
                 
-                // Busca usuário na coluna A e senha na B
-                const validUser = usuarios.find(user => user[0] === u && String(user[1]) === p);
+                // Busca ignorando case sensitive
+                const validUser = usuarios.find(user => {
+                    const uDB = String(user[0]).toLowerCase().trim();
+                    const pDB = String(user[1]).toLowerCase().trim();
+                    return uDB === uInput && pDB === pInput;
+                });
 
                 if (validUser) {
-                    localStorage.setItem('vilarejo_user', u);
-                    localStorage.setItem('vilarejo_perm', validUser[2]); // Salva permissão
+                    localStorage.setItem('vilarejo_user', validUser[0]); // Salva o nome original do banco
+                    localStorage.setItem('vilarejo_perm', validUser[2]); 
                     window.location.href = 'pendencias.html';
                 } else {
-                    alert('Usuário ou senha inválidos!');
+                    alert('Usuário ou senha incorretos! Verifique o padrão solicitado.');
                 }
             } catch (err) {
-                alert('Erro ao conectar ao banco de dados.');
+                alert('Erro de conexão com o servidor.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Entrar no Sistema';
             }
         });
 
-        // Lógica de Cadastro (Envia para Planilha)
+        // LÓGICA DE CADASTRO
         document.getElementById('registerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const btn = document.getElementById('btnReg');
             const user = document.getElementById('userReg').value.trim();
-            const pass = document.getElementById('passReg').value;
+            const pass = document.getElementById('passReg').value.trim();
 
             if (user.split(' ').length < 2) {
-                alert("Por favor, digite Nome e Sobrenome para o usuário.");
+                alert("Por favor, digite Nome e Sobrenome para o cadastro.");
                 return;
             }
 
             btn.disabled = true;
-            btn.innerText = "Cadastrando...";
+            btn.innerText = "Processando...";
 
             const payload = {
                 action: 'register',
@@ -138,11 +157,11 @@
                     mode: 'no-cors',
                     body: JSON.stringify(payload)
                 });
-                alert('Cadastro realizado com sucesso! Agora faça login.');
+                alert('Cadastro enviado! Agora você já pode realizar o login.');
                 e.target.reset();
                 showForm('login');
             } catch (err) {
-                alert('Erro ao realizar cadastro.');
+                alert('Erro ao processar cadastro.');
             } finally {
                 btn.disabled = false;
                 btn.innerText = "Finalizar Cadastro";
@@ -151,4 +170,3 @@
     </script>
 </body>
 </html>
-
