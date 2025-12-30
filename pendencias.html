@@ -1,144 +1,352 @@
-<div id="modalDetalhes" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 modal-z">
-        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Pendências CD - Vilarejo</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: { "primary": "#E30613" } } }
+        }
+    </script>
+
+    <style type="text/css">
+        /* Estilos de emergência caso o Tailwind demore a carregar */
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; margin: 0; }
+        .modal-z { z-index: 9999 !important; }
+        input, select, textarea { border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 0.75rem; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+    <div class="flex h-screen overflow-hidden">
+        <div id="sidebar-container"></div>
+
+        <main class="flex-1 overflow-y-auto p-4 md:p-8 no-scrollbar">
+            <div class="max-w-7xl mx-auto">
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-blue-500">
+                        <p class="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Em Andamento</p>
+                        <h3 id="cardAndamento" class="text-3xl font-black">0</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-red-500">
+                        <p class="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Em Atraso</p>
+                        <h3 id="cardAtraso" class="text-3xl font-black">0</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-emerald-500">
+                        <p class="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Concluídos</p>
+                        <h3 id="cardResolvido" class="text-3xl font-black">0</h3>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row justify-between items-end gap-4 mb-6">
+                    <div class="w-full md:w-auto">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Filtrar Status</label>
+                        <select onchange="filtrarTabela(this.value)" class="w-full md:min-w-[200px] bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm font-bold outline-none focus:border-primary shadow-sm">
+                            <option value="todos">Todos os Chamados</option>
+                            <option value="Em andamento">Em Andamento</option>
+                            <option value="Atrasado">Em Atraso</option>
+                            <option value="Resolvido">Concluídos</option>
+                        </select>
+                    </div>
+                    <button onclick="abrirModal()" class="w-full md:w-auto bg-primary text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-red-700 transition-all shadow-lg uppercase text-[10px] tracking-widest">
+                        <span class="material-symbols-outlined text-sm">add_circle</span> Abrir Novo Chamado
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-200 text-[10px] font-black text-gray-400 uppercase">
+                                    <th class="p-4">ID Ticket</th>
+                                    <th class="p-4">Status</th>
+                                    <th class="p-4">Cód. Prod / Fornecedor</th>
+                                    <th class="p-4">Referência</th>
+                                    <th class="p-4 text-center">Abertura</th>
+                                    <th class="p-4 text-center">Previsão</th>
+                                    <th class="p-4 text-center">Concluir</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaChamados" class="divide-y divide-gray-100 text-sm">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="modalDetalhes" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 modal-z">
+        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div class="p-6 border-b flex justify-between items-center bg-gray-50">
                 <div>
                     <span id="detalheStatusBadge" class="px-2 py-1 rounded text-[9px] font-black uppercase"></span>
                     <h2 id="detalheID" class="text-3xl font-black text-gray-800 tracking-tighter"></h2>
                 </div>
-                <button onclick="fecharModalDetalhes()" class="text-gray-400 hover:text-gray-600">
+                <button onclick="fecharModalDetalhes()" class="text-gray-400 hover:text-gray-900">
                     <span class="material-symbols-outlined">close</span>
                 </button>
             </div>
 
-            <div class="p-6 overflow-y-auto max-h-[80vh] no-scrollbar">
-                <div class="mb-8 bg-gray-50 p-6 rounded-2xl border border-gray-100">
-                    <p class="text-[10px] font-black text-gray-400 uppercase mb-6 text-center tracking-widest">Linha do Tempo de Resolução</p>
-                    <div class="relative flex justify-between items-center">
-                        <div class="absolute h-1 bg-gray-200 w-full top-1/2 -translate-y-1/2 z-0"></div>
-                        <div id="timelineProgress" class="absolute h-1 bg-primary z-0 transition-all duration-500" style="width: 0%"></div>
+            <div class="p-6 overflow-y-auto no-scrollbar space-y-8">
+                <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                    <p class="text-[9px] font-black text-gray-400 uppercase mb-8 text-center tracking-widest">Progresso da Resolução</p>
+                    <div class="relative flex justify-between items-center px-4">
+                        <div class="absolute h-1 bg-gray-200 w-[85%] top-1/2 -translate-y-1/2 left-[7.5%] z-0"></div>
+                        <div id="timelineProgress" class="absolute h-1 bg-primary top-1/2 -translate-y-1/2 left-[7.5%] z-0 transition-all duration-700" style="width: 0%"></div>
 
-                        <div class="relative z-10 flex flex-col items-center bg-gray-50 px-2">
-                            <div class="w-4 h-4 rounded-full bg-primary border-4 border-white shadow-sm"></div>
-                            <p class="text-[9px] font-black text-gray-800 mt-2 uppercase">Abertura</p>
-                            <p id="timeAbertura" class="text-[10px] text-gray-500 font-bold"></p>
+                        <div class="relative z-10 flex flex-col items-center">
+                            <div class="w-4 h-4 rounded-full bg-primary border-4 border-white shadow"></div>
+                            <span class="text-[8px] font-black mt-2 uppercase">Abertura</span>
+                            <span id="timeAbertura" class="text-[9px] text-gray-500 font-bold"></span>
                         </div>
-
-                        <div class="relative z-10 flex flex-col items-center bg-gray-50 px-2">
-                            <div id="pointPrevisao" class="w-4 h-4 rounded-full bg-gray-300 border-4 border-white shadow-sm"></div>
-                            <p class="text-[9px] font-black text-gray-800 mt-2 uppercase">Previsão</p>
-                            <p id="timePrevisao" class="text-[10px] text-gray-500 font-bold"></p>
+                        <div class="relative z-10 flex flex-col items-center">
+                            <div id="pointPrevisao" class="w-4 h-4 rounded-full bg-gray-300 border-4 border-white shadow"></div>
+                            <span class="text-[8px] font-black mt-2 uppercase">Previsão</span>
+                            <span id="timePrevisao" class="text-[9px] text-gray-500 font-bold"></span>
                         </div>
-
-                        <div class="relative z-10 flex flex-col items-center bg-gray-50 px-2">
-                            <div id="pointConclusao" class="w-4 h-4 rounded-full bg-gray-300 border-4 border-white shadow-sm"></div>
-                            <p class="text-[9px] font-black text-gray-800 mt-2 uppercase">Conclusão</p>
-                            <p id="timeConclusao" class="text-[10px] text-gray-500 font-bold"></p>
+                        <div class="relative z-10 flex flex-col items-center">
+                            <div id="pointConclusao" class="w-4 h-4 rounded-full bg-gray-300 border-4 border-white shadow"></div>
+                            <span class="text-[8px] font-black mt-2 uppercase">Conclusão</span>
+                            <span id="timeConclusao" class="text-[9px] text-gray-500 font-bold"></span>
                         </div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-8">
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
                     <div><p class="text-[9px] font-black text-gray-400 uppercase">Cód. Prod SEAC</p><p id="detalheSeac" class="font-bold text-gray-800"></p></div>
                     <div><p class="text-[9px] font-black text-gray-400 uppercase">Fornecedor</p><p id="detalheForn" class="font-bold text-gray-800"></p></div>
                     <div><p class="text-[9px] font-black text-gray-400 uppercase">Referência</p><p id="detalheRef" class="font-bold text-gray-800"></p></div>
                     <div><p class="text-[9px] font-black text-gray-400 uppercase">Cód. Cliente</p><p id="detalheCli" class="font-bold text-gray-800"></p></div>
                     <div><p class="text-[9px] font-black text-gray-400 uppercase">Quantidade</p><p id="detalheQtd" class="font-bold text-gray-800"></p></div>
                     <div><p class="text-[9px] font-black text-gray-400 uppercase">Lote/Tonalidade</p><p id="detalheLote" class="font-bold text-gray-800"></p></div>
-                    <div class="col-span-2 md:col-span-3"><p class="text-[9px] font-black text-gray-400 uppercase">Motivo da Ocorrência</p><p id="detalheMotivo" class="font-bold text-gray-800 italic"></p></div>
+                    <div class="col-span-full"><p class="text-[9px] font-black text-gray-400 uppercase border-t pt-2">Motivo</p><p id="detalheMotivo" class="text-sm font-medium text-gray-700"></p></div>
                 </div>
 
-                <div class="space-y-2">
+                <div class="space-y-2 border-t pt-4">
                     <label class="text-[10px] font-black text-gray-400 uppercase flex items-center gap-2">
-                        <span class="material-symbols-outlined text-sm">edit_note</span> Histórico de Tratativas / Observações
+                        <span class="material-symbols-outlined text-sm">edit_note</span> Histórico de Tratativas
                     </label>
-                    <textarea id="detalheObs" rows="4" class="w-full border border-gray-200 rounded-2xl p-4 text-sm focus:border-primary outline-none bg-white shadow-inner resize-none transition-all focus:ring-2 focus:ring-red-50" placeholder="Digite aqui o andamento..."></textarea>
+                    <textarea id="detalheObs" rows="4" class="w-full border border-gray-200 rounded-2xl p-4 text-sm outline-none bg-gray-50 focus:bg-white focus:ring-2 focus:ring-red-100 transition-all resize-none" placeholder="Atualize o andamento aqui..."></textarea>
                 </div>
-                
-                <button id="btnSalvarObs" onclick="salvarObservacao()" class="w-full mt-4 bg-gray-900 text-white py-4 rounded-2xl font-black uppercase text-xs hover:bg-black transition-all shadow-lg">
-                    Atualizar Informações do Ticket
+            </div>
+            
+            <div class="p-6 bg-gray-50">
+                <button id="btnSalvarObs" onclick="salvarObservacao()" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-black uppercase text-[10px] hover:bg-black shadow-lg transition-all">
+                    Salvar Atualização
                 </button>
             </div>
         </div>
     </div>
 
-<script>
-    // ... (Funções carregarTickets e filtrarTabela permanecem as mesmas)
+    <div id="modalChamado" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 modal-z">
+        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden">
+            <div class="p-6 border-b bg-gray-50 flex justify-between items-center">
+                <h2 class="text-xl font-black text-primary uppercase tracking-tighter">Novo Registro</h2>
+                <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <form id="formTicket" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex flex-col gap-1"><label class="text-[9px] font-black text-gray-400 uppercase">Cód Produto Seac</label><input type="text" name="cod_seac" required class="bg-gray-50 outline-none focus:border-primary"></div>
+                <div class="flex flex-col gap-1"><label class="text-[9px] font-black text-gray-400 uppercase">Fornecedor</label><input type="text" name="fornecedor" required class="bg-gray-50 outline-none focus:border-primary"></div>
+                <div class="flex flex-col gap-1"><label class="text-[9px] font-black text-gray-400 uppercase">Referência</label><input type="text" name="referencia" required class="bg-gray-50 outline-none focus:border-primary"></div>
+                <div class="flex flex-col gap-1"><label class="text-[9px] font-black text-gray-400 uppercase">Cód Cliente</label><input type="text" name="cod_cliente" class="bg-gray-50 outline-none focus:border-primary"></div>
+                <div class="flex flex-col gap-1"><label class="text-[9px] font-black text-gray-400 uppercase">Quantidade</label><input type="number" name="quantidade" required class="bg-gray-50 outline-none focus:border-primary"></div>
+                <div class="flex flex-col gap-1"><label class="text-[9px] font-black text-gray-400 uppercase">Tonalidade / Lote</label><input type="text" name="lote" class="bg-gray-50 outline-none focus:border-primary"></div>
+                <div class="col-span-full flex flex-col gap-1">
+                    <label class="text-[9px] font-black text-gray-400 uppercase">Motivo</label>
+                    <select name="motivo" id="selectMotivo" onchange="toggleOutros(this.value)" class="bg-gray-50 outline-none focus:border-primary">
+                        <option value="Quebra fábrica">Quebra fábrica</option>
+                        <option value="Quebra de produto na embalagem(Externa)">Quebra de produto na embalagem(Externa)</option>
+                        <option value="Quebra depósito/Loja">Quebra depósito/Loja</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                </div>
+                <div id="divOutros" class="col-span-full hidden"><input type="text" id="inputOutros" placeholder="Especifique..." class="w-full border-primary"></div>
+                <div class="col-span-full flex flex-col gap-1"><label class="text-[9px] font-black text-gray-400 uppercase">Observações Iniciais</label><textarea name="observacao" rows="2" class="bg-gray-50 outline-none focus:border-primary"></textarea></div>
+                <div class="col-span-full flex gap-3 pt-4">
+                    <button type="button" onclick="fecharModal()" class="flex-1 bg-gray-100 py-4 rounded-xl font-bold uppercase text-[10px]">Descartar</button>
+                    <button type="submit" id="btnSalvar" class="flex-1 bg-primary text-white py-4 rounded-xl font-bold uppercase text-[10px] shadow-lg">Registrar Chamado</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-    function verDetalhes(index) {
-        const t = dadosGlobais[index];
-        ticketAbertoAtual = { index: index, row: index + 2 };
+    <script src="menu.js"></script>
+    <script>
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyMh4zjTsm5TJ1M4HWRyh8fX5_EOeR942DmUim8ZPPHFO3EkRdLga6Yxf3KosmS19tV/exec';
+        let dadosGlobais = [];
+        let ticketAbertoAtual = null;
 
-        // Preencher Campos de Texto
-        document.getElementById('detalheID').innerText = t[0];
-        document.getElementById('detalheSeac').innerText = t[1];
-        document.getElementById('detalheForn').innerText = t[2];
-        document.getElementById('detalheRef').innerText = t[3];
-        document.getElementById('detalheCli').innerText = t[4] || "Não Informado";
-        document.getElementById('detalheQtd').innerText = t[5];
-        document.getElementById('detalheLote').innerText = t[6] || "---";
-        document.getElementById('detalheMotivo').innerText = t[7];
-        document.getElementById('detalheObs').value = t[8] || "";
-        
-        // Status Badge
-        const badge = document.getElementById('detalheStatusBadge');
-        badge.innerText = t[9];
-        badge.className = t[9] === 'Resolvido' ? 'px-2 py-1 rounded text-[9px] font-black uppercase bg-emerald-100 text-emerald-700' : 'px-2 py-1 rounded text-[9px] font-black uppercase bg-blue-100 text-blue-700';
+        function abrirModal() { document.getElementById('modalChamado').classList.remove('hidden'); }
+        function fecharModal() { document.getElementById('modalChamado').classList.add('hidden'); }
+        function fecharModalDetalhes() { document.getElementById('modalDetalhes').classList.add('hidden'); }
+        function toggleOutros(v) { document.getElementById('divOutros').classList.toggle('hidden', v !== 'Outros'); }
 
-        // LÓGICA DA LINHA DO TEMPO (PROGRESSO)
-        const aberto = formatarDataBR(t[10]);
-        const previsto = formatarDataBR(t[12]);
-        const concluido = formatarDataBR(t[11]);
-
-        document.getElementById('timeAbertura').innerText = aberto;
-        document.getElementById('timePrevisao').innerText = previsto;
-        document.getElementById('timeConclusao').innerText = concluido !== "---" ? concluido : "Pendente";
-
-        const progress = document.getElementById('timelineProgress');
-        const pPrev = document.getElementById('pointPrevisao');
-        const pConc = document.getElementById('pointConclusao');
-
-        // Reset cores
-        pPrev.classList.replace('bg-primary', 'bg-gray-300');
-        pConc.classList.replace('bg-primary', 'bg-gray-300');
-
-        if(t[9] === 'Resolvido') {
-            progress.style.width = '100%';
-            pPrev.classList.replace('bg-gray-300', 'bg-primary');
-            pConc.classList.replace('bg-gray-300', 'bg-primary');
-        } else if (previsto !== "---") {
-            progress.style.width = '50%';
-            pPrev.classList.replace('bg-gray-300', 'bg-primary');
-        } else {
-            progress.style.width = '0%';
+        function formatarDataBR(dataStr) {
+            if (!dataStr || dataStr === "") return "---";
+            if (/^\d{2}\/\d{2}\/\d{4}$/.test(dataStr)) return dataStr;
+            try {
+                const data = new Date(dataStr);
+                if (isNaN(data.getTime())) return dataStr;
+                return `${String(data.getUTCDate()).padStart(2, '0')}/${String(data.getUTCMonth() + 1).padStart(2, '0')}/${data.getUTCFullYear()}`;
+            } catch (e) { return dataStr; }
         }
 
-        document.getElementById('modalDetalhes').classList.remove('hidden');
-    }
+        async function carregarTickets() {
+            const tbody = document.getElementById('tabelaChamados');
+            tbody.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-gray-400 italic">Buscando dados na planilha...</td></tr>`;
+            try {
+                const r = await fetch(WEB_APP_URL);
+                dadosGlobais = await r.json();
+                renderizarTabela(dadosGlobais);
+            } catch (e) { 
+                tbody.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-red-500 font-bold">Erro de conexão. Verifique a Internet.</td></tr>`;
+            }
+        }
 
-    // Função para salvar a observação atualizada
-    async function salvarObservacao() {
-        const btn = document.getElementById('btnSalvarObs');
-        const novaObs = document.getElementById('detalheObs').value;
-        btn.disabled = true; btn.innerText = "Sincronizando...";
-        
-        try {
-            await fetch(WEB_APP_URL, {
-                method: 'POST', mode: 'no-cors',
-                body: JSON.stringify({ 
-                    action: 'update_field', 
-                    row: ticketAbertoAtual.row, 
-                    field: 'observacao', 
-                    value: novaObs 
-                })
+        function verDetalhes(index) {
+            const t = dadosGlobais[index];
+            ticketAbertoAtual = { index: index, row: index + 2 };
+
+            document.getElementById('detalheID').innerText = t[0];
+            document.getElementById('detalheSeac').innerText = t[1];
+            document.getElementById('detalheForn').innerText = t[2];
+            document.getElementById('detalheRef').innerText = t[3];
+            document.getElementById('detalheCli').innerText = t[4] || "---";
+            document.getElementById('detalheQtd').innerText = t[5];
+            document.getElementById('detalheLote').innerText = t[6] || "---";
+            document.getElementById('detalheMotivo').innerText = t[7];
+            document.getElementById('detalheObs').value = t[8] || "";
+            
+            const badge = document.getElementById('detalheStatusBadge');
+            badge.innerText = t[9];
+            badge.className = t[9] === 'Resolvido' ? 'px-2 py-1 rounded text-[9px] font-black uppercase bg-emerald-100 text-emerald-700' : 'px-2 py-1 rounded text-[9px] font-black uppercase bg-blue-100 text-blue-700';
+
+            // Timeline
+            document.getElementById('timeAbertura').innerText = formatarDataBR(t[10]);
+            document.getElementById('timePrevisao').innerText = formatarDataBR(t[12]);
+            document.getElementById('timeConclusao').innerText = t[11] ? formatarDataBR(t[11]) : "Pendente";
+
+            const progress = document.getElementById('timelineProgress');
+            const pPrev = document.getElementById('pointPrevisao');
+            const pConc = document.getElementById('pointConclusao');
+
+            pPrev.className = "w-4 h-4 rounded-full border-4 border-white shadow bg-gray-300";
+            pConc.className = "w-4 h-4 rounded-full border-4 border-white shadow bg-gray-300";
+
+            if(t[9] === 'Resolvido') {
+                progress.style.width = '85%';
+                pPrev.classList.replace('bg-gray-300', 'bg-primary');
+                pConc.classList.replace('bg-gray-300', 'bg-primary');
+            } else if (t[12]) {
+                progress.style.width = '42%';
+                pPrev.classList.replace('bg-gray-300', 'bg-primary');
+            } else { progress.style.width = '0%'; }
+
+            document.getElementById('modalDetalhes').classList.remove('hidden');
+        }
+
+        async function salvarObservacao() {
+            const btn = document.getElementById('btnSalvarObs');
+            const novaObs = document.getElementById('detalheObs').value;
+            btn.disabled = true; btn.innerText = "SALVANDO...";
+            try {
+                await fetch(WEB_APP_URL, {
+                    method: 'POST', mode: 'no-cors',
+                    body: JSON.stringify({ action: 'update_field', row: ticketAbertoAtual.row, field: 'observacao', value: novaObs })
+                });
+                dadosGlobais[ticketAbertoAtual.index][8] = novaObs;
+                fecharModalDetalhes();
+                alert("Histórico atualizado!");
+            } catch (e) { alert("Erro ao salvar."); }
+            finally { btn.disabled = false; btn.innerText = "Salvar Atualização"; }
+        }
+
+        function renderizarTabela(dados) {
+            const tbody = document.getElementById('tabelaChamados');
+            let and = 0, atr = 0, con = 0;
+            tbody.innerHTML = '';
+
+            dados.forEach((linha, index) => {
+                const [id, seac, forn, ref, cli, qtd, lote, motivo, obs, status, abertura, resolucao, prevista] = linha;
+                const rowId = index + 2;
+
+                let dPrevRaw = prevista;
+                if(prevista && prevista.includes('/')) {
+                    const p = prevista.split('/');
+                    dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`;
+                }
+                const isAtrasado = status !== 'Resolvido' && dPrevRaw && new Date(dPrevRaw).getTime() < new Date().setHours(0,0,0,0);
+
+                if(status === 'Resolvido') con++; else if(isAtrasado) atr++; else and++;
+
+                const statusColor = status === 'Resolvido' ? 'bg-emerald-100 text-emerald-700' : 
+                                   isAtrasado ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700';
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50/50 transition-colors">
+                        <td class="p-4"><button onclick="verDetalhes(${index})" class="font-black text-primary hover:underline">${id}</button></td>
+                        <td class="p-4"><span class="px-2 py-1 rounded-md text-[9px] font-black uppercase ${statusColor}">${isAtrasado ? 'Em Atraso' : status}</span></td>
+                        <td class="p-4"><div class="font-bold">${seac}</div><div class="text-[10px] text-gray-400 uppercase">${forn}</div></td>
+                        <td class="p-4 font-medium text-gray-600">${ref}</td>
+                        <td class="p-4 text-center text-xs text-gray-500 font-bold">${formatarDataBR(abertura)}</td>
+                        <td class="p-4 text-center">
+                            ${status === 'Resolvido' ? `<span class="text-xs text-gray-400">${formatarDataBR(prevista)}</span>` : 
+                            `<input type="date" value="${dPrevRaw ? dPrevRaw.split('T')[0] : ''}" onchange="atualizarCampo(${rowId}, 'previsao', this.value)" class="border rounded px-1 py-1 text-xs">`}
+                        </td>
+                        <td class="p-4 text-center">
+                            ${status !== 'Resolvido' ? `<button onclick="finalizarTicket(${rowId})" class="bg-emerald-50 text-emerald-600 p-2 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"><span class="material-symbols-outlined text-sm">check</span></button>` : 
+                            `<span class="text-emerald-500 text-[10px] font-black uppercase">${formatarDataBR(resolucao)}</span>`}
+                        </td>
+                    </tr>`;
             });
-            // Atualiza os dados locais sem recarregar tudo
-            dadosGlobais[ticketAbertoAtual.index][8] = novaObs;
-            alert("Tratativa salva na planilha!");
-            fecharModalDetalhes();
-        } catch (e) {
-            alert("Erro ao salvar. Tente novamente.");
-        } finally {
-            btn.disabled = false; btn.innerText = "Atualizar Informações do Ticket";
+
+            document.getElementById('cardAndamento').innerText = and;
+            document.getElementById('cardAtraso').innerText = atr;
+            document.getElementById('cardResolvido').innerText = con;
         }
-    }
-</script>
+
+        async function atualizarCampo(row, campo, valor) {
+            try {
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'update_field', row: row, field: campo, value: valor }) });
+                setTimeout(carregarTickets, 1000);
+            } catch (e) {}
+        }
+
+        async function finalizarTicket(row) {
+            if(!confirm("Deseja concluir este chamado?")) return;
+            try {
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'update', row: row, status: 'Resolvido' }) });
+                setTimeout(carregarTickets, 1000);
+            } catch (e) {}
+        }
+
+        function filtrarTabela(s) {
+            if(s === 'todos') return renderizarTabela(dadosGlobais);
+            renderizarTabela(dadosGlobais.filter(d => d[9] === s));
+        }
+
+        document.getElementById('formTicket').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnSalvar'); btn.disabled = true; btn.innerText = "AGUARDE...";
+            const payload = Object.fromEntries(new FormData(e.target));
+            if(payload.motivo === 'Outros') payload.motivo = document.getElementById('inputOutros').value;
+            payload.action = 'insert';
+            try {
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                fecharModal(); e.target.reset(); setTimeout(carregarTickets, 1500);
+            } catch (e) { alert("Erro ao salvar."); }
+            finally { btn.innerText = "Registrar Chamado"; btn.disabled = false; }
+        });
+
+        window.onload = carregarTickets;
+    </script>
+</body>
+</html>
