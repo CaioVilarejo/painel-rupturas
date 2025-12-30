@@ -1,19 +1,59 @@
+/**
+ * SISTEMA DE SEGURANÇA E MENU - VILAREJO MONITOR
+ * Este script controla quem pode acessar cada página e o que aparece no menu lateral.
+ */
+
+(function validarAcesso() {
+    const usuarioLogado = localStorage.getItem('vilarejo_user');
+    const permissaoRaw = localStorage.getItem('vilarejo_perm');
+    const permissao = permissaoRaw ? permissaoRaw.toLowerCase().trim() : '';
+    const paginaAtual = window.location.pathname.split("/").pop();
+
+    // 1. Se não estiver logado e tentar acessar qualquer página (exceto login), expulsa
+    if (!usuarioLogado && paginaAtual !== 'index.html' && paginaAtual !== '') {
+        window.location.href = 'index.html';
+        return;
+    }
+
+    // 2. Trava para nível "Vendedor"
+    // Ele só pode acessar a página de representação. Se tentar outra, é bloqueado.
+    const paginasPermitidasVendedor = ['representacao.html', 'index.html', ''];
+    if (permissao === 'vendedor' && !paginasPermitidasVendedor.includes(paginaAtual)) {
+        alert('Acesso negado: Seu perfil tem acesso restrito à Representação.');
+        window.location.href = 'representacao.html';
+    }
+})();
+
 // Função para carregar o menu lateral
 function carregarMenu() {
     const sidebarContainer = document.getElementById('sidebar-container');
     if (!sidebarContainer) return;
 
-    // Obtém o nome do ficheiro atual (ex: representacao.html)
+    const permissao = localStorage.getItem('vilarejo_perm') ? localStorage.getItem('vilarejo_perm').toLowerCase().trim() : 'vendedor';
+    const nomeUsuario = localStorage.getItem('vilarejo_user') || 'Usuário';
     const paginaAtual = window.location.pathname.split("/").pop();
 
-    // Definição dos links do menu
-    const menuItens = [
-    { nome: 'Rupturas', icone: 'analytics', link: 'dashboard.html' },
-    { nome: 'Histórico', icone: 'timeline', link: 'historico.html' },
-    { nome: 'Representação', icone: 'description', link: 'representacao.html' },
-    { nome: 'Contas', icone: 'payments', link: 'contas.html' },
-    { nome: 'Pendências CD', icone: 'confirmation_number', link: 'pendencias.html' } // Novo item
-];
+    // Definição de todos os itens do sistema
+    const todosItens = [
+        { nome: 'Rupturas', icone: 'analytics', link: 'dashboard.html' },
+        { nome: 'Histórico', icone: 'timeline', link: 'historico.html' },
+        { nome: 'Representação', icone: 'description', link: 'representacao.html' },
+        { nome: 'Contas', icone: 'payments', link: 'contas.html' },
+        { nome: 'Pendências CD', icone: 'confirmation_number', link: 'pendencias.html' }
+    ];
+
+    // Filtra o que cada um pode VER no menu
+    const menuItens = todosItens.filter(item => {
+        // Administrador, Compras e Usuário vêem tudo por enquanto
+        if (['administrador', 'compras', 'usuário', 'usuario'].includes(permissao)) {
+            return true;
+        }
+        // Vendedor só vê Representação
+        if (permissao === 'vendedor') {
+            return item.nome === 'Representação';
+        }
+        return false;
+    });
 
     // Gera o HTML do Menu
     let menuHTML = `
@@ -23,11 +63,19 @@ function carregarMenu() {
                     <img src="https://i.ibb.co/tPcWfmjT/VI-logo-novo-sem-fundo.png" alt="Logo Vilarejo" class="h-8 w-auto object-contain"/>
                     <span class="text-xl font-bold text-gray-800">Monitor</span>
                 </div>
+
+                <div class="mb-8 px-2">
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Logado como:</p>
+                    <p class="text-sm font-bold text-gray-800 truncate">${nomeUsuario}</p>
+                    <span class="inline-block mt-1 px-2 py-0.5 bg-gray-100 text-[9px] font-bold text-gray-500 rounded uppercase border border-gray-200">
+                        Perfil: ${permissao}
+                    </span>
+                </div>
+
                 <nav class="space-y-2">
     `;
 
     menuItens.forEach(item => {
-        // Verifica se este item é a página atual
         const estaAtivo = (paginaAtual === item.link);
         const classeAtiva = estaAtivo 
             ? 'bg-primary text-white shadow-md' 
@@ -41,14 +89,13 @@ function carregarMenu() {
         `;
     });
 
-    // Fecha o nav e adiciona o botão de Sair na parte inferior (dentro do flex-col justify-between)
     menuHTML += `
                 </nav>
             </div>
 
             <div class="border-t pt-4">
-                <button onclick="window.location.href='index.html'" class="flex items-center gap-3 p-3 w-full text-gray-500 hover:text-red-600 transition-colors font-medium">
-                    <span class="material-symbols-outlined">logout</span> Sair
+                <button onclick="logout()" class="flex items-center gap-3 p-3 w-full text-gray-500 hover:text-red-600 transition-colors font-medium">
+                    <span class="material-symbols-outlined">logout</span> Sair do Sistema
                 </button>
             </div>
         </aside>
@@ -57,5 +104,12 @@ function carregarMenu() {
     sidebarContainer.innerHTML = menuHTML;
 }
 
-// Executa a função assim que o documento carregar
+// Função de Logout - Limpa o navegador e volta pro login
+function logout() {
+    localStorage.removeItem('vilarejo_user');
+    localStorage.removeItem('vilarejo_perm');
+    window.location.href = 'index.html';
+}
+
+// Inicialização
 document.addEventListener('DOMContentLoaded', carregarMenu);
