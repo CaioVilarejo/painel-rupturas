@@ -13,160 +13,189 @@
         }
     </script>
 </head>
+
 <body class="bg-gray-50 font-['Spline_Sans'] antialiased">
-    <div class="flex h-screen w-full">
-        <div class="hidden lg:flex lg:w-1/2 bg-gray-900 relative items-center justify-center">
-            <div class="absolute inset-0 bg-gradient-to-br from-red-600/40 to-black/90 z-10"></div>
-            <div class="relative z-20 p-12 text-center text-white">
-                <span class="material-symbols-outlined text-6xl mb-4">inventory_2</span>
-                <h2 class="text-4xl font-bold mb-4 uppercase tracking-tighter">Vilarejo Monitor</h2>
-                <p class="text-lg opacity-80 italic">Gestão de Rupturas e Ocorrências</p>
-            </div>
-        </div>
+<div class="flex h-screen w-full">
 
-        <div class="flex-1 flex flex-col items-center justify-center p-8 bg-white overflow-y-auto">
-            <div class="w-full max-w-md space-y-8">
-                
-                <div class="flex bg-gray-100 p-1 rounded-2xl mb-8">
-                    <button id="tabLogin" onclick="showForm('login')" class="flex-1 py-3 text-sm font-bold rounded-xl bg-white shadow-sm transition-all">Entrar</button>
-                    <button id="tabRegister" onclick="showForm('register')" class="flex-1 py-3 text-sm font-bold text-gray-500 hover:text-gray-700 transition-all">Criar Conta</button>
-                </div>
-
-                <div id="formLogin" class="space-y-6">
-                    <div class="text-center">
-                        <h1 class="text-2xl font-bold text-gray-900">Acessar Painel</h1>
-                        <p class="text-gray-500 text-sm mt-2">Digite suas credenciais abaixo</p>
-                    </div>
-                    <form class="space-y-4" id="loginForm">
-                        <div>
-                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Usuário</label>
-                            <input type="text" id="userLogin" class="w-full rounded-xl border-gray-200 bg-gray-50 h-14 px-4 font-semibold" placeholder="Nome Sobrenome" required>
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Senha</label>
-                            <input type="password" id="passLogin" class="w-full rounded-xl border-gray-200 bg-gray-50 h-14 px-4 font-semibold" placeholder="••••••••" required>
-                        </div>
-                        <button type="submit" id="btnLogin" class="w-full h-14 bg-primary text-white rounded-xl font-bold shadow-lg hover:bg-red-700 transition-all flex items-center justify-center gap-2">
-                            Entrar no Sistema
-                        </button>
-                    </form>
-                </div>
-
-                <div id="formRegister" class="hidden space-y-6">
-                    <div class="text-center">
-                        <h1 class="text-2xl font-bold text-gray-900">Novo Cadastro</h1>
-                        <p class="text-gray-500 text-sm mt-2">Siga o padrão estabelecido:</p>
-                    </div>
-                    
-                    <div class="bg-red-50 p-4 rounded-xl border border-red-100 space-y-2">
-                        <p class="text-[11px] text-red-700 leading-tight font-medium">
-                            <strong>👤 LOGIN:</strong> Nome + Sobrenome (Ex: Caio Gomes)<br>
-                            <strong>🔑 SENHA:</strong> Primeiro Nome + 4 números (Ex: Caio2025)
-                        </p>
-                    </div>
-
-                    <form class="space-y-4" id="registerForm">
-                        <input type="text" id="userReg" class="w-full rounded-xl border-gray-200 bg-gray-50 h-14 px-4 font-semibold text-sm" placeholder="Nome e Sobrenome" required>
-                        <input type="password" id="passReg" class="w-full rounded-xl border-gray-200 bg-gray-50 h-14 px-4 font-semibold text-sm" placeholder="Sua Senha Padrão" required>
-                        <button type="submit" id="btnReg" class="w-full h-14 bg-gray-900 text-white rounded-xl font-bold shadow-lg hover:bg-black transition-all">Finalizar Cadastro</button>
-                    </form>
-                </div>
-
-                <div class="text-center text-[10px] text-gray-400 font-bold uppercase tracking-widest pt-4">© 2025 Vilarejo CD • Gestão de Compras</div>
-            </div>
+    <!-- LADO ESQUERDO -->
+    <div class="hidden lg:flex lg:w-1/2 bg-gray-900 relative items-center justify-center">
+        <div class="absolute inset-0 bg-gradient-to-br from-red-600/40 to-black/90 z-10"></div>
+        <div class="relative z-20 p-12 text-center text-white">
+            <span class="material-symbols-outlined text-6xl mb-4">inventory_2</span>
+            <h2 class="text-4xl font-bold mb-4 uppercase tracking-tighter">Vilarejo Monitor</h2>
+            <p class="text-lg opacity-80 italic">Gestão de Rupturas e Ocorrências</p>
         </div>
     </div>
 
-    <script>
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbznCForFxpY6CAU6W3UgglusC8oqyfDz0dqM-l_95xtr9CK9TcFvbw_V7LJQk8jTZH-/exec';
+    <!-- LADO DIREITO -->
+    <div class="flex-1 flex flex-col items-center justify-center p-8 bg-white overflow-y-auto">
+        <div class="w-full max-w-md space-y-8">
 
-        function showForm(type) {
-            const isLogin = type === 'login';
-            document.getElementById('formLogin').classList.toggle('hidden', !isLogin);
-            document.getElementById('formRegister').classList.toggle('hidden', isLogin);
-            
-            document.getElementById('tabLogin').className = isLogin 
-                ? "flex-1 py-3 text-sm font-bold rounded-xl bg-white shadow-sm transition-all"
-                : "flex-1 py-3 text-sm font-bold text-gray-500 transition-all";
-                
-            document.getElementById('tabRegister').className = !isLogin 
-                ? "flex-1 py-3 text-sm font-bold rounded-xl bg-white shadow-sm transition-all"
-                : "flex-1 py-3 text-sm font-bold text-gray-500 transition-all";
-        }
+            <!-- TABS -->
+            <div class="flex bg-gray-100 p-1 rounded-2xl mb-8">
+                <button id="tabLogin" onclick="showForm('login')"
+                        class="flex-1 py-3 text-sm font-bold rounded-xl bg-white shadow-sm transition-all">
+                    Entrar
+                </button>
+                <button id="tabRegister" onclick="showForm('register')"
+                        class="flex-1 py-3 text-sm font-bold text-gray-500 hover:text-gray-700 transition-all">
+                    Criar Conta
+                </button>
+            </div>
 
-        // LÓGICA DE LOGIN (Ignora Maiúsculas/Minúsculas)
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btnLogin');
-            const uInput = document.getElementById('userLogin').value.trim().toLowerCase();
-            const pInput = document.getElementById('passLogin').value.trim().toLowerCase();
+            <!-- LOGIN -->
+            <div id="formLogin" class="space-y-6">
+                <div class="text-center">
+                    <h1 class="text-2xl font-bold text-gray-900">Acessar Painel</h1>
+                    <p class="text-gray-500 text-sm mt-2">Digite suas credenciais abaixo</p>
+                </div>
 
-            btn.disabled = true;
-            btn.innerHTML = '<span class="animate-spin material-symbols-outlined text-sm">sync</span> Validando...';
+                <form class="space-y-4" id="loginForm">
+                    <div>
+                        <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Usuário</label>
+                        <input id="userLogin" type="text"
+                               class="w-full rounded-xl border-gray-200 bg-gray-50 h-14 px-4 font-semibold"
+                               placeholder="Nome Sobrenome" required>
+                    </div>
 
-            try {
-                const response = await fetch(WEB_APP_URL);
-                const usuarios = await response.json();
-                
-                // Busca ignorando case sensitive
-                const validUser = usuarios.find(user => {
-                    const uDB = String(user[0]).toLowerCase().trim();
-                    const pDB = String(user[1]).toLowerCase().trim();
-                    return uDB === uInput && pDB === pInput;
-                });
+                    <div>
+                        <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Senha</label>
+                        <input id="passLogin" type="password"
+                               class="w-full rounded-xl border-gray-200 bg-gray-50 h-14 px-4 font-semibold"
+                               placeholder="••••••••" required>
+                    </div>
 
-                if (validUser) {
-                    localStorage.setItem('vilarejo_user', validUser[0]); // Salva o nome original do banco
-                    localStorage.setItem('vilarejo_perm', validUser[2]); 
-                    window.location.href = 'pendencias.html';
-                } else {
-                    alert('Usuário ou senha incorretos! Verifique o padrão solicitado.');
-                }
-            } catch (err) {
-                alert('Erro de conexão com o servidor.');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = 'Entrar no Sistema';
-            }
-        });
+                    <button id="btnLogin" type="submit"
+                            class="w-full h-14 bg-primary text-white rounded-xl font-bold shadow-lg hover:bg-red-700 transition-all">
+                        Entrar no Sistema
+                    </button>
+                </form>
+            </div>
 
-        // LÓGICA DE CADASTRO
-        document.getElementById('registerForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btnReg');
-            const user = document.getElementById('userReg').value.trim();
-            const pass = document.getElementById('passReg').value.trim();
+            <!-- CADASTRO -->
+            <div id="formRegister" class="hidden space-y-6">
+                <div class="text-center">
+                    <h1 class="text-2xl font-bold text-gray-900">Novo Cadastro</h1>
+                    <p class="text-gray-500 text-sm mt-2">Siga o padrão estabelecido:</p>
+                </div>
 
-            if (user.split(' ').length < 2) {
-                alert("Por favor, digite Nome e Sobrenome para o cadastro.");
+                <div class="bg-red-50 p-4 rounded-xl border border-red-100">
+                    <p class="text-[11px] text-red-700 font-medium">
+                        <strong>👤 LOGIN:</strong> Nome + Sobrenome<br>
+                        <strong>🔑 SENHA:</strong> Primeiro Nome + 4 números
+                    </p>
+                </div>
+
+                <form class="space-y-4" id="registerForm">
+                    <input id="userReg" type="text"
+                           class="w-full rounded-xl border-gray-200 bg-gray-50 h-14 px-4 font-semibold text-sm"
+                           placeholder="Nome e Sobrenome" required>
+
+                    <input id="passReg" type="password"
+                           class="w-full rounded-xl border-gray-200 bg-gray-50 h-14 px-4 font-semibold text-sm"
+                           placeholder="Sua Senha Padrão" required>
+
+                    <button id="btnReg" type="submit"
+                            class="w-full h-14 bg-gray-900 text-white rounded-xl font-bold shadow-lg hover:bg-black transition-all">
+                        Finalizar Cadastro
+                    </button>
+                </form>
+            </div>
+
+            <div class="text-center text-[10px] text-gray-400 font-bold uppercase tracking-widest pt-4">
+                © 2025 Vilarejo CD • Gestão de Compras
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbznCForFxpY6CAU6W3UgglusC8oqyfDz0dqM-l_95xtr9CK9TcFvbw_V7LJQk8jTZH-/exec';
+    const CADASTRO_URL = WEB_APP_URL + '?rota=cadastro';
+
+    function showForm(type) {
+        const isLogin = type === 'login';
+        document.getElementById('formLogin').classList.toggle('hidden', !isLogin);
+        document.getElementById('formRegister').classList.toggle('hidden', isLogin);
+
+        document.getElementById('tabLogin').className = isLogin
+            ? "flex-1 py-3 text-sm font-bold rounded-xl bg-white shadow-sm transition-all"
+            : "flex-1 py-3 text-sm font-bold text-gray-500 transition-all";
+
+        document.getElementById('tabRegister').className = !isLogin
+            ? "flex-1 py-3 text-sm font-bold rounded-xl bg-white shadow-sm transition-all"
+            : "flex-1 py-3 text-sm font-bold text-gray-500 transition-all";
+    }
+
+    /* LOGIN */
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const btn = document.getElementById('btnLogin');
+        btn.disabled = true;
+        btn.innerText = 'Validando...';
+
+        const user = document.getElementById('userLogin').value.trim().toLowerCase();
+        const pass = document.getElementById('passLogin').value.trim().toLowerCase();
+
+        try {
+            const res = await fetch(CADASTRO_URL);
+            const usuarios = await res.json();
+
+            const valid = usuarios.find(u =>
+                String(u[0]).toLowerCase() === user &&
+                String(u[1]).toLowerCase() === pass
+            );
+
+            if (!valid) {
+                alert('Usuário ou senha incorretos!');
                 return;
             }
 
-            btn.disabled = true;
-            btn.innerText = "Processando...";
+            localStorage.setItem('vilarejo_user', valid[0]);
+            localStorage.setItem('vilarejo_perm', valid[2]);
+            window.location.href = 'pendencias.html';
 
-            const payload = {
-                action: 'register',
-                username: user,
-                password: pass
-            };
+        } catch (err) {
+            alert('Erro ao conectar ao servidor.');
+        } finally {
+            btn.disabled = false;
+            btn.innerText = 'Entrar no Sistema';
+        }
+    });
 
-            try {
-                await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify(payload)
-                });
-                alert('Cadastro enviado! Agora você já pode realizar o login.');
-                e.target.reset();
-                showForm('login');
-            } catch (err) {
-                alert('Erro ao processar cadastro.');
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Finalizar Cadastro";
-            }
-        });
-    </script>
+    /* CADASTRO */
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const btn = document.getElementById('btnReg');
+        btn.disabled = true;
+        btn.innerText = 'Processando...';
+
+        const payload = {
+            rota: 'cadastro',
+            action: 'register',
+            username: document.getElementById('userReg').value.trim(),
+            password: document.getElementById('passReg').value.trim()
+        };
+
+        try {
+            await fetch(WEB_APP_URL, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+
+            alert('Cadastro realizado com sucesso!');
+            e.target.reset();
+            showForm('login');
+
+        } catch {
+            alert('Erro ao cadastrar.');
+        } finally {
+            btn.disabled = false;
+            btn.innerText = 'Finalizar Cadastro';
+        }
+    });
+</script>
 </body>
 </html>
