@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Estratégica - Vilarejo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#ea2a33',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .no-print { @media print { display: none; } }
+    </style>
+</head>
+<body class="bg-gray-50 flex">
+
+    <div id="sidebar-container"></div>
+
+    <main class="flex-1 h-screen overflow-y-auto p-8">
+        <div class="max-w-6xl mx-auto">
+            
+            <div class="mb-8 border-b border-gray-200 pb-6">
+                <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Calculadora Estratégica</h1>
+                <p class="text-gray-500 mt-2 font-medium">Cálculos de DDV e Lote Econômico para Gestão de Estoque.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <button onclick="alternarCalculadora('ddv')" id="btn-ddv" class="p-6 bg-white border-2 border-primary rounded-xl shadow-sm flex items-center gap-4 hover:shadow-md transition-all text-left group">
+                    <div class="p-3 bg-red-50 text-primary rounded-lg group-hover:bg-primary group-hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-3xl">calendar_today</span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-800">Cálculo de DDV</h3>
+                        <p class="text-xs text-gray-500">Dias de Venda e Giro de Estoque</p>
+                    </div>
+                </button>
+
+                <button onclick="alternarCalculadora('eoq')" id="btn-eoq" class="p-6 bg-white border border-gray-200 rounded-xl shadow-sm flex items-center gap-4 hover:shadow-md transition-all text-left group">
+                    <div class="p-3 bg-gray-50 text-gray-400 rounded-lg group-hover:bg-primary group-hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-3xl">inventory_2</span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-800">Lote Econômico (EOQ)</h3>
+                        <p class="text-xs text-gray-500">Quantidade ideal para compra</p>
+                    </div>
+                </button>
+            </div>
+
+            <div id="calc-ddv" class="space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" id="ddv-grid">
+                    </div>
+            </div>
+
+            <div id="calc-eoq" class="hidden bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
+                <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">analytics</span> Configurações EOQ
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Demanda Anual</label>
+                        <input type="number" id="demanda-anual" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none" placeholder="Ex: 10000">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Custo por Pedido</label>
+                        <input type="number" id="custo-pedido" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none" placeholder="Ex: 50">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Custo Manutenção (%)</label>
+                        <input type="number" id="custo-manutencao" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none" placeholder="Ex: 2.5">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Preço Unitário</label>
+                        <input type="number" id="preco-unitario" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none" placeholder="Ex: 10">
+                    </div>
+                </div>
+                <button onclick="calcularEOQ()" class="w-full py-4 bg-primary text-white font-bold rounded-xl hover:bg-red-700 transition-colors shadow-lg">CALCULAR LOTE ECONÔMICO</button>
+                
+                <div id="resultado-eoq" class="mt-8 hidden grid grid-cols-1 md:grid-cols-3 gap-4">
+                    </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="menu.js"></script>
+    <script>
+        // Lógica de Troca de Calculadoras
+        function alternarCalculadora(tipo) {
+            const btnDdv = document.getElementById('btn-ddv');
+            const btnEoq = document.getElementById('btn-eoq');
+            const calcDdv = document.getElementById('calc-ddv');
+            const calcEoq = document.getElementById('calc-eoq');
+
+            if (tipo === 'ddv') {
+                calcDdv.classList.remove('hidden');
+                calcEoq.classList.add('hidden');
+                btnDdv.classList.add('border-primary');
+                btnDdv.classList.remove('border-gray-200');
+                btnEoq.classList.add('border-gray-200');
+                btnEoq.classList.remove('border-primary');
+            } else {
+                calcEoq.classList.remove('hidden');
+                calcDdv.classList.add('hidden');
+                btnEoq.classList.add('border-primary');
+                btnEoq.classList.remove('border-gray-200');
+                btnDdv.classList.add('border-gray-200');
+                btnDdv.classList.remove('border-primary');
+            }
+        }
+
+        // Gera os cards de DDV dinamicamente
+        function gerarCardsDDV() {
+            const grid = document.getElementById('ddv-grid');
+            for (let i = 1; i <= 5; i++) {
+                const isEspecial = (i === 1 || i === 2 || i === 4);
+                grid.innerHTML += `
+                    <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-xs font-black text-gray-400 uppercase">Período ${i}</span>
+                            <div id="ddv-badge-${i}" class="px-2 py-1 bg-gray-100 text-[10px] font-bold rounded text-gray-600">DDV: --</div>
+                        </div>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-500 uppercase">Estoque Atual</label>
+                                <input type="number" id="est-at-${i}" oninput="calcDdvAutomatico(${i})" class="w-full p-2 bg-gray-50 border border-gray-100 rounded text-sm focus:border-primary outline-none">
+                            </div>
+                            ${isEspecial ? `
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-500 uppercase">Pedido Trânsito</label>
+                                <input type="number" id="ped-tr-${i}" oninput="calcDdvAutomatico(${i})" class="w-full p-2 bg-gray-50 border border-gray-100 rounded text-sm focus:border-primary outline-none">
+                            </div>` : ''}
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-500 uppercase">Giro 90 Dias</label>
+                                <input type="number" id="giro-90-${i}" oninput="calcDdvAutomatico(${i})" class="w-full p-2 bg-gray-50 border border-gray-100 rounded text-sm focus:border-primary outline-none">
+                            </div>
+                            ${(i === 3 || i === 5) ? `
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-500 uppercase">Giro 30 Dias</label>
+                                <input type="number" id="giro-30-${i}" oninput="calcDdvAutomatico(${i})" class="w-full p-2 bg-gray-50 border border-gray-100 rounded text-sm focus:border-primary outline-none">
+                            </div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Lógica de cálculo DDV adaptada
+        function calcDdvAutomatico(i) {
+            const estAt = parseFloat(document.getElementById(`est-at-${i}`).value) || 0;
+            const giro90 = parseFloat(document.getElementById(`giro-90-${i}`).value) || 0;
+            const badge = document.getElementById(`ddv-badge-${i}`);
+            
+            let ddv = 0;
+            const giroDiario = (giro90 / 90);
+
+            if (giroDiario > 0) {
+                if (i === 1 || i === 2 || i === 4) {
+                    const pedTr = parseFloat(document.getElementById(`ped-tr-${i}`).value) || 0;
+                    ddv = (estAt + pedTr) / giroDiario;
+                } else {
+                    const giro30 = parseFloat(document.getElementById(`giro-30-${i}`).value) || 0;
+                    const estFuturo = estAt - giro30;
+                    ddv = (estFuturo > 0 ? estFuturo : 0) / giroDiario;
+                }
+            }
+
+            const valorFinal = Math.round(ddv);
+            badge.innerText = `DDV: ${valorFinal}`;
+            
+            // Cores de Alerta Vilarejo
+            badge.className = "px-2 py-1 text-[10px] font-bold rounded text-white " + 
+                (valorFinal <= 45 ? "bg-green-500" : valorFinal <= 85 ? "bg-yellow-500" : "bg-red-600");
+        }
+
+        function calcularEOQ() {
+            const d = parseFloat(document.getElementById('demanda-anual').value);
+            const s = parseFloat(document.getElementById('custo-pedido').value);
+            const h = parseFloat(document.getElementById('custo-manutencao').value);
+            
+            if (d && s && h) {
+                const eoq = Math.sqrt((2 * d * s) / h);
+                const resDiv = document.getElementById('resultado-eoq');
+                resDiv.classList.remove('hidden');
+                resDiv.innerHTML = `
+                    <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-primary">
+                        <p class="text-[10px] font-bold text-gray-400">LOTE IDEAL</p>
+                        <p class="text-xl font-black">${Math.round(eoq)} un.</p>
+                    </div>
+                    <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500">
+                        <p class="text-[10px] font-bold text-gray-400">PEDIDOS/ANO</p>
+                        <p class="text-xl font-black">${(d / eoq).toFixed(1)}</p>
+                    </div>
+                    <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-green-500">
+                        <p class="text-[10px] font-bold text-gray-400">INTERVALO</p>
+                        <p class="text-xl font-black">${Math.round(365 / (d / eoq))} dias</p>
+                    </div>
+                `;
+            }
+        }
+
+        window.onload = gerarCardsDDV;
+    </script>
+</body>
+</html>
