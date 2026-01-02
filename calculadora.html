@@ -15,7 +15,8 @@
     </script>
     <style>
         body { font-family: 'Inter', sans-serif; }
-        input[type="date"] { font-family: 'Inter', sans-serif; font-size: 0.75rem; }
+        .tab-active { border-bottom: 3px solid #ea2a33; color: #ea2a33; }
+        input[type="date"] { font-size: 0.7rem; padding: 2px; }
     </style>
 </head>
 <body class="bg-gray-50 flex">
@@ -23,51 +24,70 @@
     <div id="sidebar-container"></div>
 
     <main class="flex-1 h-screen overflow-y-auto p-8">
-        <div class="max-w-6xl mx-auto">
+        <div class="max-w-5xl mx-auto">
             
-            <div class="mb-8 border-b border-gray-200 pb-6">
+            <div class="mb-6 border-b border-gray-200 pb-4">
                 <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Calculadora Estratégica</h1>
-                <p class="text-gray-500 mt-2 font-medium">Análise de Giro e Projeção de Estoque.</p>
+                <div class="flex gap-6 mt-4">
+                    <button onclick="switchTab('ddv')" id="btn-tab-ddv" class="tab-active pb-2 font-bold text-sm uppercase tracking-wider transition-all">Análise DDV</button>
+                    <button onclick="switchTab('eoq')" id="btn-tab-eoq" class="text-gray-400 pb-2 font-bold text-sm uppercase tracking-wider transition-all">Lote Econômico (EOQ)</button>
+                </div>
             </div>
 
-            <div id="calc-ddv" class="space-y-8">
-                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4" id="ddv-grid">
-                    </div>
-
-                <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-                    <h2 class="text-lg font-bold mb-6 flex items-center gap-2">
-                        <span class="material-symbols-outlined text-primary">show_chart</span> 
-                        Projeção da Linha do Tempo (DDV)
-                    </h2>
-                    <div class="grid grid-cols-5 gap-2" id="timeline-projection">
-                        </div>
+            <div id="section-ddv" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div id="cards-container" class="contents"></div>
                 </div>
 
-                <div class="bg-gray-900 text-gray-300 p-6 rounded-2xl shadow-inner text-xs">
-                    <h3 class="text-white font-bold mb-4 flex items-center gap-2 uppercase tracking-widest text-sm">
-                        <span class="material-symbols-outlined text-yellow-500">info</span> Regras de Cálculo do Sistema
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead>
-                                <tr class="text-white border-b border-gray-700">
-                                    <th class="pb-2">Período</th>
-                                    <th class="pb-2">Base de Cálculo (Estoque Futuro)</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-800">
-                                <tr><td class="py-2 font-bold text-primary">P1, P2 e P4</td><td class="py-2">Estoque Atual + Pedido em Trânsito</td></tr>
-                                <tr><td class="py-2 font-bold text-primary">P3 e P5</td><td class="py-2">Estoque Atual - Giro 30 Dias (Estimativa de Saída)</td></tr>
-                            </tbody>
-                        </table>
-                        <div class="space-y-2">
-                            <p><strong class="text-white">Fórmula DDV:</strong> ((Base de Cálculo) / (Giro 90 Dias / 3)) * 30</p>
-                            <p><strong class="text-white">Parâmetros:</strong> 
-                                <span class="text-green-500">Ótimo: < 45d</span> | 
-                                <span class="text-yellow-500">Alerta: 46-85d</span> | 
-                                <span class="text-red-500">Crítico: > 85d</span>
-                            </p>
+                <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm mt-8">
+                    <h2 class="text-lg font-bold mb-6 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">analytics</span> 
+                        Análise Estratégica de DDV
+                    </h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4" id="timeline-projection">
                         </div>
+                </div>
+            </div>
+
+            <div id="section-eoq" class="hidden">
+                <div class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm max-w-2xl mx-auto text-center">
+                    <span class="material-symbols-outlined text-5xl text-primary mb-4">inventory_2</span>
+                    <h2 class="text-xl font-bold mb-6">Cálculo de Lote Econômico de Compra</h2>
+                    <div class="grid grid-cols-1 gap-4 text-left">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase">Demanda Anual (Unidades)</label>
+                            <input type="number" id="eoq-demanda" oninput="calcularEOQ()" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-primary">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase">Custo do Pedido (Frete/Adm)</label>
+                            <input type="number" id="eoq-custo-pedido" oninput="calcularEOQ()" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-primary">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase">Custo de Armazenagem por Unid./Ano</label>
+                            <input type="number" id="eoq-custo-estoque" oninput="calcularEOQ()" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-primary">
+                        </div>
+                    </div>
+                    <div class="mt-8 p-6 bg-primary text-white rounded-xl">
+                        <p class="text-xs font-bold uppercase opacity-80">Sugestão de Compra Ideal</p>
+                        <h3 id="eoq-resultado" class="text-4xl font-black mt-2">0</h3>
+                        <p class="text-[10px] mt-2 italic">*Quantidade que minimiza o custo total de estoque.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 bg-gray-900 text-gray-400 p-6 rounded-2xl shadow-inner text-xs">
+                <h3 class="text-white font-bold mb-4 uppercase tracking-widest flex items-center gap-2">
+                    <span class="material-symbols-outlined text-yellow-500">menu_book</span> Regras de Negócio e Fórmulas
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-2">
+                        <p><b class="text-white">Estoque Futuro:</b></p>
+                        <p>• P1, P2, P4 = (Estoque Atual + Pedido em Trânsito)</p>
+                        <p>• P3, P5 = (Estoque Atual - Giro 30 dias)</p>
+                    </div>
+                    <div class="space-y-2">
+                        <p><b class="text-white">Cálculo DDV:</b> ((Estoque Futuro) / (Giro 90d / 3)) * 30</p>
+                        <p><b class="text-white">EOQ:</b> $\sqrt{(2 \times Demanda \times CustoPedido) / CustoEstoque}$</p>
                     </div>
                 </div>
             </div>
@@ -77,100 +97,132 @@
 
     <script src="menu.js"></script>
     <script>
-        function gerarCardsDDV() {
-            const grid = document.getElementById('ddv-grid');
+        function switchTab(tab) {
+            document.getElementById('section-ddv').classList.toggle('hidden', tab !== 'ddv');
+            document.getElementById('section-eoq').classList.toggle('hidden', tab !== 'eoq');
+            document.getElementById('btn-tab-ddv').className = tab === 'ddv' ? 'tab-active pb-2 font-bold text-sm uppercase tracking-wider' : 'text-gray-400 pb-2 font-bold text-sm uppercase tracking-wider';
+            document.getElementById('btn-tab-eoq').className = tab === 'eoq' ? 'tab-active pb-2 font-bold text-sm uppercase tracking-wider' : 'text-gray-400 pb-2 font-bold text-sm uppercase tracking-wider';
+        }
+
+        function renderizarPagina() {
+            const container = document.getElementById('cards-container');
             const timeline = document.getElementById('timeline-projection');
-            grid.innerHTML = '';
+            container.innerHTML = '';
             timeline.innerHTML = '';
 
             for (let i = 1; i <= 5; i++) {
-                const isEspecial = (i === 1 || i === 2 || i === 4);
+                const isEntrada = (i === 1 || i === 2 || i === 4);
                 
                 // Card de Input
-                grid.innerHTML += `
-                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm transition-all hover:border-primary">
-                        <div class="mb-3">
-                            <input type="date" id="data-ini-${i}" onchange="updateTimeline()" class="w-full bg-gray-50 border-none text-[10px] p-1 rounded font-bold text-gray-500">
-                            <p class="text-[9px] text-center font-bold text-gray-300 uppercase">Período ${i}</p>
+                container.innerHTML += `
+                    <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="bg-gray-100 text-gray-600 text-[10px] font-black px-2 py-1 rounded">PERÍODO ${i}</span>
+                            <div class="flex gap-1">
+                                <input type="date" id="data-ini-${i}" onchange="atualizarAnalise()" class="border-none bg-gray-50 rounded text-gray-500">
+                                <span class="text-gray-300 text-[10px] mt-1">até</span>
+                                <input type="date" id="data-fim-${i}" onchange="atualizarAnalise()" class="border-none bg-gray-50 rounded text-gray-500">
+                            </div>
                         </div>
-                        <div class="space-y-2">
-                            <div class="group">
-                                <label class="text-[9px] font-black text-gray-400 uppercase">Est. Atual</label>
-                                <input type="number" id="est-at-${i}" oninput="calcularTudo()" class="w-full p-2 bg-gray-50 border border-gray-100 rounded text-sm focus:ring-1 focus:ring-primary outline-none">
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="col-span-2">
+                                <label class="text-[9px] font-bold text-gray-400 uppercase">Estoque Atual</label>
+                                <input type="number" id="est-at-${i}" oninput="calcularDDV(${i})" class="w-full p-2 bg-gray-50 border border-gray-100 rounded font-bold outline-none focus:border-primary">
                             </div>
-                            ${isEspecial ? `
-                            <div>
-                                <label class="text-[9px] font-black text-gray-400 uppercase">Trânsito</label>
-                                <input type="number" id="ped-tr-${i}" oninput="calcularTudo()" class="w-full p-2 bg-gray-50 border border-gray-100 rounded text-sm focus:ring-1 focus:ring-primary outline-none">
-                            </div>` : ''}
-                            <div>
-                                <label class="text-[9px] font-black text-gray-400 uppercase">Giro 90d</label>
-                                <input type="number" id="giro-90-${i}" oninput="calcularTudo()" class="w-full p-2 bg-gray-50 border border-gray-100 rounded text-sm focus:ring-1 focus:ring-primary outline-none">
+                            ${isEntrada ? `
+                            <div class="col-span-2">
+                                <label class="text-[9px] font-bold text-gray-400 uppercase">Ped. em Trânsito (+)</label>
+                                <input type="number" id="ped-tr-${i}" oninput="calcularDDV(${i})" class="w-full p-2 bg-gray-50 border border-gray-100 rounded font-bold outline-none focus:border-primary">
+                            </div>` : `
+                            <div class="col-span-2">
+                                <label class="text-[9px] font-bold text-gray-400 uppercase">Giro 30 dias (-)</label>
+                                <input type="number" id="giro-30-${i}" oninput="calcularDDV(${i})" class="w-full p-2 bg-gray-50 border border-gray-100 rounded font-bold outline-none focus:border-primary">
+                            </div>`}
+                            <div class="col-span-2">
+                                <label class="text-[9px] font-bold text-gray-400 uppercase">Giro 90 dias (Base)</label>
+                                <input type="number" id="giro-90-${i}" oninput="calcularDDV(${i})" class="w-full p-2 bg-gray-50 border border-gray-100 rounded font-bold outline-none focus:border-primary">
                             </div>
-                            ${(i === 3 || i === 5) ? `
-                            <div>
-                                <label class="text-[9px] font-black text-gray-400 uppercase">Giro 30d</label>
-                                <input type="number" id="giro-30-${i}" oninput="calcularTudo()" class="w-full p-2 bg-gray-50 border border-gray-100 rounded text-sm focus:ring-1 focus:ring-primary outline-none">
-                            </div>` : ''}
+                        </div>
+
+                        <div class="mt-4 pt-3 border-t border-dashed border-gray-100">
+                            <p class="text-[9px] font-bold text-gray-400 uppercase mb-1">Estoque Futuro Estimado</p>
+                            <p id="est-futuro-${i}" class="text-lg font-black text-gray-800">0</p>
                         </div>
                     </div>
                 `;
 
-                // Item da Timeline
+                // Item da Análise Estratégica
                 timeline.innerHTML += `
-                    <div class="text-center p-3 rounded-xl bg-gray-50 border border-gray-100">
-                        <p id="time-data-${i}" class="text-[9px] font-bold text-gray-400 mb-1">--/--</p>
-                        <div id="time-ddv-${i}" class="text-xl font-black text-gray-300">--</div>
-                        <p class="text-[8px] font-bold text-gray-400 uppercase">DDV P${i}</p>
+                    <div class="text-center p-4 rounded-xl bg-gray-50 border border-gray-100 min-w-[120px]">
+                        <p id="time-data-${i}" class="text-[10px] font-bold text-gray-400 mb-1">--/--</p>
+                        <div id="time-ddv-${i}" class="text-2xl font-black text-gray-300">--</div>
+                        <p class="text-[9px] font-bold text-gray-400 uppercase">DDV P${i}</p>
                     </div>
                 `;
             }
         }
 
-        function calcularTudo() {
-            for (let i = 1; i <= 5; i++) {
-                const estAt = parseFloat(document.getElementById(`est-at-${i}`).value) || 0;
-                const giro90 = parseFloat(document.getElementById(`giro-90-${i}`).value) || 0;
-                const giroDiario = (giro90 / 90);
-                
-                let ddv = 0;
-                if (giroDiario > 0) {
-                    if (i === 1 || i === 2 || i === 4) {
-                        const pedTr = parseFloat(document.getElementById(`ped-tr-${i}`).value) || 0;
-                        ddv = (estAt + pedTr) / giroDiario;
-                    } else {
-                        const giro30 = parseFloat(document.getElementById(`giro-30-${i}`).value) || 0;
-                        ddv = (estAt - giro30) / giroDiario;
-                    }
-                }
+        function calcularDDV(i) {
+            const estAt = parseFloat(document.getElementById(`est-at-${i}`).value) || 0;
+            const giro90 = parseFloat(document.getElementById(`giro-90-${i}`).value) || 0;
+            const isEntrada = (i === 1 || i === 2 || i === 4);
+            
+            let estFuturo = 0;
+            if (isEntrada) {
+                const pedTr = parseFloat(document.getElementById(`ped-tr-${i}`).value) || 0;
+                estFuturo = estAt + pedTr;
+            } else {
+                const giro30 = parseFloat(document.getElementById(`giro-30-${i}`).value) || 0;
+                estFuturo = estAt - giro30;
+            }
 
-                const valorFinal = Math.max(0, Math.round(ddv));
-                const timeBox = document.getElementById(`time-ddv-${i}`);
-                
-                timeBox.innerText = valorFinal;
-                
-                // Cores dinâmicas na timeline
-                if (giro90 > 0) {
-                    timeBox.className = "text-2xl font-black " + 
-                        (valorFinal <= 45 ? "text-green-500" : valorFinal <= 85 ? "text-yellow-500" : "text-red-600");
-                } else {
-                    timeBox.className = "text-2xl font-black text-gray-300";
+            document.getElementById(`est-futuro-${i}`).innerText = Math.max(0, estFuturo).toLocaleString();
+            
+            const giroDiario = (giro90 / 90);
+            let ddv = 0;
+            if (giroDiario > 0) {
+                ddv = Math.round(estFuturo / giroDiario);
+            }
+
+            const timeBox = document.getElementById(`time-ddv-${i}`);
+            const valorFinal = Math.max(0, ddv);
+            timeBox.innerText = valorFinal;
+
+            if (giro90 > 0) {
+                timeBox.className = "text-2xl font-black " + 
+                    (valorFinal <= 45 ? "text-green-500" : valorFinal <= 85 ? "text-yellow-500" : "text-red-600");
+            } else {
+                timeBox.className = "text-2xl font-black text-gray-300";
+            }
+        }
+
+        function atualizarAnalise() {
+            for (let i = 1; i <= 5; i++) {
+                const d1 = document.getElementById(`data-ini-${i}`).value;
+                const d2 = document.getElementById(`data-fim-${i}`).value;
+                if (d1 && d2) {
+                    const dataIni = new Date(d1).toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'});
+                    const dataFim = new Date(d2).toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'});
+                    document.getElementById(`time-data-${i}`).innerText = `${dataIni} - ${dataFim}`;
                 }
             }
         }
 
-        function updateTimeline() {
-            for (let i = 1; i <= 5; i++) {
-                const dataVal = document.getElementById(`data-ini-${i}`).value;
-                if (dataVal) {
-                    const dataObj = new Date(dataVal);
-                    document.getElementById(`time-data-${i}`).innerText = 
-                        dataObj.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'});
-                }
+        function calcularEOQ() {
+            const d = parseFloat(document.getElementById('eoq-demanda').value) || 0;
+            const s = parseFloat(document.getElementById('eoq-custo-pedido').value) || 0;
+            const h = parseFloat(document.getElementById('eoq-custo-estoque').value) || 0;
+
+            if (d > 0 && s > 0 && h > 0) {
+                const eoq = Math.sqrt((2 * d * s) / h);
+                document.getElementById('eoq-resultado').innerText = Math.round(eoq).toLocaleString();
+            } else {
+                document.getElementById('eoq-resultado').innerText = "0";
             }
         }
 
-        window.onload = gerarCardsDDV;
+        window.onload = renderizarPagina;
     </script>
 </body>
 </html>
