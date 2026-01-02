@@ -10,16 +10,18 @@
     
     <script>
         tailwind.config = {
-            theme: { extend: { colors: { primary: '#ea2a33', secondary: '#4a90e2' } } }
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#ea2a33',
+                    }
+                }
+            }
         }
     </script>
     <style>
-        body { font-family: 'Inter', sans-serif; color: #374151; }
-        .input-box { @apply flex items-center border border-gray-400 rounded-md overflow-hidden bg-white; }
-        .input-field { @apply w-full p-2 text-right font-bold text-sm outline-none; }
-        .input-prefix { @apply px-3 py-2 bg-gray-50 border-r border-gray-300 text-gray-500 text-xs font-bold; }
-        label { @apply flex items-center gap-2 text-[9px] font-black text-gray-500 uppercase; }
-        .date-input { @apply border border-gray-400 rounded p-1 text-[10px] text-center w-24 outline-none text-gray-400; }
+        body { font-family: 'Inter', sans-serif; }
+        .no-print { @media print { display: none; } }
     </style>
 </head>
 <body class="bg-gray-50 flex">
@@ -27,64 +29,111 @@
     <div id="sidebar-container"></div>
 
     <main class="flex-1 h-screen overflow-y-auto p-8">
-        <div class="max-w-7xl mx-auto">
+        <div class="max-w-6xl mx-auto">
             
-            <div class="text-center mb-10">
-                <h1 class="text-4xl font-black text-[#2d3748] tracking-tight">Cálculo de DDV</h1>
-                <div class="w-16 h-1 bg-primary mx-auto mt-4 rounded-full"></div>
+            <div class="mb-8 border-b border-gray-200 pb-6">
+                <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Calculadora Estratégica</h1>
+                <p class="text-gray-500 mt-2 font-medium">Cálculos de DDV e Lote Econômico para Gestão de Estoque.</p>
             </div>
 
-            <div class="flex justify-center gap-4 mb-10 no-print">
-                <button onclick="alternarCalculadora('ddv')" id="btn-ddv" class="px-8 py-3 bg-white border-2 border-primary rounded-xl font-bold shadow-sm transition-all flex items-center gap-2">
-                    <span class="material-symbols-outlined">analytics</span> Análise de DDV
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <button onclick="alternarCalculadora('ddv')" id="btn-ddv" class="p-6 bg-white border-2 border-primary rounded-xl shadow-sm flex items-center gap-4 hover:shadow-md transition-all text-left group">
+                    <div class="p-3 bg-red-50 text-primary rounded-lg group-hover:bg-primary group-hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-3xl">calendar_today</span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-800">Cálculo de DDV</h3>
+                        <p class="text-xs text-gray-500">Dias de Venda e Giro de Estoque</p>
+                    </div>
                 </button>
-                <button onclick="alternarCalculadora('eoq')" id="btn-eoq" class="px-8 py-3 bg-white border border-gray-200 rounded-xl font-bold text-gray-400 hover:border-primary transition-all flex items-center gap-2">
-                    <span class="material-symbols-outlined">inventory_2</span> Lote Econômico
+
+                <button onclick="alternarCalculadora('eoq')" id="btn-eoq" class="p-6 bg-white border border-gray-200 rounded-xl shadow-sm flex items-center gap-4 hover:shadow-md transition-all text-left group">
+                    <div class="p-3 bg-gray-50 text-gray-400 rounded-lg group-hover:bg-primary group-hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-3xl">inventory_2</span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-800">Lote Econômico (EOQ)</h3>
+                        <p class="text-xs text-gray-500">Quantidade ideal para compra</p>
+                    </div>
                 </button>
             </div>
 
-            <div id="calc-ddv" class="space-y-10">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="ddv-grid">
+            <div id="calc-ddv" class="space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-5 gap-4" id="ddv-grid">
                     </div>
 
-                <div class="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm">
-                    <h2 class="text-xl font-extrabold mb-8 flex items-center gap-3">
-                        <span class="material-symbols-outlined text-primary">monitoring</span> 
+                <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm mt-8">
+                    <h2 class="text-lg font-bold mb-6 flex items-center gap-2 text-gray-800">
+                        <span class="material-symbols-outlined text-primary">analytics</span> 
                         Análise Estratégica de DDV
                     </h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-6" id="analise-container"></div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4" id="analise-estrategica-container">
+                        </div>
                 </div>
 
-                <div class="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm text-sm">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div class="mt-8 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm text-sm no-print">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
-                            <h3 class="font-black text-gray-800 mb-6 uppercase tracking-widest text-xs border-b pb-2">Fórmulas Utilizadas:</h3>
-                            <div class="space-y-4 text-gray-600">
-                                <p><strong>Período 1 (Base):</strong> <span class="bg-gray-100 px-2 py-1 rounded font-mono text-xs">DDV = ((Estoque + Trânsito) ÷ (Giro 90d ÷ 3)) × 30</span></p>
+                            <h3 class="font-extrabold text-gray-800 mb-4 border-b pb-2 uppercase tracking-wider">Fórmulas Utilizadas:</h3>
+                            <div class="space-y-3 text-gray-600 text-xs">
+                                <p><strong>Período 1 (Base):</strong> <span class="font-mono">DDV = ((Estoque Atual + Pedido Trânsito) ÷ (Giro 90 dias ÷ 3)) × 30</span></p>
                                 <p><strong>Períodos 2 e 4 (Soma):</strong><br>
-                                   <span class="text-primary font-bold">Estoque Futuro = Estoque Atual + Pedido Trânsito</span><br>
-                                   <span class="italic text-xs ml-4">DDV = (Estoque Futuro ÷ (Giro 90d ÷ 3)) × 30</span>
+                                   <span class="text-primary">Estoque Futuro = Estoque Atual + Pedido Trânsito</span><br>
+                                   <span class="italic ml-2">DDV = (Estoque Futuro ÷ (Giro 90 dias ÷ 3)) × 30</span>
                                 </p>
-                                <p><strong>Períodos 3 e 5 (Subtração):</strong><br>
-                                   <span class="text-primary font-bold">Estoque Futuro = Estoque Atual - Giro 30 dias</span><br>
-                                   <span class="italic text-xs ml-4">DDV = (Estoque Futuro ÷ (Giro 90d ÷ 3)) × 30</span>
+                                <p><strong>Períodos 3 e 5 (Subtração - SEM PEDIDO TRÂNSITO):</strong><br>
+                                   <span class="text-primary">Estoque Futuro = Estoque Atual - Giro 30 dias</span><br>
+                                   <span class="italic ml-2">DDV = (Estoque Futuro ÷ (Giro 90 dias ÷ 3)) × 30</span>
                                 </p>
                             </div>
                         </div>
                         <div>
-                            <h3 class="font-black text-gray-800 mb-6 uppercase tracking-widest text-xs border-b pb-2">Interpretação:</h3>
-                            <ul class="space-y-4">
-                                <li class="flex items-center gap-4"><span class="w-4 h-4 rounded-full bg-green-500 shadow-sm"></span> <strong>Verde (Ótimo):</strong> DDV ≤ 45 dias</li>
-                                <li class="flex items-center gap-4"><span class="w-4 h-4 rounded-full bg-yellow-500 shadow-sm"></span> <strong>Amarelo (Alerta):</strong> DDV entre 46 e 85 dias</li>
-                                <li class="flex items-center gap-4"><span class="w-4 h-4 rounded-full bg-red-600 shadow-sm"></span> <strong>Vermelho (Crítico):</strong> DDV > 85 dias</li>
+                            <h3 class="font-extrabold text-gray-800 mb-4 border-b pb-2 uppercase tracking-wider">Interpretação:</h3>
+                            <ul class="space-y-3">
+                                <li class="flex items-center gap-3">
+                                    <span class="w-4 h-4 rounded-full bg-green-500 shadow-sm"></span>
+                                    <span class="text-gray-700"><strong>Verde (Ótimo):</strong> DDV ≤ 45 dias</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <span class="w-4 h-4 rounded-full bg-yellow-500 shadow-sm"></span>
+                                    <span class="text-gray-700"><strong>Amarelo (Alerta):</strong> DDV entre 46 e 85 dias</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <span class="w-4 h-4 rounded-full bg-red-600 shadow-sm"></span>
+                                    <span class="text-gray-700"><strong>Vermelho (Crítico):</strong> DDV > 85 dias</span>
+                                </li>
                             </ul>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div id="calc-eoq" class="hidden">
-                 </div>
+            <div id="calc-eoq" class="hidden bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
+                <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">inventory_2</span> Configurações EOQ
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Demanda Anual</label>
+                        <input type="number" id="demanda-anual" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none" placeholder="Ex: 10000">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Custo por Pedido</label>
+                        <input type="number" id="custo-pedido" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none" placeholder="Ex: 50">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Custo Manutenção (%)</label>
+                        <input type="number" id="custo-manutencao" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none" placeholder="Ex: 2.5">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Preço Unitário</label>
+                        <input type="number" id="preco-unitario" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none" placeholder="Ex: 10">
+                    </div>
+                </div>
+                <button onclick="calcularEOQ()" class="w-full py-4 bg-primary text-white font-bold rounded-xl hover:bg-red-700 transition-colors shadow-lg">CALCULAR LOTE ECONÔMICO</button>
+                
+                <div id="resultado-eoq" class="mt-8 hidden grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+            </div>
 
         </div>
     </main>
@@ -92,130 +141,165 @@
     <script src="menu.js"></script>
     <script>
         function alternarCalculadora(tipo) {
-            const isDDV = tipo === 'ddv';
-            document.getElementById('calc-ddv').classList.toggle('hidden', !isDDV);
-            document.getElementById('calc-eoq').classList.toggle('hidden', isDDV);
-            document.getElementById('btn-ddv').className = isDDV ? 'px-8 py-3 bg-white border-2 border-primary rounded-xl font-bold shadow-sm transition-all flex items-center gap-2' : 'px-8 py-3 bg-white border border-gray-200 rounded-xl font-bold text-gray-400 hover:border-primary transition-all flex items-center gap-2';
-            document.getElementById('btn-eoq').className = !isDDV ? 'px-8 py-3 bg-white border-2 border-primary rounded-xl font-bold shadow-sm transition-all flex items-center gap-2' : 'px-8 py-3 bg-white border border-gray-200 rounded-xl font-bold text-gray-400 hover:border-primary transition-all flex items-center gap-2';
+            const btnDdv = document.getElementById('btn-ddv');
+            const btnEoq = document.getElementById('btn-eoq');
+            const calcDdv = document.getElementById('calc-ddv');
+            const calcEoq = document.getElementById('calc-eoq');
+
+            if (tipo === 'ddv') {
+                calcDdv.classList.remove('hidden');
+                calcEoq.classList.add('hidden');
+                btnDdv.classList.add('border-primary');
+                btnDdv.classList.remove('border-gray-200');
+                btnEoq.classList.add('border-gray-200');
+                btnEoq.classList.remove('border-primary');
+            } else {
+                calcEoq.classList.remove('hidden');
+                calcDdv.classList.add('hidden');
+                btnEoq.classList.add('border-primary');
+                btnEoq.classList.remove('border-gray-200');
+                btnDdv.classList.add('border-gray-200');
+                btnDdv.classList.remove('border-primary');
+            }
         }
 
-        function gerarCards() {
+        function gerarEstrutura() {
             const grid = document.getElementById('ddv-grid');
-            const analise = document.getElementById('analise-container');
-            const labels = ["Base", "Soma", "Subtração", "Soma", "Subtração"];
+            const analiseContainer = document.getElementById('analise-estrategica-container');
             
+            grid.innerHTML = '';
+            analiseContainer.innerHTML = '';
+
             for (let i = 1; i <= 5; i++) {
                 const isEspecial = (i === 1 || i === 2 || i === 4);
                 
+                // Cards de Input
                 grid.innerHTML += `
-                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                        <div class="flex justify-between items-center mb-2">
-                            <div class="flex items-center gap-2">
-                                <span class="material-symbols-outlined text-gray-700 text-lg">calendar_month</span>
-                                <h3 class="font-bold text-gray-800">Período ${i}</h3>
-                                <span class="px-2 py-0.5 bg-secondary text-white text-[9px] font-bold rounded-full uppercase">${labels[i-1]}</span>
-                            </div>
-                            <div id="badge-top-${i}" class="bg-green-600 text-white text-[11px] font-black px-3 py-1 rounded">DDV: 0</div>
+                    <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm transition-all hover:border-gray-300">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-[10px] font-black text-gray-400 uppercase">Período ${i}</span>
+                            <div id="ddv-badge-${i}" class="px-2 py-1 bg-gray-100 text-[10px] font-bold rounded text-gray-400">DDV: --</div>
                         </div>
-                        <div class="w-full h-0.5 bg-primary mb-6"></div>
-
-                        <div class="flex items-center justify-center gap-4 mb-8">
-                            <input type="text" placeholder="dd/mm/yy" class="date-input">
-                            <span class="text-secondary font-bold text-xs">a</span>
-                            <input type="text" placeholder="dd/mm/yy" class="date-input">
-                        </div>
-
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between gap-2">
-                                <label><span class="material-symbols-outlined text-sm">inventory_2</span> Estoque Atual</label>
-                                <div class="input-box w-44"><span class="input-prefix">R$</span><input type="number" id="at-${i}" oninput="calcular(${i})" class="input-field" placeholder="0,00"></div>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-500 uppercase">Estoque Atual</label>
+                                <input type="number" id="est-at-${i}" oninput="calcDdvAutomatico(${i})" class="w-full p-2 bg-gray-50 border border-gray-100 rounded text-sm focus:border-primary outline-none font-bold">
                             </div>
-
                             ${isEspecial ? `
-                            <div class="flex items-center justify-between gap-2">
-                                <label><span class="material-symbols-outlined text-sm">local_shipping</span> Pedido Trânsito</label>
-                                <div class="input-box w-44"><span class="input-prefix">R$</span><input type="number" id="tr-${i}" oninput="calcular(${i})" class="input-field" placeholder="0,00"></div>
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-500 uppercase text-primary">Pedido Trânsito (+)</label>
+                                <input type="number" id="ped-tr-${i}" oninput="calcDdvAutomatico(${i})" class="w-full p-2 bg-gray-50 border border-gray-100 rounded text-sm focus:border-primary outline-none font-bold">
+                            </div>` : `
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-500 uppercase text-blue-600">Giro 30 Dias (-)</label>
+                                <input type="number" id="giro-30-${i}" oninput="calcDdvAutomatico(${i})" class="w-full p-2 bg-gray-50 border border-gray-100 rounded text-sm focus:border-primary outline-none font-bold">
+                            </div>`}
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-500 uppercase">Giro 90 Dias</label>
+                                <input type="number" id="giro-90-${i}" oninput="calcDdvAutomatico(${i})" class="w-full p-2 bg-gray-50 border border-gray-100 rounded text-sm focus:border-primary outline-none font-bold">
                             </div>
-                            ` : `
-                            <div class="flex items-center justify-between gap-2">
-                                <label><span class="material-symbols-outlined text-sm">trending_down</span> Giro 30 Dias</label>
-                                <div class="input-box w-44"><span class="input-prefix">R$</span><input type="number" id="g30-${i}" oninput="calcular(${i})" class="input-field" placeholder="0,00"></div>
-                            </div>
-                            `}
-
-                            <div class="flex items-center justify-between gap-2">
-                                <label><span class="material-symbols-outlined text-sm">insights</span> Giro 90 Dias</label>
-                                <div class="input-box w-44"><span class="input-prefix">R$</span><input type="number" id="g90-${i}" oninput="calcular(${i})" class="input-field" placeholder="0,00"></div>
-                            </div>
-
-                            ${i === 1 ? `
-                            <div class="mt-8 bg-gray-50 border border-gray-200 rounded-lg p-2 flex items-center justify-between">
-                                <label class="text-gray-700 !text-[10px]"><span class="material-symbols-outlined text-sm">fact_check</span> Resultado DDV</label>
-                                <span id="res-bar-${i}" class="bg-green-600 text-white font-black px-4 py-1.5 rounded text-xs">0 dias</span>
-                            </div>
-                            ` : `
-                            <div class="flex items-center justify-between gap-2">
-                                <label class="text-gray-600"><span class="material-symbols-outlined text-sm">account_balance_wallet</span> Estoque Futuro</label>
-                                <div class="input-box w-44 border-gray-800"><span class="input-prefix">R$</span><div id="futuro-${i}" class="input-field flex items-center justify-end">0,00</div></div>
-                            </div>
-                            `}
                         </div>
                     </div>
                 `;
 
-                analise.innerHTML += `
-                    <div class="p-6 bg-gray-50 rounded-2xl border border-gray-100 text-center flex flex-col items-center">
-                        <p class="text-[10px] font-black text-gray-400 uppercase mb-2">P${i}</p>
-                        <div id="ana-ddv-${i}" class="text-3xl font-black text-gray-300">0</div>
-                        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Dias de Venda</p>
-                        <div class="mt-4 pt-4 border-t border-gray-200 w-full">
-                            <p id="ana-status-${i}" class="text-[9px] font-black uppercase py-1 px-3 rounded-full bg-gray-200 text-gray-500">Aguardando</p>
+                // Itens da Análise Estratégica
+                analiseContainer.innerHTML += `
+                    <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 flex flex-col items-center text-center">
+                        <p class="text-[10px] font-black text-gray-400 uppercase mb-2">Período ${i}</p>
+                        <div id="res-ddv-${i}" class="text-2xl font-black text-gray-300">--</div>
+                        <p class="text-[9px] font-bold text-gray-500 uppercase">Dias de Venda</p>
+                        <div class="mt-3 pt-3 border-t border-gray-200 w-full">
+                            <p class="text-[10px] text-gray-400 uppercase">Est. Futuro</p>
+                            <p id="res-futuro-${i}" class="text-xs font-black text-gray-700">--</p>
+                            <p id="res-class-${i}" class="mt-2 text-[9px] font-bold uppercase py-1 px-2 rounded-full bg-gray-200 text-gray-400">AGUARDANDO</p>
                         </div>
                     </div>
                 `;
             }
         }
 
-        function calcular(i) {
-            const at = parseFloat(document.getElementById(`at-${i}`).value) || 0;
-            const g90 = parseFloat(document.getElementById(`g90-${i}`).value) || 0;
-            const gDiario = g90 / 90;
+        function calcDdvAutomatico(i) {
+            const estAt = parseFloat(document.getElementById(`est-at-${i}`).value) || 0;
+            const giro90 = parseFloat(document.getElementById(`giro-90-${i}`).value) || 0;
+            const giroDiario = (giro90 / 90);
             
-            let futuro = 0;
+            let estFuturo = 0;
+            let ddv = 0;
+
             if (i === 1 || i === 2 || i === 4) {
-                const tr = parseFloat(document.getElementById(`tr-${i}`).value) || 0;
-                futuro = at + tr;
+                const pedTr = parseFloat(document.getElementById(`ped-tr-${i}`).value) || 0;
+                estFuturo = estAt + pedTr;
             } else {
-                const g30 = parseFloat(document.getElementById(`g30-${i}`).value) || 0;
-                futuro = at - g30;
+                const giro30 = parseFloat(document.getElementById(`giro-30-${i}`).value) || 0;
+                estFuturo = estAt - giro30;
             }
 
-            if (i > 1) document.getElementById(`futuro-${i}`).innerText = futuro.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-
-            let ddv = gDiario > 0 ? Math.round(futuro / gDiario) : 0;
-            ddv = Math.max(0, ddv);
-
-            // Atualizar cores e badges
-            const color = ddv <= 45 ? 'bg-green-600' : ddv <= 85 ? 'bg-yellow-500' : 'bg-red-600';
-            const textColor = ddv <= 45 ? 'text-green-600' : ddv <= 85 ? 'text-yellow-500' : 'text-red-600';
-            
-            document.getElementById(`badge-top-${i}`).className = `${color} text-white text-[11px] font-black px-3 py-1 rounded`;
-            document.getElementById(`badge-top-${i}`).innerText = `DDV: ${ddv}`;
-            
-            if (i === 1) {
-                document.getElementById(`res-bar-1`).className = `${color} text-white font-black px-4 py-1.5 rounded text-xs`;
-                document.getElementById(`res-bar-1`).innerText = `${ddv} dias`;
+            if (giroDiario > 0) {
+                ddv = estFuturo / giroDiario;
             }
 
-            document.getElementById(`ana-ddv-${i}`).innerText = ddv;
-            document.getElementById(`ana-ddv-${i}`).className = `text-3xl font-black ${textColor}`;
+            const valorFinal = Math.max(0, Math.round(ddv));
             
-            const status = ddv <= 45 ? 'Ótimo (≤45)' : ddv <= 85 ? 'Alerta (46-85)' : 'Crítico (>85)';
-            document.getElementById(`ana-status-${i}`).innerText = g90 > 0 ? status : 'Aguardando';
-            document.getElementById(`ana-status-${i}`).className = `text-[9px] font-black uppercase py-1 px-3 rounded-full ${color} text-white`;
+            // Atualizar Badges e Painel Estratégico
+            const badge = document.getElementById(`ddv-badge-${i}`);
+            const resDdv = document.getElementById(`res-ddv-${i}`);
+            const resFuturo = document.getElementById(`res-futuro-${i}`);
+            const resClass = document.getElementById(`res-class-${i}`);
+
+            badge.innerText = `DDV: ${valorFinal}`;
+            resDdv.innerText = valorFinal;
+            resFuturo.innerText = Math.max(0, Math.round(estFuturo)).toLocaleString('pt-BR');
+
+            // Lógica de Classificação e Cores
+            let corClasse = "bg-gray-100 text-gray-400";
+            let labelClasse = "PENDENTE";
+
+            if (giro90 > 0) {
+                if (valorFinal <= 45) {
+                    corClasse = "bg-green-500 text-white";
+                    labelClasse = "ÓTIMO (≤45)";
+                } else if (valorFinal <= 85) {
+                    corClasse = "bg-yellow-500 text-white";
+                    labelClasse = "ALERTA (46-85)";
+                } else {
+                    corClasse = "bg-red-600 text-white";
+                    labelClasse = "CRÍTICO (>85)";
+                }
+            }
+
+            badge.className = `px-2 py-1 text-[10px] font-bold rounded text-white ${corClasse.split(' ')[0]}`;
+            resDdv.className = `text-2xl font-black ${corClasse.split(' ')[0].replace('bg-', 'text-')}`;
+            resClass.className = `mt-2 text-[9px] font-bold uppercase py-1 px-2 rounded-full shadow-sm ${corClasse}`;
+            resClass.innerText = labelClasse;
         }
 
-        window.onload = gerarCards;
+        function calcularEOQ() {
+            const d = parseFloat(document.getElementById('demanda-anual').value);
+            const s = parseFloat(document.getElementById('custo-pedido').value);
+            const h = parseFloat(document.getElementById('custo-manutencao').value);
+            
+            if (d && s && h) {
+                const eoq = Math.sqrt((2 * d * s) / h);
+                const resDiv = document.getElementById('resultado-eoq');
+                resDiv.classList.remove('hidden');
+                resDiv.innerHTML = `
+                    <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-primary">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase">Lote Ideal</p>
+                        <p class="text-xl font-black text-gray-800">${Math.round(eoq).toLocaleString('pt-BR')} un.</p>
+                    </div>
+                    <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase">Pedidos por Ano</p>
+                        <p class="text-xl font-black text-gray-800">${(d / eoq).toFixed(1)}</p>
+                    </div>
+                    <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-green-500">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase">Frequência</p>
+                        <p class="text-xl font-black text-gray-800">${Math.round(365 / (d / eoq))} dias</p>
+                    </div>
+                `;
+            }
+        }
+
+        window.onload = gerarEstrutura;
     </script>
 </body>
 </html>
