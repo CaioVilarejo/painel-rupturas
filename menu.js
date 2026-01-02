@@ -1,6 +1,6 @@
 /**
  * SISTEMA DE SEGURANÇA E MENU - VILAREJO MONITOR
- * Este script controla quem pode acessar cada página e o que aparece no menu lateral.
+ * Versão com Calculadora Estratégica integrada.
  */
 
 (function validarAcesso() {
@@ -9,14 +9,13 @@
     const permissao = permissaoRaw ? permissaoRaw.toLowerCase().trim() : '';
     const paginaAtual = window.location.pathname.split("/").pop();
 
-    // 1. Se não estiver logado e tentar acessar qualquer página (exceto login), expulsa
+    // 1. Bloqueio de deslogados
     if (!usuarioLogado && paginaAtual !== 'index.html' && paginaAtual !== '') {
         window.location.href = 'index.html';
         return;
     }
 
-    // 2. Trava para nível "Vendedor"
-    // Ele só pode acessar a página de representação. Se tentar outra, é bloqueado.
+    // 2. Trava de Segurança para Vendedor
     const paginasPermitidasVendedor = ['representacao.html', 'index.html', ''];
     if (permissao === 'vendedor' && !paginasPermitidasVendedor.includes(paginaAtual)) {
         alert('Acesso negado: Seu perfil tem acesso restrito à Representação.');
@@ -24,7 +23,6 @@
     }
 })();
 
-// Função para carregar o menu lateral
 function carregarMenu() {
     const sidebarContainer = document.getElementById('sidebar-container');
     if (!sidebarContainer) return;
@@ -33,31 +31,29 @@ function carregarMenu() {
     const nomeUsuario = localStorage.getItem('vilarejo_user') || 'Usuário';
     const paginaAtual = window.location.pathname.split("/").pop();
 
-    // Definição de todos os itens do sistema
+    // LISTA DE ITENS DO MENU - Calculadora Adicionada aqui!
     const todosItens = [
         { nome: 'Rupturas', icone: 'analytics', link: 'dashboard.html' },
         { nome: 'Histórico', icone: 'timeline', link: 'historico.html' },
         { nome: 'Representação', icone: 'description', link: 'representacao.html' },
         { nome: 'Contas', icone: 'payments', link: 'contas.html' },
-        { nome: 'Pendências CD', icone: 'confirmation_number', link: 'pendencias.html' }
+        { nome: 'Pendências CD', icone: 'confirmation_number', link: 'pendencias.html' },
+        { nome: 'Calculadora', icone: 'calculate', link: 'calculadora.html' } // <-- Novo Item
     ];
 
-    // Filtra o que cada um pode VER no menu
+    // Filtro de Visualização
     const menuItens = todosItens.filter(item => {
-        // Administrador, Compras e Usuário vêem tudo por enquanto
         if (['administrador', 'compras', 'usuário', 'usuario'].includes(permissao)) {
             return true;
         }
-        // Vendedor só vê Representação
         if (permissao === 'vendedor') {
             return item.nome === 'Representação';
         }
         return false;
     });
 
-    // Gera o HTML do Menu
     let menuHTML = `
-        <aside class="w-64 bg-white border-r border-gray-200 p-6 flex flex-col justify-between hidden md:flex no-print h-screen">
+        <aside class="w-64 bg-white border-r border-gray-200 p-6 flex flex-col justify-between hidden md:flex no-print h-screen sticky top-0">
             <div>
                 <div class="flex items-center gap-3 mb-10 pb-4 border-b border-gray-100">
                     <img src="https://i.ibb.co/tPcWfmjT/VI-logo-novo-sem-fundo.png" alt="Logo Vilarejo" class="h-8 w-auto object-contain"/>
@@ -104,12 +100,10 @@ function carregarMenu() {
     sidebarContainer.innerHTML = menuHTML;
 }
 
-// Função de Logout - Limpa o navegador e volta pro login
 function logout() {
     localStorage.removeItem('vilarejo_user');
     localStorage.removeItem('vilarejo_perm');
     window.location.href = 'index.html';
 }
 
-// Inicialização
 document.addEventListener('DOMContentLoaded', carregarMenu);
