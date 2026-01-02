@@ -108,110 +108,11 @@
         </main>
     </div>
 
-    <div id="modalDashboard" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden flex items-center justify-center z-[10000] p-4">
-        <div class="bg-gray-50 w-full max-w-5xl h-full max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-300">
-            <div class="p-6 bg-white border-b flex justify-between items-center">
-                <h2 class="text-xl font-black text-gray-800 uppercase flex items-center gap-2">
-                    <span class="material-symbols-outlined text-red-600">leaderboard</span> Dashboard de Ocorrências
-                </h2>
-                <button onclick="fecharDashboard()" class="text-gray-400 hover:text-black transition-all"><span class="material-symbols-outlined text-3xl">close</span></button>
-            </div>
-            
-            <div class="p-8 overflow-y-auto modal-scroll space-y-8">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <label class="text-[10px] font-black text-gray-400 uppercase mb-4 block">Filtrar por Período de Abertura</label>
-                    <div class="flex flex-col md:flex-row gap-6 items-end">
-                        <div class="flex-1 w-full">
-                            <p class="text-[9px] font-bold text-gray-400 ml-1">De:</p>
-                            <input type="date" id="dashDataInicio" onchange="processarDadosDash()" class="w-full border-b-2 border-gray-100 py-2 text-sm font-bold outline-none focus:border-primary bg-transparent">
-                        </div>
-                        <div class="flex-1 w-full">
-                            <p class="text-[9px] font-bold text-gray-400 ml-1">Até:</p>
-                            <input type="date" id="dashDataFim" onchange="processarDadosDash()" class="w-full border-b-2 border-gray-100 py-2 text-sm font-bold outline-none focus:border-primary bg-transparent">
-                        </div>
-                        <div class="bg-gray-50 px-8 py-3 rounded-2xl text-center border border-gray-100 flex-none min-w-[150px]">
-                            <p class="text-[9px] font-black text-gray-400 uppercase">Total no Período</p>
-                            <p id="totalMesDash" class="text-2xl font-black text-gray-800">0</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 min-h-[350px]">
-                        <h3 class="text-[11px] font-black text-gray-400 uppercase mb-6 tracking-widest text-center">Motivos das Ocorrências</h3>
-                        <div class="relative h-64"><canvas id="graficoMotivos"></canvas></div>
-                    </div>
-                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-center">
-                        <h3 class="text-[11px] font-black text-gray-400 uppercase mb-6 tracking-widest">Resumo Quantitativo</h3>
-                        <div id="listaLegendaDash" class="space-y-4"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="modalDetalhes" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[9999]">
-        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl flex flex-col max-h-[90vh]">
-            <div class="p-6 border-b flex justify-between items-center bg-gray-50 rounded-t-3xl">
-                <div><h2 id="detalheID" class="text-3xl font-black text-gray-800 tracking-tighter"></h2><span id="detalheStatusBadge" class="text-[10px] font-black uppercase"></span></div>
-                <button onclick="fecharModalDetalhes()" class="text-gray-400 hover:text-primary"><span class="material-symbols-outlined text-3xl">close</span></button>
-            </div>
-            <div class="p-8 overflow-y-auto modal-scroll space-y-10">
-                <div class="space-y-6">
-                    <h3 class="text-[11px] font-black text-gray-400 uppercase text-center tracking-widest">Linha do Tempo</h3>
-                    <div class="px-4">
-                        <div class="timeline-bar">
-                            <div id="timelineFill" class="timeline-fill" style="width: 0%;"></div>
-                            <div class="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-indigo-600 border-2 border-white rounded-full shadow"></div>
-                            <div id="nodePrev" class="absolute left-1/2 top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-gray-300 border-2 border-white rounded-full shadow transition-colors"></div>
-                            <div id="nodeConc" class="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-gray-200 border-2 border-white rounded-full shadow transition-colors"></div>
-                        </div>
-                        <div class="flex justify-between mt-4">
-                            <div class="text-center w-1/3"><p class="text-[10px] font-black text-gray-800 uppercase">Abertura</p><p id="timeAbertura" class="text-[10px] text-gray-500 font-bold mt-1"></p></div>
-                            <div class="text-center w-1/3 border-x border-gray-100"><p class="text-[10px] font-black text-gray-800 uppercase">Previsão</p><p id="timePrevisaoModal" class="text-[10px] text-gray-500 font-bold mt-1"></p></div>
-                            <div class="text-center w-1/3"><p class="text-[10px] font-black text-gray-800 uppercase">Conclusão</p><p id="timeConclusao" class="text-[10px] text-gray-500 font-bold mt-1"></p></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-6 pt-6 border-t border-gray-100 text-sm">
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase">Cód. Prod SEAC</label><p id="detalheSeac" class="font-bold text-gray-800"></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase">Fornecedor</label><p id="detalheForn" class="font-bold text-gray-800"></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase">Referência</label><p id="detalheRef" class="font-bold text-gray-800"></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase">Cód. Cliente</label><p id="detalheCli" class="font-bold text-gray-800"></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase">Quantidade</label><p id="detalheQtd" class="font-bold text-gray-800"></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase">Lote/Tonalidade</label><p id="detalheLote" class="font-bold text-gray-800"></p></div>
-                    <div class="col-span-full"><label class="text-[9px] font-black text-gray-400 uppercase">Motivo</label><p id="detalheMotivo" class="text-sm font-medium text-gray-700 italic bg-gray-50 p-3 rounded-lg border border-dashed"></p></div>
-                </div>
-                <div class="space-y-3 pt-6 border-t border-gray-100">
-                    <label class="text-[10px] font-black text-gray-400 uppercase">Acompanhamento / Histórico</label>
-                    <textarea id="detalheObs" rows="4" class="w-full border-2 border-gray-100 rounded-2xl p-4 text-sm outline-none focus:border-primary bg-gray-50 transition-all resize-none shadow-inner"></textarea>
-                </div>
-            </div>
-            <div class="p-6 bg-gray-50 rounded-b-3xl"><button id="btnSalvarObs" onclick="salvarObservacao()" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-black transition-all">Salvar Tratativa</button></div>
-        </div>
-    </div>
-
-    <div id="modalChamado" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[9999]">
-        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden">
-            <div class="p-6 border-b bg-gray-50 flex justify-between items-center"><h2 class="text-xl font-black text-primary uppercase">Registrar Pendência</h2><button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600"><span class="material-symbols-outlined">close</span></button></div>
-            <form id="formTicket" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="text" name="cod_seac" placeholder="Cód Produto Seac" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm">
-                <input type="text" name="fornecedor" placeholder="Fornecedor" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm">
-                <input type="text" name="referencia" placeholder="Referência" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm">
-                <input type="text" name="cod_cliente" placeholder="Cód Cliente" class="p-3 border rounded-xl outline-none focus:border-primary text-sm">
-                <input type="number" name="quantidade" placeholder="Quantidade" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm">
-                <input type="text" name="lote" placeholder="Tonalidade / Lote" class="p-3 border rounded-xl outline-none focus:border-primary text-sm">
-                <div class="col-span-full"><select name="motivo" onchange="toggleOutros(this.value)" class="w-full p-3 border rounded-xl outline-none bg-white text-sm"><option value="Quebra fábrica">Quebra fábrica</option><option value="Quebra depósito/Loja">Quebra depósito/Loja</option><option value="Quebra de produto na embalagem(Externa)">Quebra produto embalagem (Externa)</option><option value="Outros">Outros</option></select></div>
-                <div id="divOutros" class="col-span-full hidden"><input type="text" id="inputOutros" placeholder="Especifique o motivo..." class="w-full p-3 border border-primary rounded-xl outline-none text-sm"></div>
-                <textarea name="observacao" placeholder="Informações iniciais..." rows="2" class="col-span-full p-3 border rounded-xl outline-none focus:border-primary text-sm"></textarea>
-                <div class="col-span-full flex gap-3 pt-4"><button type="button" onclick="fecharModal()" class="flex-1 bg-gray-100 py-3 rounded-xl font-bold uppercase text-[10px]">Cancelar</button><button type="submit" id="btnSalvar" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold uppercase text-[10px] shadow-lg">Salvar Ticket</button></div>
-            </form>
-        </div>
-    </div>
-
     <script src="menu.js"></script>
     <script>
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbz-J-e0lRBXoZEoDj116wrogQr9TuHQjc6baSTdkwBh1t4t34ETQaXy-XUJ-b6i1R4f/exec';
+        // URL ATUALIZADA ABAIXO
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbznCForFxpY6CAU6W3UgglusC8oqyfDz0dqM-l_95xtr9CK9TcFvbw_V7LJQk8jTZH-/exec';
+        
         let dadosGlobais = [];
         let ticketAbertoAtual = null;
         let meuGrafico = null;
@@ -316,109 +217,23 @@
             });
         }
 
-        // LÓGICA DASHBOARD COM PERÍODO CUSTOMIZADO
-        function processarDadosDash() {
-            const dataInicio = new Date(document.getElementById('dashDataInicio').value + "T00:00:00");
-            const dataFim = new Date(document.getElementById('dashDataFim').value + "T23:59:59");
-            
-            const cont = { "Quebra fábrica": 0, "Quebra depósito/Loja": 0, "Quebra produto embalagem (Externa)": 0, "Outros": 0 };
-            let total = 0;
-
-            dadosGlobais.forEach(d => {
-                if(!d[10]) return;
-                const dataAbertura = new Date(d[10]);
-                
-                if (dataAbertura >= dataInicio && dataAbertura <= dataFim) {
-                    total++;
-                    const mot = d[7] || "";
-                    if (mot === "Quebra fábrica") cont["Quebra fábrica"]++;
-                    else if (mot === "Quebra depósito/Loja") cont["Quebra depósito/Loja"]++;
-                    else if (mot === "Quebra de produto na embalagem(Externa)") cont["Quebra produto embalagem (Externa)"]++;
-                    else cont["Outros"]++;
-                }
-            });
-            document.getElementById('totalMesDash').innerText = total;
-            renderizarGraficoDash(cont);
-            renderizarLegendaDash(cont);
-        }
-
-        function renderizarGraficoDash(contagem) {
-            const ctx = document.getElementById('graficoMotivos').getContext('2d');
-            if (meuGrafico) meuGrafico.destroy();
-            meuGrafico = new Chart(ctx, {
-                type: 'doughnut',
-                data: { 
-                    labels: Object.keys(contagem), 
-                    datasets: [{ 
-                        data: Object.values(contagem), 
-                        backgroundColor: ['#E30613', '#3b82f6', '#fbbf24', '#94a3b8'], 
-                        borderWidth: 0, 
-                        hoverOffset: 15 
-                    }] 
-                },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    plugins: { legend: { display: false } }, 
-                    cutout: '75%',
-                    animation: { animateScale: true }
-                }
-            });
-        }
-
-        function renderizarLegendaDash(contagem) {
-            const lista = document.getElementById('listaLegendaDash');
-            lista.innerHTML = '';
-            const cores = { "Quebra fábrica": '#E30613', "Quebra depósito/Loja": '#3b82f6', "Quebra produto embalagem (Externa)": '#fbbf24', "Outros": '#94a3b8' };
-            for (const [motivo, valor] of Object.entries(contagem)) {
-                lista.innerHTML += `<div class="flex justify-between items-center border-b border-gray-50 pb-2"><div class="flex items-center gap-3"><div class="w-3 h-3 rounded-full" style="background:${cores[motivo]}"></div><span class="text-xs font-bold text-gray-600">${motivo}</span></div><span class="text-sm font-black text-gray-800">${valor}</span></div>`;
-            }
-        }
-
-        function verDetalhes(index) {
-            const t = dadosGlobais[index];
-            ticketAbertoAtual = { index: index, row: index + 2 };
-            document.getElementById('detalheID').innerText = t[0];
-            document.getElementById('detalheSeac').innerText = t[1];
-            document.getElementById('detalheForn').innerText = t[2];
-            document.getElementById('detalheRef').innerText = t[3];
-            document.getElementById('detalheCli').innerText = t[4] || "---";
-            document.getElementById('detalheQtd').innerText = t[5];
-            document.getElementById('detalheLote').innerText = t[6] || "---";
-            document.getElementById('detalheMotivo').innerText = t[7];
-            document.getElementById('detalheObs').value = t[8] || "";
-            const badge = document.getElementById('detalheStatusBadge');
-            badge.innerText = t[9];
-            badge.className = `text-[10px] font-black uppercase tracking-widest ${t[9] === 'Resolvido' ? 'text-emerald-500' : 'text-blue-500'}`;
-            document.getElementById('timeAbertura').innerText = formatarDataBR(t[10]);
-            document.getElementById('timePrevisaoModal').innerText = formatarDataBR(t[12]);
-            document.getElementById('timeConclusao').innerText = t[11] ? formatarDataBR(t[11]) : "Pendente";
-            const fill = document.getElementById('timelineFill');
-            const nPrev = document.getElementById('nodePrev');
-            const nConc = document.getElementById('nodeConc');
-            if (t[9] === 'Resolvido') { fill.style.width = '100%'; nPrev.style.backgroundColor = '#4f46e5'; nConc.style.backgroundColor = '#3b82f6'; }
-            else if (t[12]) { fill.style.width = '50%'; nPrev.style.backgroundColor = '#4f46e5'; nConc.style.backgroundColor = '#e2e8f0'; }
-            else { fill.style.width = '0%'; nPrev.style.backgroundColor = '#e2e8f0'; nConc.style.backgroundColor = '#e2e8f0'; }
-            document.getElementById('modalDetalhes').classList.remove('hidden');
-        }
-
-        async function salvarObservacao() {
-            const btn = document.getElementById('btnSalvarObs');
-            const novaObs = document.getElementById('detalheObs').value;
-            btn.disabled = true; btn.innerText = "Salvando...";
-            try { await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'update_field', row: ticketAbertoAtual.row, field: 'observacao', value: novaObs }) }); dadosGlobais[ticketAbertoAtual.index][8] = novaObs; fecharModalDetalhes(); alert("Tratativa atualizada!"); } catch (e) { alert("Erro."); } finally { btn.disabled = false; btn.innerText = "Salvar Tratativa"; }
-        }
-
-        async function atualizarCampo(row, campo, valor) { try { await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'update_field', row: row, field: campo, value: valor }) }); setTimeout(carregarTickets, 1000); } catch (e) {} }
-        async function finalizarTicket(row) { if(!confirm("Deseja concluir o chamado?")) return; try { await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'update', row: row, status: 'Resolvido' }) }); setTimeout(carregarTickets, 1000); } catch (e) {} }
-
+        // Funções de salvamento e eventos de formulário
         document.getElementById('formTicket').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnSalvar'); btn.disabled = true;
             const payload = Object.fromEntries(new FormData(e.target));
             if(payload.motivo === 'Outros') payload.motivo = document.getElementById('inputOutros').value;
             payload.action = 'insert';
-            try { await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) }); fecharModal(); e.target.reset(); setTimeout(carregarTickets, 1000); } catch (e) {} finally { btn.disabled = false; }
+            try { 
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) }); 
+                fecharModal(); 
+                e.target.reset(); 
+                setTimeout(carregarTickets, 1000); 
+            } catch (e) {
+                console.error(e);
+            } finally { 
+                btn.disabled = false; 
+            }
         });
 
         window.onload = carregarTickets;
