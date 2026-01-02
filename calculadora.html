@@ -10,18 +10,12 @@
     
     <script>
         tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#ea2a33',
-                    }
-                }
-            }
+            theme: { extend: { colors: { primary: '#ea2a33' } } }
         }
     </script>
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .no-print { @media print { display: none; } }
+        input[type="date"] { font-family: 'Inter', sans-serif; font-size: 0.75rem; }
     </style>
 </head>
 <body class="bg-gray-50 flex">
@@ -33,62 +27,49 @@
             
             <div class="mb-8 border-b border-gray-200 pb-6">
                 <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Calculadora Estratégica</h1>
-                <p class="text-gray-500 mt-2 font-medium">Cálculos de DDV e Lote Econômico para Gestão de Estoque.</p>
+                <p class="text-gray-500 mt-2 font-medium">Análise de Giro e Projeção de Estoque.</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                <button onclick="alternarCalculadora('ddv')" id="btn-ddv" class="p-6 bg-white border-2 border-primary rounded-xl shadow-sm flex items-center gap-4 hover:shadow-md transition-all text-left group">
-                    <div class="p-3 bg-red-50 text-primary rounded-lg group-hover:bg-primary group-hover:text-white transition-colors">
-                        <span class="material-symbols-outlined text-3xl">calendar_today</span>
+            <div id="calc-ddv" class="space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4" id="ddv-grid">
                     </div>
-                    <div>
-                        <h3 class="font-bold text-gray-800">Cálculo de DDV</h3>
-                        <p class="text-xs text-gray-500">Dias de Venda e Giro de Estoque</p>
-                    </div>
-                </button>
 
-                <button onclick="alternarCalculadora('eoq')" id="btn-eoq" class="p-6 bg-white border border-gray-200 rounded-xl shadow-sm flex items-center gap-4 hover:shadow-md transition-all text-left group">
-                    <div class="p-3 bg-gray-50 text-gray-400 rounded-lg group-hover:bg-primary group-hover:text-white transition-colors">
-                        <span class="material-symbols-outlined text-3xl">inventory_2</span>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-gray-800">Lote Econômico (EOQ)</h3>
-                        <p class="text-xs text-gray-500">Quantidade ideal para compra</p>
-                    </div>
-                </button>
-            </div>
+                <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+                    <h2 class="text-lg font-bold mb-6 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">show_chart</span> 
+                        Projeção da Linha do Tempo (DDV)
+                    </h2>
+                    <div class="grid grid-cols-5 gap-2" id="timeline-projection">
+                        </div>
+                </div>
 
-            <div id="calc-ddv" class="space-y-6">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" id="ddv-grid">
-                    </div>
-            </div>
-
-            <div id="calc-eoq" class="hidden bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
-                <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary">analytics</span> Configurações EOQ
-                </h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Demanda Anual</label>
-                        <input type="number" id="demanda-anual" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none" placeholder="Ex: 10000">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Custo por Pedido</label>
-                        <input type="number" id="custo-pedido" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none" placeholder="Ex: 50">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Custo Manutenção (%)</label>
-                        <input type="number" id="custo-manutencao" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none" placeholder="Ex: 2.5">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Preço Unitário</label>
-                        <input type="number" id="preco-unitario" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none" placeholder="Ex: 10">
+                <div class="bg-gray-900 text-gray-300 p-6 rounded-2xl shadow-inner text-xs">
+                    <h3 class="text-white font-bold mb-4 flex items-center gap-2 uppercase tracking-widest text-sm">
+                        <span class="material-symbols-outlined text-yellow-500">info</span> Regras de Cálculo do Sistema
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="text-white border-b border-gray-700">
+                                    <th class="pb-2">Período</th>
+                                    <th class="pb-2">Base de Cálculo (Estoque Futuro)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-800">
+                                <tr><td class="py-2 font-bold text-primary">P1, P2 e P4</td><td class="py-2">Estoque Atual + Pedido em Trânsito</td></tr>
+                                <tr><td class="py-2 font-bold text-primary">P3 e P5</td><td class="py-2">Estoque Atual - Giro 30 Dias (Estimativa de Saída)</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="space-y-2">
+                            <p><strong class="text-white">Fórmula DDV:</strong> ((Base de Cálculo) / (Giro 90 Dias / 3)) * 30</p>
+                            <p><strong class="text-white">Parâmetros:</strong> 
+                                <span class="text-green-500">Ótimo: < 45d</span> | 
+                                <span class="text-yellow-500">Alerta: 46-85d</span> | 
+                                <span class="text-red-500">Crítico: > 85d</span>
+                            </p>
+                        </div>
                     </div>
                 </div>
-                <button onclick="calcularEOQ()" class="w-full py-4 bg-primary text-white font-bold rounded-xl hover:bg-red-700 transition-colors shadow-lg">CALCULAR LOTE ECONÔMICO</button>
-                
-                <div id="resultado-eoq" class="mt-8 hidden grid grid-cols-1 md:grid-cols-3 gap-4">
-                    </div>
             </div>
 
         </div>
@@ -96,117 +77,96 @@
 
     <script src="menu.js"></script>
     <script>
-        // Lógica de Troca de Calculadoras
-        function alternarCalculadora(tipo) {
-            const btnDdv = document.getElementById('btn-ddv');
-            const btnEoq = document.getElementById('btn-eoq');
-            const calcDdv = document.getElementById('calc-ddv');
-            const calcEoq = document.getElementById('calc-eoq');
-
-            if (tipo === 'ddv') {
-                calcDdv.classList.remove('hidden');
-                calcEoq.classList.add('hidden');
-                btnDdv.classList.add('border-primary');
-                btnDdv.classList.remove('border-gray-200');
-                btnEoq.classList.add('border-gray-200');
-                btnEoq.classList.remove('border-primary');
-            } else {
-                calcEoq.classList.remove('hidden');
-                calcDdv.classList.add('hidden');
-                btnEoq.classList.add('border-primary');
-                btnEoq.classList.remove('border-gray-200');
-                btnDdv.classList.add('border-gray-200');
-                btnDdv.classList.remove('border-primary');
-            }
-        }
-
-        // Gera os cards de DDV dinamicamente
         function gerarCardsDDV() {
             const grid = document.getElementById('ddv-grid');
+            const timeline = document.getElementById('timeline-projection');
+            grid.innerHTML = '';
+            timeline.innerHTML = '';
+
             for (let i = 1; i <= 5; i++) {
                 const isEspecial = (i === 1 || i === 2 || i === 4);
+                
+                // Card de Input
                 grid.innerHTML += `
-                    <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
-                        <div class="flex justify-between items-center mb-4">
-                            <span class="text-xs font-black text-gray-400 uppercase">Período ${i}</span>
-                            <div id="ddv-badge-${i}" class="px-2 py-1 bg-gray-100 text-[10px] font-bold rounded text-gray-600">DDV: --</div>
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm transition-all hover:border-primary">
+                        <div class="mb-3">
+                            <input type="date" id="data-ini-${i}" onchange="updateTimeline()" class="w-full bg-gray-50 border-none text-[10px] p-1 rounded font-bold text-gray-500">
+                            <p class="text-[9px] text-center font-bold text-gray-300 uppercase">Período ${i}</p>
                         </div>
-                        <div class="space-y-3">
-                            <div>
-                                <label class="text-[10px] font-bold text-gray-500 uppercase">Estoque Atual</label>
-                                <input type="number" id="est-at-${i}" oninput="calcDdvAutomatico(${i})" class="w-full p-2 bg-gray-50 border border-gray-100 rounded text-sm focus:border-primary outline-none">
+                        <div class="space-y-2">
+                            <div class="group">
+                                <label class="text-[9px] font-black text-gray-400 uppercase">Est. Atual</label>
+                                <input type="number" id="est-at-${i}" oninput="calcularTudo()" class="w-full p-2 bg-gray-50 border border-gray-100 rounded text-sm focus:ring-1 focus:ring-primary outline-none">
                             </div>
                             ${isEspecial ? `
                             <div>
-                                <label class="text-[10px] font-bold text-gray-500 uppercase">Pedido Trânsito</label>
-                                <input type="number" id="ped-tr-${i}" oninput="calcDdvAutomatico(${i})" class="w-full p-2 bg-gray-50 border border-gray-100 rounded text-sm focus:border-primary outline-none">
+                                <label class="text-[9px] font-black text-gray-400 uppercase">Trânsito</label>
+                                <input type="number" id="ped-tr-${i}" oninput="calcularTudo()" class="w-full p-2 bg-gray-50 border border-gray-100 rounded text-sm focus:ring-1 focus:ring-primary outline-none">
                             </div>` : ''}
                             <div>
-                                <label class="text-[10px] font-bold text-gray-500 uppercase">Giro 90 Dias</label>
-                                <input type="number" id="giro-90-${i}" oninput="calcDdvAutomatico(${i})" class="w-full p-2 bg-gray-50 border border-gray-100 rounded text-sm focus:border-primary outline-none">
+                                <label class="text-[9px] font-black text-gray-400 uppercase">Giro 90d</label>
+                                <input type="number" id="giro-90-${i}" oninput="calcularTudo()" class="w-full p-2 bg-gray-50 border border-gray-100 rounded text-sm focus:ring-1 focus:ring-primary outline-none">
                             </div>
                             ${(i === 3 || i === 5) ? `
                             <div>
-                                <label class="text-[10px] font-bold text-gray-500 uppercase">Giro 30 Dias</label>
-                                <input type="number" id="giro-30-${i}" oninput="calcDdvAutomatico(${i})" class="w-full p-2 bg-gray-50 border border-gray-100 rounded text-sm focus:border-primary outline-none">
+                                <label class="text-[9px] font-black text-gray-400 uppercase">Giro 30d</label>
+                                <input type="number" id="giro-30-${i}" oninput="calcularTudo()" class="w-full p-2 bg-gray-50 border border-gray-100 rounded text-sm focus:ring-1 focus:ring-primary outline-none">
                             </div>` : ''}
                         </div>
                     </div>
                 `;
-            }
-        }
 
-        // Lógica de cálculo DDV adaptada
-        function calcDdvAutomatico(i) {
-            const estAt = parseFloat(document.getElementById(`est-at-${i}`).value) || 0;
-            const giro90 = parseFloat(document.getElementById(`giro-90-${i}`).value) || 0;
-            const badge = document.getElementById(`ddv-badge-${i}`);
-            
-            let ddv = 0;
-            const giroDiario = (giro90 / 90);
-
-            if (giroDiario > 0) {
-                if (i === 1 || i === 2 || i === 4) {
-                    const pedTr = parseFloat(document.getElementById(`ped-tr-${i}`).value) || 0;
-                    ddv = (estAt + pedTr) / giroDiario;
-                } else {
-                    const giro30 = parseFloat(document.getElementById(`giro-30-${i}`).value) || 0;
-                    const estFuturo = estAt - giro30;
-                    ddv = (estFuturo > 0 ? estFuturo : 0) / giroDiario;
-                }
-            }
-
-            const valorFinal = Math.round(ddv);
-            badge.innerText = `DDV: ${valorFinal}`;
-            
-            // Cores de Alerta Vilarejo
-            badge.className = "px-2 py-1 text-[10px] font-bold rounded text-white " + 
-                (valorFinal <= 45 ? "bg-green-500" : valorFinal <= 85 ? "bg-yellow-500" : "bg-red-600");
-        }
-
-        function calcularEOQ() {
-            const d = parseFloat(document.getElementById('demanda-anual').value);
-            const s = parseFloat(document.getElementById('custo-pedido').value);
-            const h = parseFloat(document.getElementById('custo-manutencao').value);
-            
-            if (d && s && h) {
-                const eoq = Math.sqrt((2 * d * s) / h);
-                const resDiv = document.getElementById('resultado-eoq');
-                resDiv.classList.remove('hidden');
-                resDiv.innerHTML = `
-                    <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-primary">
-                        <p class="text-[10px] font-bold text-gray-400">LOTE IDEAL</p>
-                        <p class="text-xl font-black">${Math.round(eoq)} un.</p>
-                    </div>
-                    <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500">
-                        <p class="text-[10px] font-bold text-gray-400">PEDIDOS/ANO</p>
-                        <p class="text-xl font-black">${(d / eoq).toFixed(1)}</p>
-                    </div>
-                    <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-green-500">
-                        <p class="text-[10px] font-bold text-gray-400">INTERVALO</p>
-                        <p class="text-xl font-black">${Math.round(365 / (d / eoq))} dias</p>
+                // Item da Timeline
+                timeline.innerHTML += `
+                    <div class="text-center p-3 rounded-xl bg-gray-50 border border-gray-100">
+                        <p id="time-data-${i}" class="text-[9px] font-bold text-gray-400 mb-1">--/--</p>
+                        <div id="time-ddv-${i}" class="text-xl font-black text-gray-300">--</div>
+                        <p class="text-[8px] font-bold text-gray-400 uppercase">DDV P${i}</p>
                     </div>
                 `;
+            }
+        }
+
+        function calcularTudo() {
+            for (let i = 1; i <= 5; i++) {
+                const estAt = parseFloat(document.getElementById(`est-at-${i}`).value) || 0;
+                const giro90 = parseFloat(document.getElementById(`giro-90-${i}`).value) || 0;
+                const giroDiario = (giro90 / 90);
+                
+                let ddv = 0;
+                if (giroDiario > 0) {
+                    if (i === 1 || i === 2 || i === 4) {
+                        const pedTr = parseFloat(document.getElementById(`ped-tr-${i}`).value) || 0;
+                        ddv = (estAt + pedTr) / giroDiario;
+                    } else {
+                        const giro30 = parseFloat(document.getElementById(`giro-30-${i}`).value) || 0;
+                        ddv = (estAt - giro30) / giroDiario;
+                    }
+                }
+
+                const valorFinal = Math.max(0, Math.round(ddv));
+                const timeBox = document.getElementById(`time-ddv-${i}`);
+                
+                timeBox.innerText = valorFinal;
+                
+                // Cores dinâmicas na timeline
+                if (giro90 > 0) {
+                    timeBox.className = "text-2xl font-black " + 
+                        (valorFinal <= 45 ? "text-green-500" : valorFinal <= 85 ? "text-yellow-500" : "text-red-600");
+                } else {
+                    timeBox.className = "text-2xl font-black text-gray-300";
+                }
+            }
+        }
+
+        function updateTimeline() {
+            for (let i = 1; i <= 5; i++) {
+                const dataVal = document.getElementById(`data-ini-${i}`).value;
+                if (dataVal) {
+                    const dataObj = new Date(dataVal);
+                    document.getElementById(`time-data-${i}`).innerText = 
+                        dataObj.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'});
+                }
             }
         }
 
