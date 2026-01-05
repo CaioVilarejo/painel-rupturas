@@ -105,14 +105,14 @@
                 <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600"><span class="material-symbols-outlined">close</span></button>
             </div>
             <form id="formTicket" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="text" name="cod_seac" placeholder="Cód Produto Seac" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm">
-                <input type="text" name="fornecedor" placeholder="Fornecedor" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm">
-                <input type="text" name="referencia" placeholder="Referência" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm">
-                <input type="text" name="cod_cliente" placeholder="Cód Cliente" class="p-3 border rounded-xl outline-none focus:border-primary text-sm">
-                <input type="number" name="quantidade" placeholder="Quantidade" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm">
-                <input type="text" name="lote" placeholder="Tonalidade / Lote" class="p-3 border rounded-xl outline-none focus:border-primary text-sm">
+                <input type="text" name="cod_seac" placeholder="Cód Produto Seac" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
+                <input type="text" name="fornecedor" placeholder="Fornecedor" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
+                <input type="text" name="referencia" placeholder="Referência" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
+                <input type="text" name="cod_cliente" placeholder="Cód Cliente" class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
+                <input type="number" name="quantidade" placeholder="Quantidade" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
+                <input type="text" name="lote" placeholder="Tonalidade / Lote" class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
                 <div class="col-span-full">
-                    <select name="motivo" onchange="toggleOutros(this.value)" class="w-full p-3 border rounded-xl outline-none bg-white text-sm">
+                    <select name="motivo" onchange="toggleOutros(this.value)" class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold">
                         <option value="Quebra fábrica">Quebra fábrica</option>
                         <option value="Quebra depósito/Loja">Quebra depósito/Loja</option>
                         <option value="Quebra de produto na embalagem(Externa)">Quebra produto embalagem (Externa)</option>
@@ -120,9 +120,9 @@
                     </select>
                 </div>
                 <div id="divOutros" class="col-span-full hidden">
-                    <input type="text" id="inputOutros" placeholder="Especifique o motivo..." class="w-full p-3 border border-primary rounded-xl outline-none text-sm">
+                    <input type="text" id="inputOutros" placeholder="Especifique o motivo..." class="w-full p-3 border border-primary rounded-xl outline-none text-sm font-bold">
                 </div>
-                <textarea name="observacao" placeholder="Informações iniciais..." rows="2" class="col-span-full p-3 border rounded-xl outline-none focus:border-primary text-sm"></textarea>
+                <textarea name="observacao" placeholder="Informações iniciais..." rows="2" class="col-span-full p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold"></textarea>
                 
                 <div class="col-span-full flex gap-3 pt-4">
                     <button type="button" onclick="fecharModal()" class="flex-1 bg-gray-100 py-3 rounded-xl font-bold uppercase text-[10px]">Cancelar</button>
@@ -135,56 +135,36 @@
     <div id="modalDetalhes" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[9999]">
         <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl flex flex-col max-h-[90vh]">
             <div class="p-6 border-b flex justify-between items-center bg-gray-50 rounded-t-3xl">
-                <div><h2 id="detalheID" class="text-3xl font-black text-gray-800 tracking-tighter"></h2><span id="detalheStatusBadge" class="text-[10px] font-black uppercase"></span></div>
+                <div>
+                    <h2 id="detalheID" class="text-3xl font-black text-gray-800 tracking-tighter"></h2>
+                    <span id="detalheStatusBadge" class="text-[10px] font-black uppercase px-2 py-0.5 rounded"></span>
+                </div>
                 <button onclick="fecharModalDetalhes()" class="text-gray-400 hover:text-primary"><span class="material-symbols-outlined text-3xl">close</span></button>
             </div>
-            <div class="p-8 overflow-y-auto modal-scroll space-y-10">
-                <div class="space-y-6">
-                    <h3 class="text-[11px] font-black text-gray-400 uppercase text-center tracking-widest">Linha do Tempo</h3>
-                    <div class="px-4">
-                        <div class="timeline-bar">
-                            <div id="timelineFill" class="timeline-fill" style="width: 0%;"></div>
-                            <div class="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-indigo-600 border-2 border-white rounded-full shadow"></div>
-                            <div id="nodePrev" class="absolute left-1/2 top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-gray-300 border-2 border-white rounded-full shadow transition-colors"></div>
-                            <div id="nodeConc" class="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-gray-200 border-2 border-white rounded-full shadow transition-colors"></div>
-                        </div>
-                        <div class="flex justify-between mt-4 text-[10px] font-black uppercase text-gray-800">
-                            <div class="text-center w-1/3">Abertura<p id="timeAbertura" class="text-gray-500 font-bold mt-1"></p></div>
-                            <div class="text-center w-1/3 border-x border-gray-100">Previsão<p id="timePrevisaoModal" class="text-gray-500 font-bold mt-1"></p></div>
-                            <div class="text-center w-1/3">Conclusão<p id="timeConclusao" class="text-gray-500 font-bold mt-1"></p></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-6 pt-6 border-t border-gray-100 text-sm">
+            <div class="p-8 overflow-y-auto modal-scroll space-y-8">
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-6 text-sm">
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Cód. Prod SEAC</label><p id="detalheSeac" class="font-bold text-gray-800"></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Fornecedor</label><p id="detalheForn" class="font-bold text-gray-800"></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Referência</label><p id="detalheRef" class="font-bold text-gray-800"></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Quantidade</label><p id="detalheQtd" class="font-bold text-gray-800"></p></div>
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Abertura</label><p id="timeAbertura" class="font-bold text-gray-800"></p></div>
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Criado por</label><p id="detalheCriadoPor" class="font-bold text-blue-600 uppercase"></p></div>
                 </div>
-                <div class="space-y-3 pt-6 border-t border-gray-100">
-                    <label class="text-[10px] font-black text-gray-400 uppercase">Acompanhamento / Histórico</label>
-                    <textarea id="detalheObs" rows="4" class="w-full border-2 border-gray-100 rounded-2xl p-4 text-sm outline-none focus:border-primary bg-gray-50 transition-all resize-none"></textarea>
-                </div>
-            </div>
-            <div class="p-6 bg-gray-50 rounded-b-3xl"><button id="btnSalvarObs" onclick="salvarObservacao()" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-black">Salvar Tratativa</button></div>
-        </div>
-    </div>
 
-    <div id="modalDashboard" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden flex items-center justify-center z-[10000] p-4">
-        <div class="bg-gray-50 w-full max-w-5xl h-full max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden">
-            <div class="p-6 bg-white border-b flex justify-between items-center">
-                <h2 class="text-xl font-black text-gray-800 uppercase flex items-center gap-2">
-                    <span class="material-symbols-outlined text-red-600">leaderboard</span> Dashboard de Ocorrências
-                </h2>
-                <button onclick="fecharDashboard()" class="text-gray-400 hover:text-black"><span class="material-symbols-outlined text-3xl">close</span></button>
-            </div>
-            <div class="p-8 overflow-y-auto modal-scroll space-y-8">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 min-h-[350px]">
-                        <h3 class="text-[11px] font-black text-gray-400 uppercase mb-6 text-center">Motivos das Ocorrências</h3>
-                        <div class="relative h-64"><canvas id="graficoMotivos"></canvas></div>
-                    </div>
+                <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                    <label class="text-[10px] font-black text-gray-400 uppercase mb-2 block tracking-widest">Definir Responsável</label>
+                    <select id="selectResponsavelModal" onchange="atualizarResponsavelPeloModal(this.value)" class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary">
+                        <option value="">Selecione um responsável...</option>
+                    </select>
                 </div>
+
+                <div class="space-y-3">
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Acompanhamento / Histórico</label>
+                    <textarea id="detalheObs" rows="6" class="w-full border-2 border-gray-100 rounded-2xl p-4 text-sm outline-none focus:border-primary bg-gray-50 transition-all resize-none font-medium"></textarea>
+                </div>
+            </div>
+            <div class="p-6 bg-white border-t rounded-b-3xl">
+                <button id="btnSalvarObs" onclick="salvarObservacao()" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-black transition-all">Salvar Alterações</button>
             </div>
         </div>
     </div>
@@ -194,14 +174,13 @@
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbznCForFxpY6CAU6W3UgglusC8oqyfDz0dqM-l_95xtr9CK9TcFvbw_V7LJQk8jTZH-/exec';
         const USUARIO_LOGADO = localStorage.getItem('vilarejo_user') || 'Não identificado';
         const LISTA_RESPONSAVEIS = ["Eduardo", "Edson", "Fábio", "Leandro", "Herialdo", "Bruna", "Renielle", "Caio"];
+        
         let dadosGlobais = [];
         let ticketAbertoAtual = null;
-        let meuGrafico = null;
 
         function abrirModal() { document.getElementById('modalChamado').classList.remove('hidden'); }
         function fecharModal() { document.getElementById('modalChamado').classList.add('hidden'); }
         function fecharModalDetalhes() { document.getElementById('modalDetalhes').classList.add('hidden'); }
-        function fecharDashboard() { document.getElementById('modalDashboard').classList.add('hidden'); }
         function toggleOutros(v) { document.getElementById('divOutros').classList.toggle('hidden', v !== 'Outros'); }
 
         function formatarDataBR(dataStr) {
@@ -215,14 +194,14 @@
 
         async function carregarTickets() {
             const tbody = document.getElementById('tabelaChamados');
-            tbody.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-gray-400 italic font-bold">Acessando banco de dados...</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-gray-400 italic font-bold">Sincronizando...</td></tr>`;
             try {
                 const r = await fetch(`${WEB_APP_URL}?rota=pendencias`);
                 dadosGlobais = await r.json();
-                atualizarCardsGerais(dadosGlobais);
                 renderizarTabela(dadosGlobais);
+                atualizarCardsGerais(dadosGlobais);
             } catch (e) { 
-                tbody.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-red-500 font-bold">Falha ao carregar dados.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-red-500 font-bold">Falha na conexão.</td></tr>`;
             }
         }
 
@@ -231,18 +210,20 @@
             tbody.innerHTML = '';
             const hoje = new Date().setHours(0,0,0,0);
 
-            dados.forEach((linha) => {
-                const indexOriginal = dadosGlobais.findIndex(dg => dg[0] === linha[0]);
-                const [id, seac, forn, ref, cli, qtd, lote, motivo, obs, status, abertura, resolucao, prevista, criadoPor, responsavel] = linha;
+            dados.forEach((linha, indexOriginal) => {
+                // Abertura[10], Status[9], Previsao[12], Responsavel[14]
+                const id = linha[0];
+                const status = linha[9];
+                const responsavel = linha[14];
                 const rowId = indexOriginal + 2;
                 
-                let dPrevRaw = prevista;
-                if(prevista && prevista.includes('/')) { const p = prevista.split('/'); dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`; }
+                let dPrevRaw = linha[12];
+                if(dPrevRaw && dPrevRaw.includes('/')) { const p = dPrevRaw.split('/'); dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`; }
                 const isAtrasado = status !== 'Resolvido' && dPrevRaw && new Date(dPrevRaw).getTime() < hoje;
                 const statusColor = status === 'Resolvido' ? 'bg-emerald-100 text-emerald-700' : isAtrasado ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700';
 
-                // Geração do seletor de responsáveis dinâmico
-                let selectResp = `<select onchange="atualizarCampo(${rowId}, 'responsavel', this.value)" class="text-[10px] font-bold border rounded px-1 py-1 outline-primary bg-white">
+                // Dropdown de Responsável para a Tabela
+                let selectResp = `<select onchange="atualizarCampo(${rowId}, 'responsavel', this.value)" class="text-[10px] font-bold border rounded px-1 py-1 outline-primary bg-white focus:ring-1 ring-primary">
                                     <option value="">Selecione...</option>`;
                 LISTA_RESPONSAVEIS.forEach(resp => {
                     selectResp += `<option value="${resp}" ${responsavel === resp ? 'selected' : ''}>${resp}</option>`;
@@ -253,20 +234,77 @@
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="p-4 font-black text-primary"><button onclick="verDetalhes(${indexOriginal})" class="hover:underline">${id}</button></td>
                         <td class="p-4"><span class="px-2 py-1 rounded-md text-[9px] font-black uppercase ${statusColor}">${isAtrasado ? 'Atrasado' : status}</span></td>
-                        <td class="p-4"><div class="font-bold">${seac}</div><div class="text-[9px] text-gray-400 uppercase font-black">${forn}</div></td>
-                        <td class="p-4 text-center text-xs text-gray-500 font-bold">${formatarDataBR(abertura)}</td>
+                        <td class="p-4"><div class="font-bold">${linha[1]}</div><div class="text-[9px] text-gray-400 uppercase font-black">${linha[2]}</div></td>
+                        <td class="p-4 text-center text-xs text-gray-500 font-bold">${formatarDataBR(linha[10])}</td>
                         <td class="p-4 text-center">${status === 'Resolvido' ? `<span class="text-[10px] font-bold text-gray-500">${responsavel || '---'}</span>` : selectResp}</td>
                         <td class="p-4 text-center">
-                            ${status === 'Resolvido' ? `<span class="text-xs text-gray-400 font-bold">${formatarDataBR(prevista)}</span>` : 
+                            ${status === 'Resolvido' ? `<span class="text-xs text-gray-400 font-bold">${formatarDataBR(linha[12])}</span>` : 
                             `<input type="date" value="${dPrevRaw ? dPrevRaw.split('T')[0] : ''}" onchange="atualizarCampo(${rowId}, 'previsao', this.value)" class="border rounded px-1 py-1 text-[10px] font-bold">`}
                         </td>
                         <td class="p-4 text-center">
                             ${status !== 'Resolvido' ? 
                             `<button onclick="finalizarTicket(${rowId})" class="bg-emerald-50 text-emerald-600 p-2 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"><span class="material-symbols-outlined text-sm">check</span></button>` : 
-                            `<span class="text-emerald-600 text-[10px] font-black">Resolvido em ${formatarDataBR(resolucao)}</span>`}
+                            `<span class="text-emerald-600 text-[10px] font-black">Concluído</span>`}
                         </td>
                     </tr>`;
             });
+        }
+
+        function verDetalhes(index) {
+            const t = dadosGlobais[index];
+            ticketAbertoAtual = { index: index, row: index + 2 };
+
+            // Preencher campos básicos
+            document.getElementById('detalheID').innerText = t[0];
+            document.getElementById('detalheSeac').innerText = t[1];
+            document.getElementById('detalheForn').innerText = t[2];
+            document.getElementById('detalheRef').innerText = t[3];
+            document.getElementById('detalheQtd').innerText = t[5];
+            document.getElementById('detalheObs').value = t[8] || "";
+            document.getElementById('timeAbertura').innerText = formatarDataBR(t[10]);
+            document.getElementById('detalheCriadoPor').innerText = t[13] || "N/I";
+
+            // Status Badge
+            const badge = document.getElementById('detalheStatusBadge');
+            badge.innerText = t[9];
+            badge.className = t[9] === 'Resolvido' ? 'text-[10px] font-black uppercase px-2 py-0.5 rounded bg-emerald-100 text-emerald-700' : 'text-[10px] font-black uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-700';
+
+            // Popular Select de Responsável no Modal
+            const selectModal = document.getElementById('selectResponsavelModal');
+            selectModal.innerHTML = '<option value="">Selecione um responsável...</option>';
+            LISTA_RESPONSAVEIS.forEach(resp => {
+                const opt = document.createElement('option');
+                opt.value = resp;
+                opt.textContent = resp;
+                if(t[14] === resp) opt.selected = true;
+                selectModal.appendChild(opt);
+            });
+
+            document.getElementById('modalDetalhes').classList.remove('hidden');
+        }
+
+        async function atualizarResponsavelPeloModal(valor) {
+            if(!ticketAbertoAtual) return;
+            await atualizarCampo(ticketAbertoAtual.row, 'responsavel', valor);
+            // Atualiza localmente para não precisar recarregar tudo
+            dadosGlobais[ticketAbertoAtual.index][14] = valor;
+        }
+
+        async function salvarObservacao() {
+            const btn = document.getElementById('btnSalvarObs');
+            const novaObs = document.getElementById('detalheObs').value;
+            btn.disabled = true; btn.innerText = "Salvando...";
+            try {
+                await fetch(WEB_APP_URL, { 
+                    method: 'POST', 
+                    mode: 'no-cors', 
+                    body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: ticketAbertoAtual.row, field: 'observacao', value: novaObs }) 
+                });
+                dadosGlobais[ticketAbertoAtual.index][8] = novaObs;
+                fecharModalDetalhes();
+                setTimeout(carregarTickets, 500);
+            } catch (e) { alert("Erro ao salvar observação."); }
+            finally { btn.disabled = false; btn.innerText = "Salvar Alterações"; }
         }
 
         async function atualizarCampo(row, campo, valor) {
@@ -276,16 +314,16 @@
                     mode: 'no-cors',
                     body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: campo, value: valor })
                 });
-                if(campo === 'previsao') setTimeout(carregarTickets, 1000);
-            } catch (e) { console.error("Erro ao atualizar campo"); }
+                if(campo === 'previsao') setTimeout(carregarTickets, 800);
+            } catch (e) { console.error("Erro no fetch"); }
         }
 
         async function finalizarTicket(row) {
-            if(!confirm("Deseja concluir o chamado?")) return;
+            if(!confirm("Concluir chamado?")) return;
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update', row: row, status: 'Resolvido' }) });
                 setTimeout(carregarTickets, 1000);
-            } catch (e) { alert("Erro ao finalizar"); }
+            } catch (e) { }
         }
 
         document.getElementById('formTicket').addEventListener('submit', async (e) => {
@@ -321,35 +359,6 @@
             document.getElementById('cardAndamento').innerText = and;
             document.getElementById('cardAtraso').innerText = atr;
             document.getElementById('cardResolvido').innerText = con;
-        }
-
-        function verDetalhes(index) {
-            const t = dadosGlobais[index];
-            ticketAbertoAtual = { index: index, row: index + 2 };
-            document.getElementById('detalheID').innerText = t[0];
-            document.getElementById('detalheSeac').innerText = t[1];
-            document.getElementById('detalheForn').innerText = t[2];
-            document.getElementById('detalheRef').innerText = t[3];
-            document.getElementById('detalheQtd').innerText = t[5];
-            document.getElementById('detalheObs').value = t[8] || "";
-            document.getElementById('timeAbertura').innerText = formatarDataBR(t[10]);
-            document.getElementById('timePrevisaoModal').innerText = formatarDataBR(t[12]);
-            document.getElementById('timeConclusao').innerText = t[11] ? formatarDataBR(t[11]) : "Pendente";
-            
-            document.getElementById('modalDetalhes').classList.remove('hidden');
-        }
-
-        async function salvarObservacao() {
-            const btn = document.getElementById('btnSalvarObs');
-            const novaObs = document.getElementById('detalheObs').value;
-            btn.disabled = true;
-            try {
-                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: ticketAbertoAtual.row, field: 'observacao', value: novaObs }) });
-                dadosGlobais[ticketAbertoAtual.index][8] = novaObs;
-                fecharModalDetalhes();
-                alert("Atualizado!");
-            } catch (e) { alert("Erro."); }
-            finally { btn.disabled = false; }
         }
 
         window.onload = carregarTickets;
