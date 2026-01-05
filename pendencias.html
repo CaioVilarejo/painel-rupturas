@@ -211,6 +211,7 @@
     <script src="menu.js"></script>
     <script>
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbznCForFxpY6CAU6W3UgglusC8oqyfDz0dqM-l_95xtr9CK9TcFvbw_V7LJQk8jTZH-/exec';
+        const USUARIO_LOGADO = localStorage.getItem('vilarejo_user') || 'Não identificado';
         let dadosGlobais = [];
         let ticketAbertoAtual = null;
         let meuGrafico = null;
@@ -415,8 +416,13 @@
             e.preventDefault();
             const btn = document.getElementById('btnSalvar'); btn.disabled = true;
             const payload = Object.fromEntries(new FormData(e.target));
-            if(payload.motivo === 'Outros') payload.motivo = document.getElementById('inputOutros').value;
-            payload.action = 'insert';
+if (payload.motivo === 'Outros') {
+    payload.motivo = document.getElementById('inputOutros').value;
+}
+
+payload.action = 'insert';
+payload.criado_por = USUARIO_LOGADO; // 👉 COLUNA N
+
             try { await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) }); fecharModal(); e.target.reset(); setTimeout(carregarTickets, 1000); } catch (e) {} finally { btn.disabled = false; }
         });
 
