@@ -203,14 +203,27 @@
                 <input type="text" name="lote" placeholder="Tonalidade / Lote" class="p-3 border rounded-xl outline-none focus:border-primary text-sm">
                 <div class="col-span-full"><select name="motivo" onchange="toggleOutros(this.value)" class="w-full p-3 border rounded-xl outline-none bg-white text-sm"><option value="Quebra fábrica">Quebra fábrica</option><option value="Quebra depósito/Loja">Quebra depósito/Loja</option><option value="Quebra de produto na embalagem(Externa)">Quebra produto embalagem (Externa)</option><option value="Outros">Outros</option></select></div>
                 <div id="divOutros" class="col-span-full hidden"><input type="text" id="inputOutros" placeholder="Especifique o motivo..." class="w-full p-3 border border-primary rounded-xl outline-none text-sm"></div>
-                <textarea name="observacao" placeholder="Informações iniciais..." rows="2" class="col-span-full p-3 border rounded-xl outline-none focus:border-primary text-sm"></textarea>
-                <div class="col-span-full flex gap-3 pt-4"><button type="button" onclick="fecharModal()" class="flex-1 bg-gray-100 py-3 rounded-xl font-bold uppercase text-[10px]">Cancelar</button><button type="submit" id="btnSalvar" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold uppercase text-[10px] shadow-lg">Salvar Ticket</button></div>
+                <textarea name="observacao"
+  placeholder="Informações iniciais..."
+  rows="2"
+  class="col-span-full p-3 border rounded-xl outline-none focus:border-primary text-sm">
+</textarea>
+
+<select name="responsavel" id="selectResponsavel"
+  class="col-span-full p-3 border rounded-xl outline-none bg-white text-sm" required>
+  <option value="">Selecione o responsável</option>
+</select>
+
+<div class="col-span-full flex gap-3 pt-4">
+  <button type="button" onclick="fecharModal()" ...>Cancelar</button>
+  <button type="submit" id="btnSalvar" ...>Salvar Ticket</button>
+</div>
             </form>
         </div>
     </div>
     <script src="menu.js"></script>
     <script>
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbznCForFxpY6CAU6W3UgglusC8oqyfDz0dqM-l_95xtr9CK9TcFvbw_V7LJQk8jTZH-/exec?rota=pendencias';
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbznCForFxpY6CAU6W3UgglusC8oqyfDz0dqM-l_95xtr9CK9TcFvbw_V7LJQk8jTZH-/exec';
         const USUARIO_LOGADO = localStorage.getItem('vilarejo_user') || 'Não identificado';
         let dadosGlobais = [];
         let ticketAbertoAtual = null;
@@ -420,13 +433,36 @@ if (payload.motivo === 'Outros') {
     payload.motivo = document.getElementById('inputOutros').value;
 }
 
+payload.rota = 'pendencias';
 payload.action = 'insert';
-payload.criado_por = USUARIO_LOGADO; // 👉 COLUNA N
+payload.criado_por = USUARIO_LOGADO;
 
             try { await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) }); fecharModal(); e.target.reset(); setTimeout(carregarTickets, 1000); } catch (e) {} finally { btn.disabled = false; }
         });
 
-        window.onload = carregarTickets;
+        async function carregarResponsaveis() {
+  try {
+    const r = await fetch(WEB_APP_URL + '?rota=cadastro');
+    const lista = await r.json();
+
+    const select = document.getElementById('selectResponsavel');
+    select.innerHTML = '<option value="">Selecione o responsável</option>';
+
+    lista.forEach(l => {
+      const opt = document.createElement('option');
+      opt.value = l[0];      // Nome
+      opt.textContent = l[0];
+      select.appendChild(opt);
+    });
+  } catch (e) {
+    console.error('Erro ao carregar responsáveis');
+  }
+}
+window.onload = () => {
+  carregarTickets();
+  carregarResponsaveis();
+};
+
     </script>
 </body>
 </html>
