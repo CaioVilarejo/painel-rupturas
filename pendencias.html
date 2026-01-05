@@ -17,87 +17,73 @@
     </script>
 
     <style type="text/css">
-        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-        .modal-scroll::-webkit-scrollbar { width: 6px; }
-        .modal-scroll::-webkit-scrollbar-track { background: #f8fafc; border-radius: 10px; }
-        .modal-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .timeline-bar { height: 8px; background: #e2e8f0; border-radius: 20px; position: relative; }
-        .timeline-fill { height: 100%; background: linear-gradient(90deg, #E30613 0%, #ff4d4d 100%); border-radius: 20px; transition: width 0.8s ease; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; } [cite: 2]
+        .modal-scroll::-webkit-scrollbar { width: 6px; } [cite: 3]
+        .modal-scroll::-webkit-scrollbar-track { background: #f8fafc; border-radius: 10px; } [cite: 4]
+        .modal-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; } [cite: 5]
+        .timeline-bar { height: 8px; background: #e2e8f0; border-radius: 20px; position: relative; } [cite: 6]
+        .timeline-fill { height: 100%; background: linear-gradient(90deg, #E30613 0%, #ff4d4d 100%); border-radius: 20px; transition: width 0.8s ease; } [cite: 7, 8]
+        .no-scrollbar::-webkit-scrollbar { display: none; } [cite: 9]
     </style>
 </head>
 <body class="bg-gray-100 text-gray-900">
     <div class="flex h-screen overflow-hidden">
-        <div id="sidebar-container"></div>
-
-        <main class="flex-1 overflow-y-auto p-4 md:p-8 no-scrollbar">
+        <div id="sidebar-container"></div> <main class="flex-1 overflow-y-auto p-4 md:p-8 no-scrollbar">
             <div class="max-w-7xl mx-auto">
                 
                 <div class="flex justify-between items-center mb-6">
-                    <h1 class="text-xl font-black uppercase tracking-tighter text-gray-800 tracking-widest">Controle de Ocorrências</h1>
-                    <button onclick="window.location.href='dashboard_pendencias.html'" class="bg-gray-800 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 hover:bg-black transition-all shadow-lg">
+                    <h1 class="text-xl font-black uppercase tracking-tighter text-gray-800 tracking-widest">Controle de Ocorrências</h1> [cite: 10]
+                    <button onclick="abrirDashboard()" class="bg-gray-800 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 hover:bg-black transition-all shadow-lg"> [cite: 10]
                         <span class="material-symbols-outlined text-sm">analytics</span> Dashboard
                     </button>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"> [cite: 11]
                     <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-orange-400">
                         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Em Análise</p>
                         <h3 id="cardAnalise" class="text-3xl font-black">0</h3>
                     </div>
                     <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-blue-500">
-                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Em Andamento</p>
-                        <h3 id="cardAndamento" class="text-3xl font-black">0</h3>
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Em Andamento</p> [cite: 11]
+                        <h3 id="cardAndamento" class="text-3xl font-black">0</h3> [cite: 12]
                     </div>
                     <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-red-500">
-                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Em Atraso</p>
-                        <h3 id="cardAtraso" class="text-3xl font-black">0</h3>
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Em Atraso</p> [cite: 11]
+                        <h3 id="cardAtraso" class="text-3xl font-black">0</h3> [cite: 13]
                     </div>
                     <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-emerald-500">
-                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Concluídos</p>
-                        <h3 id="cardResolvido" class="text-3xl font-black">0</h3>
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Concluídos</p> [cite: 11]
+                        <h3 id="cardResolvido" class="text-3xl font-black">0</h3> [cite: 14]
                     </div>
                 </div>
 
                 <div class="flex flex-col md:flex-row justify-between items-end gap-4 mb-6 bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 w-full">
-                        <div>
-                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Buscar ID</label>
-                            <input type="text" id="inputBuscaID" onkeyup="filtrarGeral()" placeholder="TKT-..." class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold outline-none focus:border-primary">
+                    <div class="flex flex-wrap gap-4 w-full md:w-auto"> [cite: 15]
+                        <div class="w-full md:w-44">
+                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">ID Ticket</label> [cite: 15]
+                            <input type="text" id="inputBuscaID" onkeyup="filtrarGeral()" placeholder="Buscar ID..." class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold outline-none focus:border-primary"> [cite: 16]
                         </div>
-                        <div>
-                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Status</label>
-                            <select id="selectStatus" onchange="filtrarGeral()" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white outline-none">
-                                <option value="todos">Todos os Status</option>
-                                <option value="Em análise">Em Análise</option>
-                                <option value="Em andamento">Em Andamento</option>
-                                <option value="Atrasado">Atrasado</option>
-                                <option value="Resolvido">Resolvido</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Motivo</label>
-                            <select id="selectMotivoFiltro" onchange="filtrarGeral()" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white outline-none">
-                                <option value="todos">Todos os Motivos</option>
-                                <option value="Quebra fábrica">Quebra fábrica</option>
-                                <option value="Quebra depósito/Loja">Quebra depósito/Loja</option>
-                                <option value="Quebra de produto na embalagem(Externa)">Quebra produto embalagem</option>
-                                <option value="Outros">Outros</option>
-                            </select>
-                        </div>
-                        <div class="flex items-end">
-                            <button onclick="abrirModal()" class="w-full bg-primary text-white px-4 py-2.5 rounded-xl font-bold uppercase text-[10px] shadow-lg hover:bg-red-700 transition-all flex items-center justify-center gap-2">
-                                <span class="material-symbols-outlined text-sm">add_circle</span> Novo Ticket
-                            </button>
+                        <div class="w-full md:w-40">
+                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Status</label> [cite: 16]
+                            <select id="selectStatus" onchange="filtrarGeral()" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white outline-none"> [cite: 17]
+                                <option value="todos">Todos</option> [cite: 17]
+                                <option value="Em análise">Em análise</option>
+                                <option value="Em andamento">Em Andamento</option> [cite: 18]
+                                <option value="Atrasado">Atrasado</option> [cite: 18]
+                                <option value="Resolvido">Resolvido</option> [cite: 18]
+                            </select> [cite: 19]
                         </div>
                     </div>
+                    <button onclick="abrirModal()" class="w-full md:w-auto bg-primary text-white px-8 py-2.5 rounded-xl font-bold uppercase text-[10px] shadow-lg hover:bg-red-700 transition-all flex items-center justify-center gap-2"> [cite: 22, 23]
+                        <span class="material-symbols-outlined text-sm">add_circle</span> Abrir Ticket
+                    </button>
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto"> [cite: 24]
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="bg-gray-50 border-b text-[10px] font-black text-gray-400 uppercase">
+                                <tr class="bg-gray-50 border-b text-[10px] font-black text-gray-400 uppercase"> [cite: 25]
                                     <th class="p-4">ID Ticket</th>
                                     <th class="p-4">Status</th>
                                     <th class="p-4">Produto / Fornecedor</th>
@@ -105,9 +91,9 @@
                                     <th class="p-4 text-center">Responsável</th>
                                     <th class="p-4 text-center">Previsão</th>
                                     <th class="p-4 text-center">Ações</th>
-                                </tr>
+                                </tr> [cite: 28]
                             </thead>
-                            <tbody id="tabelaChamados" class="divide-y divide-gray-100 text-sm"></tbody>
+                            <tbody id="tabelaChamados" class="divide-y divide-gray-100 text-sm"></tbody> [cite: 28]
                         </table>
                     </div>
                 </div>
@@ -115,50 +101,37 @@
         </main>
     </div>
 
-    <div id="modalChamado" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[9999]">
-        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden">
-            <div class="p-6 border-b bg-gray-50 flex justify-between items-center">
-                <h2 class="text-xl font-black text-primary uppercase">Registrar Pendência</h2>
-                <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600"><span class="material-symbols-outlined">close</span></button>
+    <div id="modalDashboard" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden flex items-center justify-center z-[10000] p-4"> [cite: 29]
+        <div class="bg-gray-50 w-full max-w-5xl h-full max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+            <div class="p-6 bg-white border-b flex justify-between items-center"> [cite: 30]
+                <h2 class="text-xl font-black text-gray-800 uppercase flex items-center gap-2">
+                    <span class="material-symbols-outlined text-red-600">leaderboard</span> Dashboard de Ocorrências
+                </h2>
+                <button onclick="fecharDashboard()" class="text-gray-400 hover:text-black transition-all"><span class="material-symbols-outlined text-3xl">close</span></button> [cite: 30]
             </div>
-            <form id="formTicket" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="text" name="cod_seac" placeholder="Cód Produto Seac" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
-                <input type="text" name="fornecedor" placeholder="Fornecedor" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
-                <input type="text" name="referencia" placeholder="Referência" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
-                <input type="text" name="cod_cliente" placeholder="Cód Cliente" class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
-                <input type="number" name="quantidade" placeholder="Quantidade" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
-                <input type="text" name="lote" placeholder="Tonalidade / Lote" class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
-                <div class="col-span-full">
-                    <select name="motivo" onchange="toggleOutros(this.value)" class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold">
-                        <option value="Quebra fábrica">Quebra fábrica</option>
-                        <option value="Quebra depósito/Loja">Quebra depósito/Loja</option>
-                        <option value="Quebra de produto na embalagem(Externa)">Quebra produto embalagem (Externa)</option>
-                        <option value="Outros">Outros</option>
-                    </select>
+            <div class="p-8 overflow-y-auto modal-scroll space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8"> [cite: 36]
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 min-h-[350px]">
+                        <h3 class="text-[11px] font-black text-gray-400 uppercase mb-6 tracking-widest text-center">Motivos das Ocorrências</h3> [cite: 36]
+                        <div class="relative h-64"><canvas id="graficoMotivos"></canvas></div> [cite: 37]
+                    </div>
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-center">
+                        <h3 class="text-[11px] font-black text-gray-400 uppercase mb-6 tracking-widest">Resumo Quantitativo</h3> [cite: 37, 38]
+                        <div id="listaLegendaDash" class="space-y-4"></div> [cite: 38]
+                    </div>
                 </div>
-                <div id="divOutros" class="col-span-full hidden">
-                    <input type="text" id="inputOutros" placeholder="Especifique o motivo..." class="w-full p-3 border border-primary rounded-xl outline-none text-sm font-bold">
-                </div>
-                <textarea name="observacao" placeholder="Informações iniciais..." rows="2" class="col-span-full p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold"></textarea>
-                <div class="col-span-full flex gap-3 pt-4">
-                    <button type="button" onclick="fecharModal()" class="flex-1 bg-gray-100 py-3 rounded-xl font-bold uppercase text-[10px]">Cancelar</button>
-                    <button type="submit" id="btnSalvar" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold uppercase text-[10px] shadow-lg">Salvar Ticket</button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 
-    <div id="modalDetalhes" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[9999]">
+    <div id="modalDetalhes" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[9999]"> [cite: 38, 39]
         <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl flex flex-col max-h-[95vh]">
-            <div class="p-6 border-b flex justify-between items-center bg-gray-50 rounded-t-3xl">
-                <div>
-                    <h2 id="detalheID" class="text-3xl font-black text-gray-800 tracking-tighter"></h2>
-                    <span id="detalheStatusBadge" class="text-[10px] font-black uppercase px-2 py-0.5 rounded"></span>
-                </div>
-                <button onclick="fecharModalDetalhes()" class="text-gray-400 hover:text-primary"><span class="material-symbols-outlined text-3xl">close</span></button>
+            <div class="p-6 border-b flex justify-between items-center bg-gray-50 rounded-t-3xl"> [cite: 39]
+                <div><h2 id="detalheID" class="text-3xl font-black text-gray-800 tracking-tighter"></h2><span id="detalheStatusBadge" class="text-[10px] font-black uppercase px-2 py-0.5 rounded"></span></div> [cite: 39]
+                <button onclick="fecharModalDetalhes()" class="text-gray-400 hover:text-primary"><span class="material-symbols-outlined text-3xl">close</span></button> [cite: 39]
             </div>
             
-            <div class="p-8 overflow-y-auto modal-scroll space-y-8">
+            <div class="p-8 overflow-y-auto modal-scroll space-y-10"> [cite: 40]
                 <div class="space-y-6 bg-gray-50 p-6 rounded-2xl border border-gray-100">
                     <div class="flex justify-between px-2 text-center">
                         <div class="w-1/4 flex flex-col items-center gap-1">
@@ -180,202 +153,288 @@
                     </div>
 
                     <div class="px-4">
-                        <div class="timeline-bar">
-                            <div id="timelineFill" class="timeline-fill" style="width: 0%;"></div>
-                            <div class="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-primary border-2 border-white rounded-full"></div>
+                        <div class="timeline-bar"> [cite: 41]
+                            <div id="timelineFill" class="timeline-fill" style="width: 0%;"></div> [cite: 41]
+                            <div class="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-primary border-2 border-white rounded-full"></div> [cite: 41]
                             <div id="nodeDono" class="absolute left-[33%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-gray-200 border-2 border-white rounded-full transition-colors"></div>
-                            <div id="nodePrev" class="absolute left-[66%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-gray-200 border-2 border-white rounded-full transition-colors"></div>
-                            <div id="nodeConc" class="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-gray-200 border-2 border-white rounded-full transition-colors"></div>
+                            <div id="nodePrev" class="absolute left-[66%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-gray-200 border-2 border-white rounded-full transition-colors"></div> [cite: 42]
+                            <div id="nodeConc" class="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-gray-200 border-2 border-white rounded-full transition-colors"></div> [cite: 42]
                         </div>
-                        <div class="flex justify-between mt-4 text-[9px] font-bold text-gray-600">
-                            <div class="w-1/4 text-center" id="timeAbertura"></div>
-                            <div class="w-1/4 text-center border-x border-gray-200" id="timeDono"></div>
-                            <div class="w-1/4 text-center border-r border-gray-200" id="timePrev"></div>
-                            <div class="w-1/4 text-center" id="timeConc"></div>
+                        <div class="flex justify-between mt-4 text-[9px] font-bold text-gray-600"> [cite: 43]
+                            <div class="w-1/4 text-center" id="timeAbertura"></div> [cite: 43]
+                            <div class="w-1/4 text-center border-x border-gray-200" id="timeDono">Pendente</div>
+                            <div class="w-1/4 text-center border-r border-gray-200" id="timePrevisaoModal"></div> [cite: 43]
+                            <div class="w-1/4 text-center" id="timeConclusao"></div> [cite: 44]
                         </div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-6 text-sm">
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Cód. Prod SEAC</label><p id="detalheSeac" class="font-bold text-gray-800"></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Fornecedor</label><p id="detalheForn" class="font-bold text-gray-800"></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Referência</label><p id="detalheRef" class="font-bold text-gray-800"></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Cód. Cliente</label><p id="detalheCli" class="font-bold text-blue-700"></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Quantidade</label><p id="detalheQtd" class="font-bold text-gray-800"></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Tonalidade / Lote</label><p id="detalheLote" class="font-bold text-orange-600"></p></div>
-                    <div class="col-span-full md:col-span-1"><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Motivo</label><p id="detalheMotivo" class="font-black text-red-600 uppercase"></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Criado por</label><p id="detalheCriadoPor" class="font-bold text-gray-600 uppercase"></p></div>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-6 text-sm"> [cite: 45]
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase">Cód. Prod SEAC</label><p id="detalheSeac" class="font-bold text-gray-800"></p></div> [cite: 45, 46]
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase">Fornecedor</label><p id="detalheForn" class="font-bold text-gray-800"></p></div> [cite: 46]
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase">Referência</label><p id="detalheRef" class="font-bold text-gray-800"></p></div> [cite: 46]
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase">Cód. Cliente</label><p id="detalheCli" class="font-bold text-gray-800"></p></div> [cite: 46, 47]
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase">Quantidade</label><p id="detalheQtd" class="font-bold text-gray-800"></p></div> [cite: 47]
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase">Lote/Tonalidade</label><p id="detalheLote" class="font-bold text-gray-800"></p></div> [cite: 47]
+                    <div class="col-span-full"><label class="text-[9px] font-black text-gray-400 uppercase">Motivo</label><p id="detalheMotivo" class="font-bold text-gray-800"></p></div> [cite: 47]
                 </div>
 
                 <div class="p-4 bg-white rounded-2xl border-2 border-gray-100">
                     <label class="text-[10px] font-black text-gray-400 uppercase mb-2 block tracking-widest">Responsável Atual</label>
-                    <select id="selectResponsavelModal" onchange="atualizarResponsavelPeloModal(this.value)" class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary">
+                    <select id="selectResponsavelModal" onchange="atualizarCampo(ticketAbertoAtual.row, 'responsavel', this.value)" class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary">
                         <option value="">Selecione um responsável...</option>
                     </select>
                 </div>
 
-                <div class="space-y-3">
-                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Histórico de Tratativas</label>
-                    <textarea id="detalheObs" rows="5" class="w-full border-2 border-gray-100 rounded-2xl p-4 text-sm outline-none focus:border-primary bg-gray-50 transition-all font-medium"></textarea>
+                <div class="space-y-3"> [cite: 48]
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tratativa / Histórico</label> [cite: 48]
+                    <textarea id="detalheObs" rows="5" class="w-full border-2 border-gray-100 rounded-2xl p-4 text-sm outline-none focus:border-primary bg-gray-50 transition-all font-medium"></textarea> [cite: 48]
                 </div>
             </div>
-
-            <div class="p-6 bg-white border-t rounded-b-3xl">
-                <button id="btnSalvarObs" onclick="salvarObservacao()" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-black transition-all shadow-lg">Salvar Alterações</button>
+            <div class="p-6 bg-white border-t rounded-b-3xl"> [cite: 49]
+                <button id="btnSalvarObs" onclick="salvarObservacao()" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-black transition-all shadow-lg">Salvar Alterações</button> [cite: 49]
             </div>
         </div>
     </div>
 
-    <script src="menu.js"></script>
+    <div id="modalChamado" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[9999]"> [cite: 49]
+        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden">
+            <div class="p-6 border-b bg-gray-50 flex justify-between items-center"> [cite: 49, 50]
+                <h2 class="text-xl font-black text-primary uppercase">Registrar Pendência</h2>
+                <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600"><span class="material-symbols-outlined">close</span></button> [cite: 50]
+            </div>
+            <form id="formTicket" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4"> [cite: 50]
+                <input type="text" name="cod_seac" placeholder="Cód Produto Seac" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold"> [cite: 50]
+                <input type="text" name="fornecedor" placeholder="Fornecedor" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold"> [cite: 50]
+                <input type="text" name="referencia" placeholder="Referência" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold"> [cite: 51]
+                <input type="text" name="cod_cliente" placeholder="Cód Cliente" class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold"> [cite: 51]
+                <input type="number" name="quantidade" placeholder="Quantidade" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold"> [cite: 51]
+                <input type="text" name="lote" placeholder="Tonalidade / Lote" class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold"> [cite: 51]
+                <div class="col-span-full"> [cite: 52]
+                    <select name="motivo" onchange="toggleOutros(this.value)" class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold"> [cite: 52]
+                        <option value="Quebra fábrica">Quebra fábrica</option> [cite: 52]
+                        <option value="Quebra depósito/Loja">Quebra depósito/Loja</option> [cite: 52]
+                        <option value="Quebra de produto na embalagem(Externa)">Quebra produto embalagem (Externa)</option> [cite: 52]
+                        <option value="Outros">Outros</option> [cite: 52]
+                    </select>
+                </div>
+                <div id="divOutros" class="col-span-full hidden"> [cite: 52]
+                    <input type="text" id="inputOutros" placeholder="Especifique o motivo..." class="w-full p-3 border border-primary rounded-xl outline-none text-sm font-bold"> [cite: 52]
+                </div>
+                <textarea name="observacao" placeholder="Informações iniciais..." rows="2" class="col-span-full p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold"></textarea> [cite: 52]
+                <div class="col-span-full flex gap-3 pt-4"> [cite: 53]
+                    <button type="button" onclick="fecharModal()" class="flex-1 bg-gray-100 py-3 rounded-xl font-bold uppercase text-[10px]">Cancelar</button> [cite: 53]
+                    <button type="submit" id="btnSalvar" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold uppercase text-[10px] shadow-lg">Salvar Ticket</button> [cite: 53]
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="menu.js"></script> [cite: 53]
     <script>
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbznCForFxpY6CAU6W3UgglusC8oqyfDz0dqM-l_95xtr9CK9TcFvbw_V7LJQk8jTZH-/exec';
-        const USUARIO_LOGADO = localStorage.getItem('vilarejo_user') || 'Visitante';
-        const LISTA_RESPONSAVEIS = ["Eduardo", "Edson", "Fábio", "Leandro", "Herialdo", "Bruna", "Renielle", "Caio"];
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbznCForFxpY6CAU6W3UgglusC8oqyfDz0dqM-l_95xtr9CK9TcFvbw_V7LJQk8jTZH-/exec'; [cite: 54]
+        const USUARIO_LOGADO = localStorage.getItem('vilarejo_user') || 'Não identificado'; [cite: 54]
         
-        let dadosGlobais = [];
-        let ticketAbertoAtual = null;
+        let dadosGlobais = []; [cite: 54]
+        let ticketAbertoAtual = null; [cite: 54]
+        let meuGrafico = null; [cite: 54]
 
-        function abrirModal() { document.getElementById('modalChamado').classList.remove('hidden'); }
-        function fecharModal() { document.getElementById('modalChamado').classList.add('hidden'); }
-        function fecharModalDetalhes() { document.getElementById('modalDetalhes').classList.add('hidden'); }
-        function toggleOutros(v) { document.getElementById('divOutros').classList.toggle('hidden', v !== 'Outros'); }
+        function abrirModal() { document.getElementById('modalChamado').classList.remove('hidden'); } [cite: 55]
+        function fecharModal() { document.getElementById('modalChamado').classList.add('hidden'); } [cite: 55, 56]
+        function fecharModalDetalhes() { document.getElementById('modalDetalhes').classList.add('hidden'); } [cite: 56, 57]
+        function toggleOutros(v) { document.getElementById('divOutros').classList.toggle('hidden', v !== 'Outros'); } [cite: 57, 58]
 
-        function formatarDataBR(dataStr) {
-            if (!dataStr || dataStr === "" || dataStr === "---") return "---";
-            if (/^\d{2}\/\d{2}\/\d{4}/.test(dataStr)) return dataStr;
+        function abrirDashboard() { 
+            document.getElementById('modalDashboard').classList.remove('hidden'); [cite: 59]
+            processarDadosDash(); [cite: 59]
+        }
+        function fecharDashboard() { document.getElementById('modalDashboard').classList.add('hidden'); } [cite: 60, 61]
+
+        function formatarDataBR(dataStr) { [cite: 61]
+            if (!dataStr || dataStr === "" || dataStr === "---") return "---"; [cite: 62]
+            if (/^\d{2}\/\d{2}\/\d{4}$/.test(dataStr)) return dataStr; [cite: 62]
             try { 
                 const data = new Date(dataStr); 
                 return isNaN(data.getTime()) ? dataStr : `${String(data.getUTCDate()).padStart(2, '0')}/${String(data.getUTCMonth() + 1).padStart(2, '0')}/${data.getUTCFullYear()}`; 
-            } catch (e) { return dataStr; }
+            } catch (e) { return dataStr; } [cite: 63, 64]
         }
 
-        function converterParaDate(str) {
-            if(!str) return null;
-            if(str instanceof Date) return str;
-            const partes = str.split('/');
-            return new Date(partes[2], partes[1] - 1, partes[0]);
-        }
-
-        async function carregarTickets() {
+        async function carregarTickets() { [cite: 64]
+            const tbody = document.getElementById('tabelaChamados'); [cite: 64]
             try {
-                const r = await fetch(`${WEB_APP_URL}?rota=pendencias`);
-                dadosGlobais = await r.json();
-                filtrarGeral();
-            } catch (e) { console.error("Erro ao carregar"); }
+                const r = await fetch(WEB_APP_URL + '?rota=pendencias'); [cite: 66]
+                dadosGlobais = await r.json(); [cite: 67]
+                atualizarCardsGerais(dadosGlobais); [cite: 67]
+                filtrarGeral(); [cite: 67]
+            } catch (e) { 
+                tbody.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-red-500 font-bold">Falha ao carregar dados.</td></tr>`; [cite: 67, 68]
+            }
         }
 
-        function filtrarGeral() {
-            const buscaID = document.getElementById('inputBuscaID').value.toLowerCase();
-            const statusF = document.getElementById('selectStatus').value;
-            const motivoF = document.getElementById('selectMotivoFiltro').value;
-            const hoje = new Date().setHours(0,0,0,0);
+        function atualizarCardsGerais(dados) { [cite: 68]
+            let analise = 0, andamento = 0, atraso = 0, resolvido = 0; [cite: 68]
+            const hoje = new Date().setHours(0,0,0,0); [cite: 69]
 
-            const filtrados = dadosGlobais.filter(l => {
-                const statusOriginal = l[9];
-                const responsavel = l[14];
-                const previsao = l[12];
-                const abertura = converterParaDate(l[10]);
-                const horasDesdeAbertura = (new Date() - abertura) / (1000 * 60 * 60);
-
-                let statusVisual = statusOriginal;
+            dados.forEach(d => {
+                const status = d[9]; [cite: 69]
+                const responsavel = d[14];
+                let dPrevRaw = d[12]; [cite: 69]
                 
-                if (statusOriginal !== 'Resolvido') {
-                    if (!responsavel || responsavel === "") {
-                        statusVisual = horasDesdeAbertura > 24 ? "Em análise (Atrasado)" : "Em análise";
-                    } else if (previsao) {
-                        const dPrev = converterParaDate(previsao);
-                        if (dPrev < hoje) statusVisual = "Atrasado";
-                    }
+                if(status === 'Resolvido') {
+                    resolvido++; [cite: 70]
+                } else if (!responsavel || responsavel === "") {
+                    analise++;
+                } else {
+                    if(dPrevRaw && dPrevRaw.includes('/')) { const p = dPrevRaw.split('/'); dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`; } [cite: 69]
+                    const isAtrasado = dPrevRaw && new Date(dPrevRaw).getTime() < hoje; [cite: 69, 70]
+                    if(isAtrasado) atraso++; else andamento++; [cite: 70]
                 }
-
-                const matchID = l[0].toLowerCase().includes(buscaID);
-                const matchStatus = statusF === "todos" || statusVisual.includes(statusF);
-                const matchMotivo = motivoF === "todos" || l[7] === motivoF;
-                return matchID && matchStatus && matchMotivo;
             });
 
-            renderizarTabela(filtrados);
-            atualizarCardsGerais(dadosGlobais);
+            document.getElementById('cardAnalise').innerText = analise;
+            document.getElementById('cardAndamento').innerText = andamento; [cite: 71]
+            document.getElementById('cardAtraso').innerText = atraso; [cite: 71]
+            document.getElementById('cardResolvido').innerText = resolvido; [cite: 71]
         }
 
-        function renderizarTabela(dados) {
-            const tbody = document.getElementById('tabelaChamados');
-            tbody.innerHTML = '';
-            const hoje = new Date().setHours(0,0,0,0);
+        function filtrarGeral() { [cite: 71]
+            const idBusca = document.getElementById('inputBuscaID').value.toLowerCase(); [cite: 71]
+            const statusFiltro = document.getElementById('selectStatus').value; [cite: 72]
+            const hoje = new Date().setHours(0,0,0,0); [cite: 72]
 
-            dados.forEach(linha => {
-                const indexOriginal = dadosGlobais.findIndex(dg => dg[0] === linha[0]);
-                const [id, seac, forn, ref, cli, qtd, lote, motivo, obs, status, abertura, resolucao, prevista, criadoPor, responsavel] = linha;
-                const rowId = indexOriginal + 2;
-
-                const dataAbert = converterParaDate(abertura);
-                const horas = (new Date() - dataAbert) / (1000 * 60 * 60);
+            const filtrados = dadosGlobais.filter(d => { [cite: 73]
+                const idTicket = String(d[0]).toLowerCase(); [cite: 73]
+                const statusOriginal = d[9]; [cite: 73]
+                const responsavel = d[14];
                 
-                let statusVisual = status;
-                let corStatus = 'bg-blue-100 text-blue-700';
-
-                if(status === 'Resolvido') {
-                    corStatus = 'bg-emerald-100 text-emerald-700';
-                } else if(!responsavel) {
-                    statusVisual = horas > 24 ? 'Em análise (Atrasado)' : 'Em análise';
-                    corStatus = horas > 24 ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700';
-                } else if(prevista) {
-                    const dPrev = converterParaDate(prevista);
-                    if(dPrev < hoje) {
-                        statusVisual = 'Atrasado';
-                        corStatus = 'bg-red-100 text-red-700';
+                let statusFinal = statusOriginal;
+                if(statusOriginal !== 'Resolvido') {
+                    if(!responsavel) {
+                        statusFinal = "Em análise";
+                    } else {
+                        let dPrevRaw = d[12]; [cite: 73]
+                        if(dPrevRaw && dPrevRaw.includes('/')) { const p = dPrevRaw.split('/'); dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`; } [cite: 74]
+                        if(dPrevRaw && new Date(dPrevRaw).getTime() < hoje) statusFinal = 'Atrasado'; [cite: 74]
                     }
                 }
 
-                let selectResp = `<select onchange="atualizarCampo(${rowId}, 'responsavel', this.value)" class="text-[10px] font-bold border rounded px-1 py-1 bg-white outline-none">
-                                    <option value="">Selecione...</option>`;
-                LISTA_RESPONSAVEIS.forEach(r => selectResp += `<option value="${r}" ${responsavel === r ? 'selected' : ''}>${r}</option>`);
-                selectResp += `</select>`;
+                return idTicket.includes(idBusca) && (statusFiltro === 'todos' || statusFinal === statusFiltro); [cite: 75]
+            });
+            renderizarTabela(filtrados); [cite: 76]
+        }
+
+        function renderizarTabela(dados) { [cite: 76]
+            const tbody = document.getElementById('tabelaChamados'); [cite: 76]
+            tbody.innerHTML = ''; [cite: 77]
+            const hoje = new Date().setHours(0,0,0,0); [cite: 77]
+
+            dados.forEach((linha) => { [cite: 77]
+                const indexOriginal = dadosGlobais.findIndex(dg => dg[0] === linha[0]); [cite: 77]
+                const [id, seac, forn, ref, cli, qtd, lote, motivo, obs, status, abertura, resolucao, prevista, criado, responsavel] = linha; [cite: 77]
+                const rowId = indexOriginal + 2; [cite: 77]
+               
+                let statusFinal = status;
+                let color = 'bg-blue-100 text-blue-700'; [cite: 78]
+
+                if(status === 'Resolvido') {
+                    color = 'bg-emerald-100 text-emerald-700'; [cite: 78]
+                } else if(!responsavel) {
+                    statusFinal = "Em análise";
+                    color = 'bg-orange-100 text-orange-700';
+                } else {
+                    let dPrevRaw = prevista; [cite: 78]
+                    if(prevista && prevista.includes('/')) { const p = prevista.split('/'); dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`; } [cite: 78]
+                    if(dPrevRaw && new Date(dPrevRaw).getTime() < hoje) {
+                        statusFinal = 'Atrasado';
+                        color = 'bg-red-100 text-red-700'; [cite: 78]
+                    }
+                }
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="p-4 font-black text-primary"><button onclick="verDetalhes(${indexOriginal})" class="hover:underline">${id}</button></td>
-                        <td class="p-4"><span class="px-2 py-1 rounded-md text-[9px] font-black uppercase ${corStatus}">${statusVisual}</span></td>
-                        <td class="p-4"><div class="font-bold">${seac}</div><div class="text-[9px] text-gray-400 uppercase font-black">${forn}</div></td>
-                        <td class="p-4 text-center text-xs text-gray-500 font-bold">${formatarDataBR(abertura)}</td>
-                        <td class="p-4 text-center">${status === 'Resolvido' ? `<span class="text-[10px] font-bold">${responsavel}</span>` : selectResp}</td>
+                        <td class="p-4 font-black text-primary"><button onclick="verDetalhes(${indexOriginal})" class="hover:underline">${id}</button></td> [cite: 79]
+                        <td class="p-4"><span class="px-2 py-1 rounded-md text-[9px] font-black uppercase ${color}">${statusFinal}</span></td> [cite: 79, 80]
+                        <td class="p-4"><div class="font-bold">${seac}</div><div class="text-[9px] text-gray-400 uppercase font-black">${forn}</div></td> [cite: 80]
+                        <td class="p-4 text-center text-xs text-gray-500 font-bold">${formatarDataBR(abertura)}</td> [cite: 80]
+                        <td class="p-4 text-center font-bold text-gray-700">${responsavel || "---"}</td>
+                        <td class="p-4 text-center">${status === 'Resolvido' ? `<span class="text-xs text-gray-400 font-bold">${formatarDataBR(prevista)}</span>` : `<input type="date" value="${prevista ? new Date(prevista).toISOString().split('T')[0] : ''}" onchange="atualizarCampo(${rowId}, 'previsao', this.value)" class="border rounded px-1 py-1 text-[10px] font-bold">`}</td> [cite: 81, 82]
                         <td class="p-4 text-center">
-                            ${status === 'Resolvido' ? `<span class="text-xs text-gray-400 font-bold">${formatarDataBR(prevista)}</span>` : 
-                            `<input type="date" value="${prevista ? converterParaDate(prevista).toISOString().split('T')[0] : ''}" onchange="atualizarCampo(${rowId}, 'previsao', this.value)" class="border rounded px-1 py-1 text-[10px] font-bold">`}
-                        </td>
-                        <td class="p-4 text-center">
-                            ${status !== 'Resolvido' ? `<button onclick="finalizarTicket(${rowId})" class="bg-emerald-50 text-emerald-600 p-2 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"><span class="material-symbols-outlined text-sm">check</span></button>` : `<span class="text-emerald-600 text-[10px] font-black italic">Finalizado</span>`}
+                            ${status !== 'Resolvido' ? `<button onclick="finalizarTicket(${rowId})" class="bg-emerald-50 text-emerald-600 p-2 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"><span class="material-symbols-outlined text-sm">check</span></button>` : `<span class="text-emerald-600 text-xs font-black italic">Concluído</span>`} [cite: 82, 83]
                         </td>
                     </tr>`;
             });
         }
 
-        function verDetalhes(index) {
-            const t = dadosGlobais[index];
-            ticketAbertoAtual = { index: index, row: index + 2 };
+        function processarDadosDash() { [cite: 84]
+            const cont = { "Quebra fábrica": 0, "Quebra depósito/Loja": 0, "Quebra produto embalagem (Externa)": 0, "Outros": 0 }; [cite: 85]
+            let total = 0; [cite: 86]
 
-            document.getElementById('detalheID').innerText = t[0];
-            document.getElementById('detalheSeac').innerText = t[1];
-            document.getElementById('detalheForn').innerText = t[2];
-            document.getElementById('detalheRef').innerText = t[3];
-            document.getElementById('detalheCli').innerText = t[4] || "---";
-            document.getElementById('detalheQtd').innerText = t[5];
-            document.getElementById('detalheLote').innerText = t[6] || "---";
-            document.getElementById('detalheMotivo').innerText = t[7];
-            document.getElementById('detalheObs').value = t[8] || "";
-            document.getElementById('detalheCriadoPor').innerText = t[13] || "N/I";
+            dadosGlobais.forEach(d => { [cite: 86]
+                total++; [cite: 87]
+                const mot = d[7] || ""; [cite: 87]
+                if (cont[mot] !== undefined) cont[mot]++; [cite: 87, 88]
+                else cont["Outros"]++; [cite: 88]
+            });
+            
+            document.getElementById('cardAnalise').innerText = dadosGlobais.filter(d => d[9] !== 'Resolvido' && !d[14]).length; [cite: 89]
+            renderizarGraficoDash(cont); [cite: 89]
+            renderizarLegendaDash(cont); [cite: 89]
+        }
 
-            // Linha do tempo
-            document.getElementById('timeAbertura').innerText = formatarDataBR(t[10]);
-            document.getElementById('timeDono').innerText = t[15] || "Pendente";
-            document.getElementById('timePrev').innerText = formatarDataBR(t[12]);
-            document.getElementById('timeConc').innerText = formatarDataBR(t[11]);
+        function renderizarGraficoDash(contagem) { [cite: 89]
+            const ctx = document.getElementById('graficoMotivos').getContext('2d'); [cite: 90]
+            if (meuGrafico) meuGrafico.destroy(); [cite: 90]
+            meuGrafico = new Chart(ctx, { [cite: 90]
+                type: 'doughnut', [cite: 91]
+                data: { 
+                    labels: Object.keys(contagem), 
+                    datasets: [{ 
+                        data: Object.values(contagem), [cite: 91]
+                        backgroundColor: ['#E30613', '#3b82f6', '#fbbf24', '#94a3b8'], [cite: 91]
+                        borderWidth: 0 [cite: 91]
+                    }] 
+                },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '75%' } [cite: 92, 93]
+            });
+        } [cite: 94]
 
-            // Lógica Visual Timeline
-            const fill = document.getElementById('timelineFill');
+        function renderizarLegendaDash(contagem) { [cite: 94]
+            const lista = document.getElementById('listaLegendaDash'); [cite: 94]
+            lista.innerHTML = ''; [cite: 95]
+            const cores = { "Quebra fábrica": '#E30613', "Quebra depósito/Loja": '#3b82f6', "Quebra produto embalagem (Externa)": '#fbbf24', "Outros": '#94a3b8' }; [cite: 95]
+            for (const [motivo, valor] of Object.entries(contagem)) { [cite: 96]
+                lista.innerHTML += `<div class="flex justify-between items-center border-b border-gray-50 pb-2"><div class="flex items-center gap-3"><div class="w-3 h-3 rounded-full" style="background:${cores[motivo]}"></div><span class="text-xs font-bold text-gray-600">${motivo}</span></div><span class="text-sm font-black text-gray-800">${valor}</span></div>`; [cite: 96]
+            }
+        } [cite: 97]
+
+        function verDetalhes(index) { [cite: 97]
+            const t = dadosGlobais[index]; [cite: 97]
+            ticketAbertoAtual = { index: index, row: index + 2 }; [cite: 98]
+
+            document.getElementById('detalheID').innerText = t[0]; [cite: 98]
+            document.getElementById('detalheSeac').innerText = t[1]; [cite: 98]
+            document.getElementById('detalheForn').innerText = t[2]; [cite: 98]
+            document.getElementById('detalheRef').innerText = t[3]; [cite: 99]
+            document.getElementById('detalheCli').innerText = t[4] || "---"; [cite: 99]
+            document.getElementById('detalheQtd').innerText = t[5]; [cite: 99]
+            document.getElementById('detalheLote').innerText = t[6] || "---"; [cite: 99]
+            document.getElementById('detalheMotivo').innerText = t[7]; [cite: 99]
+            document.getElementById('detalheObs').value = t[8] || ""; [cite: 100]
+
+            const badge = document.getElementById('detalheStatusBadge'); [cite: 100]
+            badge.innerText = t[9]; [cite: 100]
+            badge.className = `text-[10px] font-black uppercase tracking-widest ${t[9] === 'Resolvido' ? 'text-emerald-500 bg-emerald-50' : 'text-blue-500 bg-blue-50'}`; [cite: 101]
+
+            document.getElementById('timeAbertura').innerText = formatarDataBR(t[10]); [cite: 101]
+            document.getElementById('timeDono').innerText = t[15] ? formatarDataBR(t[15]) : "Pendente"; // Coluna P (16)
+            document.getElementById('timePrevisaoModal').innerText = formatarDataBR(t[12]); [cite: 101]
+            document.getElementById('timeConclusao').innerText = t[11] ? formatarDataBR(t[11]) : "Pendente"; [cite: 102]
+
+            // LÓGICA LINHA DO TEMPO
+            const fill = document.getElementById('timelineFill'); [cite: 102]
             const iconDono = document.getElementById('iconDono'), nodeDono = document.getElementById('nodeDono');
-            const iconPrev = document.getElementById('iconPrev'), nodePrev = document.getElementById('nodePrev');
-            const iconFim = document.getElementById('iconFim'), nodeConc = document.getElementById('nodeConc');
+            const iconPrev = document.getElementById('iconPrev'), nodePrev = document.getElementById('nodePrev'); [cite: 102]
+            const iconFim = document.getElementById('iconFim'), nodeConc = document.getElementById('nodeConc'); [cite: 102]
 
             // Reset
             [iconDono, iconPrev, iconFim].forEach(i => i.className = "material-symbols-outlined text-gray-300");
@@ -385,110 +444,85 @@
             if(nodeConc) nodeConc.classList.add('right-0');
 
             if(t[9] === 'Resolvido') {
-                fill.style.width = '100%';
+                fill.style.width = '100%'; [cite: 103]
                 iconDono.classList.replace('text-gray-300', 'text-blue-600');
                 iconPrev.classList.replace('text-gray-300', 'text-orange-500');
                 iconFim.classList.replace('text-gray-300', 'text-emerald-500');
                 [nodeDono, nodePrev, nodeConc].forEach(n => n.classList.replace('bg-gray-200', 'bg-primary'));
             } else if(t[12]) {
-                fill.style.width = '66%';
+                fill.style.width = '66%'; [cite: 104, 105]
                 iconDono.classList.replace('text-gray-300', 'text-blue-600');
                 iconPrev.classList.replace('text-gray-300', 'text-orange-500');
                 [nodeDono, nodePrev].forEach(n => n.classList.replace('bg-gray-200', 'bg-primary'));
             } else if(t[14]) {
-                fill.style.width = '33%';
+                fill.style.width = '33%'; [cite: 105]
                 iconDono.classList.replace('text-gray-300', 'text-blue-600');
                 nodeDono.classList.replace('bg-gray-200', 'bg-primary');
             } else {
-                fill.style.width = '0%';
+                fill.style.width = '0%'; [cite: 105]
             }
 
-            const selectM = document.getElementById('selectResponsavelModal');
-            selectM.innerHTML = '<option value="">Selecione um responsável...</option>';
-            LISTA_RESPONSAVEIS.forEach(r => {
-                const opt = document.createElement('option');
-                opt.value = r; opt.textContent = r;
-                if(t[14] === r) opt.selected = true;
-                selectM.appendChild(opt);
-            });
-
-            document.getElementById('modalDetalhes').classList.remove('hidden');
+            carregarResponsaveis(t[14]);
+            document.getElementById('modalDetalhes').classList.remove('hidden'); [cite: 106]
         }
 
-        async function atualizarResponsavelPeloModal(val) {
-            if(!ticketAbertoAtual) return;
-            await atualizarCampo(ticketAbertoAtual.row, 'responsavel', val);
-        }
-
-        async function salvarObservacao() {
-            const btn = document.getElementById('btnSalvarObs');
-            const novaObs = document.getElementById('detalheObs').value;
-            btn.disabled = true; btn.innerText = "Salvando...";
+        async function carregarResponsaveis(respAtual) { [cite: 116]
             try {
-                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: ticketAbertoAtual.row, field: 'observacao', value: novaObs }) });
-                fecharModalDetalhes();
-                setTimeout(carregarTickets, 800);
-            } catch (e) { alert("Erro ao salvar."); }
-            finally { btn.disabled = false; btn.innerText = "Salvar Alterações"; }
+                const r = await fetch(WEB_APP_URL + '?rota=cadastro'); [cite: 116]
+                const lista = await r.json(); [cite: 117]
+                const selectModal = document.getElementById('selectResponsavelModal'); [cite: 117]
+                selectModal.innerHTML = '<option value="">Selecione o responsável</option>'; [cite: 117]
+                lista.forEach(l => { [cite: 118]
+                    const opt = document.createElement('option'); [cite: 118]
+                    opt.value = l[0]; opt.textContent = l[0]; [cite: 118]
+                    if(l[0] === respAtual) opt.selected = true; [cite: 118]
+                    selectModal.appendChild(opt); [cite: 118]
+                });
+            } catch (e) { console.error('Erro ao carregar responsáveis'); } [cite: 119]
         }
 
-        async function atualizarCampo(row, campo, valor) {
-            try {
-                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: campo, value: valor }) });
-                setTimeout(carregarTickets, 1000);
-            } catch (e) { }
+        async function salvarObservacao() { [cite: 107]
+            const btn = document.getElementById('btnSalvarObs'); [cite: 107]
+            const novaObs = document.getElementById('detalheObs').value; [cite: 108]
+            btn.disabled = true; btn.innerText = "Salvando..."; [cite: 108]
+            try { 
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: ticketAbertoAtual.row, field: 'observacao', value: novaObs }) }); [cite: 109]
+                dadosGlobais[ticketAbertoAtual.index][8] = novaObs; [cite: 110]
+                fecharModalDetalhes(); [cite: 110]
+                alert("Tratativa atualizada!"); [cite: 110]
+            } catch (e) { alert("Erro."); } [cite: 110]
+            finally { btn.disabled = false; btn.innerText = "Salvar Alterações"; } [cite: 110, 111]
         }
 
-        async function finalizarTicket(row) {
-            if(!confirm("Concluir chamado?")) return;
-            try {
-                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update', row: row, status: 'Resolvido' }) });
-                setTimeout(carregarTickets, 1000);
-            } catch (e) { }
+        async function atualizarCampo(row, campo, valor) { [cite: 111]
+            try { 
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: campo, value: valor }) }); [cite: 111]
+                setTimeout(carregarTickets, 1000); [cite: 112]
+            } catch (e) {} 
         }
 
-        function atualizarCardsGerais(dados) {
-            let analise = 0, andamento = 0, atraso = 0, resolvido = 0;
-            const hoje = new Date().setHours(0,0,0,0);
-
-            dados.forEach(l => {
-                const status = l[9];
-                const resp = l[14];
-                const prev = l[12];
-                if(status === 'Resolvido') { resolvido++; }
-                else if(!resp) { analise++; }
-                else {
-                    let isAtr = false;
-                    if(prev) {
-                        const dP = converterParaDate(prev);
-                        if(dP < hoje) isAtr = true;
-                    }
-                    if(isAtr) atraso++; else andamento++;
-                }
-            });
-
-            document.getElementById('cardAnalise').innerText = analise;
-            document.getElementById('cardAndamento').innerText = andamento;
-            document.getElementById('cardAtraso').innerText = atraso;
-            document.getElementById('cardResolvido').innerText = resolvido;
+        async function finalizarTicket(row) { [cite: 112]
+            if(!confirm("Deseja concluir o chamado?")) return; [cite: 112]
+            try { 
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update', row: row, status: 'Resolvido' }) }); [cite: 113]
+                setTimeout(carregarTickets, 1000); [cite: 114]
+            } catch (e) {} 
         }
 
-        document.getElementById('formTicket').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('btnSalvar'); btn.disabled = true;
-            const payload = Object.fromEntries(new FormData(e.target));
+        document.getElementById('formTicket').addEventListener('submit', async (e) => { [cite: 114]
+            e.preventDefault(); [cite: 114]
+            const btn = document.getElementById('btnSalvar'); btn.disabled = true; [cite: 114]
+            const payload = Object.fromEntries(new FormData(e.target)); [cite: 114]
             if (payload.motivo === 'Outros') payload.motivo = document.getElementById('inputOutros').value;
             payload.rota = 'pendencias'; payload.action = 'insert'; payload.criado_por = USUARIO_LOGADO;
 
-            try {
-                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                fecharModal(); e.target.reset();
-                setTimeout(carregarTickets, 1500);
-            } catch (e) { alert("Erro ao salvar."); }
-            finally { btn.disabled = false; }
+            try { 
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) }); [cite: 114, 115]
+                fecharModal(); e.target.reset(); setTimeout(carregarTickets, 1500); [cite: 115]
+            } catch (e) {} finally { btn.disabled = false; } [cite: 115]
         });
 
-        window.onload = carregarTickets;
+        window.onload = carregarTickets; [cite: 119]
     </script>
 </body>
 </html>
