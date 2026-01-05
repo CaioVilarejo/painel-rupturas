@@ -35,12 +35,16 @@
                 
                 <div class="flex justify-between items-center mb-6">
                     <h1 class="text-xl font-black uppercase tracking-tighter text-gray-800 tracking-widest">Controle de Ocorrências</h1>
-                    <button onclick="abrirDashboard()" class="bg-gray-800 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 hover:bg-black transition-all shadow-lg">
+                    <button onclick="window.location.href='dashboard_pendencias.html'" class="bg-gray-800 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 hover:bg-black transition-all shadow-lg">
                         <span class="material-symbols-outlined text-sm">analytics</span> Dashboard
                     </button>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-orange-400">
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Em Análise</p>
+                        <h3 id="cardAnalise" class="text-3xl font-black">0</h3>
+                    </div>
                     <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-blue-500">
                         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Em Andamento</p>
                         <h3 id="cardAndamento" class="text-3xl font-black">0</h3>
@@ -65,6 +69,7 @@
                             <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Status</label>
                             <select id="selectStatus" onchange="filtrarGeral()" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white outline-none">
                                 <option value="todos">Todos os Status</option>
+                                <option value="Em análise">Em Análise</option>
                                 <option value="Em andamento">Em Andamento</option>
                                 <option value="Atrasado">Atrasado</option>
                                 <option value="Resolvido">Resolvido</option>
@@ -155,18 +160,38 @@
             
             <div class="p-8 overflow-y-auto modal-scroll space-y-8">
                 <div class="space-y-6 bg-gray-50 p-6 rounded-2xl border border-gray-100">
-                    <h3 class="text-[11px] font-black text-gray-400 uppercase text-center tracking-widest font-black">Progresso do Ticket</h3>
+                    <div class="flex justify-between px-2 text-center">
+                        <div class="w-1/4 flex flex-col items-center gap-1">
+                            <span class="material-symbols-outlined text-blue-600">contact_support</span>
+                            <p class="text-[8px] font-black uppercase">Abertura</p>
+                        </div>
+                        <div class="w-1/4 flex flex-col items-center gap-1">
+                            <span id="iconDono" class="material-symbols-outlined text-gray-300">person_search</span>
+                            <p class="text-[8px] font-black uppercase">Responsável</p>
+                        </div>
+                        <div class="w-1/4 flex flex-col items-center gap-1">
+                            <span id="iconPrev" class="material-symbols-outlined text-gray-300">event_available</span>
+                            <p class="text-[8px] font-black uppercase">Previsão</p>
+                        </div>
+                        <div class="w-1/4 flex flex-col items-center gap-1">
+                            <span id="iconFim" class="material-symbols-outlined text-gray-300">task_alt</span>
+                            <p class="text-[8px] font-black uppercase">Conclusão</p>
+                        </div>
+                    </div>
+
                     <div class="px-4">
                         <div class="timeline-bar">
                             <div id="timelineFill" class="timeline-fill" style="width: 0%;"></div>
-                            <div class="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-primary border-2 border-white rounded-full shadow"></div>
-                            <div id="nodePrev" class="absolute left-1/2 top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-gray-300 border-2 border-white rounded-full shadow transition-colors"></div>
-                            <div id="nodeConc" class="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-gray-200 border-2 border-white rounded-full shadow transition-colors"></div>
+                            <div class="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-primary border-2 border-white rounded-full"></div>
+                            <div id="nodeDono" class="absolute left-[33%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-gray-200 border-2 border-white rounded-full transition-colors"></div>
+                            <div id="nodePrev" class="absolute left-[66%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-gray-200 border-2 border-white rounded-full transition-colors"></div>
+                            <div id="nodeConc" class="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-gray-200 border-2 border-white rounded-full transition-colors"></div>
                         </div>
-                        <div class="flex justify-between mt-4 text-[10px] font-black uppercase text-gray-800">
-                            <div class="text-center w-1/3">Abertura<p id="timeAbertura" class="text-gray-500 font-bold mt-1"></p></div>
-                            <div class="text-center w-1/3 border-x border-gray-100">Previsão<p id="timePrevisaoModal" class="text-gray-500 font-bold mt-1"></p></div>
-                            <div class="text-center w-1/3">Conclusão<p id="timeConclusao" class="text-gray-500 font-bold mt-1"></p></div>
+                        <div class="flex justify-between mt-4 text-[9px] font-bold text-gray-600">
+                            <div class="w-1/4 text-center" id="timeAbertura"></div>
+                            <div class="w-1/4 text-center border-x border-gray-200" id="timeDono"></div>
+                            <div class="w-1/4 text-center border-r border-gray-200" id="timePrev"></div>
+                            <div class="w-1/4 text-center" id="timeConc"></div>
                         </div>
                     </div>
                 </div>
@@ -178,9 +203,7 @@
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Cód. Cliente</label><p id="detalheCli" class="font-bold text-blue-700"></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Quantidade</label><p id="detalheQtd" class="font-bold text-gray-800"></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Tonalidade / Lote</label><p id="detalheLote" class="font-bold text-orange-600"></p></div>
-                    
-                    <div class="col-span-full md:col-span-1"><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Motivo da Ocorrência</label><p id="detalheMotivo" class="font-black text-red-600 uppercase"></p></div>
-                    
+                    <div class="col-span-full md:col-span-1"><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Motivo</label><p id="detalheMotivo" class="font-black text-red-600 uppercase"></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Criado por</label><p id="detalheCriadoPor" class="font-bold text-gray-600 uppercase"></p></div>
                 </div>
 
@@ -193,12 +216,12 @@
 
                 <div class="space-y-3">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Histórico de Tratativas</label>
-                    <textarea id="detalheObs" rows="5" class="w-full border-2 border-gray-100 rounded-2xl p-4 text-sm outline-none focus:border-primary bg-gray-50 transition-all resize-none font-medium"></textarea>
+                    <textarea id="detalheObs" rows="5" class="w-full border-2 border-gray-100 rounded-2xl p-4 text-sm outline-none focus:border-primary bg-gray-50 transition-all font-medium"></textarea>
                 </div>
             </div>
 
             <div class="p-6 bg-white border-t rounded-b-3xl">
-                <button id="btnSalvarObs" onclick="salvarObservacao()" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-black transition-all">Salvar Alterações</button>
+                <button id="btnSalvarObs" onclick="salvarObservacao()" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-black transition-all shadow-lg">Salvar Alterações</button>
             </div>
         </div>
     </div>
@@ -219,45 +242,59 @@
 
         function formatarDataBR(dataStr) {
             if (!dataStr || dataStr === "" || dataStr === "---") return "---";
-            if (/^\d{2}\/\d{2}\/\d{4}$/.test(dataStr)) return dataStr;
+            if (/^\d{2}\/\d{2}\/\d{4}/.test(dataStr)) return dataStr;
             try { 
                 const data = new Date(dataStr); 
                 return isNaN(data.getTime()) ? dataStr : `${String(data.getUTCDate()).padStart(2, '0')}/${String(data.getUTCMonth() + 1).padStart(2, '0')}/${data.getUTCFullYear()}`; 
             } catch (e) { return dataStr; }
         }
 
+        function converterParaDate(str) {
+            if(!str) return null;
+            if(str instanceof Date) return str;
+            const partes = str.split('/');
+            return new Date(partes[2], partes[1] - 1, partes[0]);
+        }
+
         async function carregarTickets() {
             try {
                 const r = await fetch(`${WEB_APP_URL}?rota=pendencias`);
                 dadosGlobais = await r.json();
-                filtrarGeral(); // Inicia renderizando com filtros aplicados
-            } catch (e) { console.error("Erro ao carregar tickets"); }
+                filtrarGeral();
+            } catch (e) { console.error("Erro ao carregar"); }
         }
 
-        // FUNÇÃO DE FILTRO RESTAURADA E MELHORADA
         function filtrarGeral() {
             const buscaID = document.getElementById('inputBuscaID').value.toLowerCase();
-            const statusFiltro = document.getElementById('selectStatus').value;
-            const motivoFiltro = document.getElementById('selectMotivoFiltro').value;
+            const statusF = document.getElementById('selectStatus').value;
+            const motivoF = document.getElementById('selectMotivoFiltro').value;
             const hoje = new Date().setHours(0,0,0,0);
 
-            const dadosFiltrados = dadosGlobais.filter(linha => {
-                const [id, seac, forn, ref, cli, qtd, lote, motivo, obs, status, abertura, resolucao, prevista] = linha;
+            const filtrados = dadosGlobais.filter(l => {
+                const statusOriginal = l[9];
+                const responsavel = l[14];
+                const previsao = l[12];
+                const abertura = converterParaDate(l[10]);
+                const horasDesdeAbertura = (new Date() - abertura) / (1000 * 60 * 60);
+
+                let statusVisual = statusOriginal;
                 
-                // Lógica de Atrasado
-                let dPrevRaw = prevista;
-                if(prevista && prevista.includes('/')) { const p = prevista.split('/'); dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`; }
-                const isAtrasado = status !== 'Resolvido' && dPrevRaw && new Date(dPrevRaw).getTime() < hoje;
-                const statusReal = isAtrasado ? "Atrasado" : status;
+                if (statusOriginal !== 'Resolvido') {
+                    if (!responsavel || responsavel === "") {
+                        statusVisual = horasDesdeAbertura > 24 ? "Em análise (Atrasado)" : "Em análise";
+                    } else if (previsao) {
+                        const dPrev = converterParaDate(previsao);
+                        if (dPrev < hoje) statusVisual = "Atrasado";
+                    }
+                }
 
-                const matchID = id.toLowerCase().includes(buscaID);
-                const matchStatus = statusFiltro === "todos" || statusReal === statusFiltro;
-                const matchMotivo = motivoFiltro === "todos" || motivo === motivoFiltro;
-
+                const matchID = l[0].toLowerCase().includes(buscaID);
+                const matchStatus = statusF === "todos" || statusVisual.includes(statusF);
+                const matchMotivo = motivoF === "todos" || l[7] === motivoF;
                 return matchID && matchStatus && matchMotivo;
             });
 
-            renderizarTabela(dadosFiltrados);
+            renderizarTabela(filtrados);
             atualizarCardsGerais(dadosGlobais);
         }
 
@@ -266,38 +303,48 @@
             tbody.innerHTML = '';
             const hoje = new Date().setHours(0,0,0,0);
 
-            dados.forEach((linha) => {
+            dados.forEach(linha => {
                 const indexOriginal = dadosGlobais.findIndex(dg => dg[0] === linha[0]);
                 const [id, seac, forn, ref, cli, qtd, lote, motivo, obs, status, abertura, resolucao, prevista, criadoPor, responsavel] = linha;
                 const rowId = indexOriginal + 2;
-                
-                let dPrevRaw = prevista;
-                if(prevista && prevista.includes('/')) { const p = prevista.split('/'); dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`; }
-                const isAtrasado = status !== 'Resolvido' && dPrevRaw && new Date(dPrevRaw).getTime() < hoje;
-                const statusColor = status === 'Resolvido' ? 'bg-emerald-100 text-emerald-700' : isAtrasado ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700';
 
-                let selectResp = `<select onchange="atualizarCampo(${rowId}, 'responsavel', this.value)" class="text-[10px] font-bold border rounded px-1 py-1 outline-primary bg-white">
+                const dataAbert = converterParaDate(abertura);
+                const horas = (new Date() - dataAbert) / (1000 * 60 * 60);
+                
+                let statusVisual = status;
+                let corStatus = 'bg-blue-100 text-blue-700';
+
+                if(status === 'Resolvido') {
+                    corStatus = 'bg-emerald-100 text-emerald-700';
+                } else if(!responsavel) {
+                    statusVisual = horas > 24 ? 'Em análise (Atrasado)' : 'Em análise';
+                    corStatus = horas > 24 ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700';
+                } else if(prevista) {
+                    const dPrev = converterParaDate(prevista);
+                    if(dPrev < hoje) {
+                        statusVisual = 'Atrasado';
+                        corStatus = 'bg-red-100 text-red-700';
+                    }
+                }
+
+                let selectResp = `<select onchange="atualizarCampo(${rowId}, 'responsavel', this.value)" class="text-[10px] font-bold border rounded px-1 py-1 bg-white outline-none">
                                     <option value="">Selecione...</option>`;
-                LISTA_RESPONSAVEIS.forEach(resp => {
-                    selectResp += `<option value="${resp}" ${responsavel === resp ? 'selected' : ''}>${resp}</option>`;
-                });
+                LISTA_RESPONSAVEIS.forEach(r => selectResp += `<option value="${r}" ${responsavel === r ? 'selected' : ''}>${r}</option>`);
                 selectResp += `</select>`;
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="p-4 font-black text-primary"><button onclick="verDetalhes(${indexOriginal})" class="hover:underline">${id}</button></td>
-                        <td class="p-4"><span class="px-2 py-1 rounded-md text-[9px] font-black uppercase ${statusColor}">${isAtrasado ? 'Atrasado' : status}</span></td>
+                        <td class="p-4"><span class="px-2 py-1 rounded-md text-[9px] font-black uppercase ${corStatus}">${statusVisual}</span></td>
                         <td class="p-4"><div class="font-bold">${seac}</div><div class="text-[9px] text-gray-400 uppercase font-black">${forn}</div></td>
                         <td class="p-4 text-center text-xs text-gray-500 font-bold">${formatarDataBR(abertura)}</td>
-                        <td class="p-4 text-center">${status === 'Resolvido' ? `<span class="text-[10px] font-bold text-gray-500">${responsavel || '---'}</span>` : selectResp}</td>
+                        <td class="p-4 text-center">${status === 'Resolvido' ? `<span class="text-[10px] font-bold">${responsavel}</span>` : selectResp}</td>
                         <td class="p-4 text-center">
                             ${status === 'Resolvido' ? `<span class="text-xs text-gray-400 font-bold">${formatarDataBR(prevista)}</span>` : 
-                            `<input type="date" value="${dPrevRaw ? dPrevRaw.split('T')[0] : ''}" onchange="atualizarCampo(${rowId}, 'previsao', this.value)" class="border rounded px-1 py-1 text-[10px] font-bold">`}
+                            `<input type="date" value="${prevista ? converterParaDate(prevista).toISOString().split('T')[0] : ''}" onchange="atualizarCampo(${rowId}, 'previsao', this.value)" class="border rounded px-1 py-1 text-[10px] font-bold">`}
                         </td>
                         <td class="p-4 text-center">
-                            ${status !== 'Resolvido' ? 
-                            `<button onclick="finalizarTicket(${rowId})" class="bg-emerald-50 text-emerald-600 p-2 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"><span class="material-symbols-outlined text-sm">check</span></button>` : 
-                            `<span class="text-emerald-600 text-[10px] font-black italic">Finalizado</span>`}
+                            ${status !== 'Resolvido' ? `<button onclick="finalizarTicket(${rowId})" class="bg-emerald-50 text-emerald-600 p-2 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"><span class="material-symbols-outlined text-sm">check</span></button>` : `<span class="text-emerald-600 text-[10px] font-black italic">Finalizado</span>`}
                         </td>
                     </tr>`;
             });
@@ -314,78 +361,81 @@
             document.getElementById('detalheCli').innerText = t[4] || "---";
             document.getElementById('detalheQtd').innerText = t[5];
             document.getElementById('detalheLote').innerText = t[6] || "---";
-            document.getElementById('detalheMotivo').innerText = t[7] || "Não informado"; // RESTAURADO MOTIVO
+            document.getElementById('detalheMotivo').innerText = t[7];
             document.getElementById('detalheObs').value = t[8] || "";
-            document.getElementById('timeAbertura').innerText = formatarDataBR(t[10]);
-            document.getElementById('timePrevisaoModal').innerText = formatarDataBR(t[12]);
-            document.getElementById('timeConclusao').innerText = t[11] ? formatarDataBR(t[11]) : "Pendente";
             document.getElementById('detalheCriadoPor').innerText = t[13] || "N/I";
 
-            // Status e Timeline
-            const status = t[9];
-            const badge = document.getElementById('detalheStatusBadge');
-            badge.innerText = status;
-            badge.className = status === 'Resolvido' ? 'text-[10px] font-black uppercase px-2 py-0.5 rounded bg-emerald-100 text-emerald-700' : 'text-[10px] font-black uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-700';
+            // Linha do tempo
+            document.getElementById('timeAbertura').innerText = formatarDataBR(t[10]);
+            document.getElementById('timeDono').innerText = t[15] || "Pendente";
+            document.getElementById('timePrev').innerText = formatarDataBR(t[12]);
+            document.getElementById('timeConc').innerText = formatarDataBR(t[11]);
 
+            // Lógica Visual Timeline
             const fill = document.getElementById('timelineFill');
-            const nodePrev = document.getElementById('nodePrev');
-            const nodeConc = document.getElementById('nodeConc');
+            const iconDono = document.getElementById('iconDono'), nodeDono = document.getElementById('nodeDono');
+            const iconPrev = document.getElementById('iconPrev'), nodePrev = document.getElementById('nodePrev');
+            const iconFim = document.getElementById('iconFim'), nodeConc = document.getElementById('nodeConc');
 
-            if(status === 'Resolvido') {
+            // Reset
+            [iconDono, iconPrev, iconFim].forEach(i => i.className = "material-symbols-outlined text-gray-300");
+            [nodeDono, nodePrev, nodeConc].forEach(n => n.className = "absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-gray-200 border-2 border-white rounded-full transition-colors");
+            if(nodeDono) nodeDono.classList.add('left-[33%]', '-translate-x-1/2');
+            if(nodePrev) nodePrev.classList.add('left-[66%]', '-translate-x-1/2');
+            if(nodeConc) nodeConc.classList.add('right-0');
+
+            if(t[9] === 'Resolvido') {
                 fill.style.width = '100%';
-                nodePrev.style.backgroundColor = '#E30613';
-                nodeConc.style.backgroundColor = '#E30613';
+                iconDono.classList.replace('text-gray-300', 'text-blue-600');
+                iconPrev.classList.replace('text-gray-300', 'text-orange-500');
+                iconFim.classList.replace('text-gray-300', 'text-emerald-500');
+                [nodeDono, nodePrev, nodeConc].forEach(n => n.classList.replace('bg-gray-200', 'bg-primary'));
             } else if(t[12]) {
-                fill.style.width = '50%';
-                nodePrev.style.backgroundColor = '#E30613';
-                nodeConc.style.backgroundColor = '#e2e8f0';
+                fill.style.width = '66%';
+                iconDono.classList.replace('text-gray-300', 'text-blue-600');
+                iconPrev.classList.replace('text-gray-300', 'text-orange-500');
+                [nodeDono, nodePrev].forEach(n => n.classList.replace('bg-gray-200', 'bg-primary'));
+            } else if(t[14]) {
+                fill.style.width = '33%';
+                iconDono.classList.replace('text-gray-300', 'text-blue-600');
+                nodeDono.classList.replace('bg-gray-200', 'bg-primary');
             } else {
                 fill.style.width = '0%';
-                nodePrev.style.backgroundColor = '#e2e8f0';
-                nodeConc.style.backgroundColor = '#e2e8f0';
             }
 
-            const selectModal = document.getElementById('selectResponsavelModal');
-            selectModal.innerHTML = '<option value="">Selecione um responsável...</option>';
-            LISTA_RESPONSAVEIS.forEach(resp => {
+            const selectM = document.getElementById('selectResponsavelModal');
+            selectM.innerHTML = '<option value="">Selecione um responsável...</option>';
+            LISTA_RESPONSAVEIS.forEach(r => {
                 const opt = document.createElement('option');
-                opt.value = resp; opt.textContent = resp;
-                if(t[14] === resp) opt.selected = true;
-                selectModal.appendChild(opt);
+                opt.value = r; opt.textContent = r;
+                if(t[14] === r) opt.selected = true;
+                selectM.appendChild(opt);
             });
 
             document.getElementById('modalDetalhes').classList.remove('hidden');
         }
 
-        async function atualizarResponsavelPeloModal(valor) {
+        async function atualizarResponsavelPeloModal(val) {
             if(!ticketAbertoAtual) return;
-            await atualizarCampo(ticketAbertoAtual.row, 'responsavel', valor);
-            dadosGlobais[ticketAbertoAtual.index][14] = valor;
+            await atualizarCampo(ticketAbertoAtual.row, 'responsavel', val);
         }
 
         async function salvarObservacao() {
             const btn = document.getElementById('btnSalvarObs');
             const novaObs = document.getElementById('detalheObs').value;
-            btn.disabled = true;
+            btn.disabled = true; btn.innerText = "Salvando...";
             try {
-                await fetch(WEB_APP_URL, { 
-                    method: 'POST', mode: 'no-cors', 
-                    body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: ticketAbertoAtual.row, field: 'observacao', value: novaObs }) 
-                });
-                dadosGlobais[ticketAbertoAtual.index][8] = novaObs;
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: ticketAbertoAtual.row, field: 'observacao', value: novaObs }) });
                 fecharModalDetalhes();
-                setTimeout(carregarTickets, 500);
+                setTimeout(carregarTickets, 800);
             } catch (e) { alert("Erro ao salvar."); }
-            finally { btn.disabled = false; }
+            finally { btn.disabled = false; btn.innerText = "Salvar Alterações"; }
         }
 
         async function atualizarCampo(row, campo, valor) {
             try {
-                await fetch(WEB_APP_URL, {
-                    method: 'POST', mode: 'no-cors',
-                    body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: campo, value: valor })
-                });
-                if(campo === 'previsao') setTimeout(carregarTickets, 800);
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: campo, value: valor }) });
+                setTimeout(carregarTickets, 1000);
             } catch (e) { }
         }
 
@@ -397,15 +447,38 @@
             } catch (e) { }
         }
 
+        function atualizarCardsGerais(dados) {
+            let analise = 0, andamento = 0, atraso = 0, resolvido = 0;
+            const hoje = new Date().setHours(0,0,0,0);
+
+            dados.forEach(l => {
+                const status = l[9];
+                const resp = l[14];
+                const prev = l[12];
+                if(status === 'Resolvido') { resolvido++; }
+                else if(!resp) { analise++; }
+                else {
+                    let isAtr = false;
+                    if(prev) {
+                        const dP = converterParaDate(prev);
+                        if(dP < hoje) isAtr = true;
+                    }
+                    if(isAtr) atraso++; else andamento++;
+                }
+            });
+
+            document.getElementById('cardAnalise').innerText = analise;
+            document.getElementById('cardAndamento').innerText = andamento;
+            document.getElementById('cardAtraso').innerText = atraso;
+            document.getElementById('cardResolvido').innerText = resolvido;
+        }
+
         document.getElementById('formTicket').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('btnSalvar');
-            btn.disabled = true;
+            const btn = document.getElementById('btnSalvar'); btn.disabled = true;
             const payload = Object.fromEntries(new FormData(e.target));
             if (payload.motivo === 'Outros') payload.motivo = document.getElementById('inputOutros').value;
-            payload.rota = 'pendencias';
-            payload.action = 'insert';
-            payload.criado_por = USUARIO_LOGADO;
+            payload.rota = 'pendencias'; payload.action = 'insert'; payload.criado_por = USUARIO_LOGADO;
 
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
@@ -414,21 +487,6 @@
             } catch (e) { alert("Erro ao salvar."); }
             finally { btn.disabled = false; }
         });
-
-        function atualizarCardsGerais(dados) {
-            let and = 0, atr = 0, con = 0;
-            const hoje = new Date().setHours(0,0,0,0);
-            dados.forEach(d => {
-                const status = d[9];
-                let dPrevRaw = d[12];
-                if(dPrevRaw && dPrevRaw.includes('/')) { const p = dPrevRaw.split('/'); dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`; }
-                const isAtrasado = status !== 'Resolvido' && dPrevRaw && new Date(dPrevRaw).getTime() < hoje;
-                if(status === 'Resolvido') con++; else if(isAtrasado) atr++; else and++;
-            });
-            document.getElementById('cardAndamento').innerText = and;
-            document.getElementById('cardAtraso').innerText = atr;
-            document.getElementById('cardResolvido').innerText = con;
-        }
 
         window.onload = carregarTickets;
     </script>
