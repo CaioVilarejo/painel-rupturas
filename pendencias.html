@@ -56,24 +56,36 @@
                 </div>
 
                 <div class="flex flex-col md:flex-row justify-between items-end gap-4 mb-6 bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <div class="flex flex-wrap gap-4 w-full md:w-auto">
-                        <div class="w-full md:w-44">
-                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">ID Ticket</label>
-                            <input type="text" id="inputBuscaID" onkeyup="filtrarGeral()" placeholder="Buscar ID..." class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold outline-none focus:border-primary">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 w-full">
+                        <div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Buscar ID</label>
+                            <input type="text" id="inputBuscaID" onkeyup="filtrarGeral()" placeholder="TKT-..." class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold outline-none focus:border-primary">
                         </div>
-                        <div class="w-full md:w-40">
+                        <div>
                             <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Status</label>
                             <select id="selectStatus" onchange="filtrarGeral()" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white outline-none">
-                                <option value="todos">Todos</option>
+                                <option value="todos">Todos os Status</option>
                                 <option value="Em andamento">Em Andamento</option>
                                 <option value="Atrasado">Atrasado</option>
                                 <option value="Resolvido">Resolvido</option>
                             </select>
                         </div>
+                        <div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Motivo</label>
+                            <select id="selectMotivoFiltro" onchange="filtrarGeral()" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white outline-none">
+                                <option value="todos">Todos os Motivos</option>
+                                <option value="Quebra fábrica">Quebra fábrica</option>
+                                <option value="Quebra depósito/Loja">Quebra depósito/Loja</option>
+                                <option value="Quebra de produto na embalagem(Externa)">Quebra produto embalagem</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="abrirModal()" class="w-full bg-primary text-white px-4 py-2.5 rounded-xl font-bold uppercase text-[10px] shadow-lg hover:bg-red-700 transition-all flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined text-sm">add_circle</span> Novo Ticket
+                            </button>
+                        </div>
                     </div>
-                    <button onclick="abrirModal()" class="w-full md:w-auto bg-primary text-white px-8 py-2.5 rounded-xl font-bold uppercase text-[10px] shadow-lg hover:bg-red-700 transition-all flex items-center justify-center gap-2">
-                        <span class="material-symbols-outlined text-sm">add_circle</span> Abrir Ticket
-                    </button>
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
@@ -123,7 +135,6 @@
                     <input type="text" id="inputOutros" placeholder="Especifique o motivo..." class="w-full p-3 border border-primary rounded-xl outline-none text-sm font-bold">
                 </div>
                 <textarea name="observacao" placeholder="Informações iniciais..." rows="2" class="col-span-full p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold"></textarea>
-                
                 <div class="col-span-full flex gap-3 pt-4">
                     <button type="button" onclick="fecharModal()" class="flex-1 bg-gray-100 py-3 rounded-xl font-bold uppercase text-[10px]">Cancelar</button>
                     <button type="submit" id="btnSalvar" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold uppercase text-[10px] shadow-lg">Salvar Ticket</button>
@@ -144,7 +155,7 @@
             
             <div class="p-8 overflow-y-auto modal-scroll space-y-8">
                 <div class="space-y-6 bg-gray-50 p-6 rounded-2xl border border-gray-100">
-                    <h3 class="text-[11px] font-black text-gray-400 uppercase text-center tracking-widest">Linha do Tempo</h3>
+                    <h3 class="text-[11px] font-black text-gray-400 uppercase text-center tracking-widest font-black">Progresso do Ticket</h3>
                     <div class="px-4">
                         <div class="timeline-bar">
                             <div id="timelineFill" class="timeline-fill" style="width: 0%;"></div>
@@ -167,6 +178,9 @@
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Cód. Cliente</label><p id="detalheCli" class="font-bold text-blue-700"></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Quantidade</label><p id="detalheQtd" class="font-bold text-gray-800"></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Tonalidade / Lote</label><p id="detalheLote" class="font-bold text-orange-600"></p></div>
+                    
+                    <div class="col-span-full md:col-span-1"><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Motivo da Ocorrência</label><p id="detalheMotivo" class="font-black text-red-600 uppercase"></p></div>
+                    
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Criado por</label><p id="detalheCriadoPor" class="font-bold text-gray-600 uppercase"></p></div>
                 </div>
 
@@ -184,7 +198,7 @@
             </div>
 
             <div class="p-6 bg-white border-t rounded-b-3xl">
-                <button id="btnSalvarObs" onclick="salvarObservacao()" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-black transition-all shadow-lg">Salvar Alterações</button>
+                <button id="btnSalvarObs" onclick="salvarObservacao()" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-black transition-all">Salvar Alterações</button>
             </div>
         </div>
     </div>
@@ -213,16 +227,38 @@
         }
 
         async function carregarTickets() {
-            const tbody = document.getElementById('tabelaChamados');
-            tbody.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-gray-400 italic font-bold">Atualizando informações...</td></tr>`;
             try {
                 const r = await fetch(`${WEB_APP_URL}?rota=pendencias`);
                 dadosGlobais = await r.json();
-                renderizarTabela(dadosGlobais);
-                atualizarCardsGerais(dadosGlobais);
-            } catch (e) { 
-                tbody.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-red-500 font-bold">Erro de conexão com o banco.</td></tr>`;
-            }
+                filtrarGeral(); // Inicia renderizando com filtros aplicados
+            } catch (e) { console.error("Erro ao carregar tickets"); }
+        }
+
+        // FUNÇÃO DE FILTRO RESTAURADA E MELHORADA
+        function filtrarGeral() {
+            const buscaID = document.getElementById('inputBuscaID').value.toLowerCase();
+            const statusFiltro = document.getElementById('selectStatus').value;
+            const motivoFiltro = document.getElementById('selectMotivoFiltro').value;
+            const hoje = new Date().setHours(0,0,0,0);
+
+            const dadosFiltrados = dadosGlobais.filter(linha => {
+                const [id, seac, forn, ref, cli, qtd, lote, motivo, obs, status, abertura, resolucao, prevista] = linha;
+                
+                // Lógica de Atrasado
+                let dPrevRaw = prevista;
+                if(prevista && prevista.includes('/')) { const p = prevista.split('/'); dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`; }
+                const isAtrasado = status !== 'Resolvido' && dPrevRaw && new Date(dPrevRaw).getTime() < hoje;
+                const statusReal = isAtrasado ? "Atrasado" : status;
+
+                const matchID = id.toLowerCase().includes(buscaID);
+                const matchStatus = statusFiltro === "todos" || statusReal === statusFiltro;
+                const matchMotivo = motivoFiltro === "todos" || motivo === motivoFiltro;
+
+                return matchID && matchStatus && matchMotivo;
+            });
+
+            renderizarTabela(dadosFiltrados);
+            atualizarCardsGerais(dadosGlobais);
         }
 
         function renderizarTabela(dados) {
@@ -230,7 +266,8 @@
             tbody.innerHTML = '';
             const hoje = new Date().setHours(0,0,0,0);
 
-            dados.forEach((linha, indexOriginal) => {
+            dados.forEach((linha) => {
+                const indexOriginal = dadosGlobais.findIndex(dg => dg[0] === linha[0]);
                 const [id, seac, forn, ref, cli, qtd, lote, motivo, obs, status, abertura, resolucao, prevista, criadoPor, responsavel] = linha;
                 const rowId = indexOriginal + 2;
                 
@@ -260,7 +297,7 @@
                         <td class="p-4 text-center">
                             ${status !== 'Resolvido' ? 
                             `<button onclick="finalizarTicket(${rowId})" class="bg-emerald-50 text-emerald-600 p-2 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"><span class="material-symbols-outlined text-sm">check</span></button>` : 
-                            `<span class="text-emerald-600 text-[10px] font-black">Concluído</span>`}
+                            `<span class="text-emerald-600 text-[10px] font-black italic">Finalizado</span>`}
                         </td>
                     </tr>`;
             });
@@ -270,7 +307,6 @@
             const t = dadosGlobais[index];
             ticketAbertoAtual = { index: index, row: index + 2 };
 
-            // Preencher campos (Indices: cli[4], lote[6], criadoPor[13], resp[14])
             document.getElementById('detalheID').innerText = t[0];
             document.getElementById('detalheSeac').innerText = t[1];
             document.getElementById('detalheForn').innerText = t[2];
@@ -278,44 +314,42 @@
             document.getElementById('detalheCli').innerText = t[4] || "---";
             document.getElementById('detalheQtd').innerText = t[5];
             document.getElementById('detalheLote').innerText = t[6] || "---";
+            document.getElementById('detalheMotivo').innerText = t[7] || "Não informado"; // RESTAURADO MOTIVO
             document.getElementById('detalheObs').value = t[8] || "";
             document.getElementById('timeAbertura').innerText = formatarDataBR(t[10]);
             document.getElementById('timePrevisaoModal').innerText = formatarDataBR(t[12]);
             document.getElementById('timeConclusao').innerText = t[11] ? formatarDataBR(t[11]) : "Pendente";
             document.getElementById('detalheCriadoPor').innerText = t[13] || "N/I";
 
-            // Status e Linha do Tempo
+            // Status e Timeline
             const status = t[9];
             const badge = document.getElementById('detalheStatusBadge');
             badge.innerText = status;
             badge.className = status === 'Resolvido' ? 'text-[10px] font-black uppercase px-2 py-0.5 rounded bg-emerald-100 text-emerald-700' : 'text-[10px] font-black uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-700';
 
-            // Lógica de preenchimento da linha do tempo
             const fill = document.getElementById('timelineFill');
             const nodePrev = document.getElementById('nodePrev');
             const nodeConc = document.getElementById('nodeConc');
 
             if(status === 'Resolvido') {
                 fill.style.width = '100%';
-                nodePrev.classList.replace('bg-gray-300', 'bg-primary');
-                nodeConc.classList.replace('bg-gray-200', 'bg-primary');
-            } else if(t[12] && t[12] !== "") { // Se tem previsão
+                nodePrev.style.backgroundColor = '#E30613';
+                nodeConc.style.backgroundColor = '#E30613';
+            } else if(t[12]) {
                 fill.style.width = '50%';
-                nodePrev.classList.replace('bg-gray-300', 'bg-primary');
-                nodeConc.classList.replace('bg-primary', 'bg-gray-200');
+                nodePrev.style.backgroundColor = '#E30613';
+                nodeConc.style.backgroundColor = '#e2e8f0';
             } else {
                 fill.style.width = '0%';
-                nodePrev.classList.replace('bg-primary', 'bg-gray-300');
-                nodeConc.classList.replace('bg-primary', 'bg-gray-200');
+                nodePrev.style.backgroundColor = '#e2e8f0';
+                nodeConc.style.backgroundColor = '#e2e8f0';
             }
 
-            // Select Responsável
             const selectModal = document.getElementById('selectResponsavelModal');
             selectModal.innerHTML = '<option value="">Selecione um responsável...</option>';
             LISTA_RESPONSAVEIS.forEach(resp => {
                 const opt = document.createElement('option');
-                opt.value = resp;
-                opt.textContent = resp;
+                opt.value = resp; opt.textContent = resp;
                 if(t[14] === resp) opt.selected = true;
                 selectModal.appendChild(opt);
             });
@@ -332,29 +366,27 @@
         async function salvarObservacao() {
             const btn = document.getElementById('btnSalvarObs');
             const novaObs = document.getElementById('detalheObs').value;
-            btn.disabled = true; btn.innerText = "Salvando...";
+            btn.disabled = true;
             try {
                 await fetch(WEB_APP_URL, { 
-                    method: 'POST', 
-                    mode: 'no-cors', 
+                    method: 'POST', mode: 'no-cors', 
                     body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: ticketAbertoAtual.row, field: 'observacao', value: novaObs }) 
                 });
                 dadosGlobais[ticketAbertoAtual.index][8] = novaObs;
                 fecharModalDetalhes();
                 setTimeout(carregarTickets, 500);
             } catch (e) { alert("Erro ao salvar."); }
-            finally { btn.disabled = false; btn.innerText = "Salvar Alterações"; }
+            finally { btn.disabled = false; }
         }
 
         async function atualizarCampo(row, campo, valor) {
             try {
                 await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
+                    method: 'POST', mode: 'no-cors',
                     body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: campo, value: valor })
                 });
                 if(campo === 'previsao') setTimeout(carregarTickets, 800);
-            } catch (e) { console.error("Erro no fetch"); }
+            } catch (e) { }
         }
 
         async function finalizarTicket(row) {
@@ -371,15 +403,13 @@
             btn.disabled = true;
             const payload = Object.fromEntries(new FormData(e.target));
             if (payload.motivo === 'Outros') payload.motivo = document.getElementById('inputOutros').value;
-            
             payload.rota = 'pendencias';
             payload.action = 'insert';
             payload.criado_por = USUARIO_LOGADO;
 
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                fecharModal();
-                e.target.reset();
+                fecharModal(); e.target.reset();
                 setTimeout(carregarTickets, 1500);
             } catch (e) { alert("Erro ao salvar."); }
             finally { btn.disabled = false; }
