@@ -1,6 +1,6 @@
 /**
  * SISTEMA DE SEGURANÇA E MENU - VILAREJO MONITOR
- * Versão com Calculadora Estratégica integrada.
+ * Versão com Trava de Usuário e Perfil CD.
  */
 
 (function validarAcesso() {
@@ -15,11 +15,34 @@
         return;
     }
 
-    // 2. Trava de Segurança para Vendedor
-    const paginasPermitidasVendedor = ['representacao.html', 'index.html', ''];
-    if (permissao === 'vendedor' && !paginasPermitidasVendedor.includes(paginaAtual)) {
-        alert('Acesso negado: Seu perfil tem acesso restrito à Representação.');
-        window.location.href = 'representacao.html';
+    // Se estiver logado, verificar permissões específicas
+    if (usuarioLogado) {
+        
+        // 2. Trava para NOVO USUÁRIO (permissão 'usuário' ou 'usuario')
+        // Ele só pode ver a página 'solicitarpermissao.html'
+        if ((permissao === 'usuario' || permissao === 'usuário')) {
+            if (paginaAtual !== 'solicitarpermissao.html') {
+                window.location.href = 'solicitarpermissao.html';
+                return;
+            }
+        }
+
+        // 3. Trava para perfil CD
+        // Só pode ver 'pendencias.html'
+        const paginasPermitidasCD = ['pendencias.html', 'index.html', ''];
+        if (permissao === 'cd' && !paginasPermitidasCD.includes(paginaAtual)) {
+            alert('Acesso restrito ao painel de Pendências CD.');
+            window.location.href = 'pendencias.html';
+            return;
+        }
+
+        // 4. Trava de Segurança para Vendedor
+        const paginasPermitidasVendedor = ['representacao.html', 'index.html', ''];
+        if (permissao === 'vendedor' && !paginasPermitidasVendedor.includes(paginaAtual)) {
+            alert('Acesso negado: Seu perfil tem acesso restrito à Representação.');
+            window.location.href = 'representacao.html';
+            return;
+        }
     }
 })();
 
@@ -27,28 +50,32 @@ function carregarMenu() {
     const sidebarContainer = document.getElementById('sidebar-container');
     if (!sidebarContainer) return;
 
-    const permissao = localStorage.getItem('vilarejo_perm') ? localStorage.getItem('vilarejo_perm').toLowerCase().trim() : 'vendedor';
+    const permissao = localStorage.getItem('vilarejo_perm') ? localStorage.getItem('vilarejo_perm').toLowerCase().trim() : '';
     const nomeUsuario = localStorage.getItem('vilarejo_user') || 'Usuário';
     const paginaAtual = window.location.pathname.split("/").pop();
 
-    // LISTA DE ITENS DO MENU - Calculadora Adicionada aqui!
+    // Se for perfil "usuario", não carregamos o menu lateral (ele fica preso na tela de aviso)
+    if (permissao === 'usuario' || permissao === 'usuário') {
+        sidebarContainer.innerHTML = ''; 
+        return;
+    }
+
+    // LISTA DE ITENS DO MENU
     const todosItens = [
         { nome: 'Rupturas', icone: 'analytics', link: 'dashboard.html' },
         { nome: 'Histórico', icone: 'timeline', link: 'historico.html' },
         { nome: 'Representação', icone: 'description', link: 'representacao.html' },
         { nome: 'Contas', icone: 'payments', link: 'contas.html' },
         { nome: 'Pendências CD', icone: 'confirmation_number', link: 'pendencias.html' },
-        { nome: 'Calculadora', icone: 'calculate', link: 'calculadora.html' } // <-- Novo Item
+        { nome: 'Calculadora', icone: 'calculate', link: 'calculadora.html' }
     ];
 
-    // Filtro de Visualização
+    // Filtro de Visualização do Menu
     const menuItens = todosItens.filter(item => {
-        if (['administrador', 'compras', 'usuário', 'usuario'].includes(permissao)) {
-            return true;
-        }
-        if (permissao === 'vendedor') {
-            return item.nome === 'Representação';
-        }
+        const p = permissao;
+        if (['administrador', 'compras'].includes(p)) return true;
+        if (p === 'vendedor') return item.nome === 'Representação';
+        if (p === 'cd') return item.nome === 'Pendências CD';
         return false;
     });
 
@@ -73,9 +100,7 @@ function carregarMenu() {
 
     menuItens.forEach(item => {
         const estaAtivo = (paginaAtual === item.link);
-        const classeAtiva = estaAtivo 
-            ? 'bg-primary text-white shadow-md' 
-            : 'text-gray-700 hover:bg-gray-100';
+        const classeAtiva = estaAtivo ? 'bg-primary text-white shadow-md' : 'text-gray-700 hover:bg-gray-100';
         const estiloAtivo = estaAtivo ? 'style="background-color: #ea2a33;"' : '';
 
         menuHTML += `
