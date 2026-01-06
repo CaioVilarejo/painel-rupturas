@@ -22,6 +22,7 @@
         .modal-scroll::-webkit-scrollbar-track { background: #f8fafc; border-radius: 10px; }
         .modal-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         
+        /* Timeline Style */
         .timeline-container { position: relative; display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 10px; margin-top: 20px;}
         .timeline-line { position: absolute; top: 50%; left: 0; transform: translateY(-50%); height: 4px; background: #e2e8f0; width: 100%; z-index: 1; border-radius: 10px; }
         .timeline-progress { position: absolute; top: 50%; left: 0; transform: translateY(-50%); height: 4px; background: #E30613; width: 0%; z-index: 2; transition: width 0.8s ease; border-radius: 10px; }
@@ -184,7 +185,7 @@
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-6 text-sm">
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Cód. Prod SEAC</label><p id="detalheSeac" class="font-bold text-gray-800"></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Fornecedor</label><p id="detalheForn" class="font-bold text-gray-800"></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Motivo da Ocorrência</label><p id="detalheMotivo" class="font-bold text-red-600 uppercase"></p></div>
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Motivo</label><p id="detalheMotivo" class="font-bold text-red-600 uppercase"></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Referência</label><p id="detalheRef" class="font-bold text-gray-800"></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Cód. Cliente</label><p id="detalheCli" class="font-bold text-blue-700"></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Quantidade</label><p id="detalheQtd" class="font-bold text-gray-800"></p></div>
@@ -210,43 +211,35 @@
 
     <div id="modalDashboard" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden flex items-center justify-center z-[10000] p-4">
         <div class="bg-white w-full max-w-5xl h-full max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden">
-            <div class="p-6 border-b flex justify-between items-center">
-                <h2 class="text-xl font-black text-gray-800 uppercase flex items-center gap-2">
-                    <span class="material-symbols-outlined text-red-600">leaderboard</span> Dashboard
-                </h2>
-                <button onclick="fecharDashboard()" class="text-gray-400 hover:text-black transition-all"><span class="material-symbols-outlined text-3xl">close</span></button>
+            <div class="p-6 border-b flex justify-between items-center bg-gray-50">
+                <h2 class="text-xl font-black text-gray-800 uppercase flex items-center gap-2">Dashboard</h2>
+                <button onclick="fecharDashboard()" class="text-gray-400 hover:text-black"><span class="material-symbols-outlined text-3xl">close</span></button>
             </div>
             <div class="p-8 overflow-y-auto modal-scroll space-y-8">
-                <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100">
-                    <div class="flex flex-col md:flex-row gap-6 items-end">
-                        <div class="flex-1 w-full">
-                            <p class="text-[9px] font-bold text-gray-400 ml-1">De:</p>
-                            <input type="date" id="dashDataInicio" onchange="processarDadosDash()" class="w-full border-b-2 border-gray-200 py-2 text-sm font-bold outline-none focus:border-primary bg-transparent">
-                        </div>
-                        <div class="flex-1 w-full">
-                            <p class="text-[9px] font-bold text-gray-400 ml-1">Até:</p>
-                            <input type="date" id="dashDataFim" onchange="processarDadosDash()" class="w-full border-b-2 border-gray-200 py-2 text-sm font-bold outline-none focus:border-primary bg-transparent">
-                        </div>
-                        <div class="bg-white px-8 py-3 rounded-2xl text-center border border-gray-100 min-w-[150px]">
-                            <p class="text-[9px] font-black text-gray-400 uppercase">Total no Período</p>
-                            <p id="totalMesDash" class="text-2xl font-black text-gray-800">0</p>
-                        </div>
+                <div class="flex flex-col md:flex-row gap-6 items-end bg-gray-100 p-6 rounded-3xl">
+                    <div class="flex-1">
+                        <label class="text-[9px] font-bold text-gray-400">De:</label>
+                        <input type="date" id="dashDataInicio" onchange="processarDadosDash()" class="w-full border-b-2 py-2 text-sm font-bold bg-transparent">
+                    </div>
+                    <div class="flex-1">
+                        <label class="text-[9px] font-bold text-gray-400">Até:</label>
+                        <input type="date" id="dashDataFim" onchange="processarDadosDash()" class="w-full border-b-2 py-2 text-sm font-bold bg-transparent">
+                    </div>
+                    <div class="bg-white px-8 py-3 rounded-2xl border min-w-[150px] text-center">
+                        <p class="text-[9px] font-black text-gray-400 uppercase">Total</p>
+                        <p id="totalMesDash" class="text-2xl font-black">0</p>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="bg-white p-8 rounded-2xl border border-gray-100 h-80">
-                        <canvas id="graficoMotivos"></canvas>
-                    </div>
+                    <div class="bg-white p-4 h-80"><canvas id="graficoMotivos"></canvas></div>
                     <div id="listaLegendaDash" class="space-y-4"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        // CONFIGURAÇÕES GLOBAIS
-        const WEB_APP_URL = 'Shttps://script.google.com/macros/s/AKfycbznCForFxpY6CAU6W3UgglusC8oqyfDz0dqM-l_95xtr9CK9TcFvbw_V7LJQk8jTZH-/exec'; // <--- INSIRA SUA URL AQUI
-        const USUARIO_LOGADO = localStorage.getItem('vilarejo_user') || 'Visitante';
+    <script src="menu.js"></script> <script>
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbznCForFxpY6CAU6W3UgglusC8oqyfDz0dqM-l_95xtr9CK9TcFvbw_V7LJQk8jTZH-/exec'; // <--- INSIRA SUA URL DO GOOGLE APPS SCRIPT
         const LISTA_RESPONSAVEIS = ["Eduardo", "Edson", "Fábio", "Leandro", "Herialdo", "Bruna", "Renielle", "Caio"];
         
         let dadosGlobais = [];
@@ -256,14 +249,6 @@
         function abrirModal() { document.getElementById('modalChamado').classList.remove('hidden'); }
         function fecharModal() { document.getElementById('modalChamado').classList.add('hidden'); }
         function fecharModalDetalhes() { document.getElementById('modalDetalhes').classList.add('hidden'); }
-        function abrirDashboard() { 
-            document.getElementById('modalDashboard').classList.remove('hidden'); 
-            const hoje = new Date();
-            document.getElementById('dashDataInicio').value = new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString().split('T')[0];
-            document.getElementById('dashDataFim').value = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).toISOString().split('T')[0];
-            processarDadosDash();
-        }
-        function fecharDashboard() { document.getElementById('modalDashboard').classList.add('hidden'); }
         function toggleOutros(v) { document.getElementById('divOutros').classList.toggle('hidden', v !== 'Outros'); }
 
         function formatarDataBR(dataStr) {
@@ -271,7 +256,8 @@
             if (/^\d{2}\/\d{2}\/\d{4}$/.test(dataStr)) return dataStr;
             try { 
                 const data = new Date(dataStr);
-                return isNaN(data.getTime()) ? dataStr : `${String(data.getUTCDate()).padStart(2, '0')}/${String(data.getUTCMonth() + 1).padStart(2, '0')}/${data.getUTCFullYear()}`; 
+                if (isNaN(data.getTime())) return dataStr;
+                return `${String(data.getUTCDate()).padStart(2, '0')}/${String(data.getUTCMonth() + 1).padStart(2, '0')}/${data.getUTCFullYear()}`; 
             } catch (e) { return dataStr; }
         }
 
@@ -280,127 +266,104 @@
                 const r = await fetch(`${WEB_APP_URL}?rota=pendencias`);
                 dadosGlobais = await r.json();
                 filtrarGeral();
-            } catch (e) { console.error("Erro ao carregar"); }
+            } catch (e) { console.error("Erro na conexão"); }
         }
 
         function calcularStatusReal(linha) {
-            const [id, , , , , , , , , status, abertura, , prevista] = linha;
+            const statusBase = linha[9];
+            const dataAbertura = new Date(linha[10]);
+            const prevista = linha[12];
             const hoje = new Date();
-            const dataAbertura = new Date(abertura);
-            const vinteQuatroHoras = 24 * 60 * 60 * 1000;
-            
-            if (status === 'Resolvido') return 'Resolvido';
-
+            if (statusBase === 'Resolvido') return 'Resolvido';
             if (prevista && prevista !== "" && prevista !== "---") {
                 let dPrevRaw = prevista;
                 if(prevista.includes('/')) { const p = prevista.split('/'); dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`; }
                 return (new Date(dPrevRaw).getTime() < hoje.setHours(0,0,0,0)) ? 'Atrasado' : 'Em andamento';
             }
-
-            const tempoPassado = hoje.getTime() - dataAbertura.getTime();
-            return (tempoPassado > vinteQuatroHoras) ? 'Em análise (Atrasado)' : 'Em Análise';
+            const vinteQuatroHoras = 24 * 60 * 60 * 1000;
+            return (hoje.getTime() - dataAbertura.getTime() > vinteQuatroHoras) ? 'Em análise (Atrasado)' : 'Em Análise';
         }
 
         function filtrarGeral() {
-            const buscaID = document.getElementById('inputBuscaID').value.toLowerCase();
-            const statusFiltro = document.getElementById('selectStatus').value;
-            const motivoFiltro = document.getElementById('selectMotivoFiltro').value;
+            const busca = document.getElementById('inputBuscaID').value.toLowerCase();
+            const statusF = document.getElementById('selectStatus').value;
+            const motivoF = document.getElementById('selectMotivoFiltro').value;
 
-            const dadosFiltrados = dadosGlobais.filter(linha => {
-                const statusReal = calcularStatusReal(linha);
-                const matchID = linha[0].toLowerCase().includes(buscaID);
-                let matchStatus = statusFiltro === "todos" || statusReal === statusFiltro;
-                if(statusFiltro === "Em Análise" && statusReal === "Em análise (Atrasado)") matchStatus = true;
-                const matchMotivo = motivoFiltro === "todos" || linha[7] === motivoFiltro;
+            const filtrados = dadosGlobais.filter(linha => {
+                const sReal = calcularStatusReal(linha);
+                const matchID = linha[0].toLowerCase().includes(busca);
+                let matchStatus = statusF === "todos" || sReal === statusF;
+                if(statusF === "Em Análise" && sReal === "Em análise (Atrasado)") matchStatus = true;
+                const matchMotivo = motivoF === "todos" || linha[7] === motivoF;
                 return matchID && matchStatus && matchMotivo;
             });
-
-            renderizarTabela(dadosFiltrados);
+            renderizarTabela(filtrados);
             atualizarCardsGerais(dadosGlobais);
         }
 
         function renderizarTabela(dados) {
             const tbody = document.getElementById('tabelaChamados');
             tbody.innerHTML = '';
-            dados.forEach((linha) => {
-                const indexOriginal = dadosGlobais.findIndex(dg => dg[0] === linha[0]);
-                const rowId = indexOriginal + 2;
-                const statusReal = calcularStatusReal(linha);
-                
-                let statusColor = 'bg-blue-100 text-blue-700';
-                if(statusReal === 'Resolvido') statusColor = 'bg-emerald-100 text-emerald-700';
-                else if(statusReal.includes('Análise')) statusColor = 'bg-orange-100 text-orange-700';
-                else if(statusReal === 'Atrasado') statusColor = 'bg-red-100 text-red-700';
+            dados.forEach(linha => {
+                const idx = dadosGlobais.findIndex(dg => dg[0] === linha[0]);
+                const row = idx + 2;
+                const sReal = calcularStatusReal(linha);
+                let color = 'bg-blue-100 text-blue-700';
+                if(sReal === 'Resolvido') color = 'bg-emerald-100 text-emerald-700';
+                else if(sReal.includes('Análise')) color = 'bg-orange-100 text-orange-700';
+                else if(sReal === 'Atrasado') color = 'bg-red-100 text-red-700';
 
                 let dPrevRaw = linha[12];
                 if(dPrevRaw && dPrevRaw.includes('/')) { const p = dPrevRaw.split('/'); dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`; }
 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="p-4 font-black text-primary"><button onclick="verDetalhes(${indexOriginal})" class="hover:underline">${linha[0]}</button></td>
-                        <td class="p-4"><span class="px-2 py-1 rounded-md text-[9px] font-black uppercase ${statusColor}">${statusReal}</span></td>
-                        <td class="p-4"><div class="font-bold text-xs">${linha[1]}</div><div class="text-[9px] text-gray-400 uppercase font-black">${linha[2]}</div></td>
-                        <td class="p-4 text-center text-xs text-gray-500 font-bold">${formatarDataBR(linha[10])}</td>
+                    <tr>
+                        <td class="p-4 font-black text-primary"><button onclick="verDetalhes(${idx})" class="hover:underline">${linha[0]}</button></td>
+                        <td class="p-4"><span class="px-2 py-1 rounded text-[9px] font-black uppercase ${color}">${sReal}</span></td>
+                        <td class="p-4"><b>${linha[1]}</b><br><small class="text-gray-400 uppercase font-black">${linha[2]}</small></td>
+                        <td class="p-4 text-center text-xs font-bold">${formatarDataBR(linha[10])}</td>
                         <td class="p-4 text-center">
-                            <select onchange="atualizarCampoRapido(${rowId}, 'responsavel', this.value)" class="text-[10px] font-bold border rounded px-1 py-1 outline-primary bg-white">
+                            <select onchange="atualizarCampo(${row}, 'responsavel', this.value)" class="text-[10px] border rounded p-1 font-bold">
                                 <option value="">---</option>
                                 ${LISTA_RESPONSAVEIS.map(r => `<option value="${r}" ${linha[14] === r ? 'selected' : ''}>${r}</option>`).join('')}
                             </select>
                         </td>
                         <td class="p-4 text-center">
-                            <input type="date" value="${dPrevRaw ? dPrevRaw.split('T')[0] : ''}" onchange="definirPrevisao(${rowId}, this.value)" class="border rounded px-1 py-1 text-[10px] font-bold">
+                            <input type="date" value="${dPrevRaw ? dPrevRaw.split('T')[0] : ''}" onchange="definirPrevisao(${row}, this.value)" class="text-[10px] border rounded p-1 font-bold">
                         </td>
                         <td class="p-4 text-center">
-                            <button onclick="finalizarTicket(${rowId})" class="bg-emerald-50 text-emerald-600 p-2 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"><span class="material-symbols-outlined text-sm">check</span></button>
+                            <button onclick="finalizarTicket(${row})" class="bg-emerald-50 text-emerald-600 p-2 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"><span class="material-symbols-outlined text-sm">check</span></button>
                         </td>
                     </tr>`;
             });
         }
 
-        function verDetalhes(index) {
-            const t = dadosGlobais[index];
-            ticketAbertoAtual = { index: index, row: index + 2 };
+        function verDetalhes(idx) {
+            const t = dadosGlobais[idx];
+            ticketAbertoAtual = { index: idx, row: idx + 2 };
             
-            // PREENCHIMENTO DOS CAMPOS (INCLUINDO MOTIVO)
             document.getElementById('detalheID').innerText = t[0];
             document.getElementById('detalheSeac').innerText = t[1];
             document.getElementById('detalheForn').innerText = t[2];
-            document.getElementById('detalheMotivo').innerText = t[7] || "---"; // Coluna H (Motivo)
+            document.getElementById('detalheMotivo').innerText = t[7] || "---"; // COLUNA H - MOTIVO
             document.getElementById('detalheRef').innerText = t[3];
             document.getElementById('detalheCli').innerText = t[4] || "---";
             document.getElementById('detalheQtd').innerText = t[5];
             document.getElementById('detalheObs').value = t[8] || "";
             
-            // DATAS TIMELINE
-            const dAbertura = formatarDataBR(t[10]);
-            const dTriagem = formatarDataBR(t[15]); 
-            const dPrevisao = formatarDataBR(t[12]);
-            const dConclusao = t[11] ? formatarDataBR(t[11]) : "---";
+            const dA = formatarDataBR(t[10]), dT = formatarDataBR(t[15]), dP = formatarDataBR(t[12]), dC = t[11] ? formatarDataBR(t[11]) : "---";
+            document.getElementById('timeAbertura').innerText = dA;
+            document.getElementById('timeTriagem').innerText = dT;
+            document.getElementById('timePrevisaoModal').innerText = dP;
+            document.getElementById('timeConclusao').innerText = dC;
 
-            document.getElementById('timeAbertura').innerText = dAbertura;
-            document.getElementById('timeTriagem').innerText = dTriagem;
-            document.getElementById('timePrevisaoModal').innerText = dPrevisao;
-            document.getElementById('timeConclusao').innerText = dConclusao;
-
-            // BARRA DE PROGRESSO
-            const prog = document.getElementById('timelineProgress');
-            const sTri = document.getElementById('stepTriagem');
-            const sPre = document.getElementById('stepPrevisao');
-            const sCon = document.getElementById('stepConclusao');
-
-            [sTri, sPre, sCon].forEach(s => s.classList.remove('active'));
-            prog.style.width = "0%";
-
-            if (dAbertura !== "---") prog.style.width = "5%";
-            if (dTriagem !== "---") { prog.style.width = "33%"; sTri.classList.add('active'); }
-            if (dPrevisao !== "---") { prog.style.width = "66%"; sPre.classList.add('active'); }
-            if (dConclusao !== "---") { prog.style.width = "100%"; sCon.classList.add('active'); }
-
-            const statusReal = calcularStatusReal(t);
-            const badge = document.getElementById('detalheStatusBadge');
-            badge.innerText = statusReal;
-            badge.className = `text-[10px] font-black uppercase px-2 py-0.5 rounded ${statusReal.includes('Análise') ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}`;
-            if(statusReal === 'Resolvido') badge.className = 'bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase px-2 py-0.5 rounded';
+            const p = document.getElementById('timelineProgress'), sT = document.getElementById('stepTriagem'), sP = document.getElementById('stepPrevisao'), sC = document.getElementById('stepConclusao');
+            [sT, sP, sC].forEach(s => s.classList.remove('active'));
+            p.style.width = "0%";
+            if (dA !== "---") p.style.width = "5%";
+            if (dT !== "---") { p.style.width = "33%"; sT.classList.add('active'); }
+            if (dP !== "---") { p.style.width = "66%"; sP.classList.add('active'); }
+            if (dC !== "---") { p.style.width = "100%"; sC.classList.add('active'); }
 
             const sel = document.getElementById('selectResponsavelModal');
             sel.innerHTML = '<option value="">Selecione...</option>';
@@ -409,78 +372,56 @@
             document.getElementById('modalDetalhes').classList.remove('hidden');
         }
 
-        // FUNÇÃO DE SALVAMENTO COMPLETO NO MODAL (SALVA RESPONSAVEL E OBSERVAÇÃO)
+        // FUNÇÃO DE SALVAR CORRIGIDA
         async function salvarAlteracoesNoModal() {
             if(!ticketAbertoAtual) return;
             const btn = document.getElementById('btnSalvarObs');
             const novaObs = document.getElementById('detalheObs').value;
             const novoResp = document.getElementById('selectResponsavelModal').value;
 
-            btn.disabled = true;
-            btn.innerText = "Gravando...";
+            btn.disabled = true; btn.innerText = "Gravando...";
 
             try {
-                // Atualiza Observação
-                await fetch(WEB_APP_URL, {
-                    method: 'POST', mode: 'no-cors',
-                    body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: ticketAbertoAtual.row, field: 'observacao', value: novaObs })
-                });
+                // Atualiza Observação e Responsável
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: ticketAbertoAtual.row, field: 'observacao', value: novaObs }) });
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: ticketAbertoAtual.row, field: 'responsavel', value: novoResp }) });
 
-                // Atualiza Responsável
-                await fetch(WEB_APP_URL, {
-                    method: 'POST', mode: 'no-cors',
-                    body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: ticketAbertoAtual.row, field: 'responsavel', value: novoResp })
-                });
-
-                alert("Alterações salvas com sucesso!");
+                alert("Informações atualizadas!");
                 fecharModalDetalhes();
-                setTimeout(carregarTickets, 500);
-            } catch (e) {
-                alert("Erro ao conectar ao servidor.");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Salvar Alterações";
-            }
+                carregarTickets();
+            } catch (e) { alert("Erro ao salvar."); }
+            finally { btn.disabled = false; btn.innerText = "Salvar Alterações"; }
         }
 
-        async function atualizarCampoRapido(row, campo, valor) {
+        async function atualizarCampo(row, campo, valor) {
             try {
-                await fetch(WEB_APP_URL, {
-                    method: 'POST', mode: 'no-cors',
-                    body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: campo, value: valor })
-                });
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: campo, value: valor }) });
                 setTimeout(carregarTickets, 800);
-            } catch (e) { }
+            } catch (e) {}
         }
 
         async function definirPrevisao(row, valor) {
             if(!valor) return;
-            await atualizarCampoRapido(row, 'previsao', valor);
-            await atualizarCampoRapido(row, 'status', 'Em andamento');
-            setTimeout(carregarTickets, 1000);
+            const hoje = new Date().toLocaleDateString('pt-BR');
+            await atualizarCampo(row, 'previsao', valor);
+            await atualizarCampo(row, 'status', 'Em andamento');
+            await atualizarCampo(row, 'data_definicao', hoje); // Grava na Coluna P
         }
 
         async function finalizarTicket(row) {
             if(!confirm("Concluir chamado?")) return;
-            await fetch(WEB_APP_URL, { 
-                method: 'POST', mode: 'no-cors', 
-                body: JSON.stringify({ rota: 'pendencias', action: 'update', row: row, status: 'Resolvido' }) 
-            });
-            setTimeout(carregarTickets, 1000);
+            await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update', row: row, status: 'Resolvido' }) });
+            setTimeout(carregarTickets, 800);
         }
 
         document.getElementById('formTicket').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('btnSalvar');
-            btn.disabled = true;
+            const btn = document.getElementById('btnSalvar'); btn.disabled = true;
             const payload = Object.fromEntries(new FormData(e.target));
             if (payload.motivo === 'Outros') payload.motivo = document.getElementById('inputOutros').value;
-            payload.rota = 'pendencias';
-            payload.action = 'insert';
-            payload.criado_por = USUARIO_LOGADO;
+            payload.rota = 'pendencias'; payload.action = 'insert';
             await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            fecharModal(); e.target.reset();
-            setTimeout(carregarTickets, 1500);
+            fecharModal(); e.target.reset(); setTimeout(carregarTickets, 1500);
             btn.disabled = false;
         });
 
@@ -488,10 +429,7 @@
             let ana = 0, and = 0, atr = 0, res = 0;
             dados.forEach(d => {
                 const s = calcularStatusReal(d);
-                if(s === 'Resolvido') res++;
-                else if(s.includes('Análise')) ana++;
-                else if(s === 'Atrasado') atr++;
-                else and++;
+                if(s === 'Resolvido') res++; else if(s.includes('Análise')) ana++; else if(s === 'Atrasado') atr++; else and++;
             });
             document.getElementById('cardAnalise').innerText = ana;
             document.getElementById('cardAndamento').innerText = and;
@@ -499,12 +437,21 @@
             document.getElementById('cardResolvido').innerText = res;
         }
 
+        // DASHBOARD
+        function abrirDashboard() { 
+            document.getElementById('modalDashboard').classList.remove('hidden'); 
+            const hoje = new Date();
+            document.getElementById('dashDataInicio').value = new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString().split('T')[0];
+            document.getElementById('dashDataFim').value = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).toISOString().split('T')[0];
+            processarDadosDash();
+        }
+        function fecharDashboard() { document.getElementById('modalDashboard').classList.add('hidden'); }
+
         function processarDadosDash() {
             const ini = new Date(document.getElementById('dashDataInicio').value + "T00:00:00");
             const fim = new Date(document.getElementById('dashDataFim').value + "T23:59:59");
             let total = 0;
-            const cont = { "Quebra fábrica": 0, "Quebra depósito/Loja": 0, "Quebra produto embalagem (Externa)": 0, "Outros": 0 };
-            
+            const cont = { "Quebra fábrica": 0, "Quebra depósito/Loja": 0, "Quebra de produto na embalagem(Externa)": 0, "Outros": 0 };
             dadosGlobais.forEach(d => {
                 const da = new Date(d[10]);
                 if (da >= ini && da <= fim) {
@@ -524,14 +471,14 @@
                 type: 'doughnut',
                 data: {
                     labels: Object.keys(cont),
-                    datasets: [{ data: Object.values(cont), backgroundColor: ['#E30613', '#1e293b', '#3b82f6', '#cbd5e1'], borderWidth: 0 }]
+                    datasets: [{ data: Object.values(cont), backgroundColor: ['#E30613', '#111827', '#3b82f6', '#94a3b8'], borderWidth: 0 }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
             const leg = document.getElementById('listaLegendaDash');
             leg.innerHTML = '';
-            Object.keys(cont).forEach((m, i) => {
-                leg.innerHTML += `<div class="flex justify-between p-3 bg-gray-50 rounded-xl"><span class="text-[10px] font-black uppercase">${m}</span><span class="font-bold">${cont[m]}</span></div>`;
+            Object.keys(cont).forEach(m => {
+                leg.innerHTML += `<div class="flex justify-between p-3 bg-gray-50 rounded-xl font-bold text-xs"><span>${m}</span><span>${cont[m]}</span></div>`;
             });
         }
 
