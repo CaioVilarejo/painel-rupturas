@@ -4,30 +4,41 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Pendências CD - Vilarejo</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
-    <script>tailwind.config = { theme: { extend: { colors: { "primary": "#E30613" } } } }</script>
+
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: { "primary": "#E30613" } } }
+        }
+    </script>
+
     <style type="text/css">
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
         .modal-scroll::-webkit-scrollbar { width: 6px; }
         .modal-scroll::-webkit-scrollbar-track { background: #f8fafc; border-radius: 10px; }
         .modal-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        /* Estilização da Timeline */
-        .timeline-container { position: relative; display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 10px; }
+        
+        /* Nova Estilização da Timeline */
+        .timeline-container { position: relative; display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 10px; margin-top: 20px;}
         .timeline-line { position: absolute; top: 50%; left: 0; transform: translateY(-50%); height: 4px; background: #e2e8f0; width: 100%; z-index: 1; border-radius: 10px; }
         .timeline-progress { position: absolute; top: 50%; left: 0; transform: translateY(-50%); height: 4px; background: #E30613; width: 0%; z-index: 2; transition: width 0.8s ease; border-radius: 10px; }
-        .timeline-step { position: relative; z-index: 3; background: #fff; border: 3px solid #e2e8f0; width: 14px; height: 14px; border-radius: 50%; transition: all 0.4s; }
+        .timeline-step { position: relative; z-index: 3; background: #fff; border: 3px solid #e2e8f0; width: 16px; height: 16px; border-radius: 50%; transition: all 0.4s; }
         .timeline-step.active { border-color: #E30613; background: #E30613; box-shadow: 0 0 0 4px rgba(227, 6, 19, 0.2); }
+        
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-900">
     <div class="flex h-screen overflow-hidden">
         <div id="sidebar-container"></div>
+
         <main class="flex-1 overflow-y-auto p-4 md:p-8 no-scrollbar">
             <div class="max-w-7xl mx-auto">
+                
                 <div class="flex justify-between items-center mb-6">
                     <h1 class="text-xl font-black uppercase tracking-widest text-gray-800">Controle de Ocorrências</h1>
                     <button onclick="abrirDashboard()" class="bg-gray-800 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 hover:bg-black transition-all shadow-lg">
@@ -54,14 +65,93 @@
                     </div>
                 </div>
 
-                <div id="tabela-container">
-                     <table class="w-full text-left bg-white rounded-2xl overflow-hidden shadow-sm">
-                        <thead><tr class="bg-gray-50 border-b text-[10px] font-black text-gray-400 uppercase"><th class="p-4">ID Ticket</th><th class="p-4">Status</th><th class="p-4">Produto</th><th class="p-4 text-center">Abertura</th><th class="p-4 text-center">Responsável</th><th class="p-4 text-center">Previsão</th><th class="p-4 text-center">Ações</th></tr></thead>
-                        <tbody id="tabelaChamados" class="divide-y divide-gray-100 text-sm"></tbody>
-                     </table>
+                <div class="flex flex-col md:flex-row justify-between items-end gap-4 mb-6 bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 w-full">
+                        <div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Buscar ID</label>
+                            <input type="text" id="inputBuscaID" onkeyup="filtrarGeral()" placeholder="TKT-..." class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold outline-none focus:border-primary">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Status</label>
+                            <select id="selectStatus" onchange="filtrarGeral()" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white outline-none">
+                                <option value="todos">Todos os Status</option>
+                                <option value="Em Análise">Em Análise</option>
+                                <option value="Em andamento">Em Andamento</option>
+                                <option value="Atrasado">Atrasado</option>
+                                <option value="Resolvido">Resolvido</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Motivo</label>
+                            <select id="selectMotivoFiltro" onchange="filtrarGeral()" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white outline-none">
+                                <option value="todos">Todos os Motivos</option>
+                                <option value="Quebra fábrica">Quebra fábrica</option>
+                                <option value="Quebra depósito/Loja">Quebra depósito/Loja</option>
+                                <option value="Quebra de produto na embalagem(Externa)">Quebra produto embalagem</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="abrirModal()" class="w-full bg-primary text-white px-4 py-2.5 rounded-xl font-bold uppercase text-[10px] shadow-lg hover:bg-red-700 transition-all flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined text-sm">add_circle</span> Novo Ticket
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 border-b text-[10px] font-black text-gray-400 uppercase">
+                                    <th class="p-4">ID Ticket</th>
+                                    <th class="p-4">Status</th>
+                                    <th class="p-4">Produto / Fornecedor</th>
+                                    <th class="p-4 text-center">Abertura</th>
+                                    <th class="p-4 text-center">Responsável</th>
+                                    <th class="p-4 text-center">Previsão</th>
+                                    <th class="p-4 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaChamados" class="divide-y divide-gray-100 text-sm"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </main>
+    </div>
+
+    <div id="modalChamado" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[9999]">
+        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden">
+            <div class="p-6 border-b bg-gray-50 flex justify-between items-center">
+                <h2 class="text-xl font-black text-primary uppercase">Registrar Pendência</h2>
+                <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <form id="formTicket" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="text" name="cod_seac" placeholder="Cód Produto Seac" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
+                <input type="text" name="fornecedor" placeholder="Fornecedor" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
+                <input type="text" name="referencia" placeholder="Referência" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
+                <input type="text" name="cod_cliente" placeholder="Cód Cliente" class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
+                <input type="number" name="quantidade" placeholder="Quantidade" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
+                <input type="text" name="lote" placeholder="Tonalidade / Lote" class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
+                <div class="col-span-full">
+                    <select name="motivo" onchange="toggleOutros(this.value)" class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold">
+                        <option value="Quebra fábrica">Quebra fábrica</option>
+                        <option value="Quebra depósito/Loja">Quebra depósito/Loja</option>
+                        <option value="Quebra de produto na embalagem(Externa)">Quebra produto embalagem (Externa)</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                </div>
+                <div id="divOutros" class="col-span-full hidden">
+                    <input type="text" id="inputOutros" placeholder="Especifique o motivo..." class="w-full p-3 border border-primary rounded-xl outline-none text-sm font-bold">
+                </div>
+                <textarea name="observacao" placeholder="Informações iniciais..." rows="2" class="col-span-full p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold"></textarea>
+                <div class="col-span-full flex gap-3 pt-4">
+                    <button type="button" onclick="fecharModal()" class="flex-1 bg-gray-100 py-3 rounded-xl font-bold uppercase text-[10px]">Cancelar</button>
+                    <button type="submit" id="btnSalvar" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold uppercase text-[10px] shadow-lg">Salvar Ticket</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <div id="modalDetalhes" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[9999]">
@@ -76,16 +166,15 @@
             
             <div class="p-8 overflow-y-auto modal-scroll space-y-8">
                 <div class="bg-gray-50 p-8 rounded-3xl border border-gray-100">
-                    <div class="timeline-container mb-4">
+                    <div class="timeline-container mb-6">
                         <div class="timeline-line"></div>
                         <div id="timelineProgress" class="timeline-progress"></div>
-                        <div class="timeline-step active"></div>
-                        <div id="stepTriagem" class="timeline-step"></div>
+                        <div class="timeline-step active"></div> <div id="stepTriagem" class="timeline-step"></div>
                         <div id="stepPrevisao" class="timeline-step"></div>
                         <div id="stepConclusao" class="timeline-step"></div>
                     </div>
-                    <div class="flex justify-between text-[9px] font-black uppercase text-gray-400 px-0">
-                        <div class="text-center w-1/4">Abertura<p id="timeAbertura" class="text-gray-800 font-bold mt-1"></p></div>
+                    <div class="flex justify-between text-[9px] font-black uppercase text-gray-400">
+                        <div class="text-center w-1/4">Abertura<p id="timeAbertura" class="text-gray-800 font-bold mt-1">--/--</p></div>
                         <div class="text-center w-1/4">Triagem<p id="timeTriagem" class="text-gray-800 font-bold mt-1">---</p></div>
                         <div class="text-center w-1/4">Previsão<p id="timePrevisaoModal" class="text-gray-800 font-bold mt-1">---</p></div>
                         <div class="text-center w-1/4">Conclusão<p id="timeConclusao" class="text-gray-800 font-bold mt-1">---</p></div>
@@ -93,126 +182,93 @@
                 </div>
 
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-6 text-sm">
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase">Cód. Prod SEAC</label><p id="detalheSeac" class="font-bold text-gray-800"></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase">Fornecedor</label><p id="detalheForn" class="font-bold text-gray-800"></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase">Quantidade</label><p id="detalheQtd" class="font-bold text-gray-800"></p></div>
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Cód. Prod SEAC</label><p id="detalheSeac" class="font-bold text-gray-800"></p></div>
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Fornecedor</label><p id="detalheForn" class="font-bold text-gray-800"></p></div>
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Referência</label><p id="detalheRef" class="font-bold text-gray-800"></p></div>
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Cód. Cliente</label><p id="detalheCli" class="font-bold text-blue-700"></p></div>
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Quantidade</label><p id="detalheQtd" class="font-bold text-gray-800"></p></div>
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Tonalidade / Lote</label><p id="detalheLote" class="font-bold text-orange-600"></p></div>
                 </div>
 
                 <div class="p-4 bg-white rounded-2xl border-2 border-gray-100">
-                    <label class="text-[10px] font-black text-gray-400 uppercase mb-2 block">Responsável</label>
-                    <select id="selectResponsavelModal" onchange="atualizarResponsavelPeloModal(this.value)" class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary"></select>
+                    <label class="text-[10px] font-black text-gray-400 uppercase mb-2 block tracking-widest">Responsável Atual</label>
+                    <select id="selectResponsavelModal" onchange="atualizarResponsavelPeloModal(this.value)" class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary">
+                        <option value="">Selecione um responsável...</option>
+                    </select>
                 </div>
 
                 <div class="space-y-3">
-                    <label class="text-[10px] font-black text-gray-400 uppercase">Histórico / Observações</label>
-                    <textarea id="detalheObs" rows="4" class="w-full border-2 border-gray-100 rounded-2xl p-4 text-sm outline-none focus:border-primary bg-gray-50 resize-none font-medium"></textarea>
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Histórico de Tratativas</label>
+                    <textarea id="detalheObs" rows="5" class="w-full border-2 border-gray-100 rounded-2xl p-4 text-sm outline-none focus:border-primary bg-gray-50 transition-all resize-none font-medium"></textarea>
                 </div>
             </div>
             <div class="p-6 bg-white border-t rounded-b-3xl">
-                <button onclick="salvarObservacao()" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-black transition-all shadow-lg">Salvar Alterações</button>
+                <button id="btnSalvarObs" onclick="salvarObservacao()" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-black transition-all">Salvar Alterações</button>
             </div>
         </div>
     </div>
 
+    <div id="modalDashboard" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden flex items-center justify-center z-[10000] p-4">
+        <div class="bg-white w-full max-w-5xl h-full max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h2 class="text-xl font-black text-gray-800 uppercase flex items-center gap-2">
+                    <span class="material-symbols-outlined text-red-600">leaderboard</span> Dashboard
+                </h2>
+                <button onclick="fecharDashboard()" class="text-gray-400 hover:text-black transition-all"><span class="material-symbols-outlined text-3xl">close</span></button>
+            </div>
+            <div class="p-8 overflow-y-auto modal-scroll space-y-8">
+                <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                    <div class="flex flex-col md:flex-row gap-6 items-end">
+                        <div class="flex-1 w-full">
+                            <p class="text-[9px] font-bold text-gray-400 ml-1">De:</p>
+                            <input type="date" id="dashDataInicio" onchange="processarDadosDash()" class="w-full border-b-2 border-gray-200 py-2 text-sm font-bold outline-none focus:border-primary bg-transparent">
+                        </div>
+                        <div class="flex-1 w-full">
+                            <p class="text-[9px] font-bold text-gray-400 ml-1">Até:</p>
+                            <input type="date" id="dashDataFim" onchange="processarDadosDash()" class="w-full border-b-2 border-gray-200 py-2 text-sm font-bold outline-none focus:border-primary bg-transparent">
+                        </div>
+                        <div class="bg-white px-8 py-3 rounded-2xl text-center border border-gray-100 min-w-[150px]">
+                            <p class="text-[9px] font-black text-gray-400 uppercase">Total no Período</p>
+                            <p id="totalMesDash" class="text-2xl font-black text-gray-800">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-white p-8 rounded-2xl border border-gray-100 h-80">
+                        <canvas id="graficoMotivos"></canvas>
+                    </div>
+                    <div id="listaLegendaDash" class="space-y-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="menu.js"></script>
     <script>
-        const WEB_APP_URL = 'SUA_URL_AQUI'; // Mantenha sua URL
+        // CONFIGURAÇÕES GLOBAIS
+        const WEB_APP_URL = 'SUA_URL_AQUI_DO_WEB_APP'; // Coloque sua URL aqui
+        const USUARIO_LOGADO = localStorage.getItem('vilarejo_user') || 'Visitante';
         const LISTA_RESPONSAVEIS = ["Eduardo", "Edson", "Fábio", "Leandro", "Herialdo", "Bruna", "Renielle", "Caio"];
+        
         let dadosGlobais = [];
+        let ticketAbertoAtual = null;
+        let chartMotivos = null;
 
-        async function carregarTickets() {
-            try {
-                const r = await fetch(`${WEB_APP_URL}?rota=pendencias`);
-                dadosGlobais = await r.json();
-                filtrarGeral();
-            } catch (e) { console.error("Erro ao carregar"); }
-        }
-
-        function calcularStatusReal(linha) {
-            const [id, , , , , , , , , status, abertura, , prevista] = linha;
-            const hoje = new Date();
-            const dataAbertura = new Date(abertura);
-            const vinteQuatroHoras = 24 * 60 * 60 * 1000;
-            if (status === 'Resolvido') return 'Resolvido';
-            if (prevista && prevista !== "" && prevista !== "---") {
-                let dPrevRaw = prevista;
-                if(prevista.includes('/')) { const p = prevista.split('/'); dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`; }
-                return (new Date(dPrevRaw).getTime() < hoje.setHours(0,0,0,0)) ? 'Atrasado' : 'Em andamento';
-            }
-            return (hoje.getTime() - dataAbertura.getTime() > vinteQuatroHoras) ? 'Em análise (Atrasado)' : 'Em Análise';
-        }
-
-        function formatarDataBR(dataStr) {
-            if (!dataStr || dataStr === "" || dataStr === "---") return "---";
-            if (/^\d{2}\/\d{2}\/\d{4}$/.test(dataStr)) return dataStr;
-            try { const data = new Date(dataStr); return isNaN(data.getTime()) ? dataStr : `${String(data.getUTCDate()).padStart(2, '0')}/${String(data.getUTCMonth() + 1).padStart(2, '0')}/${data.getUTCFullYear()}`; } catch (e) { return dataStr; }
-        }
-
-        function renderizarTabela(dados) {
-            const tbody = document.getElementById('tabelaChamados');
-            tbody.innerHTML = '';
-            dados.forEach((linha) => {
-                const indexOriginal = dadosGlobais.findIndex(dg => dg[0] === linha[0]);
-                const statusReal = calcularStatusReal(linha);
-                
-                // CORREÇÃO SOLICITADA: Em análise (Atrasado) também fica laranja
-                let statusColor = 'bg-blue-100 text-blue-700';
-                if(statusReal === 'Resolvido') statusColor = 'bg-emerald-100 text-emerald-700';
-                else if(statusReal.includes('Análise')) statusColor = 'bg-orange-100 text-orange-700';
-                else if(statusReal === 'Atrasado') statusColor = 'bg-red-100 text-red-700';
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="p-4 font-black text-primary"><button onclick="verDetalhes(${indexOriginal})" class="hover:underline">${linha[0]}</button></td>
-                        <td class="p-4"><span class="px-2 py-1 rounded-md text-[9px] font-black uppercase ${statusColor}">${statusReal}</span></td>
-                        <td class="p-4"><div class="font-bold">${linha[1]}</div><div class="text-[9px] text-gray-400 uppercase font-black">${linha[2]}</div></td>
-                        <td class="p-4 text-center text-xs text-gray-500 font-bold">${formatarDataBR(linha[10])}</td>
-                        <td class="p-4 text-center text-xs font-bold text-gray-700">${linha[14] || '---'}</td>
-                        <td class="p-4 text-center text-xs font-bold text-gray-700">${formatarDataBR(linha[12])}</td>
-                        <td class="p-4 text-center"><button onclick="finalizarTicket(${indexOriginal+2})" class="bg-emerald-50 text-emerald-600 p-2 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"><span class="material-symbols-outlined text-sm">check</span></button></td>
-                    </tr>`;
-            });
-        }
-
-        function verDetalhes(index) {
-            const t = dadosGlobais[index];
-            document.getElementById('detalheID').innerText = t[0];
-            document.getElementById('detalheSeac').innerText = t[1];
-            document.getElementById('detalheForn').innerText = t[2];
-            document.getElementById('detalheQtd').innerText = t[5];
-            document.getElementById('detalheObs').value = t[8] || "";
-            
-            // DATAS PARA A TIMELINE
-            const dataAbertura = formatarDataBR(t[10]);
-            const dataTriagem = formatarDataBR(t[15]); // Coluna P (índice 15)
-            const dataPrevisao = formatarDataBR(t[12]);
-            const dataConclusao = t[11] ? formatarDataBR(t[11]) : "---";
-
-            document.getElementById('timeAbertura').innerText = dataAbertura;
-            document.getElementById('timeTriagem').innerText = dataTriagem;
-            document.getElementById('timePrevisaoModal').innerText = dataPrevisao;
-            document.getElementById('timeConclusao').innerText = dataConclusao;
-
-            // LÓGICA DE PROGRESSO DA TIMELINE
-            const progresso = document.getElementById('timelineProgress');
-            const stepTri = document.getElementById('stepTriagem');
-            const stepPre = document.getElementById('stepPrevisao');
-            const stepCon = document.getElementById('stepConclusao');
-
-            // Reset
-            [stepTri, stepPre, stepCon].forEach(s => s.classList.remove('active'));
-            progresso.style.width = "0%";
-
-            if (dataAbertura !== "---") progresso.style.width = "5%";
-            if (dataTriagem !== "---") { progresso.style.width = "33%"; stepTri.classList.add('active'); }
-            if (dataPrevisao !== "---") { progresso.style.width = "66%"; stepPre.classList.add('active'); }
-            if (dataConclusao !== "---") { progresso.style.width = "100%"; stepCon.classList.add('active'); }
-
-            document.getElementById('modalDetalhes').classList.remove('hidden');
-        }
-
+        // FUNÇÕES DE INTERFACE
+        function abrirModal() { document.getElementById('modalChamado').classList.remove('hidden'); }
+        function fecharModal() { document.getElementById('modalChamado').classList.add('hidden'); }
         function fecharModalDetalhes() { document.getElementById('modalDetalhes').classList.add('hidden'); }
+        function abrirDashboard() { 
+            document.getElementById('modalDashboard').classList.remove('hidden'); 
+            const hoje = new Date();
+            document.getElementById('dashDataInicio').value = new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString().split('T')[0];
+            document.getElementById('dashDataFim').value = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).toISOString().split('T')[0];
+            processarDadosDash();
+        }
+        function fecharDashboard() { document.getElementById('modalDashboard').classList.add('hidden'); }
         function toggleOutros(v) { document.getElementById('divOutros').classList.toggle('hidden', v !== 'Outros'); }
 
+        // FORMATADOR DE DATA
         function formatarDataBR(dataStr) {
             if (!dataStr || dataStr === "" || dataStr === "---") return "---";
             if (/^\d{2}\/\d{2}\/\d{4}$/.test(dataStr)) return dataStr;
@@ -222,12 +278,13 @@
             } catch (e) { return dataStr; }
         }
 
+        // CARREGAMENTO DE DADOS
         async function carregarTickets() {
             try {
                 const r = await fetch(`${WEB_APP_URL}?rota=pendencias`);
                 dadosGlobais = await r.json();
                 filtrarGeral();
-            } catch (e) { console.error("Erro ao carregar tickets"); }
+            } catch (e) { console.error("Erro ao carregar"); }
         }
 
         // LÓGICA DE STATUS CALCULADO (24H E PREVISÃO)
@@ -239,18 +296,17 @@
             
             if (status === 'Resolvido') return 'Resolvido';
 
-            // Se tem previsão, vira "Em andamento" ou "Atrasado"
             if (prevista && prevista !== "" && prevista !== "---") {
                 let dPrevRaw = prevista;
                 if(prevista.includes('/')) { const p = prevista.split('/'); dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`; }
                 return (new Date(dPrevRaw).getTime() < hoje.setHours(0,0,0,0)) ? 'Atrasado' : 'Em andamento';
             }
 
-            // Se NÃO tem previsão, vira "Em Análise" ou "Em análise (Atrasado)"
             const tempoPassado = hoje.getTime() - dataAbertura.getTime();
             return (tempoPassado > vinteQuatroHoras) ? 'Em análise (Atrasado)' : 'Em Análise';
         }
 
+        // FILTROS
         function filtrarGeral() {
             const buscaID = document.getElementById('inputBuscaID').value.toLowerCase();
             const statusFiltro = document.getElementById('selectStatus').value;
@@ -259,11 +315,8 @@
             const dadosFiltrados = dadosGlobais.filter(linha => {
                 const statusReal = calcularStatusReal(linha);
                 const matchID = linha[0].toLowerCase().includes(buscaID);
-                
                 let matchStatus = statusFiltro === "todos" || statusReal === statusFiltro;
-                // Especial para o filtro de "Em Análise" pegar os atrasados também
                 if(statusFiltro === "Em Análise" && statusReal === "Em análise (Atrasado)") matchStatus = true;
-
                 const matchMotivo = motivoFiltro === "todos" || linha[7] === motivoFiltro;
                 return matchID && matchStatus && matchMotivo;
             });
@@ -272,62 +325,117 @@
             atualizarCardsGerais(dadosGlobais);
         }
 
+        // RENDERIZAÇÃO DA TABELA
         function renderizarTabela(dados) {
             const tbody = document.getElementById('tabelaChamados');
             tbody.innerHTML = '';
             dados.forEach((linha) => {
                 const indexOriginal = dadosGlobais.findIndex(dg => dg[0] === linha[0]);
-                const [id, seac, forn, ref, cli, qtd, lote, motivo, obs, status, abertura, resolucao, prevista, criadoPor, responsavel] = linha;
                 const rowId = indexOriginal + 2;
                 const statusReal = calcularStatusReal(linha);
                 
+                // CORREÇÃO VISUAL: Tudo que é análise fica Laranja
                 let statusColor = 'bg-blue-100 text-blue-700';
                 if(statusReal === 'Resolvido') statusColor = 'bg-emerald-100 text-emerald-700';
                 else if(statusReal.includes('Análise')) statusColor = 'bg-orange-100 text-orange-700';
                 else if(statusReal === 'Atrasado') statusColor = 'bg-red-100 text-red-700';
 
-                let dPrevRaw = prevista;
-                if(prevista && prevista.includes('/')) { const p = prevista.split('/'); dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`; }
-
-                let selectResp = `<select onchange="atualizarCampo(${rowId}, 'responsavel', this.value)" class="text-[10px] font-bold border rounded px-1 py-1 outline-primary bg-white">
-                                    <option value="">Selecione...</option>`;
-                LISTA_RESPONSAVEIS.forEach(resp => { selectResp += `<option value="${resp}" ${responsavel === resp ? 'selected' : ''}>${resp}</option>`; });
-                selectResp += `</select>`;
+                let dPrevRaw = linha[12];
+                if(dPrevRaw && dPrevRaw.includes('/')) { const p = dPrevRaw.split('/'); dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`; }
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="p-4 font-black text-primary"><button onclick="verDetalhes(${indexOriginal})" class="hover:underline">${id}</button></td>
+                        <td class="p-4 font-black text-primary"><button onclick="verDetalhes(${indexOriginal})" class="hover:underline">${linha[0]}</button></td>
                         <td class="p-4"><span class="px-2 py-1 rounded-md text-[9px] font-black uppercase ${statusColor}">${statusReal}</span></td>
-                        <td class="p-4"><div class="font-bold">${seac}</div><div class="text-[9px] text-gray-400 uppercase font-black">${forn}</div></td>
-                        <td class="p-4 text-center text-xs text-gray-500 font-bold">${formatarDataBR(abertura)}</td>
-                        <td class="p-4 text-center">${status === 'Resolvido' ? `<span class="text-[10px] font-bold text-gray-500">${responsavel || '---'}</span>` : selectResp}</td>
+                        <td class="p-4"><div class="font-bold text-xs">${linha[1]}</div><div class="text-[9px] text-gray-400 uppercase font-black">${linha[2]}</div></td>
+                        <td class="p-4 text-center text-xs text-gray-500 font-bold">${formatarDataBR(linha[10])}</td>
                         <td class="p-4 text-center">
-                            ${status === 'Resolvido' ? `<span class="text-xs text-gray-400 font-bold">${formatarDataBR(prevista)}</span>` : 
-                            `<input type="date" value="${dPrevRaw ? dPrevRaw.split('T')[0] : ''}" onchange="definirPrevisao(${rowId}, this.value)" class="border rounded px-1 py-1 text-[10px] font-bold">`}
+                            <select onchange="atualizarResponsavel(${rowId}, this.value)" class="text-[10px] font-bold border rounded px-1 py-1 outline-primary bg-white">
+                                <option value="">---</option>
+                                ${LISTA_RESPONSAVEIS.map(r => `<option value="${r}" ${linha[14] === r ? 'selected' : ''}>${r}</option>`).join('')}
+                            </select>
                         </td>
                         <td class="p-4 text-center">
-                            ${status !== 'Resolvido' ? `<button onclick="finalizarTicket(${rowId})" class="bg-emerald-50 text-emerald-600 p-2 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"><span class="material-symbols-outlined text-sm">check</span></button>` : `<span class="text-emerald-600 text-[10px] font-black italic">Finalizado</span>`}
+                            <input type="date" value="${dPrevRaw ? dPrevRaw.split('T')[0] : ''}" onchange="definirPrevisao(${rowId}, this.value)" class="border rounded px-1 py-1 text-[10px] font-bold">
+                        </td>
+                        <td class="p-4 text-center">
+                            <button onclick="finalizarTicket(${rowId})" class="bg-emerald-50 text-emerald-600 p-2 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"><span class="material-symbols-outlined text-sm">check</span></button>
                         </td>
                     </tr>`;
             });
         }
 
-        // NOVA FUNÇÃO PARA DEFINIR PREVISÃO E MUDAR STATUS
-        async function definirPrevisao(row, dataValor) {
-            if(!dataValor) return;
-            const hojeData = new Date().toLocaleDateString('pt-BR');
-            try {
-                // 1. Salva a Previsão
-                await atualizarCampo(row, 'previsao', dataValor);
-                // 2. Muda Status para Em andamento
-                await atualizarCampo(row, 'status', 'Em andamento');
-                // 3. Salva Data de Definição na Coluna P (índice 15)
-                await atualizarCampo(row, 'data_definicao', hojeData);
-                
-                setTimeout(carregarTickets, 1000);
-            } catch (e) { console.error(e); }
+        // VER DETALHES E TIMELINE
+        function verDetalhes(index) {
+            const t = dadosGlobais[index];
+            ticketAbertoAtual = { index: index, row: index + 2 };
+            
+            document.getElementById('detalheID').innerText = t[0];
+            document.getElementById('detalheSeac').innerText = t[1];
+            document.getElementById('detalheForn').innerText = t[2];
+            document.getElementById('detalheRef').innerText = t[3];
+            document.getElementById('detalheCli').innerText = t[4] || "---";
+            document.getElementById('detalheQtd').innerText = t[5];
+            document.getElementById('detalheLote').innerText = t[6] || "---";
+            document.getElementById('detalheObs').value = t[8] || "";
+            
+            // DATAS TIMELINE
+            const dAbertura = formatarDataBR(t[10]);
+            const dTriagem = formatarDataBR(t[15]); // Coluna P
+            const dPrevisao = formatarDataBR(t[12]);
+            const dConclusao = t[11] ? formatarDataBR(t[11]) : "---";
+
+            document.getElementById('timeAbertura').innerText = dAbertura;
+            document.getElementById('timeTriagem').innerText = dTriagem;
+            document.getElementById('timePrevisaoModal').innerText = dPrevisao;
+            document.getElementById('timeConclusao').innerText = dConclusao;
+
+            // LÓGICA PROGRESSO TIMELINE
+            const prog = document.getElementById('timelineProgress');
+            const sTri = document.getElementById('stepTriagem');
+            const sPre = document.getElementById('stepPrevisao');
+            const sCon = document.getElementById('stepConclusao');
+
+            [sTri, sPre, sCon].forEach(s => s.classList.remove('active'));
+            prog.style.width = "0%";
+
+            if (dAbertura !== "---") prog.style.width = "5%";
+            if (dTriagem !== "---") { prog.style.width = "33%"; sTri.classList.add('active'); }
+            if (dPrevisao !== "---") { prog.style.width = "66%"; sPre.classList.add('active'); }
+            if (dConclusao !== "---") { prog.style.width = "100%"; sCon.classList.add('active'); }
+
+            // Badge Status
+            const statusReal = calcularStatusReal(t);
+            const badge = document.getElementById('detalheStatusBadge');
+            badge.innerText = statusReal;
+            badge.className = `text-[10px] font-black uppercase px-2 py-0.5 rounded ${statusReal.includes('Análise') ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}`;
+            if(statusReal === 'Resolvido') badge.className = 'bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase px-2 py-0.5 rounded';
+
+            // Select Responsável
+            const sel = document.getElementById('selectResponsavelModal');
+            sel.innerHTML = '<option value="">Selecione...</option>';
+            LISTA_RESPONSAVEIS.forEach(r => sel.innerHTML += `<option value="${r}" ${t[14] === r ? 'selected' : ''}>${r}</option>`);
+
+            document.getElementById('modalDetalhes').classList.remove('hidden');
         }
 
+        // CARDS
+        function atualizarCardsGerais(dados) {
+            let ana = 0, and = 0, atr = 0, res = 0;
+            dados.forEach(d => {
+                const s = calcularStatusReal(d);
+                if(s === 'Resolvido') res++;
+                else if(s.includes('Análise')) ana++;
+                else if(s === 'Atrasado') atr++;
+                else and++;
+            });
+            document.getElementById('cardAnalise').innerText = ana;
+            document.getElementById('cardAndamento').innerText = and;
+            document.getElementById('cardAtraso').innerText = atr;
+            document.getElementById('cardResolvido').innerText = res;
+        }
+
+        // OPERAÇÕES DE API
         async function atualizarCampo(row, campo, valor) {
             try {
                 await fetch(WEB_APP_URL, {
@@ -337,63 +445,36 @@
             } catch (e) { }
         }
 
-        function atualizarCardsGerais(dados) {
-            let analise = 0, andamento = 0, atraso = 0, resolvido = 0;
-            dados.forEach(d => {
-                const s = calcularStatusReal(d);
-                if(s === 'Resolvido') resolvido++;
-                else if(s.includes('Análise')) analise++;
-                else if(s === 'Atrasado') atraso++;
-                else andamento++;
-            });
-            document.getElementById('cardAnalise').innerText = analise;
-            document.getElementById('cardAndamento').innerText = andamento;
-            document.getElementById('cardAtraso').innerText = atraso;
-            document.getElementById('cardResolvido').innerText = resolvido;
+        async function atualizarResponsavel(row, valor) {
+            await atualizarCampo(row, 'responsavel', valor);
+            setTimeout(carregarTickets, 1000);
         }
 
-        // Restante das funções de Modal, Detalhes e Dash (Mantidas da base mestre)
-        function verDetalhes(index) {
-            const t = dadosGlobais[index];
-            ticketAbertoAtual = { index: index, row: index + 2 };
-            document.getElementById('detalheID').innerText = t[0];
-            document.getElementById('detalheSeac').innerText = t[1];
-            document.getElementById('detalheForn').innerText = t[2];
-            document.getElementById('detalheRef').innerText = t[3];
-            document.getElementById('detalheCli').innerText = t[4] || "---";
-            document.getElementById('detalheQtd').innerText = t[5];
-            document.getElementById('detalheLote').innerText = t[6] || "---";
-            document.getElementById('detalheMotivo').innerText = t[7] || "Não informado";
-            document.getElementById('detalheObs').value = t[8] || "";
-            document.getElementById('timeAbertura').innerText = formatarDataBR(t[10]);
-            document.getElementById('timePrevisaoModal').innerText = formatarDataBR(t[12]);
-            document.getElementById('timeConclusao').innerText = t[11] ? formatarDataBR(t[11]) : "Pendente";
-            document.getElementById('detalheCriadoPor').innerText = t[13] || "N/I";
-            const statusReal = calcularStatusReal(t);
-            const badge = document.getElementById('detalheStatusBadge');
-            badge.innerText = statusReal;
-            
-            if(statusReal === 'Resolvido') badge.className = 'text-[10px] font-black uppercase px-2 py-0.5 rounded bg-emerald-100 text-emerald-700';
-            else if(statusReal.includes('Análise')) badge.className = 'text-[10px] font-black uppercase px-2 py-0.5 rounded bg-orange-100 text-orange-700';
-            else badge.className = 'text-[10px] font-black uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-700';
+        async function definirPrevisao(row, valor) {
+            if(!valor) return;
+            const hojeData = new Date().toLocaleDateString('pt-BR');
+            await atualizarCampo(row, 'previsao', valor);
+            await atualizarCampo(row, 'status', 'Em andamento');
+            await atualizarCampo(row, 'data_definicao', hojeData); // Salva na Coluna P
+            setTimeout(carregarTickets, 1000);
+        }
 
-            const selectModal = document.getElementById('selectResponsavelModal');
-            selectModal.innerHTML = '<option value="">Selecione um responsável...</option>';
-            LISTA_RESPONSAVEIS.forEach(resp => {
-                const opt = document.createElement('option');
-                opt.value = resp; opt.textContent = resp;
-                if(t[14] === resp) opt.selected = true;
-                selectModal.appendChild(opt);
-            });
-            document.getElementById('modalDetalhes').classList.remove('hidden');
+        async function salvarObservacao() {
+            const obs = document.getElementById('detalheObs').value;
+            const btn = document.getElementById('btnSalvarObs');
+            btn.disabled = true; btn.innerText = "Salvando...";
+            await atualizarCampo(ticketAbertoAtual.row, 'observacao', obs);
+            btn.disabled = false; btn.innerText = "Salvar Alterações";
+            setTimeout(carregarTickets, 500);
         }
 
         async function finalizarTicket(row) {
             if(!confirm("Concluir chamado?")) return;
-            try {
-                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update', row: row, status: 'Resolvido' }) });
-                setTimeout(carregarTickets, 1000);
-            } catch (e) { }
+            await fetch(WEB_APP_URL, { 
+                method: 'POST', mode: 'no-cors', 
+                body: JSON.stringify({ rota: 'pendencias', action: 'update', row: row, status: 'Resolvido' }) 
+            });
+            setTimeout(carregarTickets, 1000);
         }
 
         document.getElementById('formTicket').addEventListener('submit', async (e) => {
@@ -404,47 +485,32 @@
             if (payload.motivo === 'Outros') payload.motivo = document.getElementById('inputOutros').value;
             payload.rota = 'pendencias';
             payload.action = 'insert';
-            payload.status = 'Em Análise'; // Força o status inicial
             payload.criado_por = USUARIO_LOGADO;
-            try {
-                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                fecharModal(); e.target.reset();
-                setTimeout(carregarTickets, 1500);
-            } catch (e) { alert("Erro ao salvar."); }
-            finally { btn.disabled = false; }
+            await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            fecharModal(); e.target.reset();
+            setTimeout(carregarTickets, 1500);
+            btn.disabled = false;
         });
 
-        // Dashboard logic (mesma da base mestre)
-        function abrirDashboard() {
-            document.getElementById('modalDashboard').classList.remove('hidden');
-            const hoje = new Date();
-            const primeiroDia = new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString().split('T')[0];
-            const ultimoDia = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).toISOString().split('T')[0];
-            document.getElementById('dashDataInicio').value = primeiroDia;
-            document.getElementById('dashDataFim').value = ultimoDia;
-            processarDadosDash();
-        }
-        function fecharDashboard() { document.getElementById('modalDashboard').classList.add('hidden'); }
+        // DASHBOARD
         function processarDadosDash() {
-            const dataInicio = new Date(document.getElementById('dashDataInicio').value + "T00:00:00");
-            const dataFim = new Date(document.getElementById('dashDataFim').value + "T23:59:59");
-            const cont = { "Quebra fábrica": 0, "Quebra depósito/Loja": 0, "Quebra produto embalagem (Externa)": 0, "Outros": 0 };
+            const ini = new Date(document.getElementById('dashDataInicio').value + "T00:00:00");
+            const fim = new Date(document.getElementById('dashDataFim').value + "T23:59:59");
             let total = 0;
+            const cont = { "Quebra fábrica": 0, "Quebra depósito/Loja": 0, "Quebra produto embalagem (Externa)": 0, "Outros": 0 };
+            
             dadosGlobais.forEach(d => {
-                const dataAbertura = new Date(d[10]);
-                if (dataAbertura >= dataInicio && dataAbertura <= dataFim) {
+                const da = new Date(d[10]);
+                if (da >= ini && da <= fim) {
                     total++;
-                    const mot = d[7] || "";
-                    if (mot === "Quebra fábrica") cont["Quebra fábrica"]++;
-                    else if (mot === "Quebra depósito/Loja") cont["Quebra depósito/Loja"]++;
-                    else if (mot.includes("embalagem")) cont["Quebra produto embalagem (Externa)"]++;
-                    else cont["Outros"]++;
+                    const m = d[7] || "";
+                    if (cont[m] !== undefined) cont[m]++; else cont["Outros"]++;
                 }
             });
             document.getElementById('totalMesDash').innerText = total;
             renderizarGrafico(cont);
-            renderizarLegenda(cont);
         }
+
         function renderizarGrafico(cont) {
             const ctx = document.getElementById('graficoMotivos').getContext('2d');
             if(chartMotivos) chartMotivos.destroy();
@@ -452,21 +518,14 @@
                 type: 'doughnut',
                 data: {
                     labels: Object.keys(cont),
-                    datasets: [{
-                        data: Object.values(cont),
-                        backgroundColor: ['#E30613', '#1e293b', '#3b82f6', '#cbd5e1'],
-                        borderWidth: 0
-                    }]
+                    datasets: [{ data: Object.values(cont), backgroundColor: ['#E30613', '#1e293b', '#3b82f6', '#cbd5e1'], borderWidth: 0 }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
-        }
-        function renderizarLegenda(cont) {
-            const container = document.getElementById('listaLegendaDash');
-            container.innerHTML = '';
-            const cores = ['#E30613', '#1e293b', '#3b82f6', '#cbd5e1'];
-            Object.keys(cont).forEach((mot, i) => {
-                container.innerHTML += `<div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl"><div class="flex items-center gap-3"><div class="w-3 h-3 rounded-full" style="background:${cores[i]}"></div><span class="text-[10px] font-black uppercase text-gray-500">${mot}</span></div><span class="text-sm font-black text-gray-800">${cont[mot]}</span></div>`;
+            const leg = document.getElementById('listaLegendaDash');
+            leg.innerHTML = '';
+            Object.keys(cont).forEach((m, i) => {
+                leg.innerHTML += `<div class="flex justify-between p-3 bg-gray-50 rounded-xl"><span class="text-[10px] font-black uppercase">${m}</span><span class="font-bold">${cont[m]}</span></div>`;
             });
         }
 
