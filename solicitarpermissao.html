@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Solicitar Acesso - Vilarejo</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: { "primary": "#E30613" } } }
+        }
+    </script>
+
+    <style type="text/css">
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+    <div class="flex h-screen overflow-hidden">
+        
+        <aside class="w-64 bg-white border-r border-gray-200 p-6 flex flex-col justify-between hidden md:flex h-screen sticky top-0">
+            <div>
+                <div class="flex items-center gap-3 mb-10 pb-4 border-b border-gray-100">
+                    <img src="https://i.ibb.co/tPcWfmjT/VI-logo-novo-sem-fundo.png" alt="Logo Vilarejo" class="h-8 w-auto object-contain"/>
+                    <span class="text-xl font-bold text-gray-800">Monitor</span>
+                </div>
+
+                <div class="mb-8 px-2">
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Logado como:</p>
+                    <p id="displayNome" class="text-sm font-bold text-gray-800 truncate">Carregando...</p>
+                    <span id="displayPerfil" class="inline-block mt-1 px-2 py-0.5 bg-gray-100 text-[9px] font-bold text-gray-500 rounded uppercase border border-gray-200">
+                        Perfil: Usuário
+                    </span>
+                </div>
+
+                <div class="p-4 bg-orange-50 rounded-xl border border-orange-100">
+                    <p class="text-[10px] text-orange-700 font-bold uppercase leading-tight">Acesso Pendente</p>
+                    <p class="text-[9px] text-orange-600 mt-1">Sua conta está em análise pela administração.</p>
+                </div>
+            </div>
+
+            <div class="border-t pt-4">
+                <button onclick="logout()" class="flex items-center gap-3 p-3 w-full text-gray-500 hover:text-red-600 transition-colors font-medium">
+                    <span class="material-symbols-outlined">logout</span> Sair do Sistema
+                </button>
+            </div>
+        </aside>
+
+        <main class="flex-1 overflow-y-auto p-4 md:p-12 flex items-center justify-center no-scrollbar">
+            <div class="max-w-2xl w-full bg-white p-10 rounded-3xl shadow-xl border border-gray-100 text-center">
+                <div class="w-20 h-20 bg-red-50 text-primary rounded-full flex items-center justify-center mx-auto mb-6">
+                    <span class="material-symbols-outlined text-5xl">lock_person</span>
+                </div>
+                
+                <h1 class="text-2xl font-black text-gray-800 uppercase tracking-tight mb-4">Aguardando Liberação</h1>
+                
+                <p class="text-gray-600 leading-relaxed mb-8 font-medium">
+                    Para liberar acesso às funcionalidades do site, entre em contato com o <span class="font-bold text-gray-800">setor de compras</span> informando o seu nome de usuário (<span id="displayLogin" class="text-primary font-bold"></span>) e aguarde o acesso ser liberado.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100 flex items-center gap-3">
+                        <span class="material-symbols-outlined text-gray-400 font-bold">mail</span>
+                        <div class="text-left">
+                            <p class="text-[9px] font-black text-gray-400 uppercase">Suporte</p>
+                            <p class="text-xs font-bold text-gray-700">compras@vilarejo.com.br</p>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100 flex items-center gap-3">
+                        <span class="material-symbols-outlined text-gray-400 font-bold">schedule</span>
+                        <div class="text-left">
+                            <p class="text-[9px] font-black text-gray-400 uppercase">Prazo Médio</p>
+                            <p class="text-xs font-bold text-gray-700">Até 24h úteis</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="menu.js"></script>
+    <script>
+        // Preenche os dados do usuário na tela
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = localStorage.getItem('vilarejo_user') || 'Usuário';
+            const perm = localStorage.getItem('vilarejo_perm') || 'Usuário';
+            
+            document.getElementById('displayNome').innerText = user;
+            document.getElementById('displayLogin').innerText = user;
+            document.getElementById('displayPerfil').innerText = 'Perfil: ' + perm;
+        });
+
+        // Função de logout caso o menu.js não carregue a tempo
+        function logout() {
+            localStorage.removeItem('vilarejo_user');
+            localStorage.removeItem('vilarejo_perm');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
