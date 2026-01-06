@@ -313,7 +313,8 @@
                 
                 let color = 'bg-blue-100 text-blue-700';
                 if(sReal === 'Resolvido') color = 'bg-emerald-100 text-emerald-700';
-                else if(sReal.includes('Análise')) color = 'bg-orange-100 text-orange-700';
+                // A linha abaixo foi alterada para aceitar qualquer variação de "analise"
+                else if(sReal.toLowerCase().includes('análise') || sReal.toLowerCase().includes('analise')) color = 'bg-orange-100 text-orange-700';
                 else if(sReal === 'Atrasado') color = 'bg-red-100 text-red-700';
 
                 let dPrevRaw = linha[12];
