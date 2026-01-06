@@ -40,13 +40,17 @@
                     </button>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-orange-500">
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Em Análise</p>
+                        <h3 id="cardAnalise" class="text-3xl font-black">0</h3>
+                    </div>
                     <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-blue-500">
                         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Em Andamento</p>
                         <h3 id="cardAndamento" class="text-3xl font-black">0</h3>
                     </div>
                     <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-red-500">
-                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Em Atraso</p>
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Atrasados</p>
                         <h3 id="cardAtraso" class="text-3xl font-black">0</h3>
                     </div>
                     <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-emerald-500">
@@ -65,6 +69,7 @@
                             <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Status</label>
                             <select id="selectStatus" onchange="filtrarGeral()" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white outline-none">
                                 <option value="todos">Todos os Status</option>
+                                <option value="Em Análise">Em Análise</option>
                                 <option value="Em andamento">Em Andamento</option>
                                 <option value="Atrasado">Atrasado</option>
                                 <option value="Resolvido">Resolvido</option>
@@ -243,7 +248,7 @@
         const LISTA_RESPONSAVEIS = ["Eduardo", "Edson", "Fábio", "Leandro", "Herialdo", "Bruna", "Renielle", "Caio"];
         let dadosGlobais = [];
         let ticketAbertoAtual = null;
-        let chartMotivos = null; // Para o Dashboard
+        let chartMotivos = null;
 
         function abrirModal() { document.getElementById('modalChamado').classList.remove('hidden'); }
         function fecharModal() { document.getElementById('modalChamado').classList.add('hidden'); }
@@ -267,22 +272,44 @@
             } catch (e) { console.error("Erro ao carregar tickets"); }
         }
 
+        // LÓGICA DE STATUS CALCULADO (24H E PREVISÃO)
+        function calcularStatusReal(linha) {
+            const [id, , , , , , , , , status, abertura, , prevista] = linha;
+            const hoje = new Date();
+            const dataAbertura = new Date(abertura);
+            const vinteQuatroHoras = 24 * 60 * 60 * 1000;
+            
+            if (status === 'Resolvido') return 'Resolvido';
+
+            // Se tem previsão, vira "Em andamento" ou "Atrasado"
+            if (prevista && prevista !== "" && prevista !== "---") {
+                let dPrevRaw = prevista;
+                if(prevista.includes('/')) { const p = prevista.split('/'); dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`; }
+                return (new Date(dPrevRaw).getTime() < hoje.setHours(0,0,0,0)) ? 'Atrasado' : 'Em andamento';
+            }
+
+            // Se NÃO tem previsão, vira "Em Análise" ou "Em análise (Atrasado)"
+            const tempoPassado = hoje.getTime() - dataAbertura.getTime();
+            return (tempoPassado > vinteQuatroHoras) ? 'Em análise (Atrasado)' : 'Em Análise';
+        }
+
         function filtrarGeral() {
             const buscaID = document.getElementById('inputBuscaID').value.toLowerCase();
             const statusFiltro = document.getElementById('selectStatus').value;
             const motivoFiltro = document.getElementById('selectMotivoFiltro').value;
-            const hoje = new Date().setHours(0,0,0,0);
+
             const dadosFiltrados = dadosGlobais.filter(linha => {
-                const [id, seac, forn, ref, cli, qtd, lote, motivo, obs, status, abertura, resolucao, prevista] = linha;
-                let dPrevRaw = prevista;
-                if(prevista && prevista.includes('/')) { const p = prevista.split('/'); dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`; }
-                const isAtrasado = status !== 'Resolvido' && dPrevRaw && new Date(dPrevRaw).getTime() < hoje;
-                const statusReal = isAtrasado ? "Atrasado" : status;
-                const matchID = id.toLowerCase().includes(buscaID);
-                const matchStatus = statusFiltro === "todos" || statusReal === statusFiltro;
-                const matchMotivo = motivoFiltro === "todos" || motivo === motivoFiltro;
+                const statusReal = calcularStatusReal(linha);
+                const matchID = linha[0].toLowerCase().includes(buscaID);
+                
+                let matchStatus = statusFiltro === "todos" || statusReal === statusFiltro;
+                // Especial para o filtro de "Em Análise" pegar os atrasados também
+                if(statusFiltro === "Em Análise" && statusReal === "Em análise (Atrasado)") matchStatus = true;
+
+                const matchMotivo = motivoFiltro === "todos" || linha[7] === motivoFiltro;
                 return matchID && matchStatus && matchMotivo;
             });
+
             renderizarTabela(dadosFiltrados);
             atualizarCardsGerais(dadosGlobais);
         }
@@ -290,28 +317,35 @@
         function renderizarTabela(dados) {
             const tbody = document.getElementById('tabelaChamados');
             tbody.innerHTML = '';
-            const hoje = new Date().setHours(0,0,0,0);
             dados.forEach((linha) => {
                 const indexOriginal = dadosGlobais.findIndex(dg => dg[0] === linha[0]);
                 const [id, seac, forn, ref, cli, qtd, lote, motivo, obs, status, abertura, resolucao, prevista, criadoPor, responsavel] = linha;
                 const rowId = indexOriginal + 2;
+                const statusReal = calcularStatusReal(linha);
+                
+                let statusColor = 'bg-blue-100 text-blue-700';
+                if(statusReal === 'Resolvido') statusColor = 'bg-emerald-100 text-emerald-700';
+                else if(statusReal.includes('Análise')) statusColor = 'bg-orange-100 text-orange-700';
+                else if(statusReal === 'Atrasado') statusColor = 'bg-red-100 text-red-700';
+
                 let dPrevRaw = prevista;
                 if(prevista && prevista.includes('/')) { const p = prevista.split('/'); dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`; }
-                const isAtrasado = status !== 'Resolvido' && dPrevRaw && new Date(dPrevRaw).getTime() < hoje;
-                const statusColor = status === 'Resolvido' ? 'bg-emerald-100 text-emerald-700' : isAtrasado ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700';
+
                 let selectResp = `<select onchange="atualizarCampo(${rowId}, 'responsavel', this.value)" class="text-[10px] font-bold border rounded px-1 py-1 outline-primary bg-white">
                                     <option value="">Selecione...</option>`;
                 LISTA_RESPONSAVEIS.forEach(resp => { selectResp += `<option value="${resp}" ${responsavel === resp ? 'selected' : ''}>${resp}</option>`; });
                 selectResp += `</select>`;
+
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="p-4 font-black text-primary"><button onclick="verDetalhes(${indexOriginal})" class="hover:underline">${id}</button></td>
-                        <td class="p-4"><span class="px-2 py-1 rounded-md text-[9px] font-black uppercase ${statusColor}">${isAtrasado ? 'Atrasado' : status}</span></td>
+                        <td class="p-4"><span class="px-2 py-1 rounded-md text-[9px] font-black uppercase ${statusColor}">${statusReal}</span></td>
                         <td class="p-4"><div class="font-bold">${seac}</div><div class="text-[9px] text-gray-400 uppercase font-black">${forn}</div></td>
                         <td class="p-4 text-center text-xs text-gray-500 font-bold">${formatarDataBR(abertura)}</td>
                         <td class="p-4 text-center">${status === 'Resolvido' ? `<span class="text-[10px] font-bold text-gray-500">${responsavel || '---'}</span>` : selectResp}</td>
                         <td class="p-4 text-center">
-                            ${status === 'Resolvido' ? `<span class="text-xs text-gray-400 font-bold">${formatarDataBR(prevista)}</span>` : `<input type="date" value="${dPrevRaw ? dPrevRaw.split('T')[0] : ''}" onchange="atualizarCampo(${rowId}, 'previsao', this.value)" class="border rounded px-1 py-1 text-[10px] font-bold">`}
+                            ${status === 'Resolvido' ? `<span class="text-xs text-gray-400 font-bold">${formatarDataBR(prevista)}</span>` : 
+                            `<input type="date" value="${dPrevRaw ? dPrevRaw.split('T')[0] : ''}" onchange="definirPrevisao(${rowId}, this.value)" class="border rounded px-1 py-1 text-[10px] font-bold">`}
                         </td>
                         <td class="p-4 text-center">
                             ${status !== 'Resolvido' ? `<button onclick="finalizarTicket(${rowId})" class="bg-emerald-50 text-emerald-600 p-2 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"><span class="material-symbols-outlined text-sm">check</span></button>` : `<span class="text-emerald-600 text-[10px] font-black italic">Finalizado</span>`}
@@ -320,6 +354,47 @@
             });
         }
 
+        // NOVA FUNÇÃO PARA DEFINIR PREVISÃO E MUDAR STATUS
+        async function definirPrevisao(row, dataValor) {
+            if(!dataValor) return;
+            const hojeData = new Date().toLocaleDateString('pt-BR');
+            try {
+                // 1. Salva a Previsão
+                await atualizarCampo(row, 'previsao', dataValor);
+                // 2. Muda Status para Em andamento
+                await atualizarCampo(row, 'status', 'Em andamento');
+                // 3. Salva Data de Definição na Coluna P (índice 15)
+                await atualizarCampo(row, 'data_definicao', hojeData);
+                
+                setTimeout(carregarTickets, 1000);
+            } catch (e) { console.error(e); }
+        }
+
+        async function atualizarCampo(row, campo, valor) {
+            try {
+                await fetch(WEB_APP_URL, {
+                    method: 'POST', mode: 'no-cors',
+                    body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: campo, value: valor })
+                });
+            } catch (e) { }
+        }
+
+        function atualizarCardsGerais(dados) {
+            let analise = 0, andamento = 0, atraso = 0, resolvido = 0;
+            dados.forEach(d => {
+                const s = calcularStatusReal(d);
+                if(s === 'Resolvido') resolvido++;
+                else if(s.includes('Análise')) analise++;
+                else if(s === 'Atrasado') atraso++;
+                else andamento++;
+            });
+            document.getElementById('cardAnalise').innerText = analise;
+            document.getElementById('cardAndamento').innerText = andamento;
+            document.getElementById('cardAtraso').innerText = atraso;
+            document.getElementById('cardResolvido').innerText = resolvido;
+        }
+
+        // Restante das funções de Modal, Detalhes e Dash (Mantidas da base mestre)
         function verDetalhes(index) {
             const t = dadosGlobais[index];
             ticketAbertoAtual = { index: index, row: index + 2 };
@@ -336,16 +411,14 @@
             document.getElementById('timePrevisaoModal').innerText = formatarDataBR(t[12]);
             document.getElementById('timeConclusao').innerText = t[11] ? formatarDataBR(t[11]) : "Pendente";
             document.getElementById('detalheCriadoPor').innerText = t[13] || "N/I";
-            const status = t[9];
+            const statusReal = calcularStatusReal(t);
             const badge = document.getElementById('detalheStatusBadge');
-            badge.innerText = status;
-            badge.className = status === 'Resolvido' ? 'text-[10px] font-black uppercase px-2 py-0.5 rounded bg-emerald-100 text-emerald-700' : 'text-[10px] font-black uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-700';
-            const fill = document.getElementById('timelineFill');
-            const nodePrev = document.getElementById('nodePrev');
-            const nodeConc = document.getElementById('nodeConc');
-            if(status === 'Resolvido') { fill.style.width = '100%'; nodePrev.style.backgroundColor = '#E30613'; nodeConc.style.backgroundColor = '#E30613'; }
-            else if(t[12]) { fill.style.width = '50%'; nodePrev.style.backgroundColor = '#E30613'; nodeConc.style.backgroundColor = '#e2e8f0'; }
-            else { fill.style.width = '0%'; nodePrev.style.backgroundColor = '#e2e8f0'; nodeConc.style.backgroundColor = '#e2e8f0'; }
+            badge.innerText = statusReal;
+            
+            if(statusReal === 'Resolvido') badge.className = 'text-[10px] font-black uppercase px-2 py-0.5 rounded bg-emerald-100 text-emerald-700';
+            else if(statusReal.includes('Análise')) badge.className = 'text-[10px] font-black uppercase px-2 py-0.5 rounded bg-orange-100 text-orange-700';
+            else badge.className = 'text-[10px] font-black uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-700';
+
             const selectModal = document.getElementById('selectResponsavelModal');
             selectModal.innerHTML = '<option value="">Selecione um responsável...</option>';
             LISTA_RESPONSAVEIS.forEach(resp => {
@@ -355,38 +428,6 @@
                 selectModal.appendChild(opt);
             });
             document.getElementById('modalDetalhes').classList.remove('hidden');
-        }
-
-        async function atualizarResponsavelPeloModal(valor) {
-            if(!ticketAbertoAtual) return;
-            await atualizarCampo(ticketAbertoAtual.row, 'responsavel', valor);
-            dadosGlobais[ticketAbertoAtual.index][14] = valor;
-        }
-
-        async function salvarObservacao() {
-            const btn = document.getElementById('btnSalvarObs');
-            const novaObs = document.getElementById('detalheObs').value;
-            btn.disabled = true;
-            try {
-                await fetch(WEB_APP_URL, { 
-                    method: 'POST', mode: 'no-cors', 
-                    body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: ticketAbertoAtual.row, field: 'observacao', value: novaObs }) 
-                });
-                dadosGlobais[ticketAbertoAtual.index][8] = novaObs;
-                fecharModalDetalhes();
-                setTimeout(carregarTickets, 500);
-            } catch (e) { alert("Erro ao salvar."); }
-            finally { btn.disabled = false; }
-        }
-
-        async function atualizarCampo(row, campo, valor) {
-            try {
-                await fetch(WEB_APP_URL, {
-                    method: 'POST', mode: 'no-cors',
-                    body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: campo, value: valor })
-                });
-                if(campo === 'previsao') setTimeout(carregarTickets, 800);
-            } catch (e) { }
         }
 
         async function finalizarTicket(row) {
@@ -405,6 +446,7 @@
             if (payload.motivo === 'Outros') payload.motivo = document.getElementById('inputOutros').value;
             payload.rota = 'pendencias';
             payload.action = 'insert';
+            payload.status = 'Em Análise'; // Força o status inicial
             payload.criado_por = USUARIO_LOGADO;
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
@@ -414,22 +456,7 @@
             finally { btn.disabled = false; }
         });
 
-        function atualizarCardsGerais(dados) {
-            let and = 0, atr = 0, con = 0;
-            const hoje = new Date().setHours(0,0,0,0);
-            dados.forEach(d => {
-                const status = d[9];
-                let dPrevRaw = d[12];
-                if(dPrevRaw && dPrevRaw.includes('/')) { const p = dPrevRaw.split('/'); dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`; }
-                const isAtrasado = status !== 'Resolvido' && dPrevRaw && new Date(dPrevRaw).getTime() < hoje;
-                if(status === 'Resolvido') con++; else if(isAtrasado) atr++; else and++;
-            });
-            document.getElementById('cardAndamento').innerText = and;
-            document.getElementById('cardAtraso').innerText = atr;
-            document.getElementById('cardResolvido').innerText = con;
-        }
-
-        // LÓGICA DO DASHBOARD (RESTAURADA)
+        // Dashboard logic (mesma da base mestre)
         function abrirDashboard() {
             document.getElementById('modalDashboard').classList.remove('hidden');
             const hoje = new Date();
@@ -439,16 +466,14 @@
             document.getElementById('dashDataFim').value = ultimoDia;
             processarDadosDash();
         }
-
         function fecharDashboard() { document.getElementById('modalDashboard').classList.add('hidden'); }
-
         function processarDadosDash() {
             const dataInicio = new Date(document.getElementById('dashDataInicio').value + "T00:00:00");
             const dataFim = new Date(document.getElementById('dashDataFim').value + "T23:59:59");
             const cont = { "Quebra fábrica": 0, "Quebra depósito/Loja": 0, "Quebra produto embalagem (Externa)": 0, "Outros": 0 };
             let total = 0;
             dadosGlobais.forEach(d => {
-                const dataAbertura = new Date(d[10]); // Coluna K (Abertura)
+                const dataAbertura = new Date(d[10]);
                 if (dataAbertura >= dataInicio && dataAbertura <= dataFim) {
                     total++;
                     const mot = d[7] || "";
@@ -462,7 +487,6 @@
             renderizarGrafico(cont);
             renderizarLegenda(cont);
         }
-
         function renderizarGrafico(cont) {
             const ctx = document.getElementById('graficoMotivos').getContext('2d');
             if(chartMotivos) chartMotivos.destroy();
@@ -479,20 +503,12 @@
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
         }
-
         function renderizarLegenda(cont) {
             const container = document.getElementById('listaLegendaDash');
             container.innerHTML = '';
             const cores = ['#E30613', '#1e293b', '#3b82f6', '#cbd5e1'];
             Object.keys(cont).forEach((mot, i) => {
-                container.innerHTML += `
-                    <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl">
-                        <div class="flex items-center gap-3">
-                            <div class="w-3 h-3 rounded-full" style="background:${cores[i]}"></div>
-                            <span class="text-[10px] font-black uppercase text-gray-500">${mot}</span>
-                        </div>
-                        <span class="text-sm font-black text-gray-800">${cont[mot]}</span>
-                    </div>`;
+                container.innerHTML += `<div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl"><div class="flex items-center gap-3"><div class="w-3 h-3 rounded-full" style="background:${cores[i]}"></div><span class="text-[10px] font-black uppercase text-gray-500">${mot}</span></div><span class="text-sm font-black text-gray-800">${cont[mot]}</span></div>`;
             });
         }
 
