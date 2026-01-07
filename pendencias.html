@@ -428,16 +428,41 @@
         }
 
         document.getElementById('formTicket').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('btnSalvar'); btn.disabled = true;
-            const payload = Object.fromEntries(new FormData(e.target));
-            payload.criador = localStorage.getItem('vilarejo_user') || 'Sistema'; // Identifica criador
-            if (payload.motivo === 'Outros') payload.motivo = document.getElementById('inputOutros').value;
-            payload.rota = 'pendencias'; payload.action = 'insert';
-            await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            fecharModal(); e.target.reset(); setTimeout(carregarTickets, 1500);
-            btn.disabled = false;
+    e.preventDefault();
+    const btn = document.getElementById('btnSalvar'); 
+    btn.disabled = true;
+    btn.innerText = "Salvando...";
+
+    const payload = Object.fromEntries(new FormData(e.target));
+    
+    // AJUSTE AQUI: O nome da propriedade deve ser 'criado_por' para bater com o .gs
+    payload.criado_por = localStorage.getItem('vilarejo_user') || 'Sistema'; 
+    
+    if (payload.motivo === 'Outros') {
+        payload.motivo = document.getElementById('inputOutros').value;
+    }
+   
+    payload.rota = 'pendencias'; 
+    payload.action = 'insert';
+
+    try {
+        await fetch(WEB_APP_URL, { 
+            method: 'POST', 
+            mode: 'no-cors', 
+            body: JSON.stringify(payload) 
         });
+        
+        fecharModal(); 
+        e.target.reset(); 
+        setTimeout(carregarTickets, 1500);
+    } catch (error) {
+        console.error("Erro ao salvar ticket:", error);
+        alert("Erro ao salvar o ticket. Tente novamente.");
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "Salvar Ticket";
+    }
+});
 
         function atualizarCardsGerais(dados) {
             let ana = 0, and = 0, atr = 0, res = 0;
