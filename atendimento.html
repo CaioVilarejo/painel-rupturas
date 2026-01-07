@@ -20,7 +20,7 @@
 
     <style type="text/css">
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-        .chart-container { position: relative; height: 350px; width: 100%; }
+        .chart-container { position: relative; height: 380px; width: 100%; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
@@ -38,9 +38,9 @@
                     </div>
 
                     <div class="flex items-center gap-3 bg-white p-2 rounded-2xl shadow-sm border">
-                        <label class="text-[10px] font-black text-gray-400 uppercase ml-2">Período:</label>
-                        <select id="filtroMesAno" onchange="aplicarFiltros()" class="border-none bg-transparent font-bold text-sm outline-none focus:ring-0">
-                            <option value="todos">Todos os Meses</option>
+                        <label class="text-[10px] font-black text-gray-400 uppercase ml-2">Filtrar Período:</label>
+                        <select id="filtroMesAno" onchange="aplicarFiltros()" class="border-none bg-transparent font-bold text-sm outline-none focus:ring-0 cursor-pointer">
+                            <option value="todos">Todos os Meses (Histórico)</option>
                         </select>
                         <button onclick="carregarDadosAtendimento()" class="p-2 hover:bg-gray-100 rounded-xl transition-all">
                             <span class="material-symbols-outlined text-gray-600 text-sm">refresh</span>
@@ -50,40 +50,40 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <div class="bg-white p-6 rounded-3xl shadow-sm border">
-                        <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Total de Atendimentos</p>
+                        <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Total de Atendimentos no Período</p>
                         <h3 id="cardTotalAtendimentos" class="text-4xl font-black text-gray-800">0</h3>
                     </div>
                     <div class="bg-white p-6 rounded-3xl shadow-sm border">
-                        <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Vendedores Atendidos</p>
+                        <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Colaboradores Únicos</p>
                         <h3 id="cardColaboradoresUnicos" class="text-4xl font-black text-gray-800">0</h3>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                     <div class="bg-white p-6 rounded-3xl shadow-sm border">
-                        <h4 class="text-[10px] font-black text-gray-400 uppercase mb-6">Atendimentos por Loja (Total)</h4>
+                        <h4 class="text-[10px] font-black text-gray-400 uppercase mb-6">Atendimentos por Loja (Total Período)</h4>
                         <div class="chart-container"><canvas id="chartLojas"></canvas></div>
                     </div>
                     <div class="bg-white p-6 rounded-3xl shadow-sm border">
-                        <h4 class="text-[10px] font-black text-gray-400 uppercase mb-6">Média Mensal por Loja</h4>
+                        <h4 class="text-[10px] font-black text-gray-400 uppercase mb-6 text-blue-600">Média Mensal Histórica (Fixo)</h4>
                         <div class="chart-container"><canvas id="chartMediaLojas"></canvas></div>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                     <div class="bg-white p-6 rounded-3xl shadow-sm border">
-                        <h4 class="text-[10px] font-black text-gray-400 uppercase mb-6">Top 10 Vendedores (Total)</h4>
+                        <h4 class="text-[10px] font-black text-gray-400 uppercase mb-6">Top 10 Vendedores (Total Período)</h4>
                         <div class="chart-container"><canvas id="chartVendedores"></canvas></div>
                     </div>
                     <div class="bg-white p-6 rounded-3xl shadow-sm border">
-                        <h4 class="text-[10px] font-black text-gray-400 uppercase mb-6">Média Mensal por Vendedor</h4>
+                        <h4 class="text-[10px] font-black text-gray-400 uppercase mb-6 text-red-600">Média Mensal Histórica (Fixo)</h4>
                         <div class="chart-container"><canvas id="chartMediaVendedores"></canvas></div>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                     <div class="bg-white p-6 rounded-3xl shadow-sm border">
-                        <h4 class="text-[10px] font-black text-gray-400 uppercase mb-6">Líderes das Lojas (% de participação)</h4>
+                        <h4 class="text-[10px] font-black text-gray-400 uppercase mb-6">Líderes de Chamados por Loja (% de Part.)</h4>
                         <div class="chart-container"><canvas id="chartVendedorPorLoja"></canvas></div>
                     </div>
                     <div class="bg-white p-6 rounded-3xl shadow-sm border flex flex-col items-center">
@@ -110,27 +110,24 @@
                 dadosBrutos = await response.json();
                 popularFiltroMeses(dadosBrutos);
                 aplicarFiltros();
-            } catch (error) { console.error(error); }
+            } catch (error) { console.error("Erro ao carregar:", error); }
         }
 
         function popularFiltroMeses(dados) {
             const seletor = document.getElementById('filtroMesAno');
             const periodos = new Set();
-            
             dados.forEach(d => {
-                const data = new Date(d[7]); // Coluna H (Índice 7)
+                const data = new Date(d[7]); // Coluna H
                 if(!isNaN(data)){
                     const label = `${String(data.getMonth() + 1).padStart(2, '0')}/${data.getFullYear()}`;
                     periodos.add(label);
                 }
             });
-
             const ordenados = Array.from(periodos).sort((a,b) => {
                 const [mA, aA] = a.split('/'); const [mB, aB] = b.split('/');
                 return new Date(aA, mA) - new Date(aB, mB);
             });
-
-            seletor.innerHTML = '<option value="todos">Todos os Meses</option>';
+            seletor.innerHTML = '<option value="todos">Todos os Meses (Histórico)</option>';
             ordenados.forEach(p => seletor.innerHTML += `<option value="${p}">${p}</option>`);
         }
 
@@ -146,9 +143,9 @@
                 });
             }
             
-            // Calcular quantidade de meses no período para a média
-            const mesesNoPeriodo = (filtro === 'todos') ? contarMesesDiferentes(filtrados) : 1;
-            processarDashboard(filtrados, mesesNoPeriodo);
+            // Divisor sempre baseado no histórico total (meses de Junho até hoje)
+            const divisorHistorico = contarMesesDiferentes(dadosBrutos);
+            processarDashboard(filtrados, divisorHistorico);
         }
 
         function contarMesesDiferentes(dados) {
@@ -159,11 +156,14 @@
             return meses.size || 1;
         }
 
-        function processarDashboard(dados, divisorMedia) {
+        function processarDashboard(dadosFiltrados, divisorMediaHistorica) {
+            // Contagem Filtro (Para Totais e Líder por Loja)
             const contLojas = {}; const contVends = {}; const contResp = {}; const vendLoja = {};
+            // Contagem Geral (Para as Médias Históricas Fixas)
+            const contLojasGeral = {}; const contVendsGeral = {};
 
-            dados.forEach(d => {
-                const vend = d[2] || "Desconhecido"; const loja = d[3] || "Sem Loja"; const resp = d[11] || "Sem Atendente";
+            dadosFiltrados.forEach(d => {
+                const vend = d[2]; const loja = d[3]; const resp = d[11];
                 contLojas[loja] = (contLojas[loja] || 0) + 1;
                 contVends[vend] = (contVends[vend] || 0) + 1;
                 contResp[resp] = (contResp[resp] || 0) + 1;
@@ -171,28 +171,32 @@
                 vendLoja[loja][vend] = (vendLoja[loja][vend] || 0) + 1;
             });
 
-            document.getElementById('cardTotalAtendimentos').innerText = dados.length;
-            document.getElementById('cardColaboradoresUnicos').innerText = new Set(dados.map(d => d[2])).size;
+            dadosBrutos.forEach(d => {
+                contLojasGeral[d[3]] = (contLojasGeral[d[3]] || 0) + 1;
+                contVendsGeral[d[2]] = (contVendsGeral[d[2]] || 0) + 1;
+            });
 
-            // 1. Gráficos de Lojas (Total e Média)
-            const labelsLojas = Object.keys(contLojas);
-            renderHorizontalChart('chartLojas', labelsLojas, Object.values(contLojas), '#3b82f6', '');
-            renderHorizontalChart('chartMediaLojas', labelsLojas, labelsLojas.map(l => (contLojas[l]/divisorMedia).toFixed(1)), '#60a5fa', ' média/mês');
+            document.getElementById('cardTotalAtendimentos').innerText = dadosFiltrados.length;
+            document.getElementById('cardColaboradoresUnicos').innerText = new Set(dadosFiltrados.map(d => d[2])).size;
 
-            // 2. Gráficos de Vendedores (Total e Média)
+            // 1. Gráficos de Lojas
+            const labelsL = Object.keys(contLojas).sort();
+            renderHorizontalChart('chartLojas', labelsL, labelsL.map(l => contLojas[l] || 0), '#3b82f6', '');
+            renderHorizontalChart('chartMediaLojas', labelsL, labelsL.map(l => ((contLojasGeral[l] || 0) / divisorMediaHistorica).toFixed(1)), '#94a3b8', ' média/mês');
+
+            // 2. Gráficos de Vendedores
             const top10 = Object.entries(contVends).sort((a,b)=>b[1]-a[1]).slice(0,10);
             const labelsV = top10.map(v=>v[0]);
             renderHorizontalChart('chartVendedores', labelsV, top10.map(v=>v[1]), '#E30613', '');
-            renderHorizontalChart('chartMediaVendedores', labelsV, top10.map(v=>(v[1]/divisorMedia).toFixed(1)), '#f87171', ' média/mês');
+            renderHorizontalChart('chartMediaVendedores', labelsV, labelsV.map(v => ((contVendsGeral[v] || 0) / divisorMediaHistorica).toFixed(1)), '#fca5a5', ' média/mês');
 
-            // 3. Líder por Loja com %
+            // 3. Líder por Loja (% Baseado no Filtro Atual)
             const labelsLider = []; const valoresLider = []; const percsLider = [];
             Object.keys(vendLoja).forEach(loja => {
                 const lider = Object.entries(vendLoja[loja]).sort((a,b)=>b[1]-a[1])[0];
-                const totalLoja = contLojas[loja];
-                const percentual = ((lider[1] / totalLoja) * 100).toFixed(0);
-                
-                labelsLider.push(lider[0]); // Apenas nome do vendedor
+                const totalLojaFiltro = contLojas[loja];
+                const percentual = ((lider[1] / totalLojaFiltro) * 100).toFixed(0);
+                labelsLider.push(lider[0]);
                 valoresLider.push(lider[1]);
                 percsLider.push(`${percentual}%`);
             });
@@ -207,11 +211,11 @@
                 type: 'bar',
                 data: {
                     labels: labels,
-                    datasets: [{ data: data, backgroundColor: color, borderRadius: 5, barThickness: 15 }]
+                    datasets: [{ data: data, backgroundColor: color, borderRadius: 5, barThickness: 16 }]
                 },
                 options: {
                     indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-                    layout: { padding: { right: 60 } },
+                    layout: { padding: { right: 70 } },
                     plugins: {
                         legend: { display: false },
                         datalabels: {
@@ -222,7 +226,10 @@
                             }
                         }
                     },
-                    scales: { x: { display: false }, y: { grid: { display: false }, ticks: { font: { size: 9, weight: 'bold' } } } }
+                    scales: { 
+                        x: { display: false }, 
+                        y: { grid: { display: false }, ticks: { font: { size: 9, weight: 'bold' }, color: '#444' } } 
+                    }
                 }
             });
         }
@@ -238,7 +245,7 @@
                 options: {
                     responsive: true, maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'bottom', labels: { font: { size: 10, weight: 'bold' } } },
+                        legend: { position: 'bottom', labels: { font: { size: 10, weight: 'bold' }, padding: 15 } },
                         datalabels: { color: '#fff', font: { weight: 'bold', size: 10 } }
                     }
                 }
