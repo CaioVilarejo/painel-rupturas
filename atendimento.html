@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Atendimento - Vilarejo Monitor</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: { "primary": "#E30613" } } }
+        }
+    </script>
+
+    <style type="text/css">
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .chart-container { position: relative; height: 300px; width: 100%; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+    <div class="flex h-screen overflow-hidden">
+        <div id="sidebar-container"></div>
+
+        <main class="flex-1 overflow-y-auto p-4 md:p-8 no-scrollbar">
+            <div class="max-w-7xl mx-auto">
+                
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h1 class="text-xl font-black uppercase tracking-widest text-gray-800">Dashboard de Atendimento</h1>
+                        <p class="text-xs text-gray-500 font-bold">Análise de performance Octadesk/Interno</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="carregarDadosAtendimento()" class="bg-white text-gray-700 px-4 py-2 rounded-xl font-bold text-[10px] uppercase border border-gray-200 flex items-center gap-2 hover:bg-gray-50 transition-all">
+                            <span class="material-symbols-outlined text-sm">refresh</span> Atualizar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total de Atendimentos</p>
+                            <h3 id="cardTotalAtendimentos" class="text-4xl font-black text-gray-800">0</h3>
+                        </div>
+                        <div class="w-14 h-14 bg-red-50 text-primary rounded-2xl flex items-center justify-center">
+                            <span class="material-symbols-outlined text-3xl">forum</span>
+                        </div>
+                    </div>
+                    <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Colaboradores Únicos</p>
+                            <h3 id="cardColaboradoresUnicos" class="text-4xl font-black text-gray-800">0</h3>
+                        </div>
+                        <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
+                            <span class="material-symbols-outlined text-3xl">groups</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                        <h4 class="text-xs font-black text-gray-400 uppercase mb-6 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm">store</span> Atendimentos por Loja
+                        </h4>
+                        <div class="chart-container">
+                            <canvas id="chartLojas"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                        <h4 class="text-xs font-black text-gray-400 uppercase mb-6 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm">person_star</span> Top 10 Vendedores Mais Atendidos
+                        </h4>
+                        <div class="chart-container">
+                            <canvas id="chartVendedores"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                        <h4 class="text-xs font-black text-gray-400 uppercase mb-6 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm">leaderboard</span> Líder de Chamados por Loja
+                        </h4>
+                        <div class="chart-container">
+                            <canvas id="chartVendedorPorLoja"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                        <h4 class="text-xs font-black text-gray-400 uppercase mb-6 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm">support_agent</span> Performance por Responsável
+                        </h4>
+                        <div class="chart-container flex items-center justify-center">
+                            <canvas id="chartResponsaveis"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="menu.js"></script>
+    <script>
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbznCForFxpY6CAU6W3UgglusC8oqyfDz0dqM-l_95xtr9CK9TcFvbw_V7LJQk8jTZH-/exec';
+        
+        let charts = {};
+
+        async function carregarDadosAtendimento() {
+            try {
+                // Chamada para a rota de atendimento (GID=1750847129)
+                const response = await fetch(`${WEB_APP_URL}?rota=atendimento`);
+                const dados = await response.json();
+                processarDashboard(dados);
+            } catch (error) {
+                console.error("Erro ao carregar dados:", error);
+            }
+        }
+
+        function processarDashboard(dados) {
+            // Colunas: A-0, C-2 (Vendedor), D-3 (Loja), L-11 (Responsável)
+            const totalAtendimentos = dados.length;
+            const vendedoresUnicos = new Set(dados.map(d => d[2])).size;
+
+            document.getElementById('cardTotalAtendimentos').innerText = totalAtendimentos;
+            document.getElementById('cardColaboradoresUnicos').innerText = vendedoresUnicos;
+
+            // 1. Contagem por Loja (Coluna D / Índice 3)
+            const contagemLojas = {};
+            // 2. Contagem por Vendedor (Coluna C / Índice 2)
+            const contagemVendedores = {};
+            // 3. Contagem por Responsável (Coluna L / Índice 11)
+            const contagemResponsaveis = {};
+            // 4. Vendedor mais atendido POR Loja
+            const vendedorPorLoja = {}; // { 'Niterói': { 'Vendedor A': 10, 'Vendedor B': 5 } }
+
+            dados.forEach(d => {
+                const vendedor = d[2] || "Não Identificado";
+                const loja = d[3] || "Sem Loja";
+                const responsavel = d[11] || "Não Atribuído";
+
+                contagemLojas[loja] = (contagemLojas[loja] || 0) + 1;
+                contagemVendedores[vendedor] = (contagemVendedores[vendedor] || 0) + 1;
+                contagemResponsaveis[responsavel] = (contagemResponsaveis[responsavel] || 0) + 1;
+
+                if (!vendedorPorLoja[loja]) vendedorPorLoja[loja] = {};
+                vendedorPorLoja[loja][vendedor] = (vendedorPorLoja[loja][vendedor] || 0) + 1;
+            });
+
+            // Gerar Gráfico de Lojas
+            renderBarChart('chartLojas', Object.keys(contagemLojas), Object.values(contagemLojas), '#3b82f6');
+
+            // Gerar Top 10 Vendedores
+            const top10Vendedores = Object.entries(contagemVendedores)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+            renderBarChart('chartVendedores', top10Vendedores.map(v => v[0]), top10Vendedores.map(v => v[1]), '#E30613');
+
+            // Gerar Vendedor Líder por Loja
+            const labelsLojas = [];
+            const valoresLideres = [];
+            const nomesLideres = [];
+
+            Object.keys(vendedorPorLoja).forEach(loja => {
+                const melhorVendedor = Object.entries(vendedorPorLoja[loja])
+                    .sort((a, b) => b[1] - a[1])[0];
+                labelsLojas.push(loja);
+                valoresLideres.push(melhorVendedor[1]);
+                nomesLideres.push(melhorVendedor[0]);
+            });
+            renderBarChart('chartVendedorPorLoja', labelsLojas.map((l, i) => `${l} (${nomesLideres[i]})`), valoresLideres, '#111827');
+
+            // Gerar Gráfico de Responsáveis (Pizza)
+            renderPieChart('chartResponsaveis', Object.keys(contagemResponsaveis), Object.values(contagemResponsaveis));
+        }
+
+        function renderBarChart(id, labels, data, color) {
+            if (charts[id]) charts[id].destroy();
+            const ctx = document.getElementById(id).getContext('2d');
+            charts[id] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: color,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { display: false } },
+                        x: { grid: { display: false }, ticks: { font: { size: 9, weight: 'bold' } } }
+                    }
+                }
+            });
+        }
+
+        function renderPieChart(id, labels, data) {
+            if (charts[id]) charts[id].destroy();
+            const ctx = document.getElementById(id).getContext('2d');
+            charts[id] = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: ['#E30613', '#111827', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { font: { size: 10, weight: 'bold' }, padding: 20 } }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        window.onload = carregarDadosAtendimento;
+    </script>
+</body>
+</html>
