@@ -20,7 +20,7 @@
 
     <style type="text/css">
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-        .chart-container { position: relative; height: 450px; width: 100%; }
+        .chart-container { position: relative; height: 350px; width: 100%; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
@@ -31,56 +31,64 @@
         <main class="flex-1 overflow-y-auto p-4 md:p-8 no-scrollbar">
             <div class="max-w-7xl mx-auto">
                 
-                <div class="flex justify-between items-center mb-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                     <div>
                         <h1 class="text-2xl font-black uppercase tracking-tight text-gray-800">Métricas de Atendimento</h1>
-                        <p class="text-xs text-gray-500 font-bold uppercase tracking-widest">Extração de dados via Octadesk</p>
+                        <p class="text-xs text-gray-500 font-bold uppercase tracking-widest">Base Histórica desde Junho/2025</p>
                     </div>
-                    <button onclick="carregarDadosAtendimento()" class="bg-white border p-3 rounded-2xl hover:bg-gray-50 transition-all shadow-sm">
-                        <span class="material-symbols-outlined text-gray-600">refresh</span>
-                    </button>
+
+                    <div class="flex items-center gap-3 bg-white p-2 rounded-2xl shadow-sm border">
+                        <label class="text-[10px] font-black text-gray-400 uppercase ml-2">Período:</label>
+                        <select id="filtroMesAno" onchange="aplicarFiltros()" class="border-none bg-transparent font-bold text-sm outline-none focus:ring-0">
+                            <option value="todos">Todos os Meses</option>
+                        </select>
+                        <button onclick="carregarDadosAtendimento()" class="p-2 hover:bg-gray-100 rounded-xl transition-all">
+                            <span class="material-symbols-outlined text-gray-600 text-sm">refresh</span>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total de Atendimentos</p>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border">
+                        <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Total de Atendimentos</p>
                         <h3 id="cardTotalAtendimentos" class="text-4xl font-black text-gray-800">0</h3>
                     </div>
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Colaboradores Diferentes</p>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border">
+                        <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Vendedores Atendidos</p>
                         <h3 id="cardColaboradoresUnicos" class="text-4xl font-black text-gray-800">0</h3>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 gap-8 mb-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                     <div class="bg-white p-6 rounded-3xl shadow-sm border">
-                        <h4 class="text-xs font-black text-gray-400 uppercase mb-6">Atendimentos por Loja</h4>
-                        <div class="chart-container">
-                            <canvas id="chartLojas"></canvas>
-                        </div>
+                        <h4 class="text-[10px] font-black text-gray-400 uppercase mb-6">Atendimentos por Loja (Total)</h4>
+                        <div class="chart-container"><canvas id="chartLojas"></canvas></div>
                     </div>
-
                     <div class="bg-white p-6 rounded-3xl shadow-sm border">
-                        <h4 class="text-xs font-black text-gray-400 uppercase mb-6">Top 10 Vendedores Mais Atendidos</h4>
-                        <div class="chart-container">
-                            <canvas id="chartVendedores"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border">
-                        <h4 class="text-xs font-black text-gray-400 uppercase mb-6">Vendedor mais atendido (Líder por Loja)</h4>
-                        <div class="chart-container">
-                            <canvas id="chartVendedorPorLoja"></canvas>
-                        </div>
+                        <h4 class="text-[10px] font-black text-gray-400 uppercase mb-6">Média Mensal por Loja</h4>
+                        <div class="chart-container"><canvas id="chartMediaLojas"></canvas></div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-1 mb-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                     <div class="bg-white p-6 rounded-3xl shadow-sm border">
-                        <h4 class="text-xs font-black text-gray-400 uppercase mb-6">Atendimento por Responsável</h4>
-                        <div class="h-[400px] flex items-center justify-center">
-                            <canvas id="chartResponsaveis"></canvas>
-                        </div>
+                        <h4 class="text-[10px] font-black text-gray-400 uppercase mb-6">Top 10 Vendedores (Total)</h4>
+                        <div class="chart-container"><canvas id="chartVendedores"></canvas></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border">
+                        <h4 class="text-[10px] font-black text-gray-400 uppercase mb-6">Média Mensal por Vendedor</h4>
+                        <div class="chart-container"><canvas id="chartMediaVendedores"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border">
+                        <h4 class="text-[10px] font-black text-gray-400 uppercase mb-6">Líderes das Lojas (% de participação)</h4>
+                        <div class="chart-container"><canvas id="chartVendedorPorLoja"></canvas></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border flex flex-col items-center">
+                        <h4 class="text-[10px] font-black text-gray-400 uppercase mb-6 w-full">Atendimento por Responsável</h4>
+                        <div class="h-[300px] w-full"><canvas id="chartResponsaveis"></canvas></div>
                     </div>
                 </div>
 
@@ -91,126 +99,147 @@
     <script src="menu.js"></script>
     <script>
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbznCForFxpY6CAU6W3UgglusC8oqyfDz0dqM-l_95xtr9CK9TcFvbw_V7LJQk8jTZH-/exec';
-        
-        // Registrar o plugin de rótulos de dados globalmente
         Chart.register(ChartDataLabels);
 
+        let dadosBrutos = [];
         let charts = {};
 
         async function carregarDadosAtendimento() {
             try {
                 const response = await fetch(`${WEB_APP_URL}?rota=atendimento`);
-                const dados = await response.json();
-                processarDashboard(dados);
+                dadosBrutos = await response.json();
+                popularFiltroMeses(dadosBrutos);
+                aplicarFiltros();
             } catch (error) { console.error(error); }
         }
 
-        function processarDashboard(dados) {
-            const contagemLojas = {};
-            const contagemVendedores = {};
-            const contagemResponsaveis = {};
-            const vendedorPorLoja = {};
+        function popularFiltroMeses(dados) {
+            const seletor = document.getElementById('filtroMesAno');
+            const periodos = new Set();
+            
+            dados.forEach(d => {
+                const data = new Date(d[7]); // Coluna H (Índice 7)
+                if(!isNaN(data)){
+                    const label = `${String(data.getMonth() + 1).padStart(2, '0')}/${data.getFullYear()}`;
+                    periodos.add(label);
+                }
+            });
+
+            const ordenados = Array.from(periodos).sort((a,b) => {
+                const [mA, aA] = a.split('/'); const [mB, aB] = b.split('/');
+                return new Date(aA, mA) - new Date(aB, mB);
+            });
+
+            seletor.innerHTML = '<option value="todos">Todos os Meses</option>';
+            ordenados.forEach(p => seletor.innerHTML += `<option value="${p}">${p}</option>`);
+        }
+
+        function aplicarFiltros() {
+            const filtro = document.getElementById('filtroMesAno').value;
+            let filtrados = dadosBrutos;
+
+            if (filtro !== 'todos') {
+                filtrados = dadosBrutos.filter(d => {
+                    const data = new Date(d[7]);
+                    const label = `${String(data.getMonth() + 1).padStart(2, '0')}/${data.getFullYear()}`;
+                    return label === filtro;
+                });
+            }
+            
+            // Calcular quantidade de meses no período para a média
+            const mesesNoPeriodo = (filtro === 'todos') ? contarMesesDiferentes(filtrados) : 1;
+            processarDashboard(filtrados, mesesNoPeriodo);
+        }
+
+        function contarMesesDiferentes(dados) {
+            const meses = new Set(dados.map(d => {
+                const data = new Date(d[7]);
+                return isNaN(data) ? null : `${data.getMonth()}-${data.getFullYear()}`;
+            }).filter(i => i !== null));
+            return meses.size || 1;
+        }
+
+        function processarDashboard(dados, divisorMedia) {
+            const contLojas = {}; const contVends = {}; const contResp = {}; const vendLoja = {};
 
             dados.forEach(d => {
-                const vendedor = d[2] || "Desconhecido";
-                const loja = d[3] || "Sem Loja";
-                const responsavel = d[11] || "Sem Atendente";
-
-                contagemLojas[loja] = (contagemLojas[loja] || 0) + 1;
-                contagemVendedores[vendedor] = (contagemVendedores[vendedor] || 0) + 1;
-                contagemResponsaveis[responsavel] = (contagemResponsaveis[responsavel] || 0) + 1;
-
-                if (!vendedorPorLoja[loja]) vendedorPorLoja[loja] = {};
-                vendedorPorLoja[loja][vendedor] = (vendedorPorLoja[loja][vendedor] || 0) + 1;
+                const vend = d[2] || "Desconhecido"; const loja = d[3] || "Sem Loja"; const resp = d[11] || "Sem Atendente";
+                contLojas[loja] = (contLojas[loja] || 0) + 1;
+                contVends[vend] = (contVends[vend] || 0) + 1;
+                contResp[resp] = (contResp[resp] || 0) + 1;
+                if (!vendLoja[loja]) vendLoja[loja] = {};
+                vendLoja[loja][vend] = (vendLoja[loja][vend] || 0) + 1;
             });
 
             document.getElementById('cardTotalAtendimentos').innerText = dados.length;
             document.getElementById('cardColaboradoresUnicos').innerText = new Set(dados.map(d => d[2])).size;
 
-            // Gráfico de Lojas
-            renderHorizontalChart('chartLojas', Object.keys(contagemLojas), Object.values(contagemLojas), '#3b82f6');
+            // 1. Gráficos de Lojas (Total e Média)
+            const labelsLojas = Object.keys(contLojas);
+            renderHorizontalChart('chartLojas', labelsLojas, Object.values(contLojas), '#3b82f6', '');
+            renderHorizontalChart('chartMediaLojas', labelsLojas, labelsLojas.map(l => (contLojas[l]/divisorMedia).toFixed(1)), '#60a5fa', ' média/mês');
 
-            // Top 10 Vendedores
-            const top10 = Object.entries(contagemVendedores).sort((a,b)=>b[1]-a[1]).slice(0,10);
-            renderHorizontalChart('chartVendedores', top10.map(v=>v[0]), top10.map(v=>v[1]), '#E30613');
+            // 2. Gráficos de Vendedores (Total e Média)
+            const top10 = Object.entries(contVends).sort((a,b)=>b[1]-a[1]).slice(0,10);
+            const labelsV = top10.map(v=>v[0]);
+            renderHorizontalChart('chartVendedores', labelsV, top10.map(v=>v[1]), '#E30613', '');
+            renderHorizontalChart('chartMediaVendedores', labelsV, top10.map(v=>(v[1]/divisorMedia).toFixed(1)), '#f87171', ' média/mês');
 
-            // Líder por Loja
-            const labelsLojas = [];
-            const valoresLideres = [];
-            Object.keys(vendedorPorLoja).forEach(loja => {
-                const lider = Object.entries(vendedorPorLoja[loja]).sort((a,b)=>b[1]-a[1])[0];
-                labelsLojas.push(`${loja}: ${lider[0]}`);
-                valoresLideres.push(lider[1]);
+            // 3. Líder por Loja com %
+            const labelsLider = []; const valoresLider = []; const percsLider = [];
+            Object.keys(vendLoja).forEach(loja => {
+                const lider = Object.entries(vendLoja[loja]).sort((a,b)=>b[1]-a[1])[0];
+                const totalLoja = contLojas[loja];
+                const percentual = ((lider[1] / totalLoja) * 100).toFixed(0);
+                
+                labelsLider.push(lider[0]); // Apenas nome do vendedor
+                valoresLider.push(lider[1]);
+                percsLider.push(`${percentual}%`);
             });
-            renderHorizontalChart('chartVendedorPorLoja', labelsLojas, valoresLideres, '#111827');
+            renderHorizontalChart('chartVendedorPorLoja', labelsLider, valoresLider, '#111827', '', percsLider);
 
-            // Responsáveis (Pizza/Rosca)
-            renderPieChart('chartResponsaveis', Object.keys(contagemResponsaveis), Object.values(contagemResponsaveis));
+            renderPieChart('chartResponsaveis', Object.keys(contResp), Object.values(contResp));
         }
 
-        function renderHorizontalChart(id, labels, data, color) {
+        function renderHorizontalChart(id, labels, data, color, sufixo, extraInfo = []) {
             if (charts[id]) charts[id].destroy();
-            const ctx = document.getElementById(id).getContext('2d');
-            charts[id] = new Chart(ctx, {
+            charts[id] = new Chart(document.getElementById(id).getContext('2d'), {
                 type: 'bar',
                 data: {
                     labels: labels,
-                    datasets: [{
-                        data: data,
-                        backgroundColor: color,
-                        borderRadius: 6,
-                        barThickness: 20
-                    }]
+                    datasets: [{ data: data, backgroundColor: color, borderRadius: 5, barThickness: 15 }]
                 },
                 options: {
-                    indexAxis: 'y', // TORNA O GRÁFICO HORIZONTAL
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    layout: { padding: { right: 40 } }, // Espaço para o número não sumir
+                    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                    layout: { padding: { right: 60 } },
                     plugins: {
                         legend: { display: false },
-                        datalabels: { // CONFIGURAÇÃO DOS NÚMEROS FIXOS
-                            anchor: 'end',
-                            align: 'right',
-                            color: '#444',
-                            font: { weight: 'bold', size: 11 },
-                            formatter: Math.round
+                        datalabels: {
+                            anchor: 'end', align: 'right', color: '#333', font: { weight: 'bold', size: 10 },
+                            formatter: (val, ctx) => {
+                                const extra = extraInfo[ctx.dataIndex] ? ` (${extraInfo[ctx.dataIndex]})` : '';
+                                return val + sufixo + extra;
+                            }
                         }
                     },
-                    scales: {
-                        x: { display: false, grid: { display: false } },
-                        y: { 
-                            grid: { display: false },
-                            ticks: { font: { size: 10, weight: 'bold' }, color: '#333' } 
-                        }
-                    }
+                    scales: { x: { display: false }, y: { grid: { display: false }, ticks: { font: { size: 9, weight: 'bold' } } } }
                 }
             });
         }
 
         function renderPieChart(id, labels, data) {
             if (charts[id]) charts[id].destroy();
-            const ctx = document.getElementById(id).getContext('2d');
-            charts[id] = new Chart(ctx, {
+            charts[id] = new Chart(document.getElementById(id).getContext('2d'), {
                 type: 'doughnut',
                 data: {
                     labels: labels,
-                    datasets: [{
-                        data: data,
-                        backgroundColor: ['#E30613', '#111827', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'],
-                        borderWidth: 2
-                    }]
+                    datasets: [{ data: data, backgroundColor: ['#E30613', '#111827', '#3b82f6', '#10b981', '#f59e0b'], borderWidth: 0 }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    responsive: true, maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'bottom', labels: { font: { size: 11, weight: 'bold' }, padding: 20 } },
-                        datalabels: {
-                            color: '#fff',
-                            font: { weight: 'bold', size: 12 },
-                            formatter: (value) => value
-                        }
+                        legend: { position: 'bottom', labels: { font: { size: 10, weight: 'bold' } } },
+                        datalabels: { color: '#fff', font: { weight: 'bold', size: 10 } }
                     }
                 }
             });
