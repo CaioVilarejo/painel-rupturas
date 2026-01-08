@@ -133,6 +133,12 @@
                 <input type="text" name="referencia" placeholder="Referência" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
                 <input type="text" name="cod_cliente" placeholder="Cód Cliente" class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
                 <input type="number" name="quantidade" step="any" placeholder="Quantidade (ex: 2,5)" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
+                <select name="um" required class="p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary">
+    <option value="" disabled selected>UM.</option>
+    <option value="UN">UN</option>
+    <option value="M2">M²</option>
+    <option value="SC">SC</option>
+</select>
                 <input type="text" name="lote" placeholder="Tonalidade / Lote" class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
                 <div class="col-span-full">
                     <select name="motivo" onchange="toggleOutros(this.value)" class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold">
@@ -189,7 +195,7 @@
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Motivo</label><p id="detalheMotivo" class="font-bold text-red-600 uppercase"></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Referência</label><p id="detalheRef" class="font-bold text-gray-800"></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Cód. Cliente</label><p id="detalheCli" class="font-bold text-blue-700"></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Quantidade</label><p id="detalheQtd" class="font-bold text-gray-800"></p></div>
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Quantidade / UM.</label><p class="font-bold text-gray-800"><span id="detalheQtd"></span> <span id="detalheUM" class="text-primary"></span></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Tonalidade / Lote</label><p id="detalheLote" class="font-bold text-gray-800"></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Criado por</label><p id="detalheCriador" class="font-bold text-gray-800 italic"></p></div>
                 </div>
@@ -362,6 +368,7 @@
             document.getElementById('detalheRef').innerText = t[3];
             document.getElementById('detalheCli').innerText = t[4] || "---";
             document.getElementById('detalheQtd').innerText = t[5];
+            document.getElementById('detalheUM').innerText = t[16] || ""; // Coluna Q (Índice 16)
             document.getElementById('detalheLote').innerText = t[6] || "---";
             document.getElementById('detalheMotivo').innerText = t[7] || "---";
             document.getElementById('detalheCriador').innerText = t[13] || "---"; // CRIADO POR (Coluna N)
