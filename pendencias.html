@@ -367,7 +367,9 @@
             document.getElementById('detalheForn').innerText = t[2];
             document.getElementById('detalheRef').innerText = t[3];
             document.getElementById('detalheCli').innerText = t[4] || "---";
-            document.getElementById('detalheQtd').innerText = t[5];
+            // O String() garante que qualquer número vire texto antes do replace
+            const qtdOriginal = t[5] !== undefined && t[5] !== null ? t[5] : "0";
+            document.getElementById('detalheQtd').innerText = String(qtdOriginal).replace('.', ',');
             document.getElementById('detalheUM').innerText = t[16] || ""; // Coluna Q (Índice 16)
             document.getElementById('detalheLote').innerText = t[6] || "---";
             document.getElementById('detalheMotivo').innerText = t[7] || "---";
