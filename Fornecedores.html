@@ -173,7 +173,7 @@
             document.getElementById(type === 'grupos' ? 'labelGrupoTopo' : 'labelFornTopo').innerText = (type === 'grupos' ? 'Grupos: ' : 'Forns: ') + txt;
             document.getElementById(type === 'grupos' ? 'labelGrupoTab' : 'labelFornTab').innerText = (type === 'grupos' ? 'Grupos: ' : 'Forns: ') + txt;
             
-            // Sincronizar todos os checkboxes com o mesmo valor
+            // Sincronizar todos os checkboxes com o mesmo valor (Mudança comentario para commit)
             document.querySelectorAll(`input[value="${val}"]`).forEach(cb => cb.checked = checked);
             processarDashboard();
         }
