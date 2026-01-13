@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Dashboard Fornecedores Pro - Vilarejo Monitor</title>
+    <title>Vilarejo Monitor - BI Avançado</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
@@ -14,92 +14,111 @@
 
     <script>
         tailwind.config = {
-            theme: { extend: { colors: { "primary": "#E30613", "secondary": "#121212", "chart-24": "#94a3b8", "chart-25": "#3b82f6" } } }
+            theme: { extend: { colors: { "primary": "#E30613", "secondary": "#121212", "chart-24": "#94a3b8", "chart-25": "#121212" } } }
         }
     </script>
     <style>
-        body { font-family: 'Roboto', sans-serif; }
-        .card-shadow { box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05); }
+        body { font-family: 'Roboto', sans-serif; background-color: #f8fafc; }
+        .card-shadow { box-shadow: 0 4px 15px -1px rgba(0,0,0,0.05); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        th { cursor: pointer; user-select: none; }
-        th:hover { background-color: #f1f5f9; }
+        th { cursor: pointer; user-select: none; transition: all 0.2s; }
+        th:hover { background-color: #e2e8f0 !important; }
+        
+        /* Estilo para os novos Multi-Selects */
+        .dropdown-content { display: none; position: absolute; background-color: white; min-width: 250px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 50; border-radius: 12px; border: 1px solid #e2e8f0; padding: 12px; max-height: 400px; overflow-y: auto; }
+        .show { display: block; }
     </style>
 </head>
-<body class="bg-gray-50 antialiased no-scrollbar">
+<body class="antialiased no-scrollbar">
 
     <div class="flex h-screen overflow-hidden">
         <main class="flex-1 overflow-y-auto p-6 lg:p-10 no-scrollbar">
-            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 border-b pb-8">
+            
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 border-b pb-8">
                 <div>
-                    <h1 class="text-3xl font-black text-gray-900 tracking-tight text-primary uppercase">Vilarejo Monitor</h1>
-                    <p class="text-gray-500 font-bold uppercase text-[10px] tracking-[3px]">Performance de Fornecedores 24 vs 25</p>
-                    <p id="lastUpdate" class="text-xs text-gray-400 mt-1 italic">Sincronizando...</p>
+                    <h1 class="text-3xl font-black text-secondary tracking-tight uppercase">Vilarejo Monitor</h1>
+                    <p class="text-gray-400 font-bold uppercase text-[10px] tracking-[3px]">Inteligência Comercial 24 vs 25</p>
                 </div>
 
-                <div class="flex flex-wrap gap-3">
-                    <div class="flex flex-col">
-                        <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">Grupo de Produtos</label>
-                        <select id="filtroGrupo" onchange="processarDashboard()" class="bg-white border rounded-xl text-sm font-bold px-4 py-2 shadow-sm outline-none focus:ring-2 focus:ring-chart-25">
-                            <option value="todos">Todos os Grupos</option>
-                        </select>
+                <div class="flex flex-wrap gap-4">
+                    <div class="relative">
+                        <label class="text-[10px] font-bold text-gray-500 uppercase mb-1 block ml-1">Filtrar Grupos</label>
+                        <button onclick="toggleDropdown('dropGrupo')" class="bg-white border rounded-xl text-sm font-bold px-4 py-2.5 shadow-sm flex items-center gap-2 min-w-[180px] justify-between">
+                            <span id="labelGrupo">Todos os Grupos</span>
+                            <span class="material-symbols-outlined text-sm">expand_more</span>
+                        </button>
+                        <div id="dropGrupo" class="dropdown-content mt-2">
+                            <input type="text" placeholder="Buscar grupo..." onkeyup="filterList('listGrupo', this)" class="w-full border rounded-lg p-2 mb-3 text-sm outline-none focus:ring-1 focus:ring-secondary">
+                            <div id="listGrupo" class="space-y-2 max-h-60 overflow-y-auto pr-2"></div>
+                        </div>
                     </div>
+
+                    <div class="relative">
+                        <label class="text-[10px] font-bold text-gray-500 uppercase mb-1 block ml-1">Filtrar Fornecedores</label>
+                        <button onclick="toggleDropdown('dropForn')" class="bg-white border rounded-xl text-sm font-bold px-4 py-2.5 shadow-sm flex items-center gap-2 min-w-[220px] justify-between">
+                            <span id="labelForn">Todos Fornecedores</span>
+                            <span class="material-symbols-outlined text-sm">expand_more</span>
+                        </button>
+                        <div id="dropForn" class="dropdown-content mt-2">
+                            <input type="text" placeholder="Buscar fornecedor..." onkeyup="filterList('listForn', this)" class="w-full border rounded-lg p-2 mb-3 text-sm outline-none focus:ring-1 focus:ring-secondary">
+                            <div id="listForn" class="space-y-2 max-h-60 overflow-y-auto pr-2"></div>
+                        </div>
+                    </div>
+
                     <div class="flex items-end">
-                        <button onclick="carregarDados()" class="flex items-center gap-2 px-5 py-2 bg-secondary text-white rounded-xl font-bold text-sm hover:bg-black transition-all shadow-md">
-                            <span class="material-symbols-outlined text-sm">refresh</span> Atualizar
+                        <button onclick="carregarDados()" class="px-5 py-2.5 bg-secondary text-white rounded-xl font-bold text-sm hover:bg-black transition-all shadow-md">
+                            <span class="material-symbols-outlined text-sm align-middle">refresh</span>
                         </button>
                     </div>
                 </div>
             </header>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
                 <div class="bg-white p-6 rounded-2xl border card-shadow">
                     <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Venda Total 2024</p>
-                    <h3 id="cardVenda24" class="text-2xl font-black text-gray-600">R$ 0,00</h3>
+                    <h3 id="cardVenda24" class="text-2xl font-black text-chart-24">R$ 0</h3>
                 </div>
                 <div class="bg-white p-6 rounded-2xl border card-shadow">
                     <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Venda Total 2025</p>
-                    <h3 id="cardVenda25" class="text-2xl font-black text-chart-25">R$ 0,00</h3>
+                    <h3 id="cardVenda25" class="text-2xl font-black text-secondary">R$ 0</h3>
                 </div>
                 <div class="bg-white p-6 rounded-2xl border card-shadow border-l-4 border-primary">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Crescimento Venda</p>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Variação %</p>
                     <h3 id="cardVarVenda" class="text-2xl font-black text-primary">0%</h3>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border card-shadow">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Estoque Físico</p>
+                    <h3 id="cardEstoque" class="text-2xl font-black text-gray-800">0</h3>
                 </div>
             </div>
 
             <div class="space-y-8 mb-12">
                 <div class="bg-white rounded-3xl border card-shadow p-8">
-                    <h3 class="font-black text-sm text-gray-800 uppercase tracking-widest mb-8">Top 10 Maiores Vendas (2025)</h3>
-                    <div class="relative h-[500px] w-full">
+                    <h3 class="font-black text-sm text-gray-800 uppercase tracking-widest mb-8">Maiores Vendas (2025)</h3>
+                    <div class="relative h-[550px] w-full">
                         <canvas id="chartTop10"></canvas>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-3xl border card-shadow p-8">
-                    <h3 class="font-black text-sm text-gray-800 uppercase tracking-widest mb-8 text-primary">10 Menores Vendas (2025)</h3>
-                    <div class="relative h-[500px] w-full">
-                        <canvas id="chartBottom10"></canvas>
                     </div>
                 </div>
             </div>
 
             <div class="bg-white rounded-3xl border card-shadow overflow-hidden mb-12">
-                <div class="p-6 border-b bg-gray-50/50">
-                    <h3 class="font-black text-sm text-gray-800 uppercase tracking-widest italic">Visão Analítica Geral (Clique no título para ordenar)</h3>
+                <div class="p-6 border-b bg-gray-50 flex justify-between items-center">
+                    <h3 class="font-black text-sm text-gray-800 uppercase tracking-widest">Visão Analítica Geral</h3>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm" id="tabelaFornecedores">
+                    <table class="w-full text-left" id="tabelaFornecedores">
                         <thead>
-                            <tr class="text-[10px] font-black text-gray-400 uppercase border-b bg-gray-50">
-                                <th onclick="ordenarPor('fornecedor')" class="px-8 py-5">Fornecedor <span id="sort_fornecedor"></span></th>
-                                <th onclick="ordenarPor('venda24')" class="px-6 py-5 text-right">Venda 2024 <span id="sort_venda24"></span></th>
-                                <th onclick="ordenarPor('venda25')" class="px-6 py-5 text-right font-bold text-gray-900">Venda 2025 <span id="sort_venda25"></span></th>
-                                <th onclick="ordenarPor('varVenda')" class="px-6 py-5 text-center">Var. Venda <span id="sort_varVenda"></span></th>
-                                <th onclick="ordenarPor('margem24')" class="px-6 py-5 text-center">Margem 24 <span id="sort_margem24"></span></th>
-                                <th onclick="ordenarPor('margem25')" class="px-6 py-5 text-center font-bold text-primary">Margem 25 <span id="sort_margem25"></span></th>
-                                <th onclick="ordenarPor('estoque')" class="px-6 py-5 text-right">Estoque <span id="sort_estoque"></span></th>
+                            <tr class="text-[12px] font-black text-secondary uppercase border-b bg-gray-100">
+                                <th onclick="ordenarPor('fornecedor')" class="px-8 py-6">Fornecedor <span id="sort_fornecedor"></span></th>
+                                <th onclick="ordenarPor('venda24')" class="px-6 py-6 text-right">Venda 2024 <span id="sort_venda24"></span></th>
+                                <th onclick="ordenarPor('venda25')" class="px-6 py-6 text-right">Venda 2025 <span id="sort_venda25"></span></th>
+                                <th onclick="ordenarPor('varVenda')" class="px-6 py-6 text-center">Var. % <span id="sort_varVenda"></span></th>
+                                <th onclick="ordenarPor('margem24')" class="px-6 py-6 text-center">Margem 24 <span id="sort_margem24"></span></th>
+                                <th onclick="ordenarPor('margem25')" class="px-6 py-6 text-center">Margem 25 <span id="sort_margem25"></span></th>
+                                <th onclick="ordenarPor('estoque')" class="px-6 py-6 text-right">Estoque <span id="sort_estoque"></span></th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100 font-medium text-gray-700 text-xs italic"></tbody>
+                        <tbody class="divide-y divide-gray-100 font-medium text-gray-700 text-sm"></tbody>
                     </table>
                 </div>
             </div>
@@ -110,31 +129,79 @@
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?gid=1981344719&output=csv';
         
         let dadosTratados = [];
-        let dadosFiltradosAtuais = [];
-        let chartTop = null, chartBottom = null;
+        let filtrosAtivos = { grupos: [], fornecedores: [] };
+        let chartTop = null;
         let ordenacaoAtual = { coluna: '', ordem: 'desc' };
 
-        // Registrar o plugin de datalabels globalmente
         Chart.register(ChartDataLabels);
 
-        function abreviarNome(nome) {
-            if (!nome) return "";
-            const partes = nome.trim().split(/\s+/);
-            return partes.length <= 1 ? nome : `${partes[0]} ${partes[partes.length - 1]}`;
+        // --- LÓGICA DE FILTROS MULTI-SELECT ---
+        function toggleDropdown(id) {
+            document.getElementById(id).classList.toggle("show");
         }
 
+        window.onclick = function(event) {
+            if (!event.target.closest('.relative')) {
+                document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show'));
+            }
+        }
+
+        function filterList(listId, input) {
+            let filter = input.value.toUpperCase();
+            let divs = document.getElementById(listId).getElementsByTagName("div");
+            for (let i = 0; i < divs.length; i++) {
+                let txtValue = divs[i].textContent || divs[i].innerText;
+                divs[i].style.display = txtValue.toUpperCase().indexOf(filter) > -1 ? "" : "none";
+            }
+        }
+
+        function buildMultiSelect(listId, items, type) {
+            const container = document.getElementById(listId);
+            container.innerHTML = "";
+            items.forEach(item => {
+                const div = document.createElement("div");
+                div.className = "flex items-center gap-3 hover:bg-gray-50 p-1 rounded cursor-pointer";
+                div.innerHTML = `
+                    <input type="checkbox" value="${item}" class="rounded text-secondary w-4 h-4" onchange="updateFiltros('${type}', this)">
+                    <span class="text-sm font-medium text-gray-700">${item}</span>
+                `;
+                div.onclick = (e) => {
+                    if(e.target.tagName !== 'INPUT') {
+                        const cb = div.querySelector('input');
+                        cb.checked = !cb.checked;
+                        updateFiltros(type, cb);
+                    }
+                };
+                container.appendChild(div);
+            });
+        }
+
+        function updateFiltros(type, checkbox) {
+            const val = checkbox.value;
+            if (checkbox.checked) {
+                filtrosAtivos[type].push(val);
+            } else {
+                filtrosAtivos[type] = filtrosAtivos[type].filter(i => i !== val);
+            }
+            
+            document.getElementById(type === 'grupos' ? 'labelGrupo' : 'labelForn').innerText = 
+                filtrosAtivos[type].length > 0 ? `${filtrosAtivos[type].length} selecionado(s)` : "Todos";
+            
+            processarDashboard();
+        }
+
+        // --- TRATAMENTO DE DADOS ---
         function formatarMoedaParaNumero(valor) {
             if (!valor || valor === "" || valor === "-") return 0;
             let limpo = valor.toString().replace(/\./g, '').replace(',', '.').replace(/[R$\s%]/g, '').trim();
             return parseFloat(limpo) || 0;
         }
 
-        function formatarBRL(valor) {
-            return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+        function formatarInteiro(valor) {
+            return valor.toLocaleString('pt-BR', { maximumFractionDigits: 0 });
         }
 
         async function carregarDados() {
-            document.getElementById('lastUpdate').innerText = "Sincronizando...";
             Papa.parse(CSV_URL, {
                 download: true, header: false, skipEmptyLines: true,
                 complete: function(results) {
@@ -143,130 +210,110 @@
                         fornecedor: col[0], grupo: col[1], custo24: col[2], custo25: col[3], varCusto: col[4],
                         venda24: col[5], venda25: col[6], varVenda: col[7], margem24: col[8], margem25: col[9], estoque: col[10]
                     }));
-                    popularFiltroGrupo();
+
+                    const gruposUnicos = [...new Set(dadosTratados.map(d => d.grupo))].filter(g => g).sort();
+                    const fornsUnicos = [...new Set(dadosTratados.map(d => d.fornecedor))].filter(f => f).sort();
+                    
+                    buildMultiSelect('listGrupo', gruposUnicos, 'grupos');
+                    buildMultiSelect('listForn', fornsUnicos, 'fornecedores');
+                    
                     processarDashboard();
-                    document.getElementById('lastUpdate').innerText = `Atualizado em: ${new Date().toLocaleTimeString()}`;
                 }
             });
         }
 
-        function popularFiltroGrupo() {
-            const select = document.getElementById('filtroGrupo');
-            const grupos = [...new Set(dadosTratados.map(d => d.grupo))].filter(g => g).sort();
-            select.innerHTML = '<option value="todos">Todos os Grupos</option>';
-            grupos.forEach(g => {
-                const opt = document.createElement('option');
-                opt.value = g; opt.textContent = g;
-                select.appendChild(opt);
+        function processarDashboard() {
+            let filtrados = dadosTratados;
+            
+            if (filtrosAtivos.grupos.length > 0) {
+                filtrados = filtrados.filter(d => filtrosAtivos.grupos.includes(d.grupo));
+            }
+            if (filtrosAtivos.fornecedores.length > 0) {
+                filtrados = filtrados.filter(d => filtrosAtivos.fornecedores.includes(d.fornecedor));
+            }
+
+            // Cards
+            const v24 = filtrados.reduce((a, b) => a + formatarMoedaParaNumero(b.venda24), 0);
+            const v25 = filtrados.reduce((a, b) => a + formatarMoedaParaNumero(b.venda25), 0);
+            const est = filtrados.reduce((a, b) => a + formatarMoedaParaNumero(b.estoque), 0);
+            const varVenda = v24 > 0 ? ((v25 - v24) / v24) * 100 : 0;
+
+            document.getElementById('cardVenda24').innerText = "R$ " + formatarInteiro(v24);
+            document.getElementById('cardVenda25').innerText = "R$ " + formatarInteiro(v25);
+            document.getElementById('cardEstoque').innerText = formatarInteiro(est);
+            document.getElementById('cardVarVenda').innerText = (varVenda > 0 ? '+' : '') + varVenda.toFixed(1) + '%';
+
+            renderizarGraficos(filtrados);
+            renderizarTabela(filtrados);
+        }
+
+        function renderizarGraficos(dados) {
+            if (chartTop) chartTop.destroy();
+            const top15 = [...dados].sort((a, b) => formatarMoedaParaNumero(b.venda25) - formatarMoedaParaNumero(a.venda25)).slice(0, 15);
+
+            chartTop = new Chart(document.getElementById('chartTop10'), {
+                type: 'bar',
+                data: {
+                    labels: top15.map(d => d.fornecedor.split(' ')[0] + ' ' + (d.fornecedor.split(' ').pop())),
+                    datasets: [
+                        { label: '2024', data: top15.map(d => formatarMoedaParaNumero(d.venda24)), backgroundColor: '#94a3b8', borderRadius: 4 },
+                        { label: '2025', data: top15.map(d => formatarMoedaParaNumero(d.venda25)), backgroundColor: '#121212', borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', align: 'end' },
+                        datalabels: {
+                            anchor: 'end', align: 'right',
+                            formatter: (val) => val > 0 ? val.toLocaleString('pt-BR', { maximumFractionDigits: 0 }) : '',
+                            font: { weight: 'bold', size: 10 }, color: '#121212'
+                        },
+                        tooltip: { callbacks: { title: (ctx) => top15[ctx[0].dataIndex].fornecedor } }
+                    },
+                    scales: { 
+                        x: { display: false }, 
+                        y: { ticks: { font: { weight: 'bold' } } } 
+                    }
+                }
             });
         }
 
-        function processarDashboard() {
-            const filtro = document.getElementById('filtroGrupo').value;
-            dadosFiltradosAtuais = filtro === 'todos' ? dadosTratados : dadosTratados.filter(d => d.grupo === filtro);
-
-            // Cards
-            const v24 = dadosFiltradosAtuais.reduce((a, b) => a + formatarMoedaParaNumero(b.venda24), 0);
-            const v25 = dadosFiltradosAtuais.reduce((a, b) => a + formatarMoedaParaNumero(b.venda25), 0);
-            const varVenda = v24 > 0 ? ((v25 - v24) / v24) * 100 : 0;
-
-            document.getElementById('cardVenda24').innerText = formatarBRL(v24);
-            document.getElementById('cardVenda25').innerText = formatarBRL(v25);
-            document.getElementById('cardVarVenda').innerText = (varVenda > 0 ? '+' : '') + varVenda.toFixed(1) + '%';
-
-            renderizarGraficos(dadosFiltradosAtuais);
-            renderizarTabela(dadosFiltradosAtuais);
+        function renderizarTabela(dados) {
+            const tbody = document.querySelector('#tabelaFornecedores tbody');
+            tbody.innerHTML = dados.map(d => {
+                const vv = formatarMoedaParaNumero(d.varVenda);
+                return `
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-8 py-4 font-bold text-secondary">${d.fornecedor}</td>
+                        <td class="px-6 py-4 text-right text-gray-500 italic">R$ ${formatarInteiro(formatarMoedaParaNumero(d.venda24))}</td>
+                        <td class="px-6 py-4 text-right font-black text-secondary bg-gray-50/50">R$ ${formatarInteiro(formatarMoedaParaNumero(d.venda25))}</td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-black ${vv >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
+                                ${vv > 0 ? '+' : ''}${vv.toFixed(1)}%
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-center text-gray-500">${d.margem24}%</td>
+                        <td class="px-6 py-4 text-center font-bold text-secondary">${d.margem25}%</td>
+                        <td class="px-6 py-4 text-right font-bold text-gray-500 italic">${d.estoque}</td>
+                    </tr>
+                `;
+            }).join('');
         }
 
         function ordenarPor(coluna) {
             const isDesc = ordenacaoAtual.coluna === coluna && ordenacaoAtual.ordem === 'desc';
             ordenacaoAtual.ordem = isDesc ? 'asc' : 'desc';
             ordenacaoAtual.coluna = coluna;
-
-            // Limpa ícones
             document.querySelectorAll('th span').forEach(s => s.innerText = '');
             document.getElementById(`sort_${coluna}`).innerText = isDesc ? ' ↑' : ' ↓';
 
-            dadosFiltradosAtuais.sort((a, b) => {
-                let valA = a[coluna], valB = b[coluna];
-                
-                // Se não for fornecedor, trata como número
-                if (coluna !== 'fornecedor') {
-                    valA = formatarMoedaParaNumero(valA);
-                    valB = formatarMoedaParaNumero(valB);
-                }
-
-                if (valA < valB) return ordenacaoAtual.ordem === 'asc' ? -1 : 1;
-                if (valA > valB) return ordenacaoAtual.ordem === 'asc' ? 1 : -1;
-                return 0;
+            dadosTratados.sort((a, b) => {
+                let vA = a[coluna], vB = b[coluna];
+                if (coluna !== 'fornecedor') { vA = formatarMoedaParaNumero(vA); vB = formatarMoedaParaNumero(vB); }
+                return ordenacaoAtual.ordem === 'asc' ? (vA > vB ? 1 : -1) : (vA < vB ? 1 : -1);
             });
-
-            renderizarTabela(dadosFiltradosAtuais);
-        }
-
-        function renderizarGraficos(dados) {
-            if (chartTop) chartTop.destroy();
-            if (chartBottom) chartBottom.destroy();
-
-            const ordenados = [...dados].sort((a, b) => formatarMoedaParaNumero(b.venda25) - formatarMoedaParaNumero(a.venda25));
-            const top10 = ordenados.slice(0, 10);
-            const bottom10 = [...ordenados].reverse().slice(0, 10);
-
-            const configGen = (dataset) => ({
-                type: 'bar',
-                data: {
-                    labels: dataset.map(d => abreviarNome(d.fornecedor)),
-                    datasets: [
-                        { label: '2024', data: dataset.map(d => formatarMoedaParaNumero(d.venda24)), backgroundColor: '#94a3b8', borderRadius: 4 },
-                        { label: '2025', data: dataset.map(d => formatarMoedaParaNumero(d.venda25)), backgroundColor: '#3b82f6', borderRadius: 4 }
-                    ]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { callbacks: { title: (ctx) => dataset[ctx[0].dataIndex].fornecedor } },
-                        datalabels: { // Configuração dos Rótulos de Dados
-                            anchor: 'end',
-                            align: 'right',
-                            formatter: (val) => val > 0 ? (val / 1000).toFixed(0) + 'k' : '',
-                            font: { weight: 'bold', size: 10 },
-                            color: '#475569'
-                        }
-                    },
-                    scales: { 
-                        x: { grid: { display: false }, ticks: { display: false } },
-                        y: { ticks: { font: { weight: 'bold' } } }
-                    }
-                }
-            });
-
-            chartTop = new Chart(document.getElementById('chartTop10'), configGen(top10));
-            chartBottom = new Chart(document.getElementById('chartBottom10'), configGen(bottom10));
-        }
-
-        function renderizarTabela(dados) {
-            const tbody = document.querySelector('#tabelaFornecedores tbody');
-            tbody.innerHTML = dados.map(d => {
-                const vV = formatarMoedaParaNumero(d.varVenda);
-                return `
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-8 py-4 font-bold text-gray-900">${d.fornecedor}</td>
-                        <td class="px-6 py-4 text-right text-gray-400">${formatarBRL(formatarMoedaParaNumero(d.venda24))}</td>
-                        <td class="px-6 py-4 text-right font-black text-gray-900 bg-gray-50/50">${formatarBRL(formatarMoedaParaNumero(d.venda25))}</td>
-                        <td class="px-6 py-4 text-center">
-                            <span class="px-2 py-0.5 rounded text-[10px] font-black ${vV >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
-                                ${vV > 0 ? '+' : ''}${vV.toFixed(1)}%
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-center text-gray-400">${d.margem24}%</td>
-                        <td class="px-6 py-4 text-center font-bold text-primary bg-red-50/20">${d.margem25}%</td>
-                        <td class="px-6 py-4 text-right font-bold text-gray-500">${d.estoque}</td>
-                    </tr>
-                `;
-            }).join('');
+            processarDashboard();
         }
 
         window.onload = carregarDados;
