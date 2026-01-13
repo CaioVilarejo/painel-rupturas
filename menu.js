@@ -55,7 +55,7 @@ function carregarMenu() {
     const todosItens = [
         { nome: 'Rupturas', icone: 'analytics', link: 'dashboard.html' },
         { nome: 'Histórico', icone: 'timeline', link: 'historico.html' },
-        { nome: 'Rupturas', icone: 'analytics', link: 'Fornecedores.html' }, // Novo item
+        { nome: 'Fornecedores', icone: 'analytics', link: 'Fornecedores.html' }, // Novo item
         { nome: 'Atendimento', icone: 'support_agent', link: 'atendimento.html' },
         { nome: 'Representação', icone: 'description', link: 'representacao.html' },
         { nome: 'Contas', icone: 'payments', link: 'contas.html' },
