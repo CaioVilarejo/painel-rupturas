@@ -18,42 +18,30 @@
         }
     </script>
     <style>
-        /* Layout Base com Menu Lateral */
-        body { font-family: 'Roboto', sans-serif; background-color: #f8fafc; display: flex; height: 100vh; overflow: hidden; margin: 0; }
-        
+        body { font-family: 'Roboto', sans-serif; background-color: #f8fafc; display: flex; height: 100vh; margin: 0; overflow: hidden; }
         #sidebar-container { flex-shrink: 0; z-index: 50; }
         
-        main { flex-grow: 1; height: 100vh; overflow-y: auto; overflow-x: hidden; position: relative; }
+        /* Main com barra de rolagem padrão visível para localização */
+        main { flex-grow: 1; height: 100vh; overflow-y: scroll; position: relative; scroll-behavior: smooth; }
         
         .card-shadow { box-shadow: 0 4px 15px -1px rgba(0,0,0,0.05); }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        /* SOLUÇÃO PARA TABELA NÃO CORTAR */
-        .table-outer-container { 
-            width: 100%; 
-            background: white; 
-            border-radius: 1.5rem; 
-            border: 1px solid #e2e8f0;
-            overflow: hidden; /* Garante que o arredondamento funcione */
-        }
+        /* Ajuste Fino da Tabela para visualização em 100% sem scroll lateral */
+        .table-container { width: 100%; background: white; border-radius: 1rem; border: 1px solid #e2e8f0; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        
+        /* Fontes menores e colunas estreitas */
+        th, td { font-size: 11px; padding: 8px 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        th { cursor: pointer; user-select: none; background-color: #f8fafc; text-transform: uppercase; font-weight: 900; color: #1e293b; }
+        
+        /* Larguras Designadas */
+        .col-forn { width: 25%; text-align: left; padding-left: 15px; }
+        .col-venda { width: 12%; text-align: right; }
+        .col-var { width: 10%; text-align: center; }
+        .col-margem { width: 10%; text-align: center; }
+        .col-estq { width: 11%; text-align: right; padding-right: 15px; }
 
-        .table-scroll { 
-            width: 100%; 
-            overflow-x: auto; /* Habilita rolagem apenas na tabela */
-        }
-
-        table { 
-            min-width: 1200px; /* Força largura mínima para caber todas as colunas */
-            width: 100%; 
-            border-collapse: collapse; 
-        }
-        
-        th, td { white-space: nowrap; } /* Impede que o texto quebre e empurre as colunas */
-        th { cursor: pointer; user-select: none; transition: all 0.2s; }
-        th:hover { background-color: #f1f5f9 !important; }
-        
-        /* Dropdowns dos Filtros */
-        .dropdown-content { display: none; position: absolute; background-color: white; min-width: 320px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 99; border-radius: 12px; border: 1px solid #e2e8f0; padding: 12px; max-height: 400px; overflow-y: auto; }
+        .dropdown-content { display: none; position: absolute; background-color: white; min-width: 250px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 99; border-radius: 8px; border: 1px solid #e2e8f0; padding: 10px; max-height: 300px; overflow-y: auto; }
         .show { display: block; }
     </style>
 </head>
@@ -61,86 +49,60 @@
 
     <div id="sidebar-container"></div>
 
-    <main class="p-6 lg:p-10 no-scrollbar">
-        
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 border-b pb-8">
+    <main class="p-4 lg:p-8">
+        <header class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 border-b pb-6">
             <div>
-                <h1 class="text-3xl font-black text-secondary tracking-tight uppercase">Performance Fornecedores</h1>
-                <p class="text-gray-400 font-bold uppercase text-[10px] tracking-[3px]">Vilarejo Monitor • Dados Comparativos</p>
+                <h1 class="text-2xl font-black text-secondary tracking-tight uppercase">Performance Fornecedores</h1>
+                <p class="text-gray-400 font-bold uppercase text-[9px] tracking-[2px]">Vilarejo Monitor • BI 24 vs 25</p>
             </div>
-            <div class="flex flex-wrap gap-4" id="filtros-topo"></div>
+            <div class="flex gap-3" id="filtros-topo"></div>
         </header>
 
-        <div class="space-y-8 mb-10">
-            <div>
-                <h2 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Resumo de Vendas</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-white p-6 rounded-2xl border card-shadow">
-                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Venda 2024</p>
-                        <h3 id="cardVenda24" class="text-2xl font-black text-gray-400">R$ 0</h3>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border card-shadow">
-                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Venda 2025</p>
-                        <h3 id="cardVenda25" class="text-2xl font-black text-chart-25">R$ 0</h3>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border card-shadow border-l-4 border-gray-200">
-                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Var. Venda %</p>
-                        <h3 id="cardVarVenda" class="text-2xl font-black">0%</h3>
-                    </div>
-                </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="bg-white p-4 rounded-xl border card-shadow">
+                <p class="text-[9px] font-bold text-gray-400 uppercase">Venda 2024</p>
+                <h3 id="cardVenda24" class="text-xl font-black text-gray-500">R$ 0</h3>
             </div>
-
-            <div>
-                <h2 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Resumo de Custos</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-white p-6 rounded-2xl border card-shadow">
-                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Custo 2024</p>
-                        <h3 id="cardCusto24" class="text-2xl font-black text-gray-400">R$ 0</h3>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border card-shadow">
-                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Custo 2025</p>
-                        <h3 id="cardCusto25" class="text-2xl font-black text-secondary">R$ 0</h3>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border card-shadow border-l-4 border-gray-300">
-                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Var. Custo %</p>
-                        <h3 id="cardVarCusto" class="text-2xl font-black text-secondary">0%</h3>
-                    </div>
-                </div>
+            <div class="bg-white p-4 rounded-xl border card-shadow">
+                <p class="text-[9px] font-bold text-gray-400 uppercase">Venda 2025</p>
+                <h3 id="cardVenda25" class="text-xl font-black text-chart-25">R$ 0</h3>
+            </div>
+            <div class="bg-white p-4 rounded-xl border card-shadow">
+                <p class="text-[9px] font-bold text-gray-400 uppercase">Var. Venda %</p>
+                <h3 id="cardVarVenda" class="text-xl font-black">0%</h3>
             </div>
         </div>
 
-        <div class="space-y-10 mb-12">
-            <div class="bg-white rounded-3xl border card-shadow p-8">
-                <h3 class="font-black text-sm text-gray-800 uppercase tracking-widest mb-8 italic">Top 10 Maiores Vendas (2025)</h3>
-                <div class="relative h-[450px] w-full"><canvas id="chartTop10"></canvas></div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white rounded-2xl border card-shadow p-5">
+                <h3 class="font-black text-[11px] text-gray-800 uppercase mb-4 tracking-tighter">Top 10 Maiores Vendas (2025)</h3>
+                <div class="h-[300px]"><canvas id="chartTop10"></canvas></div>
             </div>
-            <div class="bg-white rounded-3xl border card-shadow p-8">
-                <h3 class="font-black text-sm text-gray-800 uppercase tracking-widest mb-8 text-primary italic">Top 10 Menores Vendas (2025)</h3>
-                <div class="relative h-[450px] w-full"><canvas id="chartBottom10"></canvas></div>
+            <div class="bg-white rounded-2xl border card-shadow p-5">
+                <h3 class="font-black text-[11px] text-primary uppercase mb-4 tracking-tighter">Maiores Quedas de Venda (2025)</h3>
+                <div class="h-[300px]"><canvas id="chartQuedas"></canvas></div>
             </div>
         </div>
 
-        <div class="table-outer-container card-shadow mb-12">
-            <div class="p-6 border-b bg-gray-50 flex flex-col md:flex-row justify-between items-center gap-4">
-                <h3 class="font-black text-sm text-gray-800 uppercase tracking-widest">Visão Geral Detalhada</h3>
-                <div class="flex flex-wrap gap-4" id="filtros-tabela"></div>
+        <div class="table-container card-shadow">
+            <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
+                <h3 class="font-black text-[11px] text-gray-800 uppercase italic">Relatório Analítico Completo</h3>
+                <div id="filtros-tabela" class="flex gap-2"></div>
             </div>
-            <div class="table-scroll">
-                <table id="tabelaFornecedores">
-                    <thead>
-                        <tr class="text-[13px] font-black text-secondary uppercase border-b bg-gray-100">
-                            <th onclick="ordenarPor('fornecedor')" class="px-8 py-6 text-left">Fornecedor <span id="sort_fornecedor"></span></th>
-                            <th onclick="ordenarPor('venda24')" class="px-6 py-6 text-right">Venda 2024 <span id="sort_venda24"></span></th>
-                            <th onclick="ordenarPor('venda25')" class="px-6 py-6 text-right">Venda 2025 <span id="sort_venda25"></span></th>
-                            <th onclick="ordenarPor('varVenda')" class="px-6 py-6 text-center">Var. % <span id="sort_varVenda"></span></th>
-                            <th onclick="ordenarPor('margem24')" class="px-6 py-6 text-center">Margem 24 <span id="sort_margem24"></span></th>
-                            <th onclick="ordenarPor('margem25')" class="px-6 py-6 text-center">Margem 25 <span id="sort_margem25"></span></th>
-                            <th onclick="ordenarPor('estoque')" class="px-6 py-6 text-right">Estoque <span id="sort_estoque"></span></th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100 font-medium text-gray-700 text-sm"></tbody>
-                </table>
-            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th onclick="ordenarPor('fornecedor')" class="col-forn">Fornecedor <span id="sort_fornecedor"></span></th>
+                        <th onclick="ordenarPor('venda24')" class="col-venda">Venda 24 <span id="sort_venda24"></span></th>
+                        <th onclick="ordenarPor('venda25')" class="col-venda">Venda 25 <span id="sort_venda25"></span></th>
+                        <th onclick="ordenarPor('varVenda')" class="col-var">Var. % <span id="sort_varVenda"></span></th>
+                        <th onclick="ordenarPor('margem24')" class="col-margem">Mrg 24 <span id="sort_margem24"></span></th>
+                        <th onclick="ordenarPor('margem25')" class="col-margem">Mrg 25 <span id="sort_margem25"></span></th>
+                        <th onclick="ordenarPor('estoque')" class="col-estq">Estoque <span id="sort_estoque"></span></th>
+                    </tr>
+                </thead>
+                <tbody id="corpoTabela" class="divide-y divide-gray-100 font-bold text-gray-600"></tbody>
+            </table>
         </div>
     </main>
 
@@ -148,208 +110,144 @@
 
     <script>
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?gid=1981344719&output=csv';
-        
         let dadosTratados = [];
-        let filtrosAtivos = { grupos: [], fornecedores: [] };
-        let chartTop = null, chartBottom = null;
-        let ordenacaoAtual = { coluna: '', ordem: 'desc' };
+        let filtros = { grupos: [], fornecedores: [] };
+        let cTop = null, cQuedas = null;
+        let ord = { col: '', dir: 'desc' };
 
         Chart.register(ChartDataLabels);
-
-        // Funções de UI
-        function renderizarFiltros() {
-            const containers = ['filtros-topo', 'filtros-tabela'];
-            containers.forEach(id => {
-                const s = id.includes('topo') ? 'Topo' : 'Tab';
-                document.getElementById(id).innerHTML = `
-                    <div class="relative">
-                        <button onclick="toggleDropdown('dropForn${s}')" class="bg-white border rounded-xl text-[11px] font-bold px-4 py-2 shadow-sm flex items-center gap-2 min-w-[240px] justify-between uppercase">
-                            <span id="labelForn${s}">Fornecedores (Todos)</span>
-                            <span class="material-symbols-outlined text-sm">expand_more</span>
-                        </button>
-                        <div id="dropForn${s}" class="dropdown-content mt-2">
-                            <input type="text" placeholder="Buscar..." onkeyup="filterList('listForn${s}', this)" class="w-full border rounded-lg p-2 mb-3 text-sm outline-none focus:ring-1">
-                            <div id="listForn${s}" class="space-y-2 max-h-60 overflow-y-auto pr-2"></div>
-                        </div>
-                    </div>
-                    <div class="relative">
-                        <button onclick="toggleDropdown('dropGrupo${s}')" class="bg-white border rounded-xl text-[11px] font-bold px-4 py-2 shadow-sm flex items-center gap-2 min-w-[180px] justify-between uppercase">
-                            <span id="labelGrupo${s}">Grupos (Todos)</span>
-                            <span class="material-symbols-outlined text-sm">expand_more</span>
-                        </button>
-                        <div id="dropGrupo${s}" class="dropdown-content mt-2">
-                            <input type="text" placeholder="Buscar..." onkeyup="filterList('listGrupo${s}', this)" class="w-full border rounded-lg p-2 mb-3 text-sm outline-none focus:ring-1">
-                            <div id="listGrupo${s}" class="space-y-2 max-h-60 overflow-y-auto pr-2"></div>
-                        </div>
-                    </div>
-                `;
-            });
-        }
 
         function toggleDropdown(id) { document.getElementById(id).classList.toggle("show"); }
         window.onclick = (e) => { if (!e.target.closest('.relative')) document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show')); };
 
-        function filterList(listId, input) {
-            let filter = input.value.toUpperCase();
-            let divs = document.getElementById(listId).getElementsByTagName("div");
-            for (let i = 0; i < divs.length; i++) {
-                let txtValue = divs[i].textContent || divs[i].innerText;
-                divs[i].style.display = txtValue.toUpperCase().indexOf(filter) > -1 ? "" : "none";
-            }
+        function formatNum(v) {
+            if (!v || v === "-") return 0;
+            return parseFloat(v.toString().replace(/\./g, '').replace(',', '.').replace(/[R$\s%]/g, '')) || 0;
         }
 
-        function updateFiltrosGlobal(type, val, checked) {
-            if (checked) filtrosAtivos[type].push(val);
-            else filtrosAtivos[type] = filtrosAtivos[type].filter(i => i !== val);
-            
-            const txt = filtrosAtivos[type].length > 0 ? `${filtrosAtivos[type].length} selecionado(s)` : "Todos";
-            ['Topo', 'Tab'].forEach(s => {
-                const label = type === 'grupos' ? `labelGrupo${s}` : `labelForn${s}`;
-                const el = document.getElementById(label);
-                if(el) el.innerText = (type === 'grupos' ? 'Grupos: ' : 'Forns: ') + txt;
-            });
-            
-            document.querySelectorAll(`input[value="${val}"]`).forEach(cb => cb.checked = checked);
-            processarDashboard();
-        }
-
-        function buildList(listId, items, type) {
-            const container = document.getElementById(listId);
-            items.forEach(item => {
-                const div = document.createElement("div");
-                div.className = "flex items-center gap-3 hover:bg-gray-50 p-1 rounded cursor-pointer";
-                div.innerHTML = `<input type="checkbox" value="${item}" class="rounded w-4 h-4 text-primary"><span class="text-xs font-medium">${item}</span>`;
-                div.querySelector('input').onchange = (e) => updateFiltrosGlobal(type, item, e.target.checked);
-                container.appendChild(div);
-            });
-        }
-
-        // Lógica de Dados
-        function formatarParaNum(v) {
-            if (!v || v === "" || v === "-") return 0;
-            let l = v.toString().replace(/\./g, '').replace(',', '.').replace(/[R$\s%]/g, '').trim();
-            return parseFloat(l) || 0;
-        }
-
-        function fInt(v) { return v.toLocaleString('pt-BR', { maximumFractionDigits: 0 }); }
-
-        async function carregar() {
-            renderizarFiltros();
+        async function carregarDados() {
             Papa.parse(CSV_URL, {
                 download: true, header: false, skipEmptyLines: true,
                 complete: function(res) {
-                    const linhas = res.data.slice(1);
-                    dadosTratados = linhas.map(c => ({
-                        fornecedor: c[0], grupo: c[1], custo24: c[2], custo25: c[3], varCusto: c[4],
-                        venda24: c[5], venda25: c[6], varVenda: c[7], margem24: c[8], margem25: c[9], estoque: c[10]
+                    dadosTratados = res.data.slice(1).map(c => ({
+                        fornecedor: c[0], grupo: c[1], custo24: c[2], custo25: c[3],
+                        venda24: c[5], venda25: c[6], varVenda: c[7], 
+                        margem24: c[8], margem25: c[9], estoque: c[10]
                     }));
-
-                    const g = [...new Set(dadosTratados.map(d => d.grupo))].filter(x => x).sort();
-                    const f = [...new Set(dadosTratados.map(d => d.fornecedor))].filter(x => x).sort();
-                    ['Topo', 'Tab'].forEach(s => {
-                        buildList(`listGrupo${s}`, g, 'grupos');
-                        buildList(`listForn${s}`, f, 'fornecedores');
-                    });
-                    processarDashboard();
+                    renderizarFiltrosUI();
+                    processar();
                 }
             });
         }
 
-        function processarDashboard() {
-            let filtrados = dadosTratados;
-            if (filtrosAtivos.grupos.length > 0) filtrados = filtrados.filter(d => filtrosAtivos.grupos.includes(d.grupo));
-            if (filtrosAtivos.fornecedores.length > 0) filtrados = filtrados.filter(d => filtrosAtivos.fornecedores.includes(d.fornecedor));
+        function renderizarFiltrosUI() {
+            const containers = ['filtros-topo', 'filtros-tabela'];
+            const grps = [...new Set(dadosTratados.map(d => d.grupo))].filter(x => x).sort();
+            const fns = [...new Set(dadosTratados.map(d => d.fornecedor))].filter(x => x).sort();
 
-            const v24 = filtrados.reduce((a, b) => a + formatarParaNum(b.venda24), 0);
-            const v25 = filtrados.reduce((a, b) => a + formatarParaNum(b.venda25), 0);
-            const c24 = filtrados.reduce((a, b) => a + formatarParaNum(b.custo24), 0);
-            const c25 = filtrados.reduce((a, b) => a + formatarParaNum(b.custo25), 0);
-
-            const varV = v24 > 0 ? ((v25-v24)/v24*100) : 0;
-            const elV = document.getElementById('cardVarVenda');
-            
-            document.getElementById('cardVenda24').innerText = "R$ " + fInt(v24);
-            document.getElementById('cardVenda25').innerText = "R$ " + fInt(v25);
-            elV.innerText = (varV > 0 ? '+' : '') + varV.toFixed(1) + '%';
-            elV.className = `text-2xl font-black ${varV >= 0 ? 'text-green-600' : 'text-primary'}`;
-            
-            document.getElementById('cardCusto24').innerText = "R$ " + fInt(c24);
-            document.getElementById('cardCusto25').innerText = "R$ " + fInt(c25);
-            document.getElementById('cardVarCusto').innerText = (c24 > 0 ? ((c25-c24)/c24*100).toFixed(1) : 0) + '%';
-
-            renderizarGraficos(filtrados);
-            renderizarTabela(filtrados);
+            containers.forEach(cid => {
+                const s = cid === 'filtros-topo' ? 'T' : 'B';
+                document.getElementById(cid).innerHTML = `
+                    <div class="relative">
+                        <button onclick="toggleDropdown('dF${s}')" class="bg-white border rounded-lg text-[10px] font-bold px-3 py-1.5 shadow-sm flex items-center gap-2 min-w-[150px] justify-between uppercase">
+                            <span>Forns</span><span class="material-symbols-outlined text-xs">expand_more</span>
+                        </button>
+                        <div id="dF${s}" class="dropdown-content mt-1">
+                            <div class="space-y-1" id="listF${s}"></div>
+                        </div>
+                    </div>
+                `;
+                const list = document.getElementById(`listF${s}`);
+                fns.forEach(f => {
+                    const d = document.createElement("div");
+                    d.className = "flex items-center gap-2 p-1 text-[10px]";
+                    d.innerHTML = `<input type="checkbox" value="${f}" onchange="atuFiltro('fornecedores','${f}',this.checked)"><span>${f}</span>`;
+                    list.appendChild(d);
+                });
+            });
         }
 
-        function renderizarGraficos(dados) {
-            if (chartTop) chartTop.destroy();
-            if (chartBottom) chartBottom.destroy();
-            const ord = [...dados].sort((a, b) => formatarParaNum(b.venda25) - formatarParaNum(a.venda25));
-            const top = ord.slice(0, 10);
-            const bot = [...ord].reverse().filter(d => formatarParaNum(d.venda25) > 0).slice(0, 10);
+        function atuFiltro(t, v, c) {
+            if (c) filtros[t].push(v); else filtros[t] = filtros[t].filter(x => x !== v);
+            processar();
+        }
 
-            const cfg = (ds, id) => new Chart(document.getElementById(id), {
+        function processar() {
+            let dados = dadosTratados;
+            if (filtros.fornecedores.length > 0) dados = dados.filter(d => filtros.fornecedores.includes(d.fornecedor));
+
+            const v24 = dados.reduce((a, b) => a + formatNum(b.venda24), 0);
+            const v25 = dados.reduce((a, b) => a + formatNum(b.venda25), 0);
+            const vrV = v24 > 0 ? ((v25 - v24) / v24 * 100) : 0;
+
+            document.getElementById('cardVenda24').innerText = "R$ " + v24.toLocaleString('pt-BR', { maximumFractionDigits: 0 });
+            document.getElementById('cardVenda25').innerText = "R$ " + v25.toLocaleString('pt-BR', { maximumFractionDigits: 0 });
+            document.getElementById('cardVarVenda').innerText = vrV.toFixed(1) + "%";
+            document.getElementById('cardVarVenda').className = `text-xl font-black ${vrV >= 0 ? 'text-green-600' : 'text-primary'}`;
+
+            renderGraficos(dados);
+            renderTabela(dados);
+        }
+
+        function renderGraficos(dados) {
+            if (cTop) cTop.destroy();
+            if (cQuedas) cQuedas.destroy();
+
+            const top10 = [...dados].sort((a, b) => formatNum(b.venda25) - formatNum(a.venda25)).slice(0, 10);
+            
+            // Lógica Maiores Quedas: Filtra apenas negativos e ordena do menor para o maior valor (maior queda para menor queda)
+            const quedas = [...dados]
+                .filter(d => formatNum(d.varVenda) < 0)
+                .sort((a, b) => formatNum(a.varVenda) - formatNum(b.varVenda))
+                .slice(0, 10);
+
+            const cfg = (ctx, ds, color) => new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ds.map(d => d.fornecedor.substring(0, 15)),
-                    datasets: [
-                        { label: '2024', data: ds.map(d => formatarParaNum(d.venda24)), backgroundColor: '#94a3b8', borderRadius: 4 },
-                        { label: '2025', data: ds.map(d => formatarParaNum(d.venda25)), backgroundColor: '#3b82f6', borderRadius: 4 }
-                    ]
+                    labels: ds.map(d => d.fornecedor.substring(0, 12)),
+                    datasets: [{ data: ds.map(d => formatNum(d.venda25)), backgroundColor: color, borderRadius: 5 }]
                 },
                 options: {
                     indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'top', align: 'end' },
-                        datalabels: {
-                            anchor: 'end', align: 'right', color: '#121212', font: { weight: 'bold', size: 10 },
-                            formatter: (v) => v > 0 ? v.toLocaleString('pt-BR', { maximumFractionDigits: 0 }) : ''
-                        }
+                    plugins: { 
+                        legend: false,
+                        datalabels: { color: '#121212', font: { weight: 'bold', size: 9 }, formatter: Math.round }
                     },
-                    scales: { x: { display: false }, y: { ticks: { font: { weight: 'bold' } } } }
+                    scales: { x: { display: false }, y: { ticks: { font: { size: 9, weight: 'bold' } } } }
                 }
             });
-            chartTop = cfg(top, 'chartTop10');
-            chartBottom = cfg(bot, 'chartBottom10');
+
+            cTop = cfg(document.getElementById('chartTop10'), top10, '#3b82f6');
+            cQuedas = cfg(document.getElementById('chartQuedas'), quedas, '#E30613');
         }
 
-        function renderizarTabela(dados) {
-            const tb = document.querySelector('#tabelaFornecedores tbody');
-            tb.innerHTML = dados.map(d => {
-                const vv = formatarParaNum(d.varVenda);
-                return `
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-8 py-4 font-bold text-secondary">${d.fornecedor}</td>
-                        <td class="px-6 py-4 text-right text-gray-400 italic">R$ ${fInt(formatarParaNum(d.venda24))}</td>
-                        <td class="px-6 py-4 text-right font-black text-secondary bg-gray-50/50">R$ ${fInt(formatarParaNum(d.venda25))}</td>
-                        <td class="px-6 py-4 text-center">
-                            <span class="px-2 py-0.5 rounded text-[10px] font-black ${vv >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
-                                ${vv > 0 ? '+' : ''}${vv.toFixed(1)}%
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-center text-gray-400">${d.margem24}%</td>
-                        <td class="px-6 py-4 text-center font-bold text-secondary">${d.margem25}%</td>
-                        <td class="px-6 py-4 text-right font-bold text-gray-500 italic">${d.estoque}</td>
-                    </tr>`;
-            }).join('');
+        function renderTabela(dados) {
+            const body = document.getElementById('corpoTabela');
+            body.innerHTML = dados.map(d => `
+                <tr>
+                    <td class="col-forn">${d.fornecedor}</td>
+                    <td class="col-venda text-gray-400">R$ ${Math.round(formatNum(d.venda24)).toLocaleString('pt-BR')}</td>
+                    <td class="col-venda text-secondary">R$ ${Math.round(formatNum(d.venda25)).toLocaleString('pt-BR')}</td>
+                    <td class="col-var ${formatNum(d.varVenda) >= 0 ? 'text-green-600' : 'text-primary'}">${d.varVenda}</td>
+                    <td class="col-margem text-gray-400">${d.margem24}</td>
+                    <td class="col-margem">${d.margem25}</td>
+                    <td class="col-estq text-gray-500">${d.estoque}</td>
+                </tr>
+            `).join('');
         }
 
-        function ordenarPor(col) {
-            const isD = ordenacaoAtual.coluna === col && ordenacaoAtual.ordem === 'desc';
-            ordenacaoAtual.ordem = isD ? 'asc' : 'desc';
-            ordenacaoAtual.coluna = col;
-            document.querySelectorAll('th span').forEach(s => s.innerText = '');
-            const i = document.getElementById(`sort_${col}`);
-            if(i) i.innerText = isD ? ' ↑' : ' ↓';
+        function ordenarPor(coluna) {
+            const dir = ord.col === coluna && ord.dir === 'desc' ? 'asc' : 'desc';
+            ord = { col: coluna, dir: dir };
             dadosTratados.sort((a, b) => {
-                let vA = a[col], vB = b[col];
-                if (col !== 'fornecedor') { vA = formatarParaNum(vA); vB = formatarParaNum(vB); }
-                return ordenacaoAtual.ordem === 'asc' ? (vA > vB ? 1 : -1) : (vA < vB ? 1 : -1);
+                let vA = a[coluna], vB = b[coluna];
+                if (coluna !== 'fornecedor') { vA = formatNum(vA); vB = formatNum(vB); }
+                return dir === 'asc' ? (vA > vB ? 1 : -1) : (vA < vB ? 1 : -1);
             });
-            processarDashboard();
+            processar();
         }
 
-        window.onload = carregar;
+        window.onload = carregarDados;
     </script>
 </body>
 </html>
