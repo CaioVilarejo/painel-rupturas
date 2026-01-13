@@ -7,56 +7,41 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
 
     <script>
         tailwind.config = {
-            theme: { 
-                extend: { 
-                    colors: { 
-                        "primary": "#E30613", 
-                        "secondary": "#121212",
-                        "blue-custom": "#3B82F6", 
-                        "gray-custom": "#6B7280" 
-                    } 
-                } 
-            }
+            theme: { extend: { colors: { "primary": "#E30613", "secondary": "#121212" } } }
         }
     </script>
-
     <style>
         body { font-family: 'Roboto', sans-serif; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
         .card-shadow { box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body class="bg-gray-50 antialiased">
 
     <div class="flex h-screen overflow-hidden">
-        <main class="flex-1 overflow-y-auto p-6 lg:p-10 no-scrollbar">
+        <main class="flex-1 overflow-y-auto p-6 lg:p-10">
             <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 border-b pb-8">
                 <div>
-                    <div class="flex items-center gap-2 text-primary mb-1">
-                        <span class="material-symbols-outlined">analytics</span>
-                        <span class="font-bold uppercase tracking-widest text-[10px]">Relatório Comparativo</span>
-                    </div>
-                    <h1 class="text-3xl font-black text-gray-900 tracking-tight">Fornecedores 2024 vs 2025</h1>
-                    <p id="lastUpdate" class="text-gray-500 text-sm mt-1">Carregando dados do Google Sheets...</p>
+                    <h1 class="text-3xl font-black text-gray-900 tracking-tight text-primary">Vilarejo Monitor</h1>
+                    <p class="text-gray-500 font-bold uppercase text-[10px] tracking-widest">Análise de Fornecedores 2024 vs 2025</p>
+                    <p id="lastUpdate" class="text-xs text-gray-400 mt-1">Sincronizando...</p>
                 </div>
 
                 <div class="flex flex-wrap gap-3">
                     <div class="flex flex-col">
-                        <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">Filtrar por Grupo</label>
-                        <select id="filtroGrupo" onchange="processarDashboard()" class="bg-white border border-gray-200 rounded-xl text-sm font-bold px-4 py-2.5 shadow-sm focus:ring-2 focus:ring-primary outline-none">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase mb-1">Grupo</label>
+                        <select id="filtroGrupo" onchange="processarDashboard()" class="bg-white border rounded-xl text-sm font-bold px-4 py-2 shadow-sm outline-none">
                             <option value="todos">Todos os Grupos</option>
                         </select>
                     </div>
                     <div class="flex items-end">
-                        <button onclick="carregarDados()" class="flex items-center gap-2 px-5 py-2.5 bg-secondary text-white rounded-xl font-bold text-sm hover:bg-black transition-all shadow-lg">
-                            <span class="material-symbols-outlined text-sm">refresh</span> Atualizar
+                        <button onclick="carregarDados()" class="flex items-center gap-2 px-5 py-2 bg-secondary text-white rounded-xl font-bold text-sm hover:bg-black transition-all">
+                            <span class="material-symbols-outlined text-sm">refresh</span>
                         </button>
                     </div>
                 </div>
@@ -64,41 +49,35 @@
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
                 <div class="bg-white p-6 rounded-2xl border card-shadow">
-                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Venda Total 2025</p>
+                    <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Venda Total 2025</p>
                     <h3 id="resumoVenda" class="text-2xl font-black text-gray-900">R$ 0,00</h3>
                 </div>
                 <div class="bg-white p-6 rounded-2xl border card-shadow">
-                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Crescimento Venda</p>
+                    <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Crescimento</p>
                     <h3 id="resumoCrescimento" class="text-2xl font-black">0%</h3>
                 </div>
                 <div class="bg-white p-6 rounded-2xl border card-shadow">
-                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Custo Total 2025</p>
+                    <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Custo Total 2025</p>
                     <h3 id="resumoCusto" class="text-2xl font-black text-gray-900">R$ 0,00</h3>
                 </div>
-                <div class="bg-white p-6 rounded-2xl border card-shadow border-l-4 border-l-primary">
-                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Margem Média 2025</p>
+                <div class="bg-white p-6 rounded-2xl border card-shadow border-l-4 border-primary">
+                    <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Margem Média 2025</p>
                     <h3 id="resumoMargem" class="text-2xl font-black text-primary">0%</h3>
                 </div>
             </div>
 
             <div class="bg-white rounded-3xl border card-shadow p-8 mb-10">
-                <div class="flex justify-between items-center mb-8">
-                    <h3 class="font-black text-lg text-gray-800 uppercase tracking-tighter">Comparativo de Vendas (Top 10 Fornecedores)</h3>
-                    <span class="text-[10px] bg-gray-100 px-3 py-1 rounded-full font-bold text-gray-500 uppercase">Valores em Reais (R$)</span>
-                </div>
-                <div class="relative h-[400px] w-full">
+                <h3 class="font-black text-sm text-gray-800 uppercase tracking-widest mb-8">Comparativo de Vendas (Top 10 Fornecedores)</h3>
+                <div class="relative h-[350px] w-full">
                     <canvas id="chartComparativo"></canvas>
                 </div>
             </div>
 
             <div class="bg-white rounded-3xl border card-shadow overflow-hidden">
-                <div class="p-6 border-b bg-gray-50/50">
-                    <h3 class="font-black text-sm text-gray-800 uppercase tracking-widest">Detalhamento por Fornecedor</h3>
-                </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm" id="tabelaFornecedores">
                         <thead>
-                            <tr class="text-[10px] font-black text-gray-400 uppercase border-b">
+                            <tr class="text-[10px] font-black text-gray-400 uppercase border-b bg-gray-50">
                                 <th class="px-8 py-5">Fornecedor</th>
                                 <th class="px-6 py-5 text-right">Venda 2024</th>
                                 <th class="px-6 py-5 text-right">Venda 2025</th>
@@ -107,8 +86,7 @@
                                 <th class="px-6 py-5 text-right">Estoque</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100 font-medium text-gray-700 text-xs">
-                            </tbody>
+                        <tbody class="divide-y divide-gray-100 font-medium text-gray-700 text-xs"></tbody>
                     </table>
                 </div>
             </div>
@@ -116,16 +94,14 @@
     </div>
 
     <script>
-        // URL configurada com o seu GID específico e formato CSV
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?gid=1981344719&output=csv';
         
-        let dadosCompletos = [];
+        let dadosTratados = [];
         let meuGrafico = null;
 
-        // Auxiliar para converter strings brasileiras (1.200,50) em números reais (1200.50)
         function formatarMoedaParaNumero(valor) {
             if (!valor || valor === "" || valor === "-") return 0;
-            let limpo = valor.toString().replace(/\./g, '').replace(',', '.').replace('%', '').trim();
+            let limpo = valor.toString().replace(/\./g, '').replace(',', '.').replace(/[R$\s%]/g, '').trim();
             return parseFloat(limpo) || 0;
         }
 
@@ -134,156 +110,119 @@
         }
 
         async function carregarDados() {
-            document.getElementById('lastUpdate').innerText = "Sincronizando dados...";
+            document.getElementById('lastUpdate').innerText = "Sincronizando...";
             
             Papa.parse(CSV_URL, {
                 download: true,
-                header: true,
+                header: false, // IMPORTANTE: Lemos como array simples
                 skipEmptyLines: true,
                 complete: function(results) {
-                    dadosCompletos = results.data;
+                    // Ignora a primeira linha (cabeçalho) e mapeia por índice
+                    const linhasBrutas = results.data.slice(1);
+                    
+                    dadosTratados = linhasBrutas.map(col => ({
+                        fornecedor: col[0],    // Coluna A
+                        grupo: col[1],          // Coluna B
+                        custo24: col[2],        // Coluna C
+                        custo25: col[3],        // Coluna D
+                        varCusto: col[4],       // Coluna E
+                        venda24: col[5],        // Coluna F
+                        venda25: col[6],        // Coluna G
+                        varVenda: col[7],       // Coluna H
+                        margem24: col[8],       // Coluna I
+                        margem25: col[9],       // Coluna J
+                        estoque: col[10]        // Coluna K
+                    }));
+
                     popularFiltroGrupo();
                     processarDashboard();
-                    document.getElementById('lastUpdate').innerText = `Última atualização: ${new Date().toLocaleTimeString()}`;
-                },
-                error: function(err) {
-                    console.error("Erro ao carregar CSV:", err);
-                    document.getElementById('lastUpdate').innerText = "Erro ao carregar dados.";
+                    document.getElementById('lastUpdate').innerText = `Atualizado: ${new Date().toLocaleTimeString()}`;
                 }
             });
         }
 
         function popularFiltroGrupo() {
             const select = document.getElementById('filtroGrupo');
-            const gruposUnicos = [...new Set(dadosCompletos.map(item => item['Grupo']))]
-                                .filter(g => g && g.trim() !== "")
-                                .sort();
-            
-            // Limpa opções anteriores mantendo a primeira
+            const grupos = [...new Set(dadosTratados.map(d => d.grupo))].filter(g => g).sort();
             select.innerHTML = '<option value="todos">Todos os Grupos</option>';
-            
-            gruposUnicos.forEach(grupo => {
+            grupos.forEach(g => {
                 const opt = document.createElement('option');
-                opt.value = grupo;
-                opt.textContent = grupo;
+                opt.value = g; opt.textContent = g;
                 select.appendChild(opt);
             });
         }
 
         function processarDashboard() {
-            const grupoFiltro = document.getElementById('filtroGrupo').value;
-            
-            const filtrados = grupoFiltro === 'todos' 
-                ? dadosCompletos 
-                : dadosCompletos.filter(item => item['Grupo'] === grupoFiltro);
+            const filtro = document.getElementById('filtroGrupo').value;
+            const filtrados = filtro === 'todos' ? dadosTratados : dadosTratados.filter(d => d.grupo === filtro);
 
-            renderizarCards(filtrados);
-            renderizarGrafico(filtrados);
-            renderizarTabela(filtrados);
-        }
+            // Cálculos para Cards
+            const totVenda25 = filtrados.reduce((a, b) => a + formatarMoedaParaNumero(b.venda25), 0);
+            const totVenda24 = filtrados.reduce((a, b) => a + formatarMoedaParaNumero(b.venda24), 0);
+            const totCusto25 = filtrados.reduce((a, b) => a + formatarMoedaParaNumero(b.custo25), 0);
+            const margens = filtrados.map(d => formatarMoedaParaNumero(d.margem25)).filter(m => m > 0);
+            const mediaMargem = margens.length > 0 ? (margens.reduce((a,b) => a+b, 0) / margens.length) : 0;
+            const cresc = totVenda24 > 0 ? ((totVenda25 - totVenda24) / totVenda24) * 100 : 0;
 
-        function renderizarCards(dados) {
-            const totalVenda25 = dados.reduce((acc, curr) => acc + formatarMoedaParaNumero(curr['Venda 2025']), 0);
-            const totalVenda24 = dados.reduce((acc, curr) => acc + formatarMoedaParaNumero(curr['Venda 2024']), 0);
-            const totalCusto25 = dados.reduce((acc, curr) => acc + formatarMoedaParaNumero(curr['Custo 2025']), 0);
-            
-            // Margem Média (Baseada nos itens filtrados)
-            const margens = dados.map(d => formatarMoedaParaNumero(d['Margem 2025'])).filter(m => m > 0);
-            const mediaMargem = margens.length > 0 ? (margens.reduce((a, b) => a + b, 0) / margens.length) : 0;
-
-            // Crescimento
-            let crescimento = 0;
-            if (totalVenda24 > 0) crescimento = ((totalVenda25 - totalVenda24) / totalVenda24) * 100;
-
-            // Atualiza UI
-            document.getElementById('resumoVenda').innerText = formatarBRL(totalVenda25);
-            document.getElementById('resumoCusto').innerText = formatarBRL(totalCusto25);
+            document.getElementById('resumoVenda').innerText = formatarBRL(totVenda25);
+            document.getElementById('resumoCusto').innerText = formatarBRL(totCusto25);
             document.getElementById('resumoMargem').innerText = mediaMargem.toFixed(2) + '%';
             
-            const crescElement = document.getElementById('resumoCrescimento');
-            crescElement.innerText = (crescimento > 0 ? '+' : '') + crescimento.toFixed(2) + '%';
-            crescElement.className = `text-2xl font-black ${crescimento >= 0 ? 'text-green-600' : 'text-primary'}`;
+            const crescEl = document.getElementById('resumoCrescimento');
+            crescEl.innerText = (cresc > 0 ? '+' : '') + cresc.toFixed(2) + '%';
+            crescEl.className = `text-2xl font-black ${cresc >= 0 ? 'text-green-600' : 'text-primary'}`;
+
+            renderizarGrafico(filtrados);
+            renderizarTabela(filtrados);
         }
 
         function renderizarGrafico(dados) {
             const ctx = document.getElementById('chartComparativo').getContext('2d');
             if (meuGrafico) meuGrafico.destroy();
 
-            // Ordenar por maior venda 2025 e pegar Top 10
-            const topDados = [...dados]
-                .sort((a, b) => formatarMoedaParaNumero(b['Venda 2025']) - formatarMoedaParaNumero(a['Venda 2025']))
+            const top = [...dados]
+                .sort((a, b) => formatarMoedaParaNumero(b.venda25) - formatarMoedaParaNumero(a.venda25))
                 .slice(0, 10);
 
             meuGrafico = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: topDados.map(d => d['Fornecedor']),
+                    labels: top.map(d => d.fornecedor),
                     datasets: [
-                        {
-                            label: 'Venda 2024',
-                            data: topDados.map(d => formatarMoedaParaNumero(d['Venda 2024'])),
-                            backgroundColor: '#E3061340',
-                            borderColor: '#E30613',
-                            borderWidth: 1,
-                            borderRadius: 6
-                        },
-                        {
-                            label: 'Venda 2025',
-                            data: topDados.map(d => formatarMoedaParaNumero(d['Venda 2025'])),
-                            backgroundColor: '#121212',
-                            borderRadius: 6
-                        }
+                        { label: '2024', data: top.map(d => formatarMoedaParaNumero(d.venda24)), backgroundColor: '#E3061340', borderColor: '#E30613', borderWidth: 1, borderRadius: 5 },
+                        { label: '2025', data: top.map(d => formatarMoedaParaNumero(d.venda25)), backgroundColor: '#121212', borderRadius: 5 }
                     ]
                 },
-                options: {
-                    responsive: true,
+                options: { 
+                    responsive: true, 
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'top', align: 'end', labels: { boxWidth: 12, font: { weight: 'bold', size: 11 } } },
-                        tooltip: {
-                            callbacks: {
-                                label: (context) => ` ${context.dataset.label}: ${formatarBRL(context.raw)}`
-                            }
-                        }
-                    },
-                    scales: {
-                        y: { 
-                            beginAtZero: true,
-                            ticks: { callback: (value) => 'R$ ' + value.toLocaleString('pt-BR'), font: { size: 10 } },
-                            grid: { display: true, drawBorder: false, color: '#f0f0f0' }
-                        },
-                        x: { grid: { display: false } }
-                    }
+                    plugins: { legend: { position: 'top', align: 'end' } },
+                    scales: { y: { beginAtZero: true, ticks: { font: { size: 9 } } }, x: { ticks: { font: { size: 9 } } } }
                 }
             });
         }
 
         function renderizarTabela(dados) {
             const tbody = document.querySelector('#tabelaFornecedores tbody');
-            tbody.innerHTML = '';
-
-            dados.forEach(item => {
-                const varVenda = formatarMoedaParaNumero(item['Variação Venda']);
-                
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-gray-50 transition-colors";
-                tr.innerHTML = `
-                    <td class="px-8 py-4 font-bold text-gray-900">${item['Fornecedor']}</td>
-                    <td class="px-6 py-4 text-right text-gray-500">${formatarBRL(formatarMoedaParaNumero(item['Venda 2024']))}</td>
-                    <td class="px-6 py-4 text-right font-bold text-gray-900">${formatarBRL(formatarMoedaParaNumero(item['Venda 2025']))}</td>
-                    <td class="px-6 py-4 text-center">
-                        <span class="px-2 py-1 rounded-md text-[10px] font-black ${varVenda >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
-                            ${varVenda > 0 ? '+' : ''}${varVenda.toFixed(2)}%
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 text-center font-bold text-primary">${item['Margem 2025'] || '0,00'}%</td>
-                    <td class="px-6 py-4 text-right bg-gray-50/50 font-bold">${item['Estoque'] || '0'}</td>
+            tbody.innerHTML = dados.map(d => {
+                const vVenda = formatarMoedaParaNumero(d.varVenda);
+                return `
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-8 py-4 font-bold text-gray-900">${d.fornecedor}</td>
+                        <td class="px-6 py-4 text-right text-gray-500">${formatarBRL(formatarMoedaParaNumero(d.venda24))}</td>
+                        <td class="px-6 py-4 text-right font-bold text-gray-900">${formatarBRL(formatarMoedaParaNumero(d.venda25))}</td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="px-2 py-1 rounded-md text-[10px] font-black ${vVenda >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
+                                ${vVenda > 0 ? '+' : ''}${vVenda.toFixed(2)}%
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-center font-bold text-primary">${d.margem25}%</td>
+                        <td class="px-6 py-4 text-right bg-gray-50/50 font-bold">${d.estoque}</td>
+                    </tr>
                 `;
-                tbody.appendChild(tr);
-            });
+            }).join('');
         }
 
-        // Inicialização
         window.onload = carregarDados;
     </script>
 </body>
