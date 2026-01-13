@@ -22,15 +22,21 @@
         #sidebar-container { flex-shrink: 0; z-index: 50; }
         main { flex-grow: 1; height: 100vh; overflow-y: scroll; position: relative; padding: 20px 40px; }
         .card-shadow { box-shadow: 0 4px 15px -1px rgba(0,0,0,0.05); }
+        
         .table-outer-container { width: 100%; background: white; border-radius: 1rem; border: 1px solid #e2e8f0; overflow: hidden; }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        th, td { font-size: 11px; padding: 10px 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        /* Ajuste de Quebra de Linha para Fornecedor */
+        th, td { font-size: 11px; padding: 10px 5px; }
+        .col-forn { width: 26%; text-align: left; padding-left: 15px; white-space: normal; line-height: 1.2; } 
+        
+        /* Outras colunas mantêm o padrão */
+        .col-venda { width: 12%; text-align: right; white-space: nowrap; }
+        .col-var { width: 10%; text-align: center; white-space: nowrap; }
+        .col-margem { width: 10%; text-align: center; white-space: nowrap; }
+        .col-estq { width: 10%; text-align: right; padding-right: 15px; white-space: nowrap; }
+
         th { cursor: pointer; user-select: none; background: #f8fafc; font-weight: 900; color: #1e293b; text-transform: uppercase; }
-        .col-forn { width: 26%; text-align: left; padding-left: 15px; }
-        .col-venda { width: 12%; text-align: right; }
-        .col-var { width: 10%; text-align: center; }
-        .col-margem { width: 10%; text-align: center; }
-        .col-estq { width: 10%; text-align: right; padding-right: 15px; }
         .dropdown-content { display: none; position: absolute; background-color: white; min-width: 280px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 99; border-radius: 12px; border: 1px solid #e2e8f0; padding: 12px; max-height: 350px; overflow-y: auto; }
         .show { display: block; }
     </style>
@@ -69,7 +75,6 @@
                     <h3 id="cardVarVenda" class="text-2xl font-black">0%</h3>
                 </div>
             </div>
-
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-white p-5 rounded-2xl border card-shadow">
                     <p class="text-[10px] font-bold text-gray-400 uppercase">Custo 2024</p>
@@ -87,7 +92,7 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
-            <div class="bg-white rounded-3xl border card-shadow p-6">
+            <div class="bg-white rounded-3xl border card-shadow p-6 border-l-4 border-l-chart-25">
                 <h3 class="font-black text-sm text-gray-800 uppercase mb-6 italic">Top 10 Maiores Vendas (2025)</h3>
                 <div class="h-[400px] w-full"><canvas id="chartTop10"></canvas></div>
             </div>
@@ -133,7 +138,6 @@
         function toggleDropdown(id) { document.getElementById(id).classList.toggle("show"); }
         window.onclick = (e) => { if (!e.target.closest('.relative')) document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show')); };
 
-        // Função de busca interna nos filtros
         function filtrarOpcoes(input, listId) {
             const filter = input.value.toLowerCase();
             const items = document.getElementById(listId).getElementsByClassName('item-filtro');
@@ -143,10 +147,16 @@
             }
         }
 
+        // Função para obter Primeiro e Último nome para os gráficos
+        function abreviarNome(nome) {
+            const partes = nome.trim().split(" ");
+            if (partes.length <= 1) return nome;
+            return `${partes[0]} ${partes[partes.length - 1]}`;
+        }
+
         function limparTodosFiltros() {
             filtrosAtivos = { grupos: [], fornecedores: [] };
             document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-            // Resetar labels
             ['T', 'B'].forEach(s => {
                 document.getElementById(`labelF${s}`).innerText = "Fornecedores (Todos)";
                 document.getElementById(`labelG${s}`).innerText = "Grupos (Todos)";
@@ -218,14 +228,11 @@
 
         function updateFiltro(type, val, checked) {
             if (checked) filtrosAtivos[type].push(val); else filtrosAtivos[type] = filtrosAtivos[type].filter(x => x !== val);
-            
-            // Atualizar label
             const text = filtrosAtivos[type].length > 0 ? `${filtrosAtivos[type].length} Selecionados` : (type === 'grupos' ? 'Grupos (Todos)' : 'Fornecedores (Todos)');
             ['T', 'B'].forEach(s => {
                 const labelId = type === 'grupos' ? `labelG${s}` : `labelF${s}`;
                 document.getElementById(labelId).innerText = text;
             });
-
             processarDashboard();
         }
 
@@ -240,14 +247,14 @@
             const c25 = dados.reduce((a, b) => a + formatarParaNum(b.custo25), 0);
             const varV = v24 > 0 ? ((v25-v24)/v24*100) : 0;
 
-            document.getElementById('cardVenda24').innerText = "R$ " + v24.toLocaleString('pt-BR', {maximumFractionDigits:0});
-            document.getElementById('cardVenda25').innerText = "R$ " + v25.toLocaleString('pt-BR', {maximumFractionDigits:0});
+            document.getElementById('cardVenda24').innerText = "R$ " + Math.round(v24).toLocaleString('pt-BR');
+            document.getElementById('cardVenda25').innerText = "R$ " + Math.round(v25).toLocaleString('pt-BR');
             const elVarV = document.getElementById('cardVarVenda');
             elVarV.innerText = (varV > 0 ? '+' : '') + varV.toFixed(1) + "%";
             elVarV.className = `text-2xl font-black ${varV >= 0 ? 'text-green-600' : 'text-primary'}`;
             
-            document.getElementById('cardCusto24').innerText = "R$ " + c24.toLocaleString('pt-BR', {maximumFractionDigits:0});
-            document.getElementById('cardCusto25').innerText = "R$ " + c25.toLocaleString('pt-BR', {maximumFractionDigits:0});
+            document.getElementById('cardCusto24').innerText = "R$ " + Math.round(c24).toLocaleString('pt-BR');
+            document.getElementById('cardCusto25').innerText = "R$ " + Math.round(c25).toLocaleString('pt-BR');
             document.getElementById('cardVarCusto').innerText = (c24 > 0 ? ((c25-c24)/c24*100).toFixed(1) : 0) + '%';
 
             renderizarGraficos(dados);
@@ -264,8 +271,8 @@
             const config = (ctx, ds) => new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ds.map(d => d.fornecedor.length > 15 ? d.fornecedor.substring(0, 13) + '...' : d.fornecedor),
-                    fullNames: ds.map(d => d.fornecedor), // Armazena nomes completos aqui
+                    labels: ds.map(d => abreviarNome(d.fornecedor)), // Usa Primeiro e Último nome
+                    fullNames: ds.map(d => d.fornecedor),
                     datasets: [
                         { label: '2024', data: ds.map(d => formatarParaNum(d.venda24)), backgroundColor: '#94a3b8' },
                         { label: '2025', data: ds.map(d => formatarParaNum(d.venda25)), backgroundColor: '#3b82f6' }
@@ -277,13 +284,12 @@
                         legend: { position: 'bottom' },
                         tooltip: {
                             callbacks: {
-                                title: (items) => items[0].chart.data.fullNames[items[0].dataIndex], // Nome completo no tooltip
+                                title: (items) => items[0].chart.data.fullNames[items[0].dataIndex],
                                 label: (item) => `R$ ${item.raw.toLocaleString('pt-BR')}`
                             }
                         },
                         datalabels: {
                             color: (ctx) => {
-                                // Se o valor for "pequeno" relativo ao máximo, cor preta (fora da barra), senão branca (dentro)
                                 const max = Math.max(...ctx.dataset.data);
                                 return ctx.dataset.data[ctx.dataIndex] > max * 0.3 ? '#FFF' : '#121212';
                             },
@@ -297,10 +303,7 @@
                             formatter: (v) => v > 0 ? v.toLocaleString('pt-BR', { notation: 'compact' }) : ''
                         }
                     },
-                    scales: { 
-                        x: { display: false }, 
-                        y: { ticks: { font: { size: 10, weight: 'bold' } } } 
-                    }
+                    scales: { x: { display: false }, y: { ticks: { font: { size: 10, weight: 'bold' } } } }
                 }
             });
 
@@ -310,17 +313,23 @@
 
         function renderizarTabela(dados) {
             const body = document.getElementById('bodyTabela');
-            body.innerHTML = dados.map(d => `
+            body.innerHTML = dados.map(d => {
+                const estoqueLimpo = formatarParaNum(d.estoque).toLocaleString('pt-BR', { maximumFractionDigits: 0 }); // Remove ,00
+                return `
                 <tr class="hover:bg-gray-50">
-                    <td class="col-forn">${d.fornecedor}</td>
-                    <td class="col-venda text-gray-400">R$ ${Math.round(formatarParaNum(d.venda24)).toLocaleString('pt-BR')}</td>
-                    <td class="col-venda text-secondary">R$ ${Math.round(formatarParaNum(d.venda25)).toLocaleString('pt-BR')}</td>
-                    <td class="col-var ${formatarParaNum(d.varVenda) >= 0 ? 'text-green-600' : 'text-primary'}">${d.varVenda}</td>
-                    <td class="col-margem text-gray-400">${d.margem24}</td>
-                    <td class="col-margem">${d.margem25}</td>
-                    <td class="col-estq text-gray-500 italic">${d.estoque}</td>
+                    <td class="col-forn font-black text-secondary uppercase">${d.fornecedor}</td>
+                    <td class="col-venda text-gray-400 italic">R$ ${Math.round(formatarParaNum(d.venda24)).toLocaleString('pt-BR')}</td>
+                    <td class="col-venda text-secondary font-black bg-gray-50/30">R$ ${Math.round(formatarParaNum(d.venda25)).toLocaleString('pt-BR')}</td>
+                    <td class="col-var">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-black ${formatarParaNum(d.varVenda) >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
+                            ${formatarParaNum(d.varVenda) > 0 ? '+' : ''}${d.varVenda}
+                        </span>
+                    </td>
+                    <td class="col-margem text-gray-400">${d.margem24}%</td>
+                    <td class="col-margem font-bold text-secondary">${d.margem25}%</td>
+                    <td class="col-estq text-gray-500 italic font-bold">${estoqueLimpo}</td>
                 </tr>
-            `).join('');
+            `}).join('');
         }
 
         function ordenarPor(col) {
