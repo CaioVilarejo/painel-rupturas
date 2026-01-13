@@ -18,98 +18,121 @@
         }
     </script>
     <style>
-        body { font-family: 'Roboto', sans-serif; background-color: #f8fafc; }
+        body { font-family: 'Roboto', sans-serif; background-color: #f8fafc; display: flex; height: 100vh; overflow: hidden; }
+        
+        /* Sidebar fix para não empurrar o conteúdo de forma errada */
+        #sidebar-container { flex-shrink: 0; z-index: 100; }
+        
+        /* Container Principal com Scroll */
+        main { flex-grow: 1; height: 100vh; overflow-y: auto; overflow-x: hidden; position: relative; }
+        
         .card-shadow { box-shadow: 0 4px 15px -1px rgba(0,0,0,0.05); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        th { cursor: pointer; user-select: none; transition: all 0.2s; font-size: 13px !important; }
-        th:hover { background-color: #e2e8f0 !important; }
-        .dropdown-content { display: none; position: absolute; background-color: white; min-width: 320px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 50; border-radius: 12px; border: 1px solid #e2e8f0; padding: 12px; max-height: 400px; overflow-y: auto; }
+        
+        /* Ajuste da Tabela para não cortar colunas */
+        .table-wrapper { width: 100%; overflow-x: auto; border-radius: 1.5rem; background: white; border: 1px solid #e2e8f0; }
+        table { min-width: 1100px; width: 100%; border-collapse: collapse; }
+        
+        th { cursor: pointer; user-select: none; transition: all 0.2s; white-space: nowrap; }
+        th:hover { background-color: #f1f5f9 !important; }
+        
+        /* Estilo dos Dropdowns de Filtro Multi-Seleção */
+        .dropdown-content { display: none; position: absolute; background-color: white; min-width: 320px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 99; border-radius: 12px; border: 1px solid #e2e8f0; padding: 12px; max-height: 400px; overflow-y: auto; }
         .show { display: block; }
     </style>
 </head>
 <body class="antialiased no-scrollbar">
 
-    <div class="flex h-screen overflow-hidden">
-        <div id="sidebar-container"></div>
+    <div id="sidebar-container"></div>
 
-        <main class="flex-1 overflow-y-auto p-6 lg:p-10 no-scrollbar">
-            
-            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 border-b pb-8">
-                <div>
-                    <h1 class="text-3xl font-black text-secondary tracking-tight uppercase">Performance de Fornecedores</h1>
-                    <p class="text-gray-400 font-bold uppercase text-[10px] tracking-[3px]">Vilarejo Monitor • BI 24 vs 25</p>
-                </div>
-
-                <div class="flex flex-wrap gap-4" id="filtros-topo"></div>
-            </header>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-10">
-                <div class="bg-white p-4 rounded-xl border card-shadow">
-                    <p class="text-[9px] font-bold text-gray-400 uppercase">Venda 2024</p>
-                    <h3 id="cardVenda24" class="text-lg font-black text-gray-400">R$ 0</h3>
-                </div>
-                <div class="bg-white p-4 rounded-xl border card-shadow">
-                    <p class="text-[9px] font-bold text-gray-400 uppercase">Venda 2025</p>
-                    <h3 id="cardVenda25" class="text-lg font-black text-chart-25">R$ 0</h3>
-                </div>
-                <div class="bg-white p-4 rounded-xl border card-shadow border-l-4 border-gray-200">
-                    <p class="text-[9px] font-bold text-gray-400 uppercase">Var. Venda %</p>
-                    <h3 id="cardVarVenda" class="text-lg font-black">0%</h3>
-                </div>
-                <div class="bg-white p-4 rounded-xl border card-shadow">
-                    <p class="text-[9px] font-bold text-gray-400 uppercase">Custo 2024</p>
-                    <h3 id="cardCusto24" class="text-lg font-black text-gray-400">R$ 0</h3>
-                </div>
-                <div class="bg-white p-4 rounded-xl border card-shadow">
-                    <p class="text-[9px] font-bold text-gray-400 uppercase">Custo 2025</p>
-                    <h3 id="cardCusto25" class="text-lg font-black text-secondary">R$ 0</h3>
-                </div>
-                <div class="bg-white p-4 rounded-xl border card-shadow border-l-4 border-gray-300">
-                    <p class="text-[9px] font-bold text-gray-400 uppercase">Var. Custo %</p>
-                    <h3 id="cardVarCusto" class="text-lg font-black text-secondary">0%</h3>
-                </div>
+    <main class="p-6 lg:p-10 no-scrollbar">
+        
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 border-b pb-8">
+            <div>
+                <h1 class="text-3xl font-black text-secondary tracking-tight uppercase">Performance de Fornecedores</h1>
+                <p class="text-gray-400 font-bold uppercase text-[10px] tracking-[3px]">Vilarejo Monitor • Inteligência de Dados</p>
             </div>
 
-            <div class="grid grid-cols-1 gap-10 mb-12">
-                <div class="bg-white rounded-3xl border card-shadow p-8">
-                    <h3 class="font-black text-sm text-gray-800 uppercase tracking-widest mb-8">Top 10 Maiores Vendas (2025)</h3>
-                    <div class="relative h-[400px] w-full"><canvas id="chartTop10"></canvas></div>
-                </div>
-                <div class="bg-white rounded-3xl border card-shadow p-8">
-                    <h3 class="font-black text-sm text-gray-800 uppercase tracking-widest mb-8 text-primary">Top 10 Menores Vendas (2025)</h3>
-                    <div class="relative h-[400px] w-full"><canvas id="chartBottom10"></canvas></div>
-                </div>
-            </div>
+            <div class="flex flex-wrap gap-4" id="filtros-topo"></div>
+        </header>
 
-            <div class="bg-white rounded-3xl border card-shadow overflow-hidden mb-12">
-                <div class="p-6 border-b bg-gray-50 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <h3 class="font-black text-sm text-gray-800 uppercase tracking-widest italic">Visão Analítica Geral</h3>
-                    <div class="flex flex-wrap gap-4" id="filtros-tabela"></div>
+        <div class="space-y-8 mb-10">
+            <section>
+                <h2 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Análise de Vendas</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-2xl border card-shadow">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Venda Total 2024</p>
+                        <h3 id="cardVenda24" class="text-2xl font-black text-gray-400">R$ 0</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border card-shadow">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Venda Total 2025</p>
+                        <h3 id="cardVenda25" class="text-2xl font-black text-chart-25">R$ 0</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border card-shadow border-l-4 border-gray-200">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Variação Venda %</p>
+                        <h3 id="cardVarVenda" class="text-2xl font-black">0%</h3>
+                    </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left" id="tabelaFornecedores">
-                        <thead>
-                            <tr class="font-black text-secondary uppercase border-b bg-gray-100">
-                                <th onclick="ordenarPor('fornecedor')" class="px-8 py-6">Fornecedor <span id="sort_fornecedor"></span></th>
-                                <th onclick="ordenarPor('venda24')" class="px-6 py-6 text-right">Venda 2024 <span id="sort_venda24"></span></th>
-                                <th onclick="ordenarPor('venda25')" class="px-6 py-6 text-right">Venda 2025 <span id="sort_venda25"></span></th>
-                                <th onclick="ordenarPor('varVenda')" class="px-6 py-6 text-center">Var. % <span id="sort_varVenda"></span></th>
-                                <th onclick="ordenarPor('margem24')" class="px-6 py-6 text-center">Margem 24 <span id="sort_margem24"></span></th>
-                                <th onclick="ordenarPor('margem25')" class="px-6 py-6 text-center">Margem 25 <span id="sort_margem25"></span></th>
-                                <th onclick="ordenarPor('estoque')" class="px-6 py-6 text-right">Estoque <span id="sort_estoque"></span></th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 font-medium text-gray-700 text-sm"></tbody>
-                    </table>
+            </section>
+
+            <section>
+                <h2 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Análise de Custos</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-2xl border card-shadow">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Custo Total 2024</p>
+                        <h3 id="cardCusto24" class="text-2xl font-black text-gray-400">R$ 0</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border card-shadow">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Custo Total 2025</p>
+                        <h3 id="cardCusto25" class="text-2xl font-black text-secondary">R$ 0</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border card-shadow border-l-4 border-gray-300">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Variação Custo %</p>
+                        <h3 id="cardVarCusto" class="text-2xl font-black text-secondary">0%</h3>
+                    </div>
                 </div>
+            </section>
+        </div>
+
+        <div class="space-y-10 mb-12">
+            <div class="bg-white rounded-3xl border card-shadow p-8">
+                <h3 class="font-black text-sm text-gray-800 uppercase tracking-widest mb-8">Maiores Vendas (2025) - Top 10</h3>
+                <div class="relative h-[450px] w-full"><canvas id="chartTop10"></canvas></div>
             </div>
-        </main>
-    </div>
+            <div class="bg-white rounded-3xl border card-shadow p-8">
+                <h3 class="font-black text-sm text-gray-800 uppercase tracking-widest mb-8 text-primary">Menores Vendas (2025) - Top 10</h3>
+                <div class="relative h-[450px] w-full"><canvas id="chartBottom10"></canvas></div>
+            </div>
+        </div>
+
+        <div class="table-wrapper card-shadow mb-12">
+            <div class="p-6 border-b bg-gray-50 flex flex-col md:flex-row justify-between items-center gap-4">
+                <h3 class="font-black text-sm text-gray-800 uppercase tracking-widest">Relatório Analítico Completo</h3>
+                <div class="flex flex-wrap gap-4" id="filtros-tabela"></div>
+            </div>
+            <div class="overflow-x-auto">
+                <table id="tabelaFornecedores">
+                    <thead>
+                        <tr class="text-[13px] font-black text-secondary uppercase border-b bg-gray-100">
+                            <th onclick="ordenarPor('fornecedor')" class="px-8 py-6 text-left">Fornecedor <span id="sort_fornecedor"></span></th>
+                            <th onclick="ordenarPor('venda24')" class="px-6 py-6 text-right">Venda 2024 <span id="sort_venda24"></span></th>
+                            <th onclick="ordenarPor('venda25')" class="px-6 py-6 text-right">Venda 2025 <span id="sort_venda25"></span></th>
+                            <th onclick="ordenarPor('varVenda')" class="px-6 py-6 text-center">Var. % <span id="sort_varVenda"></span></th>
+                            <th onclick="ordenarPor('margem24')" class="px-6 py-6 text-center">Margem 24 <span id="sort_margem24"></span></th>
+                            <th onclick="ordenarPor('margem25')" class="px-6 py-6 text-center">Margem 25 <span id="sort_margem25"></span></th>
+                            <th onclick="ordenarPor('estoque')" class="px-6 py-6 text-right">Estoque <span id="sort_estoque"></span></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 font-medium text-gray-700 text-sm"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
 
     <script src="menu.js"></script>
 
     <script>
-        const CSV_URL_DATA = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?gid=1981344719&output=csv';
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?gid=1981344719&output=csv';
         
         let dadosTratados = [];
         let filtrosAtivos = { grupos: [], fornecedores: [] };
@@ -118,19 +141,19 @@
 
         Chart.register(ChartDataLabels);
 
-        // Lógica de Renderização de Filtros
-        function renderizarFiltrosUI() {
-            const containerIds = ['filtros-topo', 'filtros-tabela'];
-            containerIds.forEach(cid => {
-                const suffix = cid.split('-')[1].charAt(0).toUpperCase() + cid.split('-')[1].slice(1);
-                document.getElementById(cid).innerHTML = `
+        // Renderiza os filtros em ambas as posições (topo e tabela)
+        function renderizarUIFiltros() {
+            const containers = ['filtros-topo', 'filtros-tabela'];
+            containers.forEach(id => {
+                const suffix = id.includes('topo') ? 'Topo' : 'Tab';
+                document.getElementById(id).innerHTML = `
                     <div class="relative">
                         <button onclick="toggleDropdown('dropForn${suffix}')" class="bg-white border rounded-xl text-[11px] font-bold px-4 py-2 shadow-sm flex items-center gap-2 min-w-[240px] justify-between uppercase">
                             <span id="labelForn${suffix}">Fornecedores (Todos)</span>
                             <span class="material-symbols-outlined text-sm">expand_more</span>
                         </button>
                         <div id="dropForn${suffix}" class="dropdown-content mt-2">
-                            <input type="text" placeholder="Buscar..." onkeyup="filterList('listForn${suffix}', this)" class="w-full border rounded-lg p-2 mb-3 text-sm outline-none focus:ring-1 focus:ring-secondary">
+                            <input type="text" placeholder="Buscar fornecedor..." onkeyup="filterList('listForn${suffix}', this)" class="w-full border rounded-lg p-2 mb-3 text-sm outline-none focus:ring-1">
                             <div id="listForn${suffix}" class="space-y-2 max-h-60 overflow-y-auto pr-2"></div>
                         </div>
                     </div>
@@ -140,7 +163,7 @@
                             <span class="material-symbols-outlined text-sm">expand_more</span>
                         </button>
                         <div id="dropGrupo${suffix}" class="dropdown-content mt-2">
-                            <input type="text" placeholder="Buscar grupo..." onkeyup="filterList('listGrupo${suffix}', this)" class="w-full border rounded-lg p-2 mb-3 text-sm outline-none focus:ring-1 focus:ring-secondary">
+                            <input type="text" placeholder="Buscar grupo..." onkeyup="filterList('listGrupo${suffix}', this)" class="w-full border rounded-lg p-2 mb-3 text-sm outline-none focus:ring-1">
                             <div id="listGrupo${suffix}" class="space-y-2 max-h-60 overflow-y-auto pr-2"></div>
                         </div>
                     </div>
@@ -164,20 +187,19 @@
             if (checked) filtrosAtivos[type].push(val);
             else filtrosAtivos[type] = filtrosAtivos[type].filter(i => i !== val);
             
-            const txt = filtrosAtivos[type].length > 0 ? `${filtrosAtivos[type].length} Sel.` : "Todos";
-            ['Topo', 'Tabela'].forEach(s => {
-                const labelId = type === 'grupos' ? `labelGrupo${s}` : `labelForn${s}`;
-                const element = document.getElementById(labelId);
-                if(element) element.innerText = (type === 'grupos' ? 'Grupos: ' : 'Forns: ') + txt;
+            const txt = filtrosAtivos[type].length > 0 ? `${filtrosAtivos[type].length} selecionado(s)` : "Todos";
+            ['Topo', 'Tab'].forEach(s => {
+                const label = type === 'grupos' ? `labelGrupo${s}` : `labelForn${s}`;
+                const el = document.getElementById(label);
+                if(el) el.innerText = (type === 'grupos' ? 'Grupos: ' : 'Forns: ') + txt;
             });
             
             document.querySelectorAll(`input[value="${val}"]`).forEach(cb => cb.checked = checked);
             processarDashboard();
         }
 
-        function buildList(listId, items, type) {
+        function buildMultiSelect(listId, items, type) {
             const container = document.getElementById(listId);
-            if(!container) return;
             items.forEach(item => {
                 const div = document.createElement("div");
                 div.className = "flex items-center gap-3 hover:bg-gray-50 p-1 rounded cursor-pointer";
@@ -187,7 +209,7 @@
             });
         }
 
-        function formatarMoedaParaNumero(valor) {
+        function formatarParaNumero(valor) {
             if (!valor || valor === "" || valor === "-") return 0;
             let limpo = valor.toString().replace(/\./g, '').replace(',', '.').replace(/[R$\s%]/g, '').trim();
             return parseFloat(limpo) || 0;
@@ -195,9 +217,9 @@
 
         function fInt(v) { return v.toLocaleString('pt-BR', { maximumFractionDigits: 0 }); }
 
-        async function carregarDadosBI() {
-            renderizarFiltrosUI();
-            Papa.parse(CSV_URL_DATA, {
+        async function carregarDados() {
+            renderizarUIFiltros();
+            Papa.parse(CSV_URL, {
                 download: true, header: false, skipEmptyLines: true,
                 complete: function(results) {
                     const linhasBrutas = results.data.slice(1);
@@ -209,9 +231,9 @@
                     const grupos = [...new Set(dadosTratados.map(d => d.grupo))].filter(g => g).sort();
                     const forns = [...new Set(dadosTratados.map(d => d.fornecedor))].filter(f => f).sort();
                     
-                    ['Topo', 'Tabela'].forEach(s => {
-                        buildList(`listGrupo${s}`, grupos, 'grupos');
-                        buildList(`listForn${s}`, forns, 'fornecedores');
+                    ['Topo', 'Tab'].forEach(s => {
+                        buildMultiSelect(`listGrupo${s}`, grupos, 'grupos');
+                        buildMultiSelect(`listForn${s}`, forns, 'fornecedores');
                     });
                     processarDashboard();
                 }
@@ -223,10 +245,10 @@
             if (filtrosAtivos.grupos.length > 0) filtrados = filtrados.filter(d => filtrosAtivos.grupos.includes(d.grupo));
             if (filtrosAtivos.fornecedores.length > 0) filtrados = filtrados.filter(d => filtrosAtivos.fornecedores.includes(d.fornecedor));
 
-            const v24 = filtrados.reduce((a, b) => a + formatarMoedaParaNumero(b.venda24), 0);
-            const v25 = filtrados.reduce((a, b) => a + formatarMoedaParaNumero(b.venda25), 0);
-            const c24 = filtrados.reduce((a, b) => a + formatarMoedaParaNumero(b.custo24), 0);
-            const c25 = filtrados.reduce((a, b) => a + formatarMoedaParaNumero(b.custo25), 0);
+            const v24 = filtrados.reduce((a, b) => a + formatarParaNumero(b.venda24), 0);
+            const v25 = filtrados.reduce((a, b) => a + formatarParaNumero(b.venda25), 0);
+            const c24 = filtrados.reduce((a, b) => a + formatarParaNumero(b.custo24), 0);
+            const c25 = filtrados.reduce((a, b) => a + formatarParaNumero(b.custo25), 0);
 
             const varVendaVal = v24 > 0 ? ((v25-v24)/v24*100) : 0;
             const cardVarVenda = document.getElementById('cardVarVenda');
@@ -234,22 +256,23 @@
             document.getElementById('cardVenda24').innerText = "R$ " + fInt(v24);
             document.getElementById('cardVenda25').innerText = "R$ " + fInt(v25);
             cardVarVenda.innerText = (varVendaVal > 0 ? '+' : '') + varVendaVal.toFixed(1) + '%';
-            cardVarVenda.className = `text-lg font-black ${varVendaVal >= 0 ? 'text-green-600' : 'text-primary'}`;
+            cardVarVenda.className = `text-2xl font-black ${varVendaVal >= 0 ? 'text-green-600' : 'text-primary'}`;
             
             document.getElementById('cardCusto24').innerText = "R$ " + fInt(c24);
             document.getElementById('cardCusto25').innerText = "R$ " + fInt(c25);
             document.getElementById('cardVarCusto').innerText = (c24 > 0 ? ((c25-c24)/c24*100).toFixed(1) : 0) + '%';
 
-            renderizarGraficosBI(filtrados);
-            renderizarTabelaBI(filtrados);
+            renderizarGraficos(filtrados);
+            renderizarTabela(filtrados);
         }
 
-        function renderizarGraficosBI(dados) {
+        function renderizarGraficos(dados) {
             if (chartTop) chartTop.destroy();
             if (chartBottom) chartBottom.destroy();
-            const ordenados = [...dados].sort((a, b) => formatarMoedaParaNumero(b.venda25) - formatarMoedaParaNumero(a.venda25));
+
+            const ordenados = [...dados].sort((a, b) => formatarParaNumero(b.venda25) - formatarParaNumero(a.venda25));
             const top10 = ordenados.slice(0, 10);
-            const bottom10 = [...ordenados].reverse().filter(d => formatarMoedaParaNumero(d.venda25) > 0).slice(0, 10);
+            const bottom10 = [...ordenados].reverse().filter(d => formatarParaNumero(d.venda25) > 0).slice(0, 10);
 
             const config = (dataset, id) => new Chart(document.getElementById(id), {
                 type: 'bar',
@@ -259,8 +282,8 @@
                         return p.length > 1 ? `${p[0]} ${p[p.length-1]}` : d.fornecedor;
                     }),
                     datasets: [
-                        { label: '2024', data: dataset.map(d => formatarMoedaParaNumero(d.venda24)), backgroundColor: '#94a3b8', borderRadius: 4 },
-                        { label: '2025', data: dataset.map(d => formatarMoedaParaNumero(d.venda25)), backgroundColor: '#3b82f6', borderRadius: 4 }
+                        { label: '2024', data: dataset.map(d => formatarParaNumero(d.venda24)), backgroundColor: '#94a3b8', borderRadius: 4 },
+                        { label: '2025', data: dataset.map(d => formatarParaNumero(d.venda25)), backgroundColor: '#3b82f6', borderRadius: 4 }
                     ]
                 },
                 options: {
@@ -280,15 +303,15 @@
             chartBottom = config(bottom10, 'chartBottom10');
         }
 
-        function renderizarTabelaBI(dados) {
+        function renderizarTabela(dados) {
             const tbody = document.querySelector('#tabelaFornecedores tbody');
             tbody.innerHTML = dados.map(d => {
-                const vv = formatarMoedaParaNumero(d.varVenda);
+                const vv = formatarParaNumero(d.varVenda);
                 return `
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-8 py-4 font-bold text-secondary">${d.fornecedor}</td>
-                        <td class="px-6 py-4 text-right text-gray-400 italic">R$ ${fInt(formatarMoedaParaNumero(d.venda24))}</td>
-                        <td class="px-6 py-4 text-right font-black text-secondary bg-gray-50/50">R$ ${fInt(formatarMoedaParaNumero(d.venda25))}</td>
+                        <td class="px-6 py-4 text-right text-gray-400 italic">R$ ${fInt(formatarParaNumero(d.venda24))}</td>
+                        <td class="px-6 py-4 text-right font-black text-secondary bg-gray-50/50">R$ ${fInt(formatarParaNumero(d.venda25))}</td>
                         <td class="px-6 py-4 text-center">
                             <span class="px-2 py-0.5 rounded text-[10px] font-black ${vv >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
                                 ${vv > 0 ? '+' : ''}${vv.toFixed(1)}%
@@ -310,17 +333,13 @@
             if(icon) icon.innerText = isDesc ? ' ↑' : ' ↓';
             dadosTratados.sort((a, b) => {
                 let vA = a[coluna], vB = b[coluna];
-                if (coluna !== 'fornecedor') { vA = formatarMoedaParaNumero(vA); vB = formatarMoedaParaNumero(vB); }
+                if (coluna !== 'fornecedor') { vA = formatarParaNumero(vA); vB = formatarParaNumero(vB); }
                 return ordenacaoAtual.ordem === 'asc' ? (vA > vB ? 1 : -1) : (vA < vB ? 1 : -1);
             });
             processarDashboard();
         }
 
-        // Inicialização
-        document.addEventListener('DOMContentLoaded', () => {
-            carregarDadosBI();
-            // O carregarMenu() já é chamado pelo DOMContentLoaded no menu.js
-        });
+        window.onload = carregarDados;
     </script>
 </body>
 </html>
