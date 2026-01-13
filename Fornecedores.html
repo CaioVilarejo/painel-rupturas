@@ -225,7 +225,7 @@
             const c24 = filtrados.reduce((a, b) => a + formatarMoedaParaNumero(b.custo24), 0);
             const c25 = filtrados.reduce((a, b) => a + formatarMoedaParaNumero(b.custo25), 0);
 
-            // UI Vendas com lógica de cor na variação
+            // UI Vendas com lógica de cor na variação (Anteração comment para commit)
             const varVendaVal = v24 > 0 ? ((v25-v24)/v24*100) : 0;
             const cardVarVenda = document.getElementById('cardVarVenda');
             document.getElementById('cardVenda24').innerText = "R$ " + fInt(v24);
