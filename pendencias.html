@@ -22,381 +22,491 @@
         .modal-scroll::-webkit-scrollbar-track { background: #f8fafc; border-radius: 10px; }
         .modal-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         
-        .timeline-container { position: relative; display: flex; align-items: center; justify-content: space-between; width: 100%; margin: 20px 0; }
-        .timeline-line { position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: #e5e7eb; z-index: 1; transform: translateY(-50%); }
-        .timeline-step { position: relative; z-index: 2; background: white; border: 2px solid #e5e7eb; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
-        .step-active { border-color: #E30613; background: #E30613; color: white; box-shadow: 0 0 0 4px rgba(227, 6, 19, 0.1); }
-        .step-label { position: absolute; top: 40px; white-space: nowrap; font-size: 10px; font-weight: 800; color: #9ca3af; text-transform: uppercase; }
-        .label-active { color: #E30613; }
-
-        /* Estilo para destacar campos novos */
-        .field-highlight { border: 1px solid #fee2e2; background-color: #fffafb; }
+        .timeline-container { position: relative; display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 10px; margin-top: 20px;}
+        .timeline-line { position: absolute; top: 50%; left: 0; transform: translateY(-50%); height: 4px; background: #e2e8f0; width: 100%; z-index: 1; border-radius: 10px; }
+        .timeline-progress { position: absolute; top: 50%; left: 0; transform: translateY(-50%); height: 4px; background: #E30613; width: 0%; z-index: 2; transition: width 0.8s ease; border-radius: 10px; }
+        .timeline-step { position: relative; z-index: 3; background: #fff; border: 3px solid #e2e8f0; width: 16px; height: 16px; border-radius: 50%; transition: all 0.4s; }
+        .timeline-step.active { border-color: #E30613; background: #E30613; box-shadow: 0 0 0 4px rgba(227, 6, 19, 0.2); }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="flex min-h-screen">
+<body class="bg-gray-100 text-gray-900">
+    <div class="flex h-screen overflow-hidden">
+        <div id="sidebar-container"></div>
 
-    <div id="sidebar-container"></div>
+        <main class="flex-1 overflow-y-auto p-4 md:p-8 no-scrollbar">
+            <div class="max-w-7xl mx-auto">
+                
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-xl font-black uppercase tracking-widest text-gray-800">Controle de Ocorrências</h1>
+                    <button onclick="abrirDashboard()" class="bg-gray-800 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 hover:bg-black transition-all shadow-lg">
+                        <span class="material-symbols-outlined text-sm">analytics</span> Dashboard
+                    </button>
+                </div>
 
-    <main class="flex-1 p-4 md:p-8 ml-0 md:ml-64 transition-all duration-300">
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-            <div>
-                <h1 class="text-2xl font-black text-gray-900 tracking-tight">CENTRAL DE OCORRÊNCIAS CD</h1>
-                <p class="text-sm text-gray-500 font-medium">Gestão e Tratativa de Pendências de Logística</p>
-            </div>
-            <div class="flex gap-3">
-                <button onclick="abrirModal()" class="bg-primary text-white px-6 py-3 rounded-2xl font-black text-sm shadow-lg shadow-red-100 hover:scale-105 transition-transform flex items-center gap-2">
-                    <span class="material-symbols-outlined">add_circle</span> NOVO TICKET
-                </button>
-            </div>
-        </header>
-
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-3 bg-red-50 rounded-2xl text-primary">
-                        <span class="material-symbols-outlined">confirmation_number</span>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-orange-500">
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Em Análise</p>
+                        <h3 id="cardAnalise" class="text-3xl font-black">0</h3>
                     </div>
-                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-wider">Total Mês</span>
-                </div>
-                <h2 id="totalMesDash" class="text-3xl font-black text-gray-900">0</h2>
-            </div>
-
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 md:col-span-2">
-                <div class="flex gap-6 h-full items-center">
-                    <div class="w-24 h-24">
-                        <canvas id="graficoMotivos"></canvas>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-blue-500">
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Em Andamento</p>
+                        <h3 id="cardAndamento" class="text-3xl font-black">0</h3>
                     </div>
-                    <div id="listaLegendaDash" class="flex-1 grid grid-cols-2 gap-2"></div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-red-500">
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Atrasados</p>
+                        <h3 id="cardAtraso" class="text-3xl font-black">0</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-emerald-500">
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Concluídos</p>
+                        <h3 id="cardResolvido" class="text-3xl font-black">0</h3>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row justify-between items-end gap-4 mb-6 bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 w-full">
+                        <div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Buscar ID</label>
+                            <input type="text" id="inputBuscaID" onkeyup="filtrarGeral()" placeholder="TKT-..." class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold outline-none focus:border-primary">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Status</label>
+                            <select id="selectStatus" onchange="filtrarGeral()" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white outline-none">
+                                <option value="todos">Todos os Status</option>
+                                <option value="Em Análise">Em Análise</option>
+                                <option value="Em andamento">Em Andamento</option>
+                                <option value="Atrasado">Atrasado</option>
+                                <option value="Resolvido">Resolvido</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Motivo</label>
+                            <select id="selectMotivoFiltro" onchange="filtrarGeral()" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white outline-none">
+                                <option value="todos">Todos os Motivos</option>
+                                <option value="Quebra fábrica">Quebra fábrica</option>
+                                <option value="Quebra depósito/Loja">Quebra depósito/Loja</option>
+                                <option value="Quebra de produto na embalagem(Externa)">Quebra produto embalagem</option>
+                                <option value="Divergência de Estoque">Divergência de Estoque</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="abrirModal()" class="w-full bg-primary text-white px-4 py-2.5 rounded-xl font-bold uppercase text-[10px] shadow-lg hover:bg-red-700 transition-all flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined text-sm">add_circle</span> Novo Ticket
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 border-b text-[10px] font-black text-gray-400 uppercase">
+                                    <th class="p-4">ID Ticket</th>
+                                    <th class="p-4">Status</th>
+                                    <th class="p-4">Produto / Fornecedor</th>
+                                    <th class="p-4 text-center">Abertura</th>
+                                    <th class="p-4 text-center">Responsável</th>
+                                    <th class="p-4 text-center">Previsão</th>
+                                    <th class="p-4 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaChamados" class="divide-y divide-gray-100 text-sm"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+        </main>
+    </div>
 
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                <p class="text-[10px] font-black text-gray-400 uppercase mb-2">Filtro Rápido</p>
-                <input type="month" id="filtroMesDash" onchange="atualizarDash()" class="w-full bg-gray-50 border-none rounded-xl p-2 text-xs font-bold outline-none">
+    <div id="modalChamado" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[9999]">
+        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden">
+            <div class="p-6 border-b bg-gray-50 flex justify-between items-center">
+                <h2 class="text-xl font-black text-primary uppercase">Registrar Pendência</h2>
+                <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600"><span class="material-symbols-outlined">close</span></button>
             </div>
-        </div>
-
-        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="p-6 border-b border-gray-50 flex flex-col md:flex-row justify-between gap-4">
-                <div class="relative flex-1 max-w-md">
-                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">search</span>
-                    <input type="text" id="inputBusca" onkeyup="filtrarTabela()" placeholder="Buscar por Ticket, Produto ou Fornecedor..." class="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-2xl text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/10">
-                </div>
-                <div class="flex gap-2">
-                    <select id="filtroStatus" onchange="filtrarTabela()" class="bg-gray-50 border-none rounded-2xl px-4 py-3 text-[10px] font-black uppercase outline-none">
-                        <option value="">Status: Todos</option>
-                        <option value="Em Análise">Em Análise</option>
-                        <option value="Resolvido">Resolvido</option>
+            <form id="formTicket" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="text" name="cod_seac" placeholder="Cód Produto Seac" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
+                <input type="text" name="fornecedor" placeholder="Fornecedor" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
+                <input type="text" name="referencia" placeholder="Referência" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
+                <input type="text" name="cod_cliente" placeholder="Cód Cliente" class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
+                <input type="number" name="quantidade" step="0.01" lang="pt-BR" placeholder="Quantidade (ex: 3,5)" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
+                <select name="um" required class="p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary">
+    <option value="" disabled selected>Selecione a Unidade</option>
+    <option value="UN">UN</option>
+    <option value="M2">M²</option>
+    <option value="SC">SC</option>
+</select>
+                <input type="text" name="lote" placeholder="Tonalidade / Lote" class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
+                <div class="col-span-full">
+                    <select name="motivo" onchange="toggleOutros(this.value)" class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold">
+                        <option value="Quebra fábrica">Quebra fábrica</option>
+                        <option value="Quebra depósito/Loja">Quebra depósito/Loja</option>
+                        <option value="Quebra de produto na embalagem(Externa)">Quebra produto embalagem (Externa)</option>
+                        <option value="Divergência de Estoque">Divergência de Estoque</option>
+                        <option value="Outros">Outros</option>
                     </select>
                 </div>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead>
-                        <tr class="text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">
-                            <th class="px-6 py-4">Protocolo</th>
-                            <th class="px-6 py-4">Informações do Produto</th>
-                            <th class="px-6 py-4">Ocorrência</th>
-                            <th class="px-6 py-4">Status / Tratativa</th>
-                            <th class="px-6 py-4">Responsável</th>
-                            <th class="px-6 py-4 text-center">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelaCorpo" class="divide-y divide-gray-50"></tbody>
-                </table>
-            </div>
-        </div>
-    </main>
-
-    <div id="modalNovoTicket" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
-            <div class="p-6 border-b flex justify-between items-center bg-gray-50">
-                <h2 class="text-xl font-black text-secondary uppercase italic">Abrir Nova Ocorrência</h2>
-                <button onclick="fecharModal()" class="text-gray-400 hover:text-primary transition-colors">
-                    <span class="material-symbols-outlined text-3xl">cancel</span>
-                </button>
-            </div>
-
-            <form id="formTicket" class="p-8 overflow-y-auto space-y-5 modal-scroll">
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 p-4 bg-red-50/50 rounded-2xl border border-red-100">
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-black text-primary uppercase ml-1 tracking-wider">Pendência comunicada a loja?</label>
-                        <select id="comunicadoLoja" name="comunicadoLoja" onchange="verificarComunicado(this.value)" required class="w-full bg-white border border-red-200 rounded-xl p-3 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/20">
-                            <option value="">Selecione...</option>
-                            <option value="Sim">Sim</option>
-                            <option value="Não">Não</option>
-                        </select>
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-black text-gray-500 uppercase ml-1">Tipo de Solicitação</label>
-                        <select name="tipoTicket" required class="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm font-bold outline-none">
-                            <option value="Complemento">Complemento</option>
-                            <option value="Compra nova">Compra nova</option>
-                        </select>
-                    </div>
+                <div id="divOutros" class="col-span-full hidden">
+                    <input type="text" id="inputOutros" placeholder="Especifique o motivo..." class="w-full p-3 border border-primary rounded-xl outline-none text-sm font-bold">
                 </div>
-
-                <div id="campoResumo" class="hidden space-y-1 border-l-4 border-green-500 pl-4 bg-green-50 p-4 rounded-xl">
-                    <label class="text-[10px] font-black text-green-700 uppercase ml-1">Resumo do acordado com a loja</label>
-                    <textarea name="resumoAcordo" id="resumoAcordoInput" placeholder="Ex: Alinhado com o gerente que será enviado o lote X..." class="w-full bg-transparent border-none p-0 text-sm font-bold outline-none resize-none" rows="2"></textarea>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Cód. SEAC</label>
-                        <input type="text" name="cod_seac" required class="w-full bg-gray-100 border-none rounded-xl p-3 text-sm font-bold outline-none">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Fornecedor</label>
-                        <input type="text" name="fornecedor" required class="w-full bg-gray-100 border-none rounded-xl p-3 text-sm font-bold outline-none">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Referência</label>
-                        <input type="text" name="referencia" class="w-full bg-gray-100 border-none rounded-xl p-3 text-sm font-bold outline-none">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Cliente / Pedido</label>
-                        <input type="text" name="cod_cliente" class="w-full bg-gray-100 border-none rounded-xl p-3 text-sm font-bold outline-none">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-5">
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Quantidade</label>
-                        <input type="text" name="quantidade" required class="w-full bg-gray-100 border-none rounded-xl p-3 text-sm font-bold outline-none">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-black text-gray-400 uppercase ml-1">UM</label>
-                        <select name="um" class="w-full bg-gray-100 border-none rounded-xl p-3 text-sm font-bold outline-none">
-                            <option value="M2">M2</option>
-                            <option value="PC">PC</option>
-                            <option value="CX">CX</option>
-                        </select>
-                    </div>
-                    <div class="space-y-1 md:col-span-1 col-span-2">
-                        <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Motivo</label>
-                        <select name="motivo" required class="w-full bg-gray-100 border-none rounded-xl p-3 text-sm font-bold outline-none">
-                            <option value="Quebra">Quebra</option>
-                            <option value="Defeito">Defeito</option>
-                            <option value="Erro de Separação">Erro de Separação</option>
-                            <option value="Tonalidade">Tonalidade</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="space-y-1">
-                    <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Lote / Tonalidade (Opcional)</label>
-                    <input type="text" name="lote" class="w-full bg-gray-100 border-none rounded-xl p-3 text-sm font-bold outline-none">
-                </div>
-
-                <div class="space-y-1">
-                    <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Observações Iniciais</label>
-                    <textarea name="observacao" class="w-full bg-gray-100 border-none rounded-xl p-3 text-sm font-bold outline-none" rows="2"></textarea>
-                </div>
-
-                <div class="pt-4">
-                    <button type="submit" id="btnSubmitTicket" class="w-full bg-primary text-white font-black py-4 rounded-2xl shadow-lg shadow-red-200 hover:scale-[1.02] transition-transform uppercase tracking-widest">
-                        Gerar Ticket Protocolo
-                    </button>
+                <textarea name="observacao" placeholder="Informações iniciais..." rows="2" class="col-span-full p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold"></textarea>
+                <div class="col-span-full flex gap-3 pt-4">
+                    <button type="button" onclick="fecharModal()" class="flex-1 bg-gray-100 py-3 rounded-xl font-bold uppercase text-[10px]">Cancelar</button>
+                    <button type="submit" id="btnSalvar" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold uppercase text-[10px] shadow-lg">Salvar Ticket</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script src="menu.js"></script>
+    <div id="modalDetalhes" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[9999]">
+        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl flex flex-col max-h-[95vh]">
+            <div class="p-6 border-b flex justify-between items-center bg-gray-50 rounded-t-3xl">
+                <div>
+                    <h2 id="detalheID" class="text-3xl font-black text-gray-800 tracking-tighter"></h2>
+                    <span id="detalheStatusBadge" class="text-[10px] font-black uppercase px-2 py-0.5 rounded"></span>
+                </div>
+                <button onclick="fecharModalDetalhes()" class="text-gray-400 hover:text-primary"><span class="material-symbols-outlined text-3xl">close</span></button>
+            </div>
+            
+            <div class="p-8 overflow-y-auto modal-scroll space-y-8">
+                <div class="bg-gray-50 p-8 rounded-3xl border border-gray-100">
+                    <div class="timeline-container mb-6">
+                        <div class="timeline-line"></div>
+                        <div id="timelineProgress" class="timeline-progress"></div>
+                        <div class="timeline-step active"></div>
+                        <div id="stepTriagem" class="timeline-step"></div>
+                        <div id="stepPrevisao" class="timeline-step"></div>
+                        <div id="stepConclusao" class="timeline-step"></div>
+                    </div>
+                    <div class="flex justify-between text-[9px] font-black uppercase text-gray-400">
+                        <div class="text-center w-1/4">Abertura<p id="timeAbertura" class="text-gray-800 font-bold mt-1">--/--</p></div>
+                        <div class="text-center w-1/4">Triagem<p id="timeTriagem" class="text-gray-800 font-bold mt-1">---</p></div>
+                        <div class="text-center w-1/4">Previsão<p id="timePrevisaoModal" class="text-gray-800 font-bold mt-1">---</p></div>
+                        <div class="text-center w-1/4">Conclusão<p id="timeConclusao" class="text-gray-800 font-bold mt-1">---</p></div>
+                    </div>
+                </div>
 
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-6 text-sm">
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Cód. Prod SEAC</label><p id="detalheSeac" class="font-bold text-gray-800"></p></div>
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Fornecedor</label><p id="detalheForn" class="font-bold text-gray-800"></p></div>
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Motivo</label><p id="detalheMotivo" class="font-bold text-red-600 uppercase"></p></div>
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Referência</label><p id="detalheRef" class="font-bold text-gray-800"></p></div>
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Cód. Cliente</label><p id="detalheCli" class="font-bold text-blue-700"></p></div>
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Quantidade / Unidade</label><p class="font-bold text-gray-800"><span id="detalheQtd"></span> <span id="detalheUM" class="text-primary"></span></p></div>
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Tonalidade / Lote</label><p id="detalheLote" class="font-bold text-gray-800"></p></div>
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Criado por</label><p id="detalheCriador" class="font-bold text-gray-800 italic"></p></div>
+                </div>
+
+                <div class="p-4 bg-white rounded-2xl border-2 border-gray-100">
+                    <label class="text-[10px] font-black text-gray-400 uppercase mb-2 block tracking-widest">Responsável Atual</label>
+                    <select id="selectResponsavelModal" class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary">
+                        <option value="">Selecione um responsável...</option>
+                    </select>
+                </div>
+
+                <div class="space-y-3">
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Histórico de Tratativas</label>
+                    <textarea id="detalheObs" rows="5" class="w-full border-2 border-gray-100 rounded-2xl p-4 text-sm outline-none focus:border-primary bg-gray-50 transition-all resize-none font-medium"></textarea>
+                </div>
+            </div>
+            <div class="p-6 bg-white border-t rounded-b-3xl">
+                <button id="btnSalvarObs" onclick="salvarAlteracoesNoModal()" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-black transition-all">Salvar Alterações</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalDashboard" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden flex items-center justify-center z-[10000] p-4">
+        <div class="bg-white w-full max-w-5xl h-full max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+            <div class="p-6 border-b flex justify-between items-center bg-gray-50">
+                <h2 class="text-xl font-black text-gray-800 uppercase flex items-center gap-2">Dashboard</h2>
+                <button onclick="fecharDashboard()" class="text-gray-400 hover:text-black"><span class="material-symbols-outlined text-3xl">close</span></button>
+            </div>
+            <div class="p-8 overflow-y-auto modal-scroll space-y-8">
+                <div class="flex flex-col md:flex-row gap-6 items-end bg-gray-100 p-6 rounded-3xl">
+                    <div class="flex-1">
+                        <label class="text-[9px] font-bold text-gray-400">De:</label>
+                        <input type="date" id="dashDataInicio" onchange="processarDadosDash()" class="w-full border-b-2 py-2 text-sm font-bold bg-transparent">
+                    </div>
+                    <div class="flex-1">
+                        <label class="text-[9px] font-bold text-gray-400">Até:</label>
+                        <input type="date" id="dashDataFim" onchange="processarDadosDash()" class="w-full border-b-2 py-2 text-sm font-bold bg-transparent">
+                    </div>
+                    <div class="bg-white px-8 py-3 rounded-2xl border min-w-[150px] text-center">
+                        <p class="text-[9px] font-black text-gray-400 uppercase">Total</p>
+                        <p id="totalMesDash" class="text-2xl font-black">0</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-white p-4 h-80"><canvas id="graficoMotivos"></canvas></div>
+                    <div id="listaLegendaDash" class="space-y-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="menu.js"></script>
     <script>
-        // CONFIGURAÇÕES E VARIÁVEIS GLOBAIS
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzf4_37N3n7_07LhUuH8R7M8m-Wn1mXN-eM1G-T-f-T-T-T-T-T-T/exec"; 
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbznCForFxpY6CAU6W3UgglusC8oqyfDz0dqM-l_95xtr9CK9TcFvbw_V7LJQk8jTZH-/exec'; 
+        const LISTA_RESPONSAVEIS = ["Eduardo", "Edson", "Fábio", "Leandro", "Herialdo", "Bruna", "Renielle", "Caio"];
+        
         let dadosGlobais = [];
+        let ticketAbertoAtual = null;
         let chartMotivos = null;
 
-        // 1. LÓGICA DE COMUNICADO (NOVO)
-        function verificarComunicado(valor) {
-            const campoResumo = document.getElementById('campoResumo');
-            const inputResumo = document.getElementById('resumoAcordoInput');
-            
-            if (valor === "Não") {
-                alert("⚠️ INSTRUÇÃO IMPORTANTE:\n\nAntes da abertura do ticket, é necessário comunicar a loja do ocorrido. Verifique a possibilidade de resolução direta com o cliente (oferecendo outro produto, desconto, etc) para evitar a abertura de um ticket desnecessário.");
-                campoResumo.classList.add('hidden');
-                inputResumo.required = false;
-            } else if (valor === "Sim") {
-                campoResumo.classList.remove('hidden');
-                inputResumo.required = true;
-                inputResumo.focus();
-            } else {
-                campoResumo.classList.add('hidden');
-                inputResumo.required = false;
-            }
+        function abrirModal() { document.getElementById('modalChamado').classList.remove('hidden'); }
+        function fecharModal() { document.getElementById('modalChamado').classList.add('hidden'); }
+        function fecharModalDetalhes() { document.getElementById('modalDetalhes').classList.add('hidden'); }
+        function toggleOutros(v) { document.getElementById('divOutros').classList.toggle('hidden', v !== 'Outros'); }
+
+        function formatarDataBR(dataStr) {
+            if (!dataStr || dataStr === "" || dataStr === "---") return "---";
+            if (/^\d{2}\/\d{2}\/\d{4}$/.test(dataStr)) return dataStr;
+            try { 
+                const data = new Date(dataStr);
+                if (isNaN(data.getTime())) return dataStr;
+                return `${String(data.getUTCDate()).padStart(2, '0')}/${String(data.getUTCMonth() + 1).padStart(2, '0')}/${data.getUTCFullYear()}`; 
+            } catch (e) { return dataStr; }
         }
 
-        // 2. FUNÇÕES DO MODAL
-        function abrirModal() { document.getElementById('modalNovoTicket').classList.remove('hidden'); }
-        function fecharModal() { 
-            document.getElementById('modalNovoTicket').classList.add('hidden');
-            document.getElementById('formTicket').reset();
-            document.getElementById('campoResumo').classList.add('hidden');
-        }
-
-        // 3. CARREGAMENTO E RENDERIZAÇÃO
-        async function carregarDados() {
+        async function carregarTickets() {
             try {
-                const resp = await fetch(`${SCRIPT_URL}?action=getPendenciasCD`);
-                const data = await resp.json();
-                dadosGlobais = data;
-                renderizarTabela(data);
-                atualizarDash();
-            } catch (err) { console.error("Erro ao carregar:", err); }
+                const r = await fetch(`${WEB_APP_URL}?rota=pendencias`);
+                dadosGlobais = await r.json();
+                filtrarGeral();
+            } catch (e) { console.error("Erro na conexão"); }
+        }
+
+        function calcularStatusReal(linha) {
+            const statusBase = linha[9];
+            const dataAbertura = new Date(linha[10]);
+            const prevista = linha[12];
+            const hoje = new Date();
+            if (statusBase === 'Resolvido') return 'Resolvido';
+            if (prevista && prevista !== "" && prevista !== "---") {
+                let dPrevRaw = prevista;
+                if(prevista.includes('/')) { const p = prevista.split('/'); dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`; }
+                return (new Date(dPrevRaw).getTime() < hoje.setHours(0,0,0,0)) ? 'Atrasado' : 'Em andamento';
+            }
+            const vinteQuatroHoras = 24 * 60 * 60 * 1000;
+            return (hoje.getTime() - dataAbertura.getTime() > vinteQuatroHoras) ? 'Em análise (Atrasado)' : 'Em Análise';
+        }
+
+        function filtrarGeral() {
+            const busca = document.getElementById('inputBuscaID').value.toLowerCase();
+            const statusF = document.getElementById('selectStatus').value;
+            const motivoF = document.getElementById('selectMotivoFiltro').value;
+
+            const filtrados = dadosGlobais.filter(linha => {
+                const sReal = calcularStatusReal(linha);
+                const matchID = linha[0].toLowerCase().includes(busca);
+                let matchStatus = statusF === "todos" || sReal === statusF;
+                if(statusF === "Em Análise" && sReal === "Em análise (Atrasado)") matchStatus = true;
+                const matchMotivo = motivoF === "todos" || linha[7] === motivoF;
+                return matchID && matchStatus && matchMotivo;
+            });
+            renderizarTabela(filtrados);
+            atualizarCardsGerais(dadosGlobais);
         }
 
         function renderizarTabela(dados) {
-            const corpo = document.getElementById('tabelaCorpo');
-            corpo.innerHTML = '';
-            
-            // Reverte para mostrar os mais novos primeiro
-            [...dados].reverse().forEach((row, index) => {
-                const totalRows = dados.length;
-                const realIdx = totalRows - index + 1; // Ajuste para o índice da linha no Sheets
-                const status = row[9];
-                const isResolvido = status === 'Resolvido';
+            const tbody = document.getElementById('tabelaChamados');
+            tbody.innerHTML = '';
+            dados.forEach(linha => {
+                const idx = dadosGlobais.findIndex(dg => dg[0] === linha[0]);
+                const row = idx + 2;
+                const sReal = calcularStatusReal(linha);
+                
+                let color = 'bg-blue-100 text-blue-700';
+                if(sReal === 'Resolvido') color = 'bg-emerald-100 text-emerald-700';
+                // A linha abaixo foi alterada para aceitar qualquer variação de "analise"
+                else if(sReal.toLowerCase().includes('análise') || sReal.toLowerCase().includes('analise')) color = 'bg-orange-100 text-orange-700';
+                else if(sReal === 'Atrasado') color = 'bg-red-100 text-red-700';
 
-                corpo.innerHTML += `
-                    <tr class="hover:bg-gray-50/50 transition-colors">
-                        <td class="px-6 py-4">
-                            <span class="text-xs font-black text-gray-900 block">${row[0]}</span>
-                            <span class="text-[9px] font-bold text-gray-400 uppercase">${row[10]}</span>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="flex flex-col">
-                                <span class="text-[11px] font-black text-gray-800">${row[1]} - ${row[3]}</span>
-                                <span class="text-[10px] font-medium text-gray-400 uppercase">${row[2]}</span>
-                                <span class="text-[9px] font-black text-primary mt-1 italic">TIPO: ${row[19] || 'N/A'}</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-2">
-                                <span class="px-2 py-1 bg-gray-100 rounded text-[9px] font-black text-gray-600 uppercase">${row[7]}</span>
-                                <span class="text-xs font-bold text-gray-900">${row[5]} ${row[16] || 'UN'}</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 min-w-[200px]">
-                            <div class="flex flex-col gap-2">
-                                <span class="px-2 py-1 rounded-lg text-[9px] font-black uppercase w-fit ${isResolvido ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
-                                    ${status}
-                                </span>
-                                <textarea onblur="atualizarCampo(${realIdx}, 'observacao', this.value)" 
-                                          class="text-[10px] font-bold text-gray-500 bg-transparent border-none focus:ring-1 focus:ring-primary/20 rounded p-1 outline-none"
-                                          placeholder="Tratativa de Compras..." ${isResolvido ? 'disabled' : ''}>${row[8] || ''}</textarea>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <select onchange="atualizarCampo(${realIdx}, 'responsavel', this.value)" 
-                                    class="text-[10px] font-bold bg-transparent border-none outline-none ${isResolvido ? 'text-gray-400' : 'text-primary'}"
-                                    ${isResolvido ? 'disabled' : ''}>
-                                <option value="">DEFINIR...</option>
-                                <option value="GABRIEL" ${row[14] === 'GABRIEL' ? 'selected' : ''}>GABRIEL</option>
-                                <option value="VINICIUS" ${row[14] === 'VINICIUS' ? 'selected' : ''}>VINICIUS</option>
-                                <option value="LUANA" ${row[14] === 'LUANA' ? 'selected' : ''}>LUANA</option>
+                let dPrevRaw = linha[12];
+                if(dPrevRaw && dPrevRaw.includes('/')) { const p = dPrevRaw.split('/'); dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`; }
+
+                // LÓGICA DE AÇÕES DINÂMICA
+                let acaoHTML = '';
+                if(sReal === 'Resolvido') {
+                    acaoHTML = `<span class="text-[10px] font-black text-emerald-600 uppercase italic">${formatarDataBR(linha[11])}</span>`;
+                } else {
+                    acaoHTML = `<button onclick="finalizarTicket(${row})" class="bg-emerald-50 text-emerald-600 p-2 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"><span class="material-symbols-outlined text-sm">check</span></button>`;
+                }
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-4 font-black text-primary"><button onclick="verDetalhes(${idx})" class="hover:underline">${linha[0]}</button></td>
+                        <td class="p-4"><span class="px-2 py-1 rounded text-[9px] font-black uppercase ${color}">${sReal}</span></td>
+                        <td class="p-4"><b>${linha[1]}</b><br><small class="text-gray-400 uppercase font-black">${linha[2]}</small></td>
+                        <td class="p-4 text-center text-xs font-bold">${formatarDataBR(linha[10])}</td>
+                        <td class="p-4 text-center">
+                            <select onchange="atualizarCampo(${row}, 'responsavel', this.value)" class="text-[10px] border rounded p-1 font-bold">
+                                <option value="">---</option>
+                                ${LISTA_RESPONSAVEIS.map(r => `<option value="${r}" ${linha[14] === r ? 'selected' : ''}>${r}</option>`).join('')}
                             </select>
-                            ${row[15] ? `<span class="text-[8px] block text-gray-400 font-bold">${row[15]}</span>` : ''}
                         </td>
-                        <td class="px-6 py-4">
-                            <div class="flex justify-center gap-2">
-                                ${!isResolvido ? `
-                                    <button onclick="concluirTicket(${realIdx})" class="p-2 bg-green-50 text-green-600 rounded-xl hover:bg-green-600 hover:text-white transition-all shadow-sm">
-                                        <span class="material-symbols-outlined text-sm">check_circle</span>
-                                    </button>
-                                ` : `
-                                    <div class="text-right">
-                                        <span class="text-[8px] font-black text-green-600 block uppercase">Resolvido em</span>
-                                        <span class="text-[10px] font-bold text-gray-400">${row[11]}</span>
-                                    </div>
-                                `}
-                            </div>
+                        <td class="p-4 text-center">
+                            <input type="date" value="${dPrevRaw ? dPrevRaw.split('T')[0] : ''}" onchange="definirPrevisao(${row}, this.value)" class="text-[10px] border rounded p-1 font-bold">
                         </td>
-                    </tr>
-                `;
+                        <td class="p-4 text-center">
+                            ${acaoHTML}
+                        </td>
+                    </tr>`;
             });
         }
 
-        // 4. ENVIO E ATUALIZAÇÕES
-        document.getElementById('formTicket').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btnSubmitTicket');
-            btn.disabled = true;
-            btn.innerText = "PROCESSANDO...";
+        function verDetalhes(idx) {
+            const t = dadosGlobais[idx];
+            ticketAbertoAtual = { index: idx, row: idx + 2 };
+            
+            document.getElementById('detalheID').innerText = t[0];
+            document.getElementById('detalheSeac').innerText = t[1];
+            document.getElementById('detalheForn').innerText = t[2];
+            document.getElementById('detalheRef').innerText = t[3];
+            document.getElementById('detalheCli').innerText = t[4] || "---";
+            // O String() garante que qualquer número vire texto antes do replace
+            const qtdOriginal = t[5] !== undefined && t[5] !== null ? t[5] : "0";
+            document.getElementById('detalheQtd').innerText = String(qtdOriginal).replace('.', ',');
+            document.getElementById('detalheUM').innerText = t[16] || ""; // Coluna Q (Índice 16)
+            document.getElementById('detalheLote').innerText = t[6] || "---";
+            document.getElementById('detalheMotivo').innerText = t[7] || "---";
+            document.getElementById('detalheCriador').innerText = t[13] || "---"; // CRIADO POR (Coluna N)
+            document.getElementById('detalheObs').value = t[8] || "";
+            
+            const dA = formatarDataBR(t[10]), dT = formatarDataBR(t[15]), dP = formatarDataBR(t[12]), dC = t[11] ? formatarDataBR(t[11]) : "---";
+            document.getElementById('timeAbertura').innerText = dA;
+            document.getElementById('timeTriagem').innerText = dT;
+            document.getElementById('timePrevisaoModal').innerText = dP;
+            document.getElementById('timeConclusao').innerText = dC;
 
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData.entries());
-            data.action = 'insert';
-            data.criado_por = localStorage.getItem('vilarejo_user') || 'Sistema';
+            const p = document.getElementById('timelineProgress'), sT = document.getElementById('stepTriagem'), sP = document.getElementById('stepPrevisao'), sC = document.getElementById('stepConclusao');
+            [sT, sP, sC].forEach(s => s.classList.remove('active'));
+            p.style.width = "0%";
+            if (dA !== "---") p.style.width = "5%";
+            if (dT !== "---") { p.style.width = "33%"; sT.classList.add('active'); }
+            if (dP !== "---") { p.style.width = "66%"; sP.classList.add('active'); }
+            if (dC !== "---") { p.style.width = "100%"; sC.classList.add('active'); }
+
+            const sel = document.getElementById('selectResponsavelModal');
+            sel.innerHTML = '<option value="">Selecione...</option>';
+            LISTA_RESPONSAVEIS.forEach(r => sel.innerHTML += `<option value="${r}" ${t[14] === r ? 'selected' : ''}>${r}</option>`);
+
+            document.getElementById('modalDetalhes').classList.remove('hidden');
+        }
+
+        async function salvarAlteracoesNoModal() {
+            if(!ticketAbertoAtual) return;
+            const btn = document.getElementById('btnSalvarObs');
+            const novaObs = document.getElementById('detalheObs').value;
+            const novoResp = document.getElementById('selectResponsavelModal').value;
+
+            btn.disabled = true; btn.innerText = "Gravando...";
 
             try {
-                const resp = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
-                if (resp.ok) {
-                    fecharModal();
-                    carregarDados();
-                }
-            } catch (err) { alert('Erro ao salvar ticket.'); }
-            finally {
-                btn.disabled = false;
-                btn.innerText = "GERAR TICKET PROTOCOLO";
-            }
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: ticketAbertoAtual.row, field: 'observacao', value: novaObs }) });
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: ticketAbertoAtual.row, field: 'responsavel', value: novoResp }) });
+                alert("Salvo com sucesso!");
+                fecharModalDetalhes();
+                carregarTickets();
+            } catch (e) { alert("Erro ao salvar."); }
+            finally { btn.disabled = false; btn.innerText = "Salvar Alterações"; }
+        }
+
+        async function atualizarCampo(row, campo, valor) {
+            try {
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: campo, value: valor }) });
+                setTimeout(carregarTickets, 800);
+            } catch (e) {}
+        }
+
+        async function definirPrevisao(row, valor) {
+            if(!valor) return;
+            const hoje = new Date().toLocaleDateString('pt-BR');
+            await atualizarCampo(row, 'previsao', valor);
+            await atualizarCampo(row, 'status', 'Em andamento');
+            await atualizarCampo(row, 'data_definicao', hoje);
+        }
+
+        async function finalizarTicket(row) {
+            if(!confirm("Concluir chamado?")) return;
+            await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update', row: row, status: 'Resolvido' }) });
+            setTimeout(carregarTickets, 800);
+        }
+
+        document.getElementById('formTicket').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btnSalvar'); 
+    btn.disabled = true;
+    btn.innerText = "Salvando...";
+
+    const payload = Object.fromEntries(new FormData(e.target));
+    
+    // AJUSTE AQUI: O nome da propriedade deve ser 'criado_por' para bater com o .gs
+    payload.criado_por = localStorage.getItem('vilarejo_user') || 'Sistema'; 
+    
+    if (payload.motivo === 'Outros') {
+        payload.motivo = document.getElementById('inputOutros').value;
+    }
+   
+    payload.rota = 'pendencias'; 
+    payload.action = 'insert';
+
+    try {
+        await fetch(WEB_APP_URL, { 
+            method: 'POST', 
+            mode: 'no-cors', 
+            body: JSON.stringify(payload) 
         });
+        
+        fecharModal(); 
+        e.target.reset(); 
+        setTimeout(carregarTickets, 1500);
+    } catch (error) {
+        console.error("Erro ao salvar ticket:", error);
+        alert("Erro ao salvar o ticket. Tente novamente.");
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "Salvar Ticket";
+    }
+});
 
-        async function atualizarCampo(row, field, value) {
-            const body = { action: 'update_field', row, field, value };
-            try {
-                await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(body) });
-                // Opcional: Feedback de salvo
-            } catch (e) { console.error("Erro ao salvar campo"); }
-        }
-
-        async function concluirTicket(row) {
-            if(!confirm('Deseja finalizar esta ocorrência?')) return;
-            const body = { action: 'update', status: 'Resolvido', row };
-            try {
-                await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(body) });
-                carregarDados();
-            } catch (e) { alert('Erro ao finalizar'); }
-        }
-
-        // 5. FILTROS E DASHBOARD
-        function filtrarTabela() {
-            const busca = document.getElementById('inputBusca').value.toLowerCase();
-            const status = document.getElementById('filtroStatus').value;
-            const rows = document.querySelectorAll('#tabelaCorpo tr');
-
-            rows.forEach(tr => {
-                const txt = tr.innerText.toLowerCase();
-                const matchesBusca = txt.includes(busca);
-                const matchesStatus = status === "" || txt.includes(status.toLowerCase());
-                tr.style.display = (matchesBusca && matchesStatus) ? "" : "none";
+        function atualizarCardsGerais(dados) {
+            let ana = 0, and = 0, atr = 0, res = 0;
+            dados.forEach(d => {
+                const s = calcularStatusReal(d);
+                if(s === 'Resolvido') res++; else if(s.includes('Análise')) ana++; else if(s === 'Atrasado') atr++; else and++;
             });
+            document.getElementById('cardAnalise').innerText = ana;
+            document.getElementById('cardAndamento').innerText = and;
+            document.getElementById('cardAtraso').innerText = atr;
+            document.getElementById('cardResolvido').innerText = res;
         }
 
-        function atualizarDash() {
-            const mesSel = document.getElementById('filtroMesDash').value; 
-            let total = 0;
-            const cont = { "Quebra": 0, "Defeito": 0, "Erro de Separação": 0, "Tonalidade": 0, "Outros": 0 };
-            
+        function abrirDashboard() { 
+            document.getElementById('modalDashboard').classList.remove('hidden'); 
             const hoje = new Date();
-            const mesAtualFiltro = mesSel || `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}`;
+            document.getElementById('dashDataInicio').value = new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString().split('T')[0];
+            document.getElementById('dashDataFim').value = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).toISOString().split('T')[0];
+            processarDadosDash();
+        }
+        function fecharDashboard() { document.getElementById('modalDashboard').classList.add('hidden'); }
 
+        function processarDadosDash() {
+            const ini = new Date(document.getElementById('dashDataInicio').value + "T00:00:00");
+            const fim = new Date(document.getElementById('dashDataFim').value + "T23:59:59");
+            let total = 0;
+            const cont = { "Quebra fábrica": 0, "Quebra depósito/Loja": 0, "Quebra de produto na embalagem(Externa)": 0, "Divergência de Estoque": 0, "Outros": 0 };
             dadosGlobais.forEach(d => {
-                const dataPartes = d[10].split('/'); // dd/mm/yyyy
-                if(dataPartes.length === 3) {
-                    const mesAnoTicket = `${dataPartes[2]}-${dataPartes[1]}`;
-                    if (mesAnoTicket === mesAtualFiltro) {
-                        total++;
-                        const m = d[7] || "";
-                        if (cont[m] !== undefined) cont[m]++; else cont["Outros"]++;
-                    }
+                const da = new Date(d[10]);
+                if (da >= ini && da <= fim) {
+                    total++;
+                    const m = d[7] || "";
+                    if (cont[m] !== undefined) cont[m]++; else cont["Outros"]++;
                 }
             });
-            
             document.getElementById('totalMesDash').innerText = total;
             renderizarGrafico(cont);
         }
@@ -408,34 +518,18 @@
                 type: 'doughnut',
                 data: {
                     labels: Object.keys(cont),
-                    datasets: [{ 
-                        data: Object.values(cont), 
-                        backgroundColor: ['#E30613', '#111827', '#3b82f6', '#94a3b8', '#e5e7eb'], 
-                        borderWidth: 0 
-                    }]
+                    datasets: [{ data: Object.values(cont), backgroundColor: ['#E30613', '#111827', '#3b82f6', '#94a3b8'], borderWidth: 0 }]
                 },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    plugins: { legend: { display: false } },
-                    cutout: '70%'
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
-            
             const leg = document.getElementById('listaLegendaDash');
             leg.innerHTML = '';
-            Object.entries(cont).forEach(([label, valor]) => {
-                if(valor > 0) {
-                    leg.innerHTML += `
-                        <div class="flex justify-between p-2 bg-gray-50 rounded-xl font-bold text-[9px] uppercase">
-                            <span class="text-gray-400">${label}</span>
-                            <span class="text-gray-900">${valor}</span>
-                        </div>`;
-                }
+            Object.keys(cont).forEach(m => {
+                leg.innerHTML += `<div class="flex justify-between p-3 bg-gray-50 rounded-xl font-bold text-xs"><span>${m}</span><span>${cont[m]}</span></div>`;
             });
         }
 
-        window.onload = carregarDados;
+        window.onload = carregarTickets;
     </script>
 </body>
 </html>
