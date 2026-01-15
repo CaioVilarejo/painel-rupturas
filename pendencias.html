@@ -133,13 +133,22 @@
                 <input type="text" name="referencia" placeholder="Referência" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
                 <input type="text" name="cod_cliente" placeholder="Cód Cliente" class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
                 <input type="number" name="quantidade" step="0.01" lang="pt-BR" placeholder="Quantidade (ex: 3,5)" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
+                
                 <select name="um" required class="p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary">
-    <option value="" disabled selected>Selecione a Unidade</option>
-    <option value="UN">UN</option>
-    <option value="M2">M²</option>
-    <option value="SC">SC</option>
-</select>
+                    <option value="" disabled selected>Unidade</option>
+                    <option value="UN">UN</option>
+                    <option value="M2">M²</option>
+                    <option value="SC">SC</option>
+                </select>
+
                 <input type="text" name="lote" placeholder="Tonalidade / Lote" class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
+                
+                <select name="tipo_solicitacao" required class="p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary">
+                    <option value="" disabled selected>Tipo de Solicitação</option>
+                    <option value="Complemento">Complemento</option>
+                    <option value="Compra Nova">Compra Nova</option>
+                </select>
+
                 <div class="col-span-full">
                     <select name="motivo" onchange="toggleOutros(this.value)" class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold">
                         <option value="Quebra fábrica">Quebra fábrica</option>
@@ -149,10 +158,26 @@
                         <option value="Outros">Outros</option>
                     </select>
                 </div>
+
                 <div id="divOutros" class="col-span-full hidden">
                     <input type="text" id="inputOutros" placeholder="Especifique o motivo..." class="w-full p-3 border border-primary rounded-xl outline-none text-sm font-bold">
                 </div>
-                <textarea name="observacao" placeholder="Informações iniciais..." rows="2" class="col-span-full p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold"></textarea>
+
+                <div class="col-span-full border-t pt-4">
+                    <label class="text-[10px] font-black text-gray-400 uppercase block mb-2">Foi comunicado à loja?</label>
+                    <select name="comunicado_loja" id="selectComunicado" onchange="toggleAcordo(this.value)" required class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold">
+                        <option value="" disabled selected>Selecione...</option>
+                        <option value="Sim">Sim</option>
+                        <option value="Não">Não</option>
+                    </select>
+                </div>
+
+                <div id="divAcordo" class="col-span-full hidden">
+                    <textarea name="resumo_acordo" placeholder="Resumo do acordo feito com a loja..." rows="2" class="w-full p-3 border border-emerald-500 rounded-xl outline-none text-sm font-bold"></textarea>
+                </div>
+
+                <textarea name="observacao" placeholder="Informações iniciais/Observações..." rows="2" class="col-span-full p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold"></textarea>
+                
                 <div class="col-span-full flex gap-3 pt-4">
                     <button type="button" onclick="fecharModal()" class="flex-1 bg-gray-100 py-3 rounded-xl font-bold uppercase text-[10px]">Cancelar</button>
                     <button type="submit" id="btnSalvar" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold uppercase text-[10px] shadow-lg">Salvar Ticket</button>
@@ -194,10 +219,12 @@
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Fornecedor</label><p id="detalheForn" class="font-bold text-gray-800"></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Motivo</label><p id="detalheMotivo" class="font-bold text-red-600 uppercase"></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Referência</label><p id="detalheRef" class="font-bold text-gray-800"></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Cód. Cliente</label><p id="detalheCli" class="font-bold text-blue-700"></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Quantidade / Unidade</label><p class="font-bold text-gray-800"><span id="detalheQtd"></span> <span id="detalheUM" class="text-primary"></span></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Tonalidade / Lote</label><p id="detalheLote" class="font-bold text-gray-800"></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Criado por</label><p id="detalheCriador" class="font-bold text-gray-800 italic"></p></div>
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Tipo</label><p id="detalheTipo" class="font-bold text-blue-700"></p></div>
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Qtd / UM</label><p class="font-bold text-gray-800"><span id="detalheQtd"></span> <span id="detalheUM" class="text-primary"></span></p></div>
+                    <div class="col-span-full bg-blue-50 p-3 rounded-xl">
+                        <label class="text-[9px] font-black text-blue-400 uppercase tracking-widest">Acordo com Loja</label>
+                        <p id="detalheAcordo" class="font-bold text-blue-900 italic"></p>
+                    </div>
                 </div>
 
                 <div class="p-4 bg-white rounded-2xl border-2 border-gray-100">
@@ -257,9 +284,20 @@
         let chartMotivos = null;
 
         function abrirModal() { document.getElementById('modalChamado').classList.remove('hidden'); }
-        function fecharModal() { document.getElementById('modalChamado').classList.add('hidden'); }
+        function fecharModal() { document.getElementById('modalChamado').classList.add('hidden'); document.getElementById('formTicket').reset(); toggleAcordo('Não'); }
         function fecharModalDetalhes() { document.getElementById('modalDetalhes').classList.add('hidden'); }
+        
         function toggleOutros(v) { document.getElementById('divOutros').classList.toggle('hidden', v !== 'Outros'); }
+        
+        function toggleAcordo(v) {
+            const div = document.getElementById('divAcordo');
+            if(v === 'Sim') {
+                div.classList.remove('hidden');
+            } else {
+                div.classList.add('hidden');
+                if(v === 'Não') alert("Atenção: É necessário comunicar a loja antes de prosseguir com a tratativa.");
+            }
+        }
 
         function formatarDataBR(dataStr) {
             if (!dataStr || dataStr === "" || dataStr === "---") return "---";
@@ -321,20 +359,15 @@
                 
                 let color = 'bg-blue-100 text-blue-700';
                 if(sReal === 'Resolvido') color = 'bg-emerald-100 text-emerald-700';
-                // A linha abaixo foi alterada para aceitar qualquer variação de "analise"
-                else if(sReal.toLowerCase().includes('análise') || sReal.toLowerCase().includes('analise')) color = 'bg-orange-100 text-orange-700';
+                else if(sReal.toLowerCase().includes('análise')) color = 'bg-orange-100 text-orange-700';
                 else if(sReal === 'Atrasado') color = 'bg-red-100 text-red-700';
 
                 let dPrevRaw = linha[12];
                 if(dPrevRaw && dPrevRaw.includes('/')) { const p = dPrevRaw.split('/'); dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`; }
 
-                // LÓGICA DE AÇÕES DINÂMICA
-                let acaoHTML = '';
-                if(sReal === 'Resolvido') {
-                    acaoHTML = `<span class="text-[10px] font-black text-emerald-600 uppercase italic">${formatarDataBR(linha[11])}</span>`;
-                } else {
-                    acaoHTML = `<button onclick="finalizarTicket(${row})" class="bg-emerald-50 text-emerald-600 p-2 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"><span class="material-symbols-outlined text-sm">check</span></button>`;
-                }
+                let acaoHTML = sReal === 'Resolvido' ? 
+                    `<span class="text-[10px] font-black text-emerald-600 uppercase italic">${formatarDataBR(linha[11])}</span>` :
+                    `<button onclick="finalizarTicket(${row})" class="bg-emerald-50 text-emerald-600 p-2 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"><span class="material-symbols-outlined text-sm">check</span></button>`;
 
                 tbody.innerHTML += `
                     <tr>
@@ -351,9 +384,7 @@
                         <td class="p-4 text-center">
                             <input type="date" value="${dPrevRaw ? dPrevRaw.split('T')[0] : ''}" onchange="definirPrevisao(${row}, this.value)" class="text-[10px] border rounded p-1 font-bold">
                         </td>
-                        <td class="p-4 text-center">
-                            ${acaoHTML}
-                        </td>
+                        <td class="p-4 text-center">${acaoHTML}</td>
                     </tr>`;
             });
         }
@@ -366,14 +397,13 @@
             document.getElementById('detalheSeac').innerText = t[1];
             document.getElementById('detalheForn').innerText = t[2];
             document.getElementById('detalheRef').innerText = t[3];
-            document.getElementById('detalheCli').innerText = t[4] || "---";
-            // O String() garante que qualquer número vire texto antes do replace
+            document.getElementById('detalheTipo').innerText = t[17] || "---"; // Coluna R
+            
             const qtdOriginal = t[5] !== undefined && t[5] !== null ? t[5] : "0";
             document.getElementById('detalheQtd').innerText = String(qtdOriginal).replace('.', ',');
-            document.getElementById('detalheUM').innerText = t[16] || ""; // Coluna Q (Índice 16)
-            document.getElementById('detalheLote').innerText = t[6] || "---";
+            document.getElementById('detalheUM').innerText = t[16] || ""; 
             document.getElementById('detalheMotivo').innerText = t[7] || "---";
-            document.getElementById('detalheCriador').innerText = t[13] || "---"; // CRIADO POR (Coluna N)
+            document.getElementById('detalheAcordo').innerText = t[19] || "Sem acordo registrado."; // Coluna T
             document.getElementById('detalheObs').value = t[8] || "";
             
             const dA = formatarDataBR(t[10]), dT = formatarDataBR(t[15]), dP = formatarDataBR(t[12]), dC = t[11] ? formatarDataBR(t[11]) : "---";
@@ -384,8 +414,7 @@
 
             const p = document.getElementById('timelineProgress'), sT = document.getElementById('stepTriagem'), sP = document.getElementById('stepPrevisao'), sC = document.getElementById('stepConclusao');
             [sT, sP, sC].forEach(s => s.classList.remove('active'));
-            p.style.width = "0%";
-            if (dA !== "---") p.style.width = "5%";
+            p.style.width = "5%";
             if (dT !== "---") { p.style.width = "33%"; sT.classList.add('active'); }
             if (dP !== "---") { p.style.width = "66%"; sP.classList.add('active'); }
             if (dC !== "---") { p.style.width = "100%"; sC.classList.add('active'); }
@@ -402,9 +431,7 @@
             const btn = document.getElementById('btnSalvarObs');
             const novaObs = document.getElementById('detalheObs').value;
             const novoResp = document.getElementById('selectResponsavelModal').value;
-
             btn.disabled = true; btn.innerText = "Gravando...";
-
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: ticketAbertoAtual.row, field: 'observacao', value: novaObs }) });
                 await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: ticketAbertoAtual.row, field: 'responsavel', value: novoResp }) });
@@ -437,41 +464,25 @@
         }
 
         document.getElementById('formTicket').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const btn = document.getElementById('btnSalvar'); 
-    btn.disabled = true;
-    btn.innerText = "Salvando...";
+            e.preventDefault();
+            const btn = document.getElementById('btnSalvar'); 
+            btn.disabled = true;
+            btn.innerText = "Salvando...";
 
-    const payload = Object.fromEntries(new FormData(e.target));
-    
-    // AJUSTE AQUI: O nome da propriedade deve ser 'criado_por' para bater com o .gs
-    payload.criado_por = localStorage.getItem('vilarejo_user') || 'Sistema'; 
-    
-    if (payload.motivo === 'Outros') {
-        payload.motivo = document.getElementById('inputOutros').value;
-    }
-   
-    payload.rota = 'pendencias'; 
-    payload.action = 'insert';
+            const payload = Object.fromEntries(new FormData(e.target));
+            payload.criado_por = localStorage.getItem('vilarejo_user') || 'Sistema'; 
+            if (payload.motivo === 'Outros') payload.motivo = document.getElementById('inputOutros').value;
+            payload.rota = 'pendencias'; 
+            payload.action = 'insert';
 
-    try {
-        await fetch(WEB_APP_URL, { 
-            method: 'POST', 
-            mode: 'no-cors', 
-            body: JSON.stringify(payload) 
+            try {
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                alert("Ticket registrado!");
+                fecharModal();
+                carregarTickets();
+            } catch (e) { alert("Erro ao salvar."); }
+            finally { btn.disabled = false; btn.innerText = "Salvar Ticket"; }
         });
-        
-        fecharModal(); 
-        e.target.reset(); 
-        setTimeout(carregarTickets, 1500);
-    } catch (error) {
-        console.error("Erro ao salvar ticket:", error);
-        alert("Erro ao salvar o ticket. Tente novamente.");
-    } finally {
-        btn.disabled = false;
-        btn.innerText = "Salvar Ticket";
-    }
-});
 
         function atualizarCardsGerais(dados) {
             let ana = 0, and = 0, atr = 0, res = 0;
