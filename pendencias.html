@@ -23,7 +23,7 @@
         .modal-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
 
-        /* --- AJUSTE VISUAL LINHA DO TEMPO (CORREÇÃO DA SOBREPOSIÇÃO) --- */
+        /* --- AJUSTE VISUAL LINHA DO TEMPO --- */
         .timeline-container { position: relative; display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 10px; margin-top: 20px; margin-bottom: 30px; }
         .timeline-line { position: absolute; top: 10px; left: 0; height: 4px; background: #e2e8f0; width: 100%; z-index: 1; border-radius: 10px; }
         .timeline-progress { position: absolute; top: 10px; left: 0; height: 4px; background: #E30613; width: 0%; z-index: 2; transition: width 0.8s ease; border-radius: 10px; }
@@ -140,15 +140,12 @@
                     <input type="number" name="quantidade" step="0.01" lang="pt-BR" placeholder="Quantidade" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
                     <select name="um" required class="p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary">
                         <option value="" disabled selected>Unidade</option>
-                        <option value="UN">UN</option>
-                        <option value="M2">M²</option>
-                        <option value="SC">SC</option>
+                        <option value="UN">UN</option><option value="M2">M²</option><option value="SC">SC</option>
                     </select>
                     <input type="text" name="lote" placeholder="Tonalidade / Lote" class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
                     <select name="tipo_solicitacao" required class="p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary">
                         <option value="" disabled selected>Tipo de Solicitação</option>
-                        <option value="Complemento">Complemento</option>
-                        <option value="Compra Nova">Compra Nova</option>
+                        <option value="Complemento">Complemento</option><option value="Compra Nova">Compra Nova</option>
                     </select>
                     <div class="col-span-full">
                         <select name="motivo" onchange="toggleOutros(this.value)" class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold">
@@ -166,8 +163,7 @@
                         <label class="text-[10px] font-black text-gray-400 uppercase block mb-2">Foi comunicado à loja?</label>
                         <select name="comunicado_loja" id="selectComunicado" onchange="toggleAcordo(this.value, true)" required class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold">
                             <option value="" disabled selected>Selecione...</option>
-                            <option value="Sim">Sim</option>
-                            <option value="Não">Não</option>
+                            <option value="Sim">Sim</option><option value="Não">Não</option>
                         </select>
                     </div>
                     <div id="divAcordo" class="col-span-full hidden">
@@ -216,6 +212,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-6 text-sm">
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Cód. Prod SEAC</label><p id="detalheSeac" class="font-bold text-gray-800"></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Fornecedor</label><p id="detalheForn" class="font-bold text-gray-800"></p></div>
@@ -224,18 +221,29 @@
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Cód. Cliente</label><p id="detalheCodCli" class="font-bold text-gray-800"></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Tonalidade/Lote</label><p id="detalheLote" class="font-bold text-gray-800"></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Qtd / UM</label><p class="font-bold text-gray-800"><span id="detalheQtd"></span> <span id="detalheUM" class="text-primary"></span></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Tipo Solicitação</label><p id="detalheTipo" class="font-bold text-blue-700"></p></div>
+                    
+                    <div>
+                        <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Tipo Solicitação</label>
+                        <p id="detalheTipo" class="font-bold text-blue-700"></p>
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-black text-primary uppercase tracking-widest">Criado por</label>
+                        <p id="detalheAutor" class="font-bold text-gray-800 uppercase italic"></p>
+                    </div>
                 </div>
+
                 <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100" id="boxAcordoLoja">
                     <label class="text-[10px] font-black text-blue-400 uppercase mb-1 block tracking-widest">Comunicado à Loja / Acordo</label>
                     <p class="text-sm font-bold text-blue-900"><span id="detalheComunicado"></span> — <span id="detalheAcordo"></span></p>
                 </div>
+
                 <div class="p-4 bg-white rounded-2xl border-2 border-gray-100">
                     <label class="text-[10px] font-black text-gray-400 uppercase mb-2 block tracking-widest">Responsável Atual</label>
                     <select id="selectResponsavelModal" class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary">
                         <option value="">Selecione um responsável...</option>
                     </select>
                 </div>
+
                 <div class="space-y-3">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Histórico de Tratativas</label>
                     <textarea id="detalheObs" rows="5" class="w-full border-2 border-gray-100 rounded-2xl p-4 text-sm outline-none focus:border-primary bg-gray-50 font-medium"></textarea>
@@ -249,17 +257,32 @@
 
     <div id="modalDashboard" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden flex items-center justify-center z-[10000] p-4">
         <div class="bg-white w-full max-w-4xl h-[85vh] rounded-3xl shadow-2xl flex flex-col p-8 overflow-y-auto no-scrollbar">
-            <div class="flex justify-between items-center mb-8">
-                <div><h2 class="text-2xl font-black italic uppercase">Dashboard CD</h2><p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Resumo estatístico do mês atual</p></div>
+            <div class="flex justify-between items-center mb-6">
+                <div><h2 class="text-2xl font-black italic uppercase">Dashboard Geral</h2><p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Análise de ocorrências por período</p></div>
                 <button onclick="fecharDashboard()" class="text-gray-400 hover:text-black"><span class="material-symbols-outlined text-3xl">close</span></button>
             </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                <div>
+                    <label class="text-[9px] font-black text-gray-400 uppercase ml-1">Data Inicial</label>
+                    <input type="date" id="dashDataInicio" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold outline-none">
+                </div>
+                <div>
+                    <label class="text-[9px] font-black text-gray-400 uppercase ml-1">Data Final</label>
+                    <input type="date" id="dashDataFim" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold outline-none">
+                </div>
+                <div class="flex items-end">
+                    <button onclick="gerarEstatisticasDash()" class="w-full bg-primary text-white py-2 rounded-xl font-black uppercase text-[10px]">Filtrar Dados</button>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                 <div class="bg-gray-50 p-6 rounded-3xl border border-gray-100 flex flex-col items-center justify-center h-80">
                     <div class="w-full h-full"><canvas id="graficoMotivos"></canvas></div>
                 </div>
                 <div class="space-y-4">
                     <div class="bg-primary/5 p-6 rounded-3xl border border-primary/10">
-                        <p class="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Total Geral do Mês</p>
+                        <p class="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Total no Período</p>
                         <h4 id="totalMesDash" class="text-5xl font-black text-primary italic">0</h4>
                     </div>
                     <div id="listaLegendaDash" class="space-y-2 overflow-y-auto max-h-48 pr-2"></div>
@@ -291,7 +314,7 @@
         function toggleAcordo(v, dispararAlerta) {
             const div = document.getElementById('divAcordo');
             if(v === 'Sim') { div.classList.remove('hidden'); } 
-            else if(v === 'Não') { div.classList.add('hidden'); if(dispararAlerta) alert("Atenção: É necessário comunicar a loja antes de prosseguir com a tratativa."); }
+            else if(v === 'Não') { div.classList.add('hidden'); if(dispararAlerta) alert("Atenção: Comunique a loja antes de prosseguir."); }
             else { div.classList.add('hidden'); }
         }
 
@@ -337,19 +360,14 @@
                 else if(sReal === 'Aguardando Prazo') badgeColor = 'bg-yellow-100 text-yellow-700';
                 else if(sReal === 'Aguardando Aceite CD') badgeColor = 'bg-orange-100 text-orange-700';
                 else if(sReal === 'Em andamento') badgeColor = 'bg-blue-100 text-blue-700';
-                else if(sReal === 'Prazo Recusado' || sReal === 'Cancelado') badgeColor = 'bg-red-100 text-red-700';
 
                 let acaoHTML = '';
-                if (sReal === 'Aguardando Prazo') {
-                    acaoHTML = `<span class="text-[9px] text-gray-400 font-bold uppercase italic">Defina o prazo...</span>`;
-                } else if (sReal === 'Aguardando Aceite CD') {
-                    acaoHTML = `<div class="flex gap-2 justify-center"><button onclick="mudarStatus(${rowNum}, 'Em andamento')" class="bg-emerald-50 text-emerald-600 px-2 py-1 rounded-md hover:bg-emerald-600 hover:text-white transition-all text-[9px] font-black">ACEITAR</button><button onclick="mudarStatus(${rowNum}, 'Prazo Recusado')" class="bg-red-50 text-red-600 px-2 py-1 rounded-md hover:bg-red-600 hover:text-white transition-all text-[9px] font-black">RECUSAR</button></div>`;
+                if (sReal === 'Aguardando Aceite CD') {
+                    acaoHTML = `<div class="flex gap-2 justify-center"><button onclick="mudarStatus(${rowNum}, 'Em andamento')" class="bg-emerald-50 text-emerald-600 px-2 py-1 rounded text-[9px] font-black hover:bg-emerald-600 hover:text-white">ACEITAR</button></div>`;
                 } else if (sReal === 'Em andamento') {
-                    acaoHTML = `<div class="flex gap-2 justify-center"><button onclick="mudarStatus(${rowNum}, 'Resolvido')" title="Concluir" class="bg-emerald-50 text-emerald-600 p-1.5 rounded-lg hover:bg-emerald-600 hover:text-white transition-all shadow-sm"><span class="material-symbols-outlined text-sm">check</span></button><button onclick="mudarStatus(${rowNum}, 'Cancelado')" title="Cancelar" class="bg-gray-100 text-gray-400 p-1.5 rounded-lg hover:bg-red-600 hover:text-white transition-all shadow-sm"><span class="material-symbols-outlined text-sm">close</span></button></div>`;
+                    acaoHTML = `<div class="flex gap-2 justify-center"><button onclick="mudarStatus(${rowNum}, 'Resolvido')" class="bg-emerald-50 text-emerald-600 p-1 rounded hover:bg-emerald-600 hover:text-white"><span class="material-symbols-outlined text-sm">check</span></button></div>`;
                 } else if (sReal === 'Resolvido') {
                     acaoHTML = `<div class="flex flex-col items-center"><span class="text-[8px] font-black text-emerald-600 uppercase">Concluído em</span><span class="text-[10px] font-bold text-gray-600">${formatarDataBR(linha[11])}</span></div>`;
-                } else {
-                    acaoHTML = `<span class="text-[10px] font-black uppercase opacity-20 italic">Finalizado</span>`;
                 }
 
                 let dPrevInput = "";
@@ -358,19 +376,19 @@
                 }
 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50/50 transition-colors border-b border-gray-100">
-                        <td class="p-4 font-black text-primary italic"><button onclick="verDetalhes(${idxGlobal})" class="hover:underline">${linha[0]}</button></td>
+                    <tr class="hover:bg-gray-50 border-b border-gray-100">
+                        <td class="p-4 font-black text-primary italic"><button onclick="verDetalhes(${idxGlobal})">${linha[0]}</button></td>
                         <td class="p-4"><span class="px-2 py-1 rounded text-[9px] font-black uppercase ${badgeColor}">${sReal}</span></td>
-                        <td class="p-4"><div class="flex flex-col"><span class="font-bold text-gray-800">${linha[1]}</span><span class="text-[10px] text-gray-400 uppercase font-black">${linha[2]}</span></div></td>
-                        <td class="p-4 text-center text-xs font-bold text-gray-600">${formatarDataBR(linha[10])}</td>
+                        <td class="p-4"><div class="flex flex-col"><span class="font-bold">${linha[1]}</span><span class="text-[10px] text-gray-400 font-black">${linha[2]}</span></div></td>
+                        <td class="p-4 text-center text-xs font-bold">${formatarDataBR(linha[10])}</td>
                         <td class="p-4 text-center">
-                            <select onchange="atualizarCampo(${rowNum}, 'responsavel', this.value)" class="text-[10px] border border-gray-200 rounded-lg p-1.5 font-bold outline-none bg-white">
+                            <select onchange="atualizarCampo(${rowNum}, 'responsavel', this.value)" class="text-[10px] border rounded p-1 font-bold">
                                 <option value="">---</option>
                                 ${LISTA_RESPONSAVEIS.map(r => `<option value="${r}" ${linha[14] === r ? 'selected' : ''}>${r}</option>`).join('')}
                             </select>
                         </td>
                         <td class="p-4 text-center">
-                            <input type="date" value="${dPrevInput}" onchange="definirPrevisao(${rowNum}, this.value)" ${(sReal !== 'Aguardando Prazo' && sReal !== 'Aguardando Aceite CD') ? 'disabled' : ''} class="text-[10px] border border-gray-200 rounded-lg p-1 font-bold outline-none bg-white disabled:bg-gray-50">
+                            <input type="date" value="${dPrevInput}" onchange="definirPrevisao(${rowNum}, this.value)" class="text-[10px] border rounded p-1 font-bold">
                         </td>
                         <td class="p-4 text-center">${acaoHTML}</td>
                     </tr>
@@ -379,14 +397,12 @@
         }
 
         async function mudarStatus(row, novoStatus) {
-            try {
-                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: 'status', value: novoStatus }) });
-                if(novoStatus === 'Resolvido') {
-                    const hoje = new Date().toLocaleDateString('pt-BR');
-                    await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: 'data_conclusao', value: hoje }) });
-                }
-                setTimeout(carregarTickets, 600);
-            } catch (e) { alert("Erro ao atualizar status."); }
+            await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: 'status', value: novoStatus }) });
+            if(novoStatus === 'Resolvido') {
+                const hoje = new Date().toLocaleDateString('pt-BR');
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: 'data_conclusao', value: hoje }) });
+            }
+            setTimeout(carregarTickets, 600);
         }
 
         async function definirPrevisao(row, valor) {
@@ -398,10 +414,8 @@
         }
 
         async function atualizarCampo(row, campo, valor) {
-            try {
-                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: campo, value: valor }) });
-                setTimeout(carregarTickets, 500);
-            } catch (e) {}
+            await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: campo, value: valor }) });
+            setTimeout(carregarTickets, 500);
         }
 
         function verDetalhes(idx) {
@@ -420,47 +434,39 @@
             document.getElementById('detalheTipo').innerText = t[19] || "---";
             document.getElementById('detalheComunicado').innerText = t[17] || "Não informado";
             document.getElementById('detalheAcordo').innerText = t[18] || "---";
+            
+            // CAMPO CRIADOR (COLUNA N = INDEX 13)
+            document.getElementById('detalheAutor').innerText = t[13] || "Não identificado";
 
-            const dAbertura = formatarDataBR(t[10]);
-            const dTriagem = formatarDataBR(t[15]);
-            const dPrevisao = formatarDataBR(t[12]);
-            const dConclu = formatarDataBR(t[11]);
-
-            document.getElementById('dateStep1').innerText = dAbertura;
-            document.getElementById('dateStep2').innerText = dTriagem;
-            document.getElementById('dateStep3').innerText = dPrevisao;
-            document.getElementById('dateStep4').innerText = dConclu;
+            const dA = formatarDataBR(t[10]), dT = formatarDataBR(t[15]), dP = formatarDataBR(t[12]), dC = formatarDataBR(t[11]);
+            document.getElementById('dateStep1').innerText = dA;
+            document.getElementById('dateStep2').innerText = dT;
+            document.getElementById('dateStep3').innerText = dP;
+            document.getElementById('dateStep4').innerText = dC;
 
             [1,2,3,4].forEach(i => document.getElementById(`step${i}`).classList.remove('active'));
-            let progresso = 0;
-            if (dAbertura !== "---") { document.getElementById('step1').classList.add('active'); progresso = 0; }
-            if (dTriagem !== "---") { document.getElementById('step2').classList.add('active'); progresso = 33; }
-            if (dPrevisao !== "---") { document.getElementById('step3').classList.add('active'); progresso = 66; }
-            if (dConclu !== "---") { document.getElementById('step4').classList.add('active'); progresso = 100; }
-            document.getElementById('progressoLinha').style.width = progresso + "%";
+            let perc = 0;
+            if (dA !== "---") { document.getElementById('step1').classList.add('active'); perc = 5; }
+            if (dT !== "---") { document.getElementById('step2').classList.add('active'); perc = 33; }
+            if (dP !== "---") { document.getElementById('step3').classList.add('active'); perc = 66; }
+            if (dC !== "---") { document.getElementById('step4').classList.add('active'); perc = 100; }
+            document.getElementById('progressoLinha').style.width = perc + "%";
 
             const sel = document.getElementById('selectResponsavelModal');
-            sel.innerHTML = '<option value="">Selecione...</option>';
-            LISTA_RESPONSAVEIS.forEach(r => {
-                sel.innerHTML += `<option value="${r}" ${t[14] === r ? 'selected' : ''}>${r}</option>`;
-            });
+            sel.innerHTML = '<option value="">Selecione...</option>' + LISTA_RESPONSAVEIS.map(r => `<option value="${r}" ${t[14] === r ? 'selected' : ''}>${r}</option>`).join('');
 
             document.getElementById('modalDetalhes').classList.remove('hidden');
         }
 
         async function salvarAlteracoesNoModal() {
-            if(!ticketAbertoAtual) return;
             const btn = document.getElementById('btnSalvarObs');
+            btn.disabled = true; btn.innerText = "Gravando...";
             const novaObs = document.getElementById('detalheObs').value;
             const novoResp = document.getElementById('selectResponsavelModal').value;
-            btn.disabled = true; btn.innerText = "Gravando...";
-            try {
-                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: ticketAbertoAtual.row, field: 'observacao', value: novaObs }) });
-                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: ticketAbertoAtual.row, field: 'responsavel', value: novoResp }) });
-                alert("Alterações salvas com sucesso!");
-                fecharModalDetalhes();
-                carregarTickets();
-            } catch (e) { alert("Erro ao salvar."); } finally { btn.disabled = false; btn.innerText = "Salvar Alterações"; }
+            await atualizarCampo(ticketAbertoAtual.row, 'observacao', novaObs);
+            await atualizarCampo(ticketAbertoAtual.row, 'responsavel', novoResp);
+            fecharModalDetalhes();
+            btn.disabled = false; btn.innerText = "Salvar Alterações";
         }
 
         document.getElementById('formTicket').onsubmit = async (e) => {
@@ -470,28 +476,25 @@
             const formData = new FormData(e.target);
             const data = Object.fromEntries(formData.entries());
             
-            // LOGICA DA COLUNA N (AUTOR) MANTIDA DO SEU BACKUP
-            const userLogged = localStorage.getItem('usuarioNome') || "Sistema";
-            data.autor = userLogged;
-            data.rota = 'pendencias';
+            // RECUPERA O NOME DO LOGIN PARA SALVAR NA COLUNA N
+            data.autor = localStorage.getItem('usuarioNome') || "Sistema";
+            data.rota = 'pendencias'; 
             data.action = 'insert';
 
-            try {
-                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-                alert("Ticket registrado com sucesso!");
-                fecharModal();
-                setTimeout(carregarTickets, 800);
-            } catch (e) { alert("Erro ao salvar ticket."); } finally { btn.disabled = false; btn.innerText = "Salvar Ticket"; }
+            await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
+            fecharModal();
+            btn.disabled = false; btn.innerText = "Salvar Ticket";
+            setTimeout(carregarTickets, 800);
         };
 
         function atualizarCardsGerais(dados) {
             let a = 0, b = 0, c = 0, d = 0;
-            dados.forEach(linha => {
-                const status = calcularStatusReal(linha);
-                if (status === 'Aguardando Prazo') a++;
-                else if (status === 'Aguardando Aceite CD') b++;
-                else if (status === 'Em andamento') c++;
-                else if (status === 'Resolvido') d++;
+            dados.forEach(l => {
+                const s = calcularStatusReal(l);
+                if(s === 'Aguardando Prazo') a++;
+                else if(s === 'Aguardando Aceite CD') b++;
+                else if(s === 'Em andamento') c++;
+                else if(s === 'Resolvido') d++;
             });
             document.getElementById('cardAnalise').innerText = a;
             document.getElementById('cardAndamento').innerText = b;
@@ -507,49 +510,65 @@
 
         function gerarEstatisticasDash() {
             const contagemMotivos = { "Quebra fábrica": 0, "Quebra depósito/Loja": 0, "Quebra de produto na embalagem(Externa)": 0, "Divergência de Estoque": 0, "Outros": 0 };
-            let totalMes = 0;
-            const hoje = new Date();
-            const mesAtual = hoje.getMonth();
-            const anoAtual = hoje.getFullYear();
+            let total = 0;
+            
+            const dataInicio = document.getElementById('dashDataInicio').value;
+            const dataFim = document.getElementById('dashDataFim').value;
 
             dadosGlobais.forEach(d => {
-                const dataAbertura = new Date(d[10]);
-                if (dataAbertura.getMonth() === mesAtual && dataAbertura.getFullYear() === anoAtual) {
-                    totalMes++;
+                const dataTicket = new Date(d[10]);
+                let validarData = true;
+
+                if (dataInicio) {
+                    const dIni = new Date(dataInicio);
+                    if (dataTicket < dIni) validarData = false;
+                }
+                if (dataFim) {
+                    const dFim = new Date(dataFim);
+                    dFim.setHours(23, 59, 59); // Garante que pegue o dia inteiro
+                    if (dataTicket > dFim) validarData = false;
+                }
+
+                if (validarData) {
+                    total++;
                     const motivo = d[7] || "Outros";
                     if (contagemMotivos[motivo] !== undefined) contagemMotivos[motivo]++; else contagemMotivos["Outros"]++;
                 }
             });
 
-            document.getElementById('totalMesDash').innerText = totalMes;
+            document.getElementById('totalMesDash').innerText = total;
+            renderizarGraficoDash(contagemMotivos, total);
+        }
+
+        function renderizarGraficoDash(cont, total) {
             const ctx = document.getElementById('graficoMotivos').getContext('2d');
-            if (chartMotivos) chartMotivos.destroy();
+            if(chartMotivos) chartMotivos.destroy();
             chartMotivos = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: Object.keys(contagemMotivos),
-                    datasets: [{
-                        data: Object.values(contagemMotivos),
-                        backgroundColor: ['#E30613', '#111827', '#3b82f6', '#10b981', '#f59e0b'],
-                        borderWidth: 0
+                    labels: Object.keys(cont),
+                    datasets: [{ 
+                        data: Object.values(cont), 
+                        backgroundColor: ['#E30613', '#111827', '#3b82f6', '#10b981', '#f59e0b'], 
+                        borderWidth: 0 
                     }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '70%' }
             });
 
-            const listaLegenda = document.getElementById('listaLegendaDash');
-            listaLegenda.innerHTML = '';
-            Object.entries(contagemMotivos).forEach(([motivo, qtd]) => {
-                const perc = totalMes > 0 ? ((qtd / totalMes) * 100).toFixed(0) : 0;
-                listaLegenda.innerHTML += `
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                        <div class="flex items-center gap-3">
-                            <span class="w-2 h-2 rounded-full" style="background-color: ${chartMotivos.data.datasets[0].backgroundColor[Object.keys(contagemMotivos).indexOf(motivo)]}"></span>
-                            <span class="text-[10px] font-bold text-gray-600 uppercase">${motivo}</span>
+            const leg = document.getElementById('listaLegendaDash');
+            leg.innerHTML = '';
+            Object.entries(cont).forEach(([m, q], i) => {
+                const perc = total > 0 ? ((q / total) * 100).toFixed(0) : 0;
+                leg.innerHTML += `
+                    <div class="flex justify-between p-3 bg-gray-50 rounded-xl font-bold text-xs items-center">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full" style="background-color: ${chartMotivos.data.datasets[0].backgroundColor[i]}"></span>
+                            <span class="uppercase text-gray-500">${m}</span>
                         </div>
-                        <div class="flex items-center gap-4">
-                            <span class="text-xs font-black text-gray-800">${qtd}</span>
-                            <span class="text-[10px] font-bold text-gray-400">${perc}%</span>
+                        <div class="flex gap-3">
+                            <span>${q}</span>
+                            <span class="text-gray-400">${perc}%</span>
                         </div>
                     </div>`;
             });
