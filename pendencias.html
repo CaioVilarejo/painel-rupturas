@@ -17,29 +17,84 @@
     </script>
 
     <style type="text/css">
-        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; margin: 0; }
+        
+        /* Custom Scrollbar */
         .modal-scroll::-webkit-scrollbar { width: 6px; }
         .modal-scroll::-webkit-scrollbar-track { background: #f8fafc; border-radius: 10px; }
         .modal-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
 
-        /* --- AJUSTE VISUAL LINHA DO TEMPO --- */
-        .timeline-container { position: relative; display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 10px; margin-top: 20px; margin-bottom: 30px; }
-        .timeline-line { position: absolute; top: 8px; left: 0; height: 4px; background: #e2e8f0; width: 100%; z-index: 1; border-radius: 10px; }
-        .timeline-progress { position: absolute; top: 8px; left: 0; height: 4px; background: #E30613; width: 0%; z-index: 2; transition: width 0.8s ease; border-radius: 10px; }
-        .timeline-step { position: relative; z-index: 3; background: #fff; border: 3px solid #e2e8f0; width: 18px; height: 18px; border-radius: 50%; transition: all 0.4s; margin-bottom: 12px; } /* Espaçamento aqui */
-        .timeline-step.active { border-color: #E30613; background: #E30613; box-shadow: 0 0 0 4px rgba(227, 6, 19, 0.2); }
+        /* --- AJUSTE VISUAL LINHA DO TEMPO (CORRIGIDO) --- */
+        .timeline-container { 
+            position: relative; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            width: 100%; 
+            padding: 0 10px; 
+            margin-top: 25px; 
+            margin-bottom: 35px; 
+        }
+        .timeline-line { 
+            position: absolute; 
+            top: 9px; 
+            left: 0; 
+            height: 4px; 
+            background: #e2e8f0; 
+            width: 100%; 
+            z-index: 1; 
+            border-radius: 10px; 
+        }
+        .timeline-progress { 
+            position: absolute; 
+            top: 9px; 
+            left: 0; 
+            height: 4px; 
+            background: #E30613; 
+            width: 0%; 
+            z-index: 2; 
+            transition: width 0.8s ease; 
+            border-radius: 10px; 
+        }
+        .timeline-step { 
+            position: relative; 
+            z-index: 3; 
+            background: #fff; 
+            border: 3px solid #e2e8f0; 
+            width: 20px; 
+            height: 20px; 
+            border-radius: 50%; 
+            transition: all 0.4s; 
+            margin-bottom: 12px; /* Espaço para não colar no texto */
+        }
+        .timeline-step.active { 
+            border-color: #E30613; 
+            background: #E30613; 
+            box-shadow: 0 0 0 4px rgba(227, 6, 19, 0.2); 
+        }
+        
+        /* Ajuste para o conteúdo não vazar por baixo do menu fixo */
+        #sidebar-container aside {
+            height: 100vh;
+            position: sticky;
+            top: 0;
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-900">
+
     <div class="flex h-screen overflow-hidden">
+        
+        <div id="sidebar-container"></div>
+
         <main class="flex-1 overflow-y-auto p-4 md:p-8 no-scrollbar">
             <div class="max-w-7xl mx-auto">
                 
                 <div class="flex justify-between items-center mb-6">
-                    <h1 class="text-xl font-black uppercase tracking-widest text-gray-800">Controle de Ocorrências</h1>
+                    <h1 class="text-xl font-black uppercase tracking-widest text-gray-800 italic">Controle de Ocorrências CD</h1>
                     <button onclick="abrirDashboard()" class="bg-gray-800 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 hover:bg-black transition-all shadow-lg">
-                        <span class="material-symbols-outlined text-sm">analytics</span> Dashboard
+                        <span class="material-symbols-outlined text-sm">analytics</span> Dashboard Geral
                     </button>
                 </div>
 
@@ -62,15 +117,15 @@
                     </div>
                 </div>
 
-                <div class="flex flex-col md:flex-row justify-between items-end gap-4 mb-6 bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 w-full">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div>
-                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Buscar ID</label>
-                            <input type="text" id="inputBuscaID" onkeyup="filtrarGeral()" placeholder="TKT-..." class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold outline-none focus:border-primary">
+                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Buscar por Ticket ou Produto</label>
+                            <input type="text" id="inputBuscaID" onkeyup="filtrarGeral()" placeholder="Ex: TKT-123..." class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold outline-none focus:border-primary">
                         </div>
                         <div>
-                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Status</label>
-                            <select id="selectStatus" onchange="filtrarGeral()" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white outline-none">
+                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Filtrar Status</label>
+                            <select id="selectStatus" onchange="filtrarGeral()" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold bg-white outline-none">
                                 <option value="todos">Todos os Status</option>
                                 <option value="Aguardando Prazo">Aguardando Prazo</option>
                                 <option value="Aguardando Aceite CD">Aguardando Aceite CD</option>
@@ -81,8 +136,8 @@
                             </select>
                         </div>
                         <div>
-                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Motivo</label>
-                            <select id="selectMotivoFiltro" onchange="filtrarGeral()" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white outline-none">
+                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Filtrar Motivo</label>
+                            <select id="selectMotivoFiltro" onchange="filtrarGeral()" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold bg-white outline-none">
                                 <option value="todos">Todos os Motivos</option>
                                 <option value="Quebra fábrica">Quebra fábrica</option>
                                 <option value="Quebra depósito/Loja">Quebra depósito/Loja</option>
@@ -92,7 +147,7 @@
                             </select>
                         </div>
                         <div class="flex items-end">
-                            <button onclick="abrirModal()" class="w-full bg-primary text-white px-4 py-2.5 rounded-xl font-bold uppercase text-[10px] shadow-lg hover:bg-red-700 transition-all flex items-center justify-center gap-2">
+                            <button onclick="abrirModal()" class="w-full bg-primary text-white py-2.5 rounded-xl font-bold uppercase text-[10px] shadow-lg hover:bg-red-700 transition-all flex items-center justify-center gap-2">
                                 <span class="material-symbols-outlined text-sm">add_circle</span> Novo Ticket
                             </button>
                         </div>
@@ -104,16 +159,17 @@
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-gray-50 border-b text-[10px] font-black text-gray-400 uppercase">
-                                    <th class="p-4">ID Ticket</th>
-                                    <th class="p-4">Status</th>
+                                    <th class="p-4">Ticket</th>
+                                    <th class="p-4">Status Atual</th>
                                     <th class="p-4">Produto / Fornecedor</th>
-                                    <th class="p-4 text-center">Abertura</th>
+                                    <th class="p-4 text-center">Data Abertura</th>
                                     <th class="p-4 text-center">Responsável</th>
-                                    <th class="p-4 text-center">Previsão</th>
+                                    <th class="p-4 text-center">Previsão CD</th>
                                     <th class="p-4 text-center">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="tabelaChamados" class="divide-y divide-gray-100 text-sm"></tbody>
+                            <tbody id="tabelaChamados" class="divide-y divide-gray-100 text-sm">
+                                </tbody>
                         </table>
                     </div>
                 </div>
@@ -124,7 +180,7 @@
     <div id="modalChamado" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[9999]">
         <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl flex flex-col max-h-[95vh]">
             <div class="p-6 border-b bg-gray-50 flex justify-between items-center rounded-t-3xl">
-                <h2 class="text-xl font-black text-primary uppercase">Registrar Pendência</h2>
+                <h2 class="text-xl font-black text-primary uppercase">Registrar Nova Pendência</h2>
                 <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600"><span class="material-symbols-outlined">close</span></button>
             </div>
             <div class="overflow-y-auto modal-scroll p-6 pb-20"> 
@@ -136,7 +192,7 @@
                     <input type="number" name="quantidade" step="0.01" lang="pt-BR" placeholder="Quantidade" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
                     
                     <select name="um" required class="p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary">
-                        <option value="" disabled selected>Unidade</option>
+                        <option value="" disabled selected>Unidade Medida</option>
                         <option value="UN">UN</option>
                         <option value="M2">M²</option>
                         <option value="SC">SC</option>
@@ -151,7 +207,8 @@
                     </select>
 
                     <div class="col-span-full">
-                        <select name="motivo" onchange="toggleOutros(this.value)" class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold">
+                        <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Motivo da Ocorrência</label>
+                        <select name="motivo" onchange="toggleOutros(this.value)" class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold mt-1">
                             <option value="Quebra fábrica">Quebra fábrica</option>
                             <option value="Quebra depósito/Loja">Quebra depósito/Loja</option>
                             <option value="Quebra de produto na embalagem(Externa)">Quebra produto embalagem</option>
@@ -161,27 +218,27 @@
                     </div>
 
                     <div id="divOutros" class="col-span-full hidden">
-                        <input type="text" id="inputOutros" placeholder="Especifique o motivo..." class="w-full p-3 border border-primary rounded-xl outline-none text-sm font-bold">
+                        <input type="text" id="inputOutros" placeholder="Especifique o motivo detalhadamente..." class="w-full p-3 border border-primary rounded-xl outline-none text-sm font-bold">
                     </div>
 
                     <div class="col-span-full border-t pt-4">
-                        <label class="text-[10px] font-black text-gray-400 uppercase block mb-2">Foi comunicado à loja?</label>
+                        <label class="text-[10px] font-black text-gray-400 uppercase block mb-2">Acordo com a Loja:</label>
                         <select name="comunicado_loja" id="selectComunicado" onchange="toggleAcordo(this.value, true)" required class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold">
-                            <option value="" disabled selected>Selecione...</option>
-                            <option value="Sim">Sim</option>
-                            <option value="Não">Não</option>
+                            <option value="" disabled selected>Foi comunicado à loja?</option>
+                            <option value="Sim">Sim, houve comunicação</option>
+                            <option value="Não">Não houve comunicação</option>
                         </select>
                     </div>
 
                     <div id="divAcordo" class="col-span-full hidden">
-                        <textarea name="resumo_acordo" placeholder="Resumo do acordo feito com a loja..." rows="2" class="w-full p-3 border border-emerald-500 rounded-xl outline-none text-sm font-bold"></textarea>
+                        <textarea name="resumo_acordo" placeholder="Descreva aqui o que foi acordado com a loja..." rows="2" class="w-full p-3 border border-emerald-500 rounded-xl outline-none text-sm font-bold"></textarea>
                     </div>
 
-                    <textarea name="observacao" placeholder="Informações iniciais/Observações..." rows="3" class="col-span-full p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold"></textarea>
+                    <textarea name="observacao" placeholder="Observações iniciais relevantes..." rows="3" class="col-span-full p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold"></textarea>
                     
                     <div class="col-span-full flex gap-3 pt-6">
                         <button type="button" onclick="fecharModal()" class="flex-1 bg-gray-100 py-3 rounded-xl font-bold uppercase text-[10px]">Cancelar</button>
-                        <button type="submit" id="btnSalvar" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold uppercase text-[10px] shadow-lg">Salvar Ticket</button>
+                        <button type="submit" id="btnSalvar" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold uppercase text-[10px] shadow-lg">Criar Ticket</button>
                     </div>
                 </form>
             </div>
@@ -191,9 +248,7 @@
     <div id="modalDetalhes" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[9999]">
         <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl flex flex-col max-h-[95vh]">
             <div class="p-6 border-b flex justify-between items-center bg-gray-50 rounded-t-3xl">
-                <div>
-                    <h2 id="detalheID" class="text-3xl font-black text-gray-800 tracking-tighter"></h2>
-                </div>
+                <div><h2 id="detalheID" class="text-3xl font-black text-gray-800 tracking-tighter italic"></h2></div>
                 <button onclick="fecharModalDetalhes()" class="text-gray-400 hover:text-primary"><span class="material-symbols-outlined text-3xl">close</span></button>
             </div>
             
@@ -244,14 +299,14 @@
                 </div>
 
                 <div class="p-4 bg-white rounded-2xl border-2 border-gray-100">
-                    <label class="text-[10px] font-black text-gray-400 uppercase mb-2 block tracking-widest">Responsável Atual</label>
+                    <label class="text-[10px] font-black text-gray-400 uppercase mb-2 block tracking-widest">Alterar Responsável</label>
                     <select id="selectResponsavelModal" class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary">
-                        <option value="">Selecione um responsável...</option>
+                        <option value="">Selecione...</option>
                     </select>
                 </div>
 
                 <div class="space-y-3">
-                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Histórico de Tratativas</label>
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Histórico de Tratativas / Observações</label>
                     <textarea id="detalheObs" rows="5" class="w-full border-2 border-gray-100 rounded-2xl p-4 text-sm outline-none focus:border-primary bg-gray-50 font-medium"></textarea>
                 </div>
             </div>
@@ -264,41 +319,45 @@
     <div id="modalDashboard" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden flex items-center justify-center z-[10000] p-4">
         <div class="bg-white w-full max-w-5xl h-full max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden">
             <div class="p-6 border-b flex justify-between items-center bg-gray-50">
-                <h2 class="text-xl font-black text-gray-800 uppercase flex items-center gap-2">Dashboard de Ocorrências</h2>
+                <h2 class="text-xl font-black text-gray-800 uppercase flex items-center gap-2">Dashboard Analítico</h2>
                 <button onclick="fecharDashboard()" class="text-gray-400 hover:text-black"><span class="material-symbols-outlined text-3xl">close</span></button>
             </div>
             <div class="p-8 overflow-y-auto modal-scroll space-y-8">
                 <div class="flex flex-col md:flex-row gap-6 items-end bg-gray-100 p-6 rounded-3xl">
                     <div class="flex-1">
-                        <label class="text-[9px] font-bold text-gray-400">De:</label>
+                        <label class="text-[9px] font-bold text-gray-400 uppercase">Data Início</label>
                         <input type="date" id="dashDataInicio" onchange="processarDadosDash()" class="w-full border-b-2 py-2 text-sm font-bold bg-transparent outline-none">
                     </div>
                     <div class="flex-1">
-                        <label class="text-[9px] font-bold text-gray-400">Até:</label>
+                        <label class="text-[9px] font-bold text-gray-400 uppercase">Data Fim</label>
                         <input type="date" id="dashDataFim" onchange="processarDadosDash()" class="w-full border-b-2 py-2 text-sm font-bold bg-transparent outline-none">
                     </div>
                     <div class="bg-white px-8 py-3 rounded-2xl border min-w-[150px] text-center">
-                        <p class="text-[9px] font-black text-gray-400 uppercase">Total Geral</p>
+                        <p class="text-[9px] font-black text-gray-400 uppercase">Volume Total</p>
                         <p id="totalMesDash" class="text-2xl font-black">0</p>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="bg-white p-4 h-80"><canvas id="graficoMotivos"></canvas></div>
-                    <div id="listaLegendaDash" class="space-y-4"></div>
+                    <div class="bg-white p-4 h-80 flex items-center justify-center border rounded-2xl">
+                        <canvas id="graficoMotivos"></canvas>
+                    </div>
+                    <div id="listaLegendaDash" class="space-y-3">
+                        </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbznCForFxpY6CAU6W3UgglusC8oqyfDz0dqM-l_95xtr9CK9TcFvbw_V7LJQk8jTZH-/exec'; 
+        // --- CONFIGURAÇÃO ---
+        const WEB_APP_URL = 'SUA_URL_AQUI'; 
         const LISTA_RESPONSAVEIS = ["Eduardo", "Edson", "Fábio", "Leandro", "Herialdo", "Bruna", "Renielle", "Caio"];
         
         let dadosGlobais = [];
         let ticketAbertoAtual = null;
         let chartMotivos = null;
 
-        // --- INTERFACE ---
+        // --- INTERFACE (MODAIS E CONTROLES) ---
         function abrirModal() { document.getElementById('modalChamado').classList.remove('hidden'); }
         function fecharModal() { 
             document.getElementById('modalChamado').classList.add('hidden'); 
@@ -310,11 +369,14 @@
         
         function toggleAcordo(v, dispararAlerta) {
             const div = document.getElementById('divAcordo');
-            if(v === 'Sim') { div.classList.remove('hidden'); } 
-            else if(v === 'Não') {
+            if(v === 'Sim') { 
+                div.classList.remove('hidden'); 
+            } else if(v === 'Não') {
                 div.classList.add('hidden');
-                if(dispararAlerta) alert("Atenção: É necessário comunicar a loja antes de prosseguir com a tratativa.");
-            } else { div.classList.add('hidden'); }
+                if(dispararAlerta) alert("Lembre-se: É fundamental comunicar a loja sobre as tratativas de pendências.");
+            } else { 
+                div.classList.add('hidden'); 
+            }
         }
 
         function formatarDataBR(dataStr) {
@@ -326,13 +388,13 @@
             } catch (e) { return dataStr; }
         }
 
-        // --- DADOS ---
+        // --- GERENCIAMENTO DE DADOS (FETCH) ---
         async function carregarTickets() {
             try {
                 const r = await fetch(`${WEB_APP_URL}?rota=pendencias`);
                 dadosGlobais = await r.json();
                 filtrarGeral();
-            } catch (e) { console.error("Erro na conexão"); }
+            } catch (e) { console.error("Erro na conexão com Google Sheets."); }
         }
 
         function calcularStatusReal(linha) {
@@ -351,14 +413,18 @@
 
             const filtrados = dadosGlobais.filter(linha => {
                 const sReal = calcularStatusReal(linha);
-                return linha[0].toLowerCase().includes(busca) && 
-                       (statusF === "todos" || sReal === statusF) &&
-                       (motivoF === "todos" || linha[7] === motivoF);
+                const matchID = linha[0].toLowerCase().includes(busca);
+                const matchProd = linha[1].toLowerCase().includes(busca);
+                const matchStatus = (statusF === "todos" || sReal === statusF);
+                const matchMotivo = (motivoF === "todos" || linha[7] === motivoF);
+                
+                return (matchID || matchProd) && matchStatus && matchMotivo;
             });
             renderizarTabela(filtrados);
             atualizarCardsGerais(dadosGlobais);
         }
 
+        // --- RENDERIZAÇÃO DA TABELA ---
         function renderizarTabela(dados) {
             const tbody = document.getElementById('tabelaChamados');
             tbody.innerHTML = '';
@@ -368,6 +434,7 @@
                 const rowNum = idxGlobal + 2;
                 const sReal = calcularStatusReal(linha);
                 
+                // Estilização dos Status
                 let badgeColor = 'bg-gray-100 text-gray-700';
                 if(sReal === 'Resolvido') badgeColor = 'bg-emerald-100 text-emerald-700';
                 else if(sReal === 'Aguardando Prazo') badgeColor = 'bg-yellow-100 text-yellow-700';
@@ -375,59 +442,64 @@
                 else if(sReal === 'Em andamento') badgeColor = 'bg-blue-100 text-blue-700';
                 else if(sReal === 'Prazo Recusado' || sReal === 'Cancelado') badgeColor = 'bg-red-100 text-red-700';
 
+                // Lógica de Ações
                 let acaoHTML = '';
                 if (sReal === 'Aguardando Prazo') {
-                    acaoHTML = `<span class="text-[9px] text-gray-400 font-bold uppercase italic">Defina o prazo...</span>`;
-                } 
-                else if (sReal === 'Aguardando Aceite CD') {
+                    acaoHTML = `<span class="text-[9px] text-gray-400 font-bold uppercase italic">Defina a previsão abaixo</span>`;
+                } else if (sReal === 'Aguardando Aceite CD') {
                     acaoHTML = `
                         <div class="flex gap-2 justify-center">
-                            <button onclick="mudarStatus(${rowNum}, 'Em andamento')" class="bg-emerald-50 text-emerald-600 px-2 py-1 rounded-md hover:bg-emerald-600 hover:text-white transition-all text-[9px] font-black">ACEITAR</button>
-                            <button onclick="mudarStatus(${rowNum}, 'Prazo Recusado')" class="bg-red-50 text-red-600 px-2 py-1 rounded-md hover:bg-red-600 hover:text-white transition-all text-[9px] font-black">RECUSAR</button>
+                            <button onclick="mudarStatus(${rowNum}, 'Em andamento')" class="bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-lg hover:bg-emerald-600 hover:text-white transition-all text-[10px] font-black uppercase shadow-sm">Aceitar</button>
+                            <button onclick="mudarStatus(${rowNum}, 'Prazo Recusado')" class="bg-red-50 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-600 hover:text-white transition-all text-[10px] font-black uppercase shadow-sm">Recusar</button>
                         </div>`;
-                }
-                else if (sReal === 'Em andamento') {
+                } else if (sReal === 'Em andamento') {
                     acaoHTML = `
                         <div class="flex gap-2 justify-center">
-                            <button onclick="mudarStatus(${rowNum}, 'Resolvido')" title="Concluir" class="bg-emerald-50 text-emerald-600 p-1.5 rounded-lg hover:bg-emerald-600 hover:text-white transition-all shadow-sm">
-                                <span class="material-symbols-outlined text-sm">check</span>
+                            <button onclick="mudarStatus(${rowNum}, 'Resolvido')" title="Concluir" class="bg-emerald-100 text-emerald-700 p-2 rounded-xl hover:bg-emerald-600 hover:text-white transition-all">
+                                <span class="material-symbols-outlined text-sm">done_all</span>
                             </button>
-                            <button onclick="mudarStatus(${rowNum}, 'Cancelado')" title="Cancelar" class="bg-gray-100 text-gray-400 p-1.5 rounded-lg hover:bg-red-600 hover:text-white transition-all shadow-sm">
-                                <span class="material-symbols-outlined text-sm">close</span>
+                            <button onclick="mudarStatus(${rowNum}, 'Cancelado')" title="Cancelar" class="bg-gray-100 text-gray-400 p-2 rounded-xl hover:bg-red-600 hover:text-white transition-all">
+                                <span class="material-symbols-outlined text-sm">delete</span>
                             </button>
                         </div>`;
                 } else {
-                    acaoHTML = `<span class="text-[10px] font-black uppercase opacity-20 italic">Finalizado</span>`;
+                    acaoHTML = `<span class="text-[10px] font-black uppercase opacity-30">Finalizado</span>`;
                 }
 
-                let dPrevInput = "";
-                if(linha[12] && linha[12] !== "---") {
-                    dPrevInput = linha[12].includes('/') ? linha[12].split('/').reverse().join('-') : linha[12].split('T')[0];
-                }
+                const dPrevInput = (linha[12] && linha[12] !== "---") ? (linha[12].includes('/') ? linha[12].split('/').reverse().join('-') : linha[12].split('T')[0]) : "";
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50/50 transition-colors border-b border-gray-100">
-                        <td class="p-4 font-black text-primary italic"><button onclick="verDetalhes(${idxGlobal})" class="hover:underline">${linha[0]}</button></td>
-                        <td class="p-4"><span class="px-2 py-1 rounded text-[9px] font-black uppercase ${badgeColor}">${sReal}</span></td>
-                        <td class="p-4"><div class="flex flex-col"><span class="font-bold text-gray-800">${linha[1]}</span><span class="text-[10px] text-gray-400 uppercase font-black">${linha[2]}</span></div></td>
+                        <td class="p-4 font-black text-primary italic">
+                            <button onclick="verDetalhes(${idxGlobal})" class="hover:underline">${linha[0]}</button>
+                        </td>
+                        <td class="p-4">
+                            <span class="px-3 py-1.5 rounded-full text-[9px] font-black uppercase ${badgeColor}">${sReal}</span>
+                        </td>
+                        <td class="p-4">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-gray-800">${linha[1]}</span>
+                                <span class="text-[10px] text-gray-400 uppercase font-black">${linha[2]}</span>
+                            </div>
+                        </td>
                         <td class="p-4 text-center text-xs font-bold text-gray-600">${formatarDataBR(linha[10])}</td>
                         <td class="p-4 text-center">
                             <select onchange="atualizarCampo(${rowNum}, 'responsavel', this.value)" class="text-[10px] border border-gray-200 rounded-lg p-1.5 font-bold outline-none bg-white">
-                                <option value="">---</option>
+                                <option value="">A definir</option>
                                 ${LISTA_RESPONSAVEIS.map(r => `<option value="${r}" ${linha[14] === r ? 'selected' : ''}>${r}</option>`).join('')}
                             </select>
                         </td>
                         <td class="p-4 text-center">
                             <input type="date" value="${dPrevInput}" onchange="definirPrevisao(${rowNum}, this.value)" 
                                 ${(sReal !== 'Aguardando Prazo' && sReal !== 'Aguardando Aceite CD') ? 'disabled' : ''}
-                                class="text-[10px] border border-gray-200 rounded-lg p-1 font-bold outline-none bg-white disabled:bg-gray-50">
+                                class="text-[10px] border border-gray-200 rounded-lg p-1.5 font-bold outline-none bg-white disabled:bg-gray-50">
                         </td>
                         <td class="p-4 text-center">${acaoHTML}</td>
                     </tr>`;
             });
         }
 
-        // --- TRATATIVAS DATABASE ---
+        // --- TRATATIVAS NO GOOGLE SHEETS ---
         async function mudarStatus(row, novoStatus) {
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: 'status', value: novoStatus }) });
@@ -436,7 +508,7 @@
                     await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: 'data_conclusao', value: hoje }) });
                 }
                 setTimeout(carregarTickets, 600);
-            } catch (e) { alert("Erro ao atualizar."); }
+            } catch (e) { alert("Erro ao atualizar status."); }
         }
 
         async function definirPrevisao(row, valor) {
@@ -454,7 +526,7 @@
             } catch (e) {}
         }
 
-        // --- VISUALIZAÇÃO DETALHES & TIMELINE ---
+        // --- VISUALIZAÇÃO DETALHES ---
         function verDetalhes(idx) {
             const t = dadosGlobais[idx];
             ticketAbertoAtual = { index: idx, row: idx + 2 };
@@ -463,39 +535,35 @@
             document.getElementById('detalheSeac').innerText = t[1];      
             document.getElementById('detalheForn').innerText = t[2];      
             document.getElementById('detalheRef').innerText = t[3];       
-            document.getElementById('detalheCodCli').innerText = t[4] || "---"; 
-            document.getElementById('detalheLote').innerText = t[6] || "---";   
+            document.getElementById('detalheCodCli').innerText = t[4] || "N/I"; 
+            document.getElementById('detalheLote').innerText = t[6] || "A definir";   
             document.getElementById('detalheQtd').innerText = String(t[5] || 0).replace('.', ','); 
             document.getElementById('detalheUM').innerText = t[16] || "";       
-            document.getElementById('detalheMotivo').innerText = t[7] || "---"; 
+            document.getElementById('detalheMotivo').innerText = t[7] || ""; 
             document.getElementById('detalheObs').value = t[8] || "";
-            document.getElementById('detalheTipo').innerText = t[19] || "---"; 
+            document.getElementById('detalheTipo').innerText = t[19] || "Não especificado"; 
             
-            // --- CORREÇÃO DO ACORDO ---
-            document.getElementById('detalheComunicado').innerText = t[17] || "Não informado";
-            document.getElementById('detalheAcordo').innerText = t[18] || "---";
+            document.getElementById('detalheComunicado').innerText = t[17] || "Não";
+            document.getElementById('detalheAcordo').innerText = t[18] || "Sem comentários registrados.";
 
-            // --- LÓGICA TIMELINE ---
-            const dAbertura = formatarDataBR(t[10]);
-            const dTriagem  = formatarDataBR(t[15]); 
-            const dPrevisao = formatarDataBR(t[12]); 
-            const dConclu   = formatarDataBR(t[11]); 
-
+            // Logica da Linha do Tempo
+            const dAbertura = formatarDataBR(t[10]), dTriagem = formatarDataBR(t[15]), dPrevisao = formatarDataBR(t[12]), dConclu = formatarDataBR(t[11]);
             document.getElementById('dateStep1').innerText = dAbertura;
             document.getElementById('dateStep2').innerText = dTriagem;
             document.getElementById('dateStep3').innerText = dPrevisao;
             document.getElementById('dateStep4').innerText = dConclu;
 
             [1,2,3,4].forEach(i => document.getElementById(`step${i}`).classList.remove('active'));
-            let progresso = 0;
-            if (dAbertura !== "---") { document.getElementById('step1').classList.add('active'); progresso = 0; }
-            if (dTriagem !== "---")  { document.getElementById('step2').classList.add('active'); progresso = 33; }
-            if (dPrevisao !== "---") { document.getElementById('step3').classList.add('active'); progresso = 66; }
-            if (dConclu !== "---")   { document.getElementById('step4').classList.add('active'); progresso = 100; }
-            document.getElementById('progressoLinha').style.width = progresso + "%";
+            let perc = 0;
+            if (dAbertura !== "---") { document.getElementById('step1').classList.add('active'); perc = 0; }
+            if (dTriagem !== "---")  { document.getElementById('step2').classList.add('active'); perc = 33; }
+            if (dPrevisao !== "---") { document.getElementById('step3').classList.add('active'); perc = 66; }
+            if (dConclu !== "---")   { document.getElementById('step4').classList.add('active'); perc = 100; }
+            document.getElementById('progressoLinha').style.width = perc + "%";
 
+            // Responsavel no Modal
             const sel = document.getElementById('selectResponsavelModal');
-            sel.innerHTML = '<option value="">Selecione...</option>';
+            sel.innerHTML = '<option value="">Sem responsável definido</option>';
             LISTA_RESPONSAVEIS.forEach(r => sel.innerHTML += `<option value="${r}" ${t[14] === r ? 'selected' : ''}>${r}</option>`);
             
             document.getElementById('modalDetalhes').classList.remove('hidden');
@@ -503,39 +571,35 @@
 
         async function salvarAlteracoesNoModal() {
             if(!ticketAbertoAtual) return;
-            const btn = document.getElementById('btnSalvarObs');
-            const novaObs = document.getElementById('detalheObs').value;
-            const novoResp = document.getElementById('selectResponsavelModal').value;
-            btn.disabled = true; btn.innerText = "Gravando...";
+            const btn = document.getElementById('btnSalvarObs'), novaObs = document.getElementById('detalheObs').value, novoResp = document.getElementById('selectResponsavelModal').value;
+            btn.disabled = true; btn.innerText = "Sincronizando...";
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: ticketAbertoAtual.row, field: 'observacao', value: novaObs }) });
                 await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: ticketAbertoAtual.row, field: 'responsavel', value: novoResp }) });
-                alert("Salvo!");
                 fecharModalDetalhes();
                 carregarTickets();
-            } catch (e) { alert("Erro."); }
+            } catch (e) { alert("Erro ao salvar."); }
             finally { btn.disabled = false; btn.innerText = "Salvar Alterações"; }
         }
 
-        // --- SUBMIT ---
+        // --- SUBMIT NOVO TICKET ---
         document.getElementById('formTicket').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnSalvar'); 
-            btn.disabled = true; btn.innerText = "Salvando...";
+            btn.disabled = true; btn.innerText = "Enviando...";
             const payload = Object.fromEntries(new FormData(e.target));
-            payload.criado_por = localStorage.getItem('vilarejo_user') || 'Sistema'; 
+            payload.criado_por = localStorage.getItem('vilarejo_user') || 'Web'; 
             if (payload.motivo === 'Outros') payload.motivo = document.getElementById('inputOutros').value;
             payload.rota = 'pendencias'; payload.action = 'insert';
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                alert("Ticket registrado!");
                 fecharModal();
                 carregarTickets();
-            } catch (e) { alert("Erro ao salvar."); }
-            finally { btn.disabled = false; btn.innerText = "Salvar Ticket"; }
+            } catch (e) { alert("Erro ao criar ticket."); }
+            finally { btn.disabled = false; btn.innerText = "Criar Ticket"; }
         });
 
-        // --- DASHBOARD ---
+        // --- DASHBOARD ANALÍTICO ---
         function atualizarCardsGerais(dados) {
             let ana = 0, ace = 0, and = 0, res = 0;
             dados.forEach(d => {
@@ -553,52 +617,68 @@
 
         function abrirDashboard() { 
             document.getElementById('modalDashboard').classList.remove('hidden'); 
-            const hoje = new Date();
-            document.getElementById('dashDataInicio').value = new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString().split('T')[0];
-            document.getElementById('dashDataFim').value = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).toISOString().split('T')[0];
+            const hj = new Date();
+            document.getElementById('dashDataInicio').value = new Date(hj.getFullYear(), hj.getMonth(), 1).toISOString().split('T')[0];
+            document.getElementById('dashDataFim').value = new Date(hj.getFullYear(), hj.getMonth() + 1, 0).toISOString().split('T')[0];
             processarDadosDash();
         }
         function fecharDashboard() { document.getElementById('modalDashboard').classList.add('hidden'); }
 
         function processarDadosDash() {
-            const iniStr = document.getElementById('dashDataInicio').value;
-            const fimStr = document.getElementById('dashDataFim').value;
+            const iniStr = document.getElementById('dashDataInicio').value, fimStr = document.getElementById('dashDataFim').value;
             if(!iniStr || !fimStr) return;
-            const ini = new Date(iniStr + "T00:00:00");
-            const fim = new Date(fimStr + "T23:59:59");
+            const ini = new Date(iniStr + "T00:00:00"), fim = new Date(fimStr + "T23:59:59");
             let total = 0;
-            const cont = { "Quebra fábrica": 0, "Quebra depósito/Loja": 0, "Quebra de produto na embalagem(Externa)": 0, "Divergência de Estoque": 0, "Outros": 0 };
+            const contagemMotivos = { "Quebra fábrica": 0, "Quebra depósito/Loja": 0, "Quebra de produto na embalagem(Externa)": 0, "Divergência de Estoque": 0, "Outros": 0 };
+            
             dadosGlobais.forEach(d => {
-                const da = new Date(d[10]);
-                if (da >= ini && da <= fim) {
+                const dataTicket = new Date(d[10]);
+                if (dataTicket >= ini && dataTicket <= fim) {
                     total++;
-                    const m = d[7] || "";
-                    if (cont[m] !== undefined) cont[m]++; else cont["Outros"]++;
+                    const mot = d[7] || "";
+                    if (contagemMotivos[mot] !== undefined) contagemMotivos[mot]++; else contagemMotivos["Outros"]++;
                 }
             });
             document.getElementById('totalMesDash').innerText = total;
-            renderizarGrafico(cont);
+            renderizarGrafico(contagemMotivos);
         }
 
-        function renderizarGrafico(cont) {
+        function renderizarGrafico(obj) {
             const ctx = document.getElementById('graficoMotivos').getContext('2d');
             if(chartMotivos) chartMotivos.destroy();
             chartMotivos = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: Object.keys(cont),
-                    datasets: [{ data: Object.values(cont), backgroundColor: ['#E30613', '#111827', '#3b82f6', '#94a3b8', '#10b981'], borderWidth: 0 }]
+                    labels: Object.keys(obj),
+                    datasets: [{ 
+                        data: Object.values(obj), 
+                        backgroundColor: ['#E30613', '#111827', '#3b82f6', '#94a3b8', '#10b981'], 
+                        borderWidth: 0,
+                        hoverOffset: 15
+                    }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
+            
             const leg = document.getElementById('listaLegendaDash');
             leg.innerHTML = '';
-            Object.keys(cont).forEach(m => {
-                leg.innerHTML += `<div class="flex justify-between p-3 bg-gray-50 rounded-xl font-bold text-xs"><span>${m}</span><span>${cont[m]}</span></div>`;
+            Object.keys(obj).forEach((m, i) => {
+                const cores = ['#E30613', '#111827', '#3b82f6', '#94a3b8', '#10b981'];
+                leg.innerHTML += `
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100 shadow-sm">
+                        <div class="flex items-center gap-2 font-bold text-xs text-gray-700">
+                            <span class="w-2 h-2 rounded-full" style="background: ${cores[i]}"></span> ${m}
+                        </div>
+                        <span class="font-black text-gray-900">${obj[m]}</span>
+                    </div>`;
             });
         }
 
+        // --- BOOTSTRAP ---
         window.onload = carregarTickets;
     </script>
+    
+    <script src="menu.js"></script>
+
 </body>
 </html>
