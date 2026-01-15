@@ -25,29 +25,27 @@
         .modal-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
 
+        /* Timeline */
         .timeline-container { position: relative; display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 10px; margin-top: 20px; margin-bottom: 30px; }
         .timeline-line { position: absolute; top: 10px; left: 0; height: 4px; background: #e2e8f0; width: 100%; z-index: 1; border-radius: 10px; }
         .timeline-progress { position: absolute; top: 10px; left: 0; height: 4px; background: #E30613; width: 0%; z-index: 2; transition: width 0.8s ease; border-radius: 10px; }
         .timeline-step { position: relative; z-index: 3; background: #fff; border: 3px solid #e2e8f0; width: 20px; height: 20px; border-radius: 50%; transition: all 0.4s; margin-bottom: 12px; }
         .timeline-step.active { border-color: #E30613; background: #E30613; box-shadow: 0 0 0 4px rgba(227, 6, 19, 0.2); }
         
-        .btn-acao-tabela { width: 100px; text-transform: uppercase; font-weight: 900; font-size: 8px; padding: 6px 2px; border-radius: 6px; transition: all 0.2s; }
+        .btn-acao-tabela { width: 100px; text-transform: uppercase; font-weight: 900; font-size: 8px; padding: 6px 2px; border-radius: 6px; transition: all 0.2s; border: 1px solid transparent; }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-900">
+<body class="bg-gray-100">
 
     <div class="flex h-screen overflow-hidden">
-        
         <div id="sidebar-container"></div>
 
         <main class="flex-1 overflow-y-auto p-4 md:p-8 no-scrollbar">
             <div class="max-w-7xl mx-auto">
                 
                 <div class="flex justify-between items-center mb-6">
-                    <div>
-                        <h1 class="text-xl font-black uppercase tracking-widest text-gray-800 italic">Controle de Pendências CD</h1>
-                    </div>
-                    <button onclick="abrirDashboard()" class="bg-gray-800 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 hover:bg-black transition-all shadow-lg">
+                    <h1 class="text-xl font-black uppercase tracking-widest text-gray-800 italic">Controle de Pendências CD</h1>
+                    <button onclick="abrirDashboard()" class="bg-gray-800 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 hover:bg-black shadow-lg">
                         <span class="material-symbols-outlined text-sm">analytics</span> Dashboard
                     </button>
                 </div>
@@ -66,7 +64,7 @@
                         <h3 id="cardAtraso" class="text-3xl font-black">0</h3>
                     </div>
                     <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-emerald-500">
-                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Concluídos</p>
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Resolvidos</p>
                         <h3 id="cardResolvido" class="text-3xl font-black">0</h3>
                     </div>
                 </div>
@@ -74,30 +72,27 @@
                 <div class="flex flex-col md:flex-row justify-between items-end gap-4 mb-6 bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 w-full">
                         <div>
-                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Buscar ID / Fornecedor</label>
-                            <input type="text" id="inputBuscaID" onkeyup="filtrarGeral()" placeholder="TKT-..." class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold outline-none focus:border-primary">
+                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Busca</label>
+                            <input type="text" id="inputBuscaID" onkeyup="filtrarGeral()" placeholder="ID ou Fornecedor..." class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold outline-none">
                         </div>
                         <div>
                             <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Status</label>
-                            <select id="selectStatus" onchange="filtrarGeral()" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white outline-none">
-                                <option value="todos">Todos os Status</option>
+                            <select id="selectStatus" onchange="filtrarGeral()" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white">
+                                <option value="todos">Todos</option>
                                 <option value="Aguardando Prazo">Aguardando Prazo</option>
                                 <option value="Aguardando Aceite CD">Aguardando Aceite CD</option>
                                 <option value="Em andamento">Em Andamento</option>
                                 <option value="Resolvido">Resolvido</option>
                                 <option value="Prazo Recusado">Prazo Recusado</option>
-                                <option value="Cancelado">Cancelado</option>
                             </select>
                         </div>
                         <div>
                             <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Motivo</label>
-                            <select id="selectMotivoFiltro" onchange="filtrarGeral()" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white outline-none">
-                                <option value="todos">Todos os Motivos</option>
+                            <select id="selectMotivoFiltro" onchange="filtrarGeral()" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white">
+                                <option value="todos">Todos</option>
                                 <option value="Quebra fábrica">Quebra fábrica</option>
                                 <option value="Quebra depósito/Loja">Quebra depósito/Loja</option>
-                                <option value="Quebra de produto na embalagem(Externa)">Quebra produto embalagem</option>
                                 <option value="Divergência de Estoque">Divergência de Estoque</option>
-                                <option value="Outros">Outros</option>
                             </select>
                         </div>
                         <div class="flex items-end">
@@ -110,19 +105,19 @@
 
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-gray-50 border-b text-[10px] font-black text-gray-400 uppercase">
+                        <table class="w-full text-left">
+                            <thead class="bg-gray-50 border-b text-[10px] font-black text-gray-400 uppercase">
+                                <tr>
                                     <th class="p-4">ID Ticket</th>
                                     <th class="p-4">Status</th>
-                                    <th class="p-4">Produto / Fornecedor</th>
+                                    <th class="p-4">Produto</th>
                                     <th class="p-4 text-center">Abertura</th>
                                     <th class="p-4 text-center">Responsável</th>
                                     <th class="p-4 text-center">Previsão</th>
                                     <th class="p-4 text-center">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="tabelaChamados" class="divide-y divide-gray-100 text-sm"></tbody>
+                            <tbody id="tabelaChamados" class="divide-y divide-gray-100"></tbody>
                         </table>
                     </div>
                 </div>
@@ -131,159 +126,110 @@
     </div>
 
     <div id="modalChamado" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[9999]">
-        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl flex flex-col max-h-[95vh]">
-            <div class="p-6 border-b bg-gray-50 flex justify-between items-center rounded-t-3xl">
-                <h2 class="text-xl font-black text-primary uppercase">Registrar Pendência</h2>
-                <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600"><span class="material-symbols-outlined">close</span></button>
+        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h2 class="text-xl font-black text-primary uppercase tracking-tighter">Registrar Pendência</h2>
+                <button onclick="fecharModal()" class="text-gray-400 hover:text-black"><span class="material-symbols-outlined">close</span></button>
             </div>
-            <div class="overflow-y-auto modal-scroll p-6 pb-20"> 
-                <form id="formTicket" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="text" name="cod_seac" placeholder="Cód Produto Seac" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
-                    <input type="text" name="fornecedor" placeholder="Fornecedor" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
-                    <input type="text" name="referencia" placeholder="Referência" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
-                    <input type="text" name="cod_cliente" placeholder="Cód Cliente" class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
-                    <input type="number" name="quantidade" step="0.01" lang="pt-BR" placeholder="Quantidade" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
-                    <select name="um" required class="p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary">
-                        <option value="" disabled selected>Unidade</option>
+            <div class="p-6 overflow-y-auto modal-scroll">
+                <form id="formTicket" class="grid grid-cols-2 gap-4">
+                    <input type="text" name="cod_seac" placeholder="Cód Seac" required class="p-3 border rounded-xl text-sm font-bold outline-none">
+                    <input type="text" name="fornecedor" placeholder="Fornecedor" required class="p-3 border rounded-xl text-sm font-bold outline-none">
+                    <input type="text" name="referencia" placeholder="Referência" class="p-3 border rounded-xl text-sm font-bold outline-none">
+                    <input type="text" name="cod_cliente" placeholder="Cód Cliente" class="p-3 border rounded-xl text-sm font-bold outline-none">
+                    <input type="number" name="quantidade" step="0.01" placeholder="Quantidade" required class="p-3 border rounded-xl text-sm font-bold outline-none">
+                    <select name="um" required class="p-3 border rounded-xl text-sm font-bold bg-white">
                         <option value="UN">UN</option><option value="M2">M²</option><option value="SC">SC</option>
                     </select>
-                    <input type="text" name="lote" placeholder="Tonalidade / Lote" class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
-                    <select name="tipo_solicitacao" required class="p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary">
-                        <option value="" disabled selected>Tipo de Solicitação</option>
-                        <option value="Complemento">Complemento</option><option value="Compra Nova">Compra Nova</option>
+                    <select name="motivo" id="selectMotivo" onchange="toggleOutros(this.value)" class="col-span-2 p-3 border rounded-xl text-sm font-bold">
+                        <option value="Quebra fábrica">Quebra fábrica</option>
+                        <option value="Quebra depósito/Loja">Quebra depósito/Loja</option>
+                        <option value="Divergência de Estoque">Divergência de Estoque</option>
+                        <option value="Outros">Outros</option>
                     </select>
-                    <div class="col-span-full">
-                        <select name="motivo" onchange="toggleOutros(this.value)" class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold">
-                            <option value="Quebra fábrica">Quebra fábrica</option>
-                            <option value="Quebra depósito/Loja">Quebra depósito/Loja</option>
-                            <option value="Quebra de produto na embalagem(Externa)">Quebra produto embalagem</option>
-                            <option value="Divergência de Estoque">Divergência de Estoque</option>
-                            <option value="Outros">Outros</option>
-                        </select>
+                    <div id="divOutros" class="col-span-2 hidden">
+                        <input type="text" id="inputOutros" placeholder="Especifique o motivo..." class="w-full p-3 border-primary border rounded-xl text-sm font-bold">
                     </div>
-                    <div id="divOutros" class="col-span-full hidden">
-                        <input type="text" id="inputOutros" placeholder="Especifique o motivo..." class="w-full p-3 border border-primary rounded-xl outline-none text-sm font-bold">
+                    <select name="comunicado_loja" onchange="toggleAcordo(this.value)" class="col-span-2 p-3 border rounded-xl text-sm font-bold">
+                        <option value="">Comunicado à Loja?</option>
+                        <option value="Sim">Sim</option><option value="Não">Não</option>
+                    </select>
+                    <div id="divAcordo" class="col-span-2 hidden">
+                        <textarea name="resumo_acordo" placeholder="Resumo do acordo..." class="w-full p-3 border rounded-xl text-sm font-bold"></textarea>
                     </div>
-                    <div class="col-span-full border-t pt-4">
-                        <label class="text-[10px] font-black text-gray-400 uppercase block mb-2">Foi comunicado à loja?</label>
-                        <select name="comunicado_loja" id="selectComunicado" onchange="toggleAcordo(this.value, true)" required class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold">
-                            <option value="" disabled selected>Selecione...</option>
-                            <option value="Sim">Sim</option><option value="Não">Não</option>
-                        </select>
-                    </div>
-                    <div id="divAcordo" class="col-span-full hidden">
-                        <textarea name="resumo_acordo" placeholder="Resumo do acordo feito com a loja..." rows="2" class="w-full p-3 border border-emerald-500 rounded-xl outline-none text-sm font-bold"></textarea>
-                    </div>
-                    <textarea name="observacao" placeholder="Informações iniciais/Observações..." rows="3" class="col-span-full p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold"></textarea>
-                    <div class="col-span-full flex gap-3 pt-6">
-                        <button type="button" onclick="fecharModal()" class="flex-1 bg-gray-100 py-3 rounded-xl font-bold uppercase text-[10px]">Cancelar</button>
-                        <button type="submit" id="btnSalvar" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold uppercase text-[10px] shadow-lg">Salvar Ticket</button>
-                    </div>
+                    <textarea name="observacao" placeholder="Tratativas/Observações..." class="col-span-2 p-3 border rounded-xl text-sm font-bold" rows="3"></textarea>
+                    <button type="submit" id="btnSalvar" class="col-span-2 bg-primary text-white py-4 rounded-xl font-black uppercase tracking-widest">Salvar Ticket</button>
                 </form>
             </div>
         </div>
     </div>
 
     <div id="modalDetalhes" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[9999]">
-        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl flex flex-col max-h-[95vh]">
-            <div class="p-6 border-b flex justify-between items-center bg-gray-50 rounded-t-3xl">
-                <h2 id="detalheID" class="text-3xl font-black text-gray-800 tracking-tighter"></h2>
+        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h2 id="detalheID" class="text-3xl font-black italic"></h2>
                 <button onclick="fecharModalDetalhes()" class="text-gray-400 hover:text-primary"><span class="material-symbols-outlined text-3xl">close</span></button>
             </div>
-            <div class="p-8 overflow-y-auto modal-scroll space-y-8">
-                <div class="px-2">
-                    <div class="timeline-container">
-                        <div class="timeline-line"></div>
-                        <div id="progressoLinha" class="timeline-progress"></div>
-                        <div class="flex flex-col items-center relative z-10 text-center">
-                            <div id="step1" class="timeline-step"></div>
-                            <span class="text-[9px] font-black uppercase">Abertura</span>
-                            <span id="dateStep1" class="text-[8px] text-gray-400 font-bold">--/--</span>
-                        </div>
-                        <div class="flex flex-col items-center relative z-10 text-center">
-                            <div id="step2" class="timeline-step"></div>
-                            <span class="text-[9px] font-black uppercase">Triagem</span>
-                            <span id="dateStep2" class="text-[8px] text-gray-400 font-bold">--/--</span>
-                        </div>
-                        <div class="flex flex-col items-center relative z-10 text-center">
-                            <div id="step3" class="timeline-step"></div>
-                            <span class="text-[9px] font-black uppercase">Previsão</span>
-                            <span id="dateStep3" class="text-[8px] text-gray-400 font-bold">--/--</span>
-                        </div>
-                        <div class="flex flex-col items-center relative z-10 text-center">
-                            <div id="step4" class="timeline-step"></div>
-                            <span class="text-[9px] font-black uppercase">Conclusão</span>
-                            <span id="dateStep4" class="text-[8px] text-gray-400 font-bold">--/--</span>
-                        </div>
+            <div class="p-8 overflow-y-auto modal-scroll space-y-6">
+                <div class="timeline-container">
+                    <div class="timeline-line"></div>
+                    <div id="progressoLinha" class="timeline-progress"></div>
+                    <div class="flex flex-col items-center z-10 text-center">
+                        <div id="step1" class="timeline-step"></div>
+                        <span class="text-[9px] font-black uppercase">Abertura</span>
+                        <span id="dateStep1" class="text-[8px] text-gray-400 font-bold"></span>
+                    </div>
+                    <div class="flex flex-col items-center z-10 text-center">
+                        <div id="step2" class="timeline-step"></div>
+                        <span class="text-[9px] font-black uppercase">Triagem</span>
+                        <span id="dateStep2" class="text-[8px] text-gray-400 font-bold"></span>
+                    </div>
+                    <div class="flex flex-col items-center z-10 text-center">
+                        <div id="step3" class="timeline-step"></div>
+                        <span class="text-[9px] font-black uppercase">Previsão</span>
+                        <span id="dateStep3" class="text-[8px] text-gray-400 font-bold"></span>
+                    </div>
+                    <div class="flex flex-col items-center z-10 text-center">
+                        <div id="step4" class="timeline-step"></div>
+                        <span class="text-[9px] font-black uppercase">Conclusão</span>
+                        <span id="dateStep4" class="text-[8px] text-gray-400 font-bold"></span>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-6 text-sm">
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Cód. Prod SEAC</label><p id="detalheSeac" class="font-bold text-gray-800"></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Fornecedor</label><p id="detalheForn" class="font-bold text-gray-800"></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest text-red-500">Motivo</label><p id="detalheMotivo" class="font-bold text-red-600 uppercase"></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Referência</label><p id="detalheRef" class="font-bold text-gray-800"></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Cód. Cliente</label><p id="detalheCodCli" class="font-bold text-gray-800"></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Tonalidade/Lote</label><p id="detalheLote" class="font-bold text-gray-800"></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Qtd / UM</label><p class="font-bold text-gray-800"><span id="detalheQtd"></span> <span id="detalheUM" class="text-primary"></span></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Tipo Solicitação</label><p id="detalheTipo" class="font-bold text-blue-700"></p></div>
-                    <div><label class="text-[9px] font-black text-primary uppercase tracking-widest">Criado por</label><p id="detalheAutor" class="font-bold text-gray-800 uppercase italic"></p></div>
-                </div>
-
-                <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100">
-                    <label class="text-[10px] font-black text-blue-400 uppercase mb-1 block tracking-widest">Comunicado à Loja / Acordo</label>
-                    <p class="text-sm font-bold text-blue-900"><span id="detalheComunicado"></span> — <span id="detalheAcordo"></span></p>
-                </div>
-
-                <div class="p-4 bg-white rounded-2xl border-2 border-gray-100">
-                    <label class="text-[10px] font-black text-gray-400 uppercase mb-2 block tracking-widest">Responsável Atual</label>
-                    <select id="selectResponsavelModal" class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary">
-                        <option value="">Selecione um responsável...</option>
-                    </select>
-                </div>
-
-                <div class="space-y-3">
-                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Histórico de Tratativas</label>
-                    <textarea id="detalheObs" rows="5" class="w-full border-2 border-gray-100 rounded-2xl p-4 text-sm outline-none focus:border-primary bg-gray-50 font-medium"></textarea>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-6 text-sm border-t pt-6">
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase">Cód Seac</label><p id="detalheSeac" class="font-bold"></p></div>
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase">Fornecedor</label><p id="detalheForn" class="font-bold"></p></div>
+                    <div><label class="text-[9px] font-black text-red-500 uppercase">Motivo</label><p id="detalheMotivo" class="font-black text-red-600 uppercase"></p></div>
+                    <div class="col-span-2 md:col-span-3 p-4 bg-gray-50 rounded-2xl">
+                        <label class="text-[9px] font-black text-gray-400 uppercase">Tratativas</label>
+                        <textarea id="detalheObs" class="w-full bg-transparent border-none outline-none font-bold text-sm" rows="4"></textarea>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="text-[10px] font-black text-gray-400 uppercase">Responsável</label>
+                        <select id="selectResponsavelModal" class="w-full p-2 border rounded-xl font-bold bg-white outline-none"></select>
+                    </div>
                 </div>
             </div>
-            <div class="p-6 bg-white border-t rounded-b-3xl">
-                <button id="btnSalvarObs" onclick="salvarAlteracoesNoModal()" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-black transition-all">Salvar Alterações</button>
+            <div class="p-6 border-t">
+                <button id="btnSalvarObs" onclick="salvarAlteracoesNoModal()" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-black transition-all">Salvar Alterações</button>
             </div>
         </div>
     </div>
 
     <div id="modalDashboard" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden flex items-center justify-center z-[10000] p-4">
-        <div class="bg-white w-full max-w-4xl h-[85vh] rounded-3xl shadow-2xl flex flex-col p-8 overflow-y-auto no-scrollbar">
-            <div class="flex justify-between items-center mb-6">
-                <div><h2 class="text-2xl font-black italic uppercase">Dashboard Geral</h2><p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Acumulado Total</p></div>
+        <div class="bg-white w-full max-w-4xl h-[80vh] rounded-3xl shadow-2xl flex flex-col p-8 overflow-y-auto no-scrollbar">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-black italic uppercase">Dashboard de Pendências</h2>
                 <button onclick="fecharDashboard()" class="text-gray-400 hover:text-black"><span class="material-symbols-outlined text-3xl">close</span></button>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 bg-gray-50 p-4 rounded-2xl border border-gray-100">
-                <div>
-                    <label class="text-[9px] font-black text-gray-400 uppercase ml-1">Data Início</label>
-                    <input type="date" id="dashDataInicio" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold outline-none">
-                </div>
-                <div>
-                    <label class="text-[9px] font-black text-gray-400 uppercase ml-1">Data Fim</label>
-                    <input type="date" id="dashDataFim" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold outline-none">
-                </div>
-                <div class="flex items-end">
-                    <button onclick="processarDadosDash()" class="w-full bg-primary text-white py-2 rounded-xl font-black uppercase text-[10px] hover:bg-red-700">Filtrar</button>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                <div class="bg-gray-50 p-6 rounded-3xl border border-gray-100 flex flex-col items-center justify-center h-80">
-                    <div class="w-full h-full"><canvas id="graficoMotivos"></canvas></div>
-                </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="h-64"><canvas id="graficoMotivos"></canvas></div>
                 <div class="space-y-4">
                     <div class="bg-primary/5 p-6 rounded-3xl border border-primary/10">
-                        <p class="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Ocorrências no Período</p>
+                        <p class="text-[10px] font-black text-primary uppercase mb-1">Total de Ocorrências</p>
                         <h4 id="totalMesDash" class="text-5xl font-black text-primary italic">0</h4>
                     </div>
-                    <div id="listaLegendaDash" class="space-y-2 overflow-y-auto max-h-48 pr-2"></div>
+                    <div id="listaLegendaDash" class="space-y-2"></div>
                 </div>
             </div>
         </div>
@@ -294,7 +240,6 @@
         const LISTA_RESPONSAVEIS = ["Eduardo", "Edson", "Fábio", "Leandro", "Herialdo", "Bruna", "Renielle", "Caio"];
         
         let dadosGlobais = [];
-        let ticketAbertoAtual = null;
         let chartMotivos = null;
 
         document.addEventListener('DOMContentLoaded', carregarTickets);
@@ -304,46 +249,22 @@
                 const response = await fetch(`${WEB_APP_URL}?rota=pendencias`);
                 dadosGlobais = await response.json();
                 filtrarGeral();
-            } catch (e) { console.error("Erro na conexão."); }
+            } catch (e) { console.error("Erro ao carregar dados."); }
         }
 
-        function abrirModal() { document.getElementById('modalChamado').classList.remove('hidden'); }
-        function fecharModal() { document.getElementById('modalChamado').classList.add('hidden'); document.getElementById('formTicket').reset(); toggleAcordo('', false); }
-        function fecharModalDetalhes() { document.getElementById('modalDetalhes').classList.add('hidden'); }
-        function toggleOutros(v) { document.getElementById('divOutros').classList.toggle('hidden', v !== 'Outros'); }
-        function toggleAcordo(v, alertar) {
-            const div = document.getElementById('divAcordo');
-            if(v === 'Sim') div.classList.remove('hidden'); 
-            else { div.classList.add('hidden'); if(v === 'Não' && alertar) Swal.fire('Atenção', 'Comunique a loja primeiro.', 'warning'); }
-        }
-
-        document.getElementById('formTicket').onsubmit = async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('btnSalvar');
-            btn.disabled = true; btn.innerText = "Enviando...";
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData);
-            const usuarioLogado = localStorage.getItem('vilarejo_user') || "Desconhecido";
-            data.autor = usuarioLogado;
-            data.criado_por = usuarioLogado;
-            data.rota = 'pendencias'; 
-            data.action = 'insert';
-            if (data.motivo === 'Outros') data.motivo = document.getElementById('inputOutros').value;
-
-            try {
-                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-                fecharModal();
-                Swal.fire('Sucesso!', 'Ticket registrado.', 'success');
-                setTimeout(carregarTickets, 800);
-            } catch (err) { Swal.fire('Erro', 'Falha ao salvar.', 'error'); }
-            finally { btn.disabled = false; btn.innerText = "Salvar Ticket"; }
-        };
-
-        function formatarDataBR(str) {
-            if (!str || str === "" || str === "---") return "---";
-            const d = new Date(str);
-            if (isNaN(d.getTime())) return str;
-            return `${String(d.getUTCDate()).padStart(2, '0')}/${String(d.getUTCMonth() + 1).padStart(2, '0')}/${d.getUTCFullYear()}`;
+        // --- FUNÇÃO CORE ATUALIZADA (ENVIA TKT AO INVÉS DE ROW) ---
+        async function atualizarCampoTKT(tktID, campo, valor) {
+            return fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({
+                    rota: 'pendencias',
+                    action: 'update_field',
+                    tkt: tktID, 
+                    field: campo,
+                    value: valor
+                })
+            });
         }
 
         function calcularStatusReal(l) {
@@ -356,9 +277,12 @@
             const busca = document.getElementById('inputBuscaID').value.toLowerCase();
             const statusF = document.getElementById('selectStatus').value;
             const motivoF = document.getElementById('selectMotivoFiltro').value;
+            
             const fil = dadosGlobais.filter(l => {
                 const s = calcularStatusReal(l);
-                return (l[0] + " " + l[2]).toLowerCase().includes(busca) && (statusF === "todos" || s === statusF) && (motivoF === "todos" || l[7] === motivoF);
+                return (l[0] + " " + l[2]).toLowerCase().includes(busca) && 
+                       (statusF === "todos" || s === statusF) && 
+                       (motivoF === "todos" || l[7] === motivoF);
             });
             renderizarTabela(fil);
             atualizarCards(dadosGlobais);
@@ -367,209 +291,97 @@
         function renderizarTabela(dados) {
             const tbody = document.getElementById('tabelaChamados');
             tbody.innerHTML = '';
+            
             dados.forEach(l => {
-                const idx = dadosGlobais.findIndex(dg => dg[0] === l[0]), row = idx + 2, s = calcularStatusReal(l);
-                let badge = 'bg-gray-100 text-gray-700';
-                if(s === 'Resolvido') badge = 'bg-emerald-100 text-emerald-700';
-                else if(s === 'Aguardando Prazo') badge = 'bg-yellow-100 text-yellow-700';
-                else if(s === 'Aguardando Aceite CD') badge = 'bg-orange-100 text-orange-700';
-                else if(s === 'Em andamento') badge = 'bg-blue-100 text-blue-700';
-                else if(s === 'Prazo Recusado') badge = 'bg-red-100 text-red-700';
-                else if(s === 'Cancelado') badge = 'bg-gray-400 text-white';
+                const tktID = l[0];
+                const s = calcularStatusReal(l);
+                let badge = s === 'Resolvido' ? 'bg-emerald-100 text-emerald-700' : 'bg-yellow-100 text-yellow-700';
 
                 let acao = '';
                 if (s === 'Aguardando Aceite CD') {
                     acao = `
                         <div class="flex flex-col gap-1 items-center">
-                            <button onclick="confirmarMudarStatus(${row}, 'Em andamento', 'Aceitar Prazo')" class="btn-acao-tabela bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white">Aceitar Prazo</button>
-                            <button onclick="confirmarMudarStatus(${row}, 'Prazo Recusado', 'Rejeitar')" class="btn-acao-tabela bg-red-50 text-red-600 hover:bg-red-600 hover:text-white">Rejeitar</button>
+                            <button onclick="confirmarMudarStatus('${tktID}', 'Em andamento', 'Aceitar')" class="btn-acao-tabela bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white">Aceitar</button>
+                            <button onclick="confirmarMudarStatus('${tktID}', 'Prazo Recusado', 'Recusar')" class="btn-acao-tabela bg-red-50 text-red-600 hover:bg-red-600 hover:text-white">Recusar</button>
                         </div>`;
                 } else if (s === 'Em andamento') {
-                    acao = `
-                        <div class="flex flex-col gap-1 items-center">
-                            <button onclick="confirmarMudarStatus(${row}, 'Resolvido', 'Resolver')" class="btn-acao-tabela bg-emerald-600 text-white hover:bg-emerald-700">Resolvido</button>
-                            <button onclick="confirmarMudarStatus(${row}, 'Cancelado', 'Cancelar')" class="btn-acao-tabela bg-gray-500 text-white hover:bg-gray-600">Cancelado</button>
-                        </div>`;
-                } else if (s === 'Resolvido' || s === 'Cancelado') {
-                    acao = `<div class="flex flex-col items-center"><span class="text-[8px] font-black ${s === 'Resolvido' ? 'text-emerald-600' : 'text-gray-400'} uppercase">${s}</span></div>`;
+                    acao = `<button onclick="confirmarMudarStatus('${tktID}', 'Resolvido', 'Concluir')" class="btn-acao-tabela bg-emerald-600 text-white shadow-md">Concluir</button>`;
                 }
 
-                let dP = l[12] && l[12] !== "---" ? (l[12].includes('/') ? l[12].split('/').reverse().join('-') : l[12].split('T')[0]) : "";
-                const destaqueYellow = (s === 'Aguardando Prazo' || s === 'Aguardando Aceite CD') ? 'bg-yellow-200 border-yellow-400 text-yellow-900 font-black' : 'bg-white';
-
                 tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50 border-b border-gray-100">
-                        <td class="p-4 font-black text-primary italic"><button onclick="verDetalhes(${idx})">${l[0]}</button></td>
-                        <td class="p-4"><span class="px-2 py-1 rounded text-[9px] font-black uppercase ${badge}">${s}</span></td>
-                        <td class="p-4"><div class="flex flex-col"><span class="font-bold">${l[1]}</span><span class="text-[10px] text-gray-400 font-black">${l[2]}</span></div></td>
-                        <td class="p-4 text-center text-xs font-bold">${formatarDataBR(l[10])}</td>
+                    <tr class="hover:bg-gray-50 border-b border-gray-100 text-sm font-bold">
+                        <td class="p-4 text-primary italic"><button onclick="verDetalhes('${tktID}')">${tktID}</button></td>
+                        <td class="p-4"><span class="px-2 py-1 rounded text-[9px] uppercase font-black ${badge}">${s}</span></td>
+                        <td class="p-4 leading-tight">${l[1]}<br><span class="text-[9px] text-gray-400 font-bold uppercase">${l[2]}</span></td>
+                        <td class="p-4 text-center text-xs text-gray-400">${l[10]}</td>
                         <td class="p-4 text-center">
-                            <select onchange="atualizarCampo(${row}, 'responsavel', this.value)" class="text-[10px] border rounded p-1 font-bold bg-white">
+                            <select onchange="atualizarCampoTKT('${tktID}', 'responsavel', this.value)" class="text-[10px] border rounded p-1 bg-white">
                                 <option value="">---</option>
                                 ${LISTA_RESPONSAVEIS.map(r => `<option value="${r}" ${l[14] === r ? 'selected' : ''}>${r}</option>`).join('')}
                             </select>
                         </td>
                         <td class="p-4 text-center">
-                            <input type="date" value="${dP}" onchange="confirmarPrevisao(${row}, this.value)" class="text-[10px] border rounded p-1.5 outline-none transition-colors ${destaqueYellow}">
+                            <input type="date" value="${l[12] ? l[12].split('/').reverse().join('-') : ''}" onchange="confirmarPrevisao('${tktID}', this.value)" class="text-[10px] border rounded p-1">
                         </td>
                         <td class="p-4 text-center">${acao}</td>
                     </tr>`;
             });
         }
 
-        // --- FUNÇÕES DE CONFIRMAÇÃO COM SWEETALERT2 ---
-
-        async function confirmarMudarStatus(row, status, label) {
-            const result = await Swal.fire({
-                title: `Deseja ${label}?`,
-                text: `Esta ação alterará o status do ticket para: ${status}`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: status.includes('Resolvido') || status.includes('andamento') ? '#059669' : '#dc2626',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Sim, confirmar!',
-                cancelButtonText: 'Cancelar'
-            });
-
-            if (result.isConfirmed) {
-                Swal.fire({ title: 'Processando...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
-                
-                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: 'status', value: status }) });
-                
-                if(status === 'Resolvido' || status === 'Cancelado') {
-                    await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: 'data_conclusao', value: new Date().toLocaleDateString('pt-BR') }) });
-                }
-
+        async function confirmarMudarStatus(tktID, novoStatus, label) {
+            const r = await Swal.fire({ title: `Deseja ${label}?`, text: tktID, icon: 'question', showCancelButton: true });
+            if (r.isConfirmed) {
+                Swal.fire({ title: 'Salvando...', didOpen: () => Swal.showLoading() });
+                await atualizarCampoTKT(tktID, 'status', novoStatus);
+                if(novoStatus === 'Resolvido') await atualizarCampoTKT(tktID, 'data_conclusao', new Date().toLocaleDateString('pt-BR'));
                 await carregarTickets();
-                Swal.fire('Atualizado!', 'O status foi alterado com sucesso.', 'success');
+                Swal.fire('Pronto!', '', 'success');
             }
         }
 
-        async function confirmarPrevisao(row, data) {
-            if(!data) return;
-            const result = await Swal.fire({
-                title: 'Definir Previsão?',
-                text: `Nova data prevista: ${formatarDataBR(data)}`,
-                icon: 'calendar_month',
-                showCancelButton: true,
-                confirmButtonText: 'Confirmar data'
-            });
-
-            if(result.isConfirmed) {
-                Swal.fire({ title: 'Enviando...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
-                await atualizarCampo(row, 'previsao', data);
-                await atualizarCampo(row, 'data_definicao', new Date().toLocaleDateString('pt-BR'));
-                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: 'status', value: 'Aguardando Aceite CD' }) });
-                await carregarTickets();
-                Swal.fire('Pronto!', 'Previsão enviada para aceite da loja.', 'success');
-            }
+        async function confirmarPrevisao(tktID, data) {
+            Swal.fire({ title: 'Salvando...', didOpen: () => Swal.showLoading() });
+            await atualizarCampoTKT(tktID, 'previsao', data);
+            await atualizarCampoTKT(tktID, 'status', 'Aguardando Aceite CD');
+            await carregarTickets();
+            Swal.fire('Prazo Enviado!', '', 'success');
         }
 
-        async function atualizarCampo(r, f, v) {
-            await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: r, field: f, value: v }) });
-        }
-
-        function verDetalhes(idx) {
-            const t = dadosGlobais[idx];
-            ticketAbertoAtual = { index: idx, row: idx + 2 };
+        function verDetalhes(tktID) {
+            const t = dadosGlobais.find(item => item[0] === tktID);
             document.getElementById('detalheID').innerText = t[0];
             document.getElementById('detalheSeac').innerText = t[1];
             document.getElementById('detalheForn').innerText = t[2];
-            document.getElementById('detalheRef').innerText = t[3];
-            document.getElementById('detalheCodCli').innerText = t[4] || "---";
-            document.getElementById('detalheLote').innerText = t[6] || "---";
-            document.getElementById('detalheQtd').innerText = String(t[5] || 0).replace('.', ',');
-            document.getElementById('detalheUM').innerText = t[16] || "";
-            document.getElementById('detalheMotivo').innerText = t[7] || "---";
+            document.getElementById('detalheMotivo').innerText = t[7];
             document.getElementById('detalheObs').value = t[8] || "";
-            document.getElementById('detalheTipo').innerText = t[19] || "---";
-            document.getElementById('detalheAutor').innerText = t[13] || "---";
-            document.getElementById('detalheComunicado').innerText = t[17] || "---";
-            document.getElementById('detalheAcordo').innerText = t[18] || "---";
-
-            // TIMELINE LOGIC
-            const dA = formatarDataBR(t[10]), dT = formatarDataBR(t[15]), dP = formatarDataBR(t[12]), dC = formatarDataBR(t[11]);
-            document.getElementById('dateStep1').innerText = dA;
-            document.getElementById('dateStep2').innerText = dT;
-            document.getElementById('dateStep3').innerText = dP;
-            document.getElementById('dateStep4').innerText = dC;
-
+            
+            const sel = document.getElementById('selectResponsavelModal');
+            sel.innerHTML = '<option value="">Selecionar...</option>' + LISTA_RESPONSAVEIS.map(r => `<option value="${r}" ${t[14] === r ? 'selected' : ''}>${r}</option>`).join('');
+            
+            // Timeline Logic
+            document.getElementById('dateStep1').innerText = t[10];
+            document.getElementById('dateStep2').innerText = t[15] || "--";
+            document.getElementById('dateStep3').innerText = t[12] || "--";
+            document.getElementById('dateStep4').innerText = t[11] || "--";
+            
             [1,2,3,4].forEach(i => document.getElementById(`step${i}`).classList.remove('active'));
             let perc = 0;
-            if (dA !== "---") { document.getElementById('step1').classList.add('active'); perc = 5; }
-            if (dT !== "---") { document.getElementById('step2').classList.add('active'); perc = 33; }
-            if (dP !== "---") { document.getElementById('step3').classList.add('active'); perc = 66; }
-            if (dC !== "---") { document.getElementById('step4').classList.add('active'); perc = 100; }
+            if (t[10]) { document.getElementById('step1').classList.add('active'); perc = 5; }
+            if (t[15]) { document.getElementById('step2').classList.add('active'); perc = 33; }
+            if (t[12]) { document.getElementById('step3').classList.add('active'); perc = 66; }
+            if (t[11]) { document.getElementById('step4').classList.add('active'); perc = 100; }
             document.getElementById('progressoLinha').style.width = perc + "%";
 
-            const sel = document.getElementById('selectResponsavelModal');
-            sel.innerHTML = '<option value="">Selecione...</option>' + LISTA_RESPONSAVEIS.map(r => `<option value="${r}" ${t[14] === r ? 'selected' : ''}>${r}</option>`).join('');
             document.getElementById('modalDetalhes').classList.remove('hidden');
         }
 
         async function salvarAlteracoesNoModal() {
-            const btn = document.getElementById('btnSalvarObs');
-            btn.disabled = true; btn.innerText = "Gravando...";
-            await atualizarCampo(ticketAbertoAtual.row, 'observacao', document.getElementById('detalheObs').value);
-            await atualizarCampo(ticketAbertoAtual.row, 'responsavel', document.getElementById('selectResponsavelModal').value);
+            const id = document.getElementById('detalheID').innerText;
+            await atualizarCampoTKT(id, 'observacao', document.getElementById('detalheObs').value);
+            await atualizarCampoTKT(id, 'responsavel', document.getElementById('selectResponsavelModal').value);
             fecharModalDetalhes();
-            Swal.fire('Salvo!', 'Tratativas atualizadas.', 'success');
-            btn.disabled = false; btn.innerText = "Salvar Alterações";
-            carregarTickets();
-        }
-
-        // --- DASHBOARD FUNCTIONS ---
-        function abrirDashboard() { 
-            document.getElementById('modalDashboard').classList.remove('hidden');
-            processarDadosDash();
-        }
-        function fecharDashboard() { document.getElementById('modalDashboard').classList.add('hidden'); }
-
-        function processarDadosDash() {
-            const iniStr = document.getElementById('dashDataInicio').value;
-            const fimStr = document.getElementById('dashDataFim').value;
-            const filtrar = (iniStr !== "" && fimStr !== "");
-            const ini = filtrar ? new Date(iniStr + "T00:00:00") : null;
-            const fim = filtrar ? new Date(fimStr + "T23:59:59") : null;
-            const cont = { "Quebra fábrica": 0, "Quebra depósito/Loja": 0, "Quebra de produto na embalagem(Externa)": 0, "Divergência de Estoque": 0, "Outros": 0 };
-            let total = 0;
-
-            dadosGlobais.forEach(d => {
-                const dataT = new Date(d[10]);
-                if (!filtrar || (dataT >= ini && dataT <= fim)) {
-                    total++;
-                    const m = d[7] || "Outros";
-                    if (cont[m] !== undefined) cont[m]++; else cont["Outros"]++;
-                }
-            });
-            document.getElementById('totalMesDash').innerText = total;
-            renderizarGraficoDash(cont, total);
-        }
-
-        function renderizarGraficoDash(cont, total) {
-            const ctx = document.getElementById('graficoMotivos').getContext('2d');
-            if(chartMotivos) chartMotivos.destroy();
-            chartMotivos = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(cont),
-                    datasets: [{ data: Object.values(cont), backgroundColor: ['#E30613', '#111827', '#3b82f6', '#10b981', '#f59e0b'], borderWidth: 0 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '70%' }
-            });
-            const leg = document.getElementById('listaLegendaDash');
-            leg.innerHTML = '';
-            Object.entries(cont).forEach(([m, q], i) => {
-                const perc = total > 0 ? ((q / total) * 100).toFixed(0) : 0;
-                leg.innerHTML += `
-                    <div class="flex justify-between p-3 bg-gray-50 rounded-xl font-bold text-xs items-center">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full" style="background-color: ${chartMotivos.data.datasets[0].backgroundColor[i]}"></span>
-                            <span class="uppercase text-gray-500">${m}</span>
-                        </div>
-                        <div class="flex gap-3"><span>${q}</span><span class="text-gray-400">${perc}%</span></div>
-                    </div>`;
-            });
+            await carregarTickets();
+            Swal.fire('Salvo!', '', 'success');
         }
 
         function atualizarCards(dados) {
@@ -583,6 +395,58 @@
             document.getElementById('cardAtraso').innerText = c;
             document.getElementById('cardResolvido').innerText = d;
         }
+
+        // Funções de UI Auxiliares
+        function abrirModal() { document.getElementById('modalChamado').classList.remove('hidden'); }
+        function fecharModal() { document.getElementById('modalChamado').classList.add('hidden'); }
+        function fecharModalDetalhes() { document.getElementById('modalDetalhes').classList.add('hidden'); }
+        function toggleOutros(v) { document.getElementById('divOutros').classList.toggle('hidden', v !== 'Outros'); }
+        function toggleAcordo(v) { document.getElementById('divAcordo').classList.toggle('hidden', v !== 'Sim'); }
+
+        document.getElementById('formTicket').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnSalvar');
+            btn.disabled = true; btn.innerText = "Enviando...";
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            data.rota = 'pendencias'; data.action = 'insert';
+            data.criado_por = localStorage.getItem('vilarejo_user') || "Desconhecido";
+            if(data.motivo === 'Outros') data.motivo = document.getElementById('inputOutros').value;
+
+            try {
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
+                fecharModal();
+                Swal.fire('Sucesso!', 'Ticket registrado.', 'success');
+                setTimeout(carregarTickets, 800);
+            } catch (err) { Swal.fire('Erro', 'Falha ao salvar.', 'error'); }
+            finally { btn.disabled = false; btn.innerText = "Salvar Ticket"; }
+        };
+
+        // Dashboard Mockup (Simples)
+        function abrirDashboard() {
+            document.getElementById('modalDashboard').classList.remove('hidden');
+            const cont = { "Quebra fábrica": 0, "Quebra depósito/Loja": 0, "Divergência de Estoque": 0, "Outros": 0 };
+            dadosGlobais.forEach(d => { cont[d[7]] !== undefined ? cont[d[7]]++ : cont["Outros"]++ });
+            document.getElementById('totalMesDash').innerText = dadosGlobais.length;
+            
+            const ctx = document.getElementById('graficoMotivos').getContext('2d');
+            if(chartMotivos) chartMotivos.destroy();
+            chartMotivos = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(cont),
+                    datasets: [{ data: Object.values(cont), backgroundColor: ['#E30613', '#111827', '#3b82f6', '#10b981'], borderWidth: 0 }]
+                },
+                options: { maintainAspectRatio: false, cutout: '70%', plugins: { legend: { display: false } } }
+            });
+            
+            const leg = document.getElementById('listaLegendaDash');
+            leg.innerHTML = '';
+            Object.entries(cont).forEach(([m, q], i) => {
+                leg.innerHTML += `<div class="flex justify-between p-3 bg-gray-50 rounded-xl font-bold text-xs uppercase"><span>${m}</span><span>${q}</span></div>`;
+            });
+        }
+        function fecharDashboard() { document.getElementById('modalDashboard').classList.add('hidden'); }
     </script>
     <script src="menu.js"></script>
 </body>
