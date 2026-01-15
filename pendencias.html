@@ -122,67 +122,68 @@
     </div>
 
     <div id="modalChamado" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[9999]">
-        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden">
-            <div class="p-6 border-b bg-gray-50 flex justify-between items-center">
+        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl flex flex-col max-h-[95vh]">
+            <div class="p-6 border-b bg-gray-50 flex justify-between items-center rounded-t-3xl">
                 <h2 class="text-xl font-black text-primary uppercase">Registrar Pendência</h2>
                 <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600"><span class="material-symbols-outlined">close</span></button>
             </div>
-            <form id="formTicket" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="text" name="cod_seac" placeholder="Cód Produto Seac" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
-                <input type="text" name="fornecedor" placeholder="Fornecedor" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
-                <input type="text" name="referencia" placeholder="Referência" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
-                <input type="text" name="cod_cliente" placeholder="Cód Cliente" class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
-                <input type="number" name="quantidade" step="0.01" lang="pt-BR" placeholder="Quantidade (ex: 3,5)" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
-                
-                <select name="um" required class="p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary">
-                    <option value="" disabled selected>Unidade</option>
-                    <option value="UN">UN</option>
-                    <option value="M2">M²</option>
-                    <option value="SC">SC</option>
-                </select>
-
-                <input type="text" name="lote" placeholder="Tonalidade / Lote" class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
-                
-                <select name="tipo_solicitacao" required class="p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary">
-                    <option value="" disabled selected>Tipo de Solicitação</option>
-                    <option value="Complemento">Complemento</option>
-                    <option value="Compra Nova">Compra Nova</option>
-                </select>
-
-                <div class="col-span-full">
-                    <select name="motivo" onchange="toggleOutros(this.value)" class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold">
-                        <option value="Quebra fábrica">Quebra fábrica</option>
-                        <option value="Quebra depósito/Loja">Quebra depósito/Loja</option>
-                        <option value="Quebra de produto na embalagem(Externa)">Quebra produto embalagem (Externa)</option>
-                        <option value="Divergência de Estoque">Divergência de Estoque</option>
-                        <option value="Outros">Outros</option>
+            <div class="overflow-y-auto modal-scroll p-6 pb-20"> <form id="formTicket" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" name="cod_seac" placeholder="Cód Produto Seac" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
+                    <input type="text" name="fornecedor" placeholder="Fornecedor" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
+                    <input type="text" name="referencia" placeholder="Referência" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
+                    <input type="text" name="cod_cliente" placeholder="Cód Cliente" class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
+                    <input type="number" name="quantidade" step="0.01" lang="pt-BR" placeholder="Quantidade" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
+                    
+                    <select name="um" required class="p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary">
+                        <option value="" disabled selected>Unidade</option>
+                        <option value="UN">UN</option>
+                        <option value="M2">M²</option>
+                        <option value="SC">SC</option>
                     </select>
-                </div>
 
-                <div id="divOutros" class="col-span-full hidden">
-                    <input type="text" id="inputOutros" placeholder="Especifique o motivo..." class="w-full p-3 border border-primary rounded-xl outline-none text-sm font-bold">
-                </div>
-
-                <div class="col-span-full border-t pt-4">
-                    <label class="text-[10px] font-black text-gray-400 uppercase block mb-2">Foi comunicado à loja?</label>
-                    <select name="comunicado_loja" id="selectComunicado" onchange="toggleAcordo(this.value)" required class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold">
-                        <option value="" disabled selected>Selecione...</option>
-                        <option value="Sim">Sim</option>
-                        <option value="Não">Não</option>
+                    <input type="text" name="lote" placeholder="Tonalidade / Lote" class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
+                    
+                    <select name="tipo_solicitacao" required class="p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary">
+                        <option value="" disabled selected>Tipo de Solicitação</option>
+                        <option value="Complemento">Complemento</option>
+                        <option value="Compra Nova">Compra Nova</option>
                     </select>
-                </div>
 
-                <div id="divAcordo" class="col-span-full hidden">
-                    <textarea name="resumo_acordo" placeholder="Resumo do acordo feito com a loja..." rows="2" class="w-full p-3 border border-emerald-500 rounded-xl outline-none text-sm font-bold"></textarea>
-                </div>
+                    <div class="col-span-full">
+                        <select name="motivo" onchange="toggleOutros(this.value)" class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold">
+                            <option value="Quebra fábrica">Quebra fábrica</option>
+                            <option value="Quebra depósito/Loja">Quebra depósito/Loja</option>
+                            <option value="Quebra de produto na embalagem(Externa)">Quebra produto embalagem</option>
+                            <option value="Divergência de Estoque">Divergência de Estoque</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
 
-                <textarea name="observacao" placeholder="Informações iniciais/Observações..." rows="2" class="col-span-full p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold"></textarea>
-                
-                <div class="col-span-full flex gap-3 pt-4">
-                    <button type="button" onclick="fecharModal()" class="flex-1 bg-gray-100 py-3 rounded-xl font-bold uppercase text-[10px]">Cancelar</button>
-                    <button type="submit" id="btnSalvar" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold uppercase text-[10px] shadow-lg">Salvar Ticket</button>
-                </div>
-            </form>
+                    <div id="divOutros" class="col-span-full hidden">
+                        <input type="text" id="inputOutros" placeholder="Especifique o motivo..." class="w-full p-3 border border-primary rounded-xl outline-none text-sm font-bold">
+                    </div>
+
+                    <div class="col-span-full border-t pt-4">
+                        <label class="text-[10px] font-black text-gray-400 uppercase block mb-2">Foi comunicado à loja?</label>
+                        <select name="comunicado_loja" id="selectComunicado" onchange="toggleAcordo(this.value, true)" required class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold">
+                            <option value="" disabled selected>Selecione...</option>
+                            <option value="Sim">Sim</option>
+                            <option value="Não">Não</option>
+                        </select>
+                    </div>
+
+                    <div id="divAcordo" class="col-span-full hidden">
+                        <textarea name="resumo_acordo" placeholder="Resumo do acordo feito com a loja..." rows="2" class="w-full p-3 border border-emerald-500 rounded-xl outline-none text-sm font-bold"></textarea>
+                    </div>
+
+                    <textarea name="observacao" placeholder="Informações iniciais/Observações..." rows="3" class="col-span-full p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold"></textarea>
+                    
+                    <div class="col-span-full flex gap-3 pt-6">
+                        <button type="button" onclick="fecharModal()" class="flex-1 bg-gray-100 py-3 rounded-xl font-bold uppercase text-[10px]">Cancelar</button>
+                        <button type="submit" id="btnSalvar" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold uppercase text-[10px] shadow-lg">Salvar Ticket</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -217,10 +218,12 @@
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-6 text-sm">
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Cód. Prod SEAC</label><p id="detalheSeac" class="font-bold text-gray-800"></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Fornecedor</label><p id="detalheForn" class="font-bold text-gray-800"></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Motivo</label><p id="detalheMotivo" class="font-bold text-red-600 uppercase"></p></div>
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest text-red-500">Motivo</label><p id="detalheMotivo" class="font-bold text-red-600 uppercase"></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Referência</label><p id="detalheRef" class="font-bold text-gray-800"></p></div>
-                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Tipo</label><p id="detalheTipo" class="font-bold text-blue-700"></p></div>
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Cód. Cliente</label><p id="detalheCodCli" class="font-bold text-gray-800"></p></div>
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Tonalidade/Lote</label><p id="detalheLote" class="font-bold text-gray-800"></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Qtd / UM</label><p class="font-bold text-gray-800"><span id="detalheQtd"></span> <span id="detalheUM" class="text-primary"></span></p></div>
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Tipo Solicitação</label><p id="detalheTipo" class="font-bold text-blue-700"></p></div>
                     <div class="col-span-full bg-blue-50 p-3 rounded-xl">
                         <label class="text-[9px] font-black text-blue-400 uppercase tracking-widest">Acordo com Loja</label>
                         <p id="detalheAcordo" class="font-bold text-blue-900 italic"></p>
@@ -248,7 +251,7 @@
     <div id="modalDashboard" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden flex items-center justify-center z-[10000] p-4">
         <div class="bg-white w-full max-w-5xl h-full max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden">
             <div class="p-6 border-b flex justify-between items-center bg-gray-50">
-                <h2 class="text-xl font-black text-gray-800 uppercase flex items-center gap-2">Dashboard</h2>
+                <h2 class="text-xl font-black text-gray-800 uppercase flex items-center gap-2">Dashboard de Ocorrências</h2>
                 <button onclick="fecharDashboard()" class="text-gray-400 hover:text-black"><span class="material-symbols-outlined text-3xl">close</span></button>
             </div>
             <div class="p-8 overflow-y-auto modal-scroll space-y-8">
@@ -262,7 +265,7 @@
                         <input type="date" id="dashDataFim" onchange="processarDadosDash()" class="w-full border-b-2 py-2 text-sm font-bold bg-transparent">
                     </div>
                     <div class="bg-white px-8 py-3 rounded-2xl border min-w-[150px] text-center">
-                        <p class="text-[9px] font-black text-gray-400 uppercase">Total</p>
+                        <p class="text-[9px] font-black text-gray-400 uppercase">Total Geral</p>
                         <p id="totalMesDash" class="text-2xl font-black">0</p>
                     </div>
                 </div>
@@ -283,25 +286,30 @@
         let ticketAbertoAtual = null;
         let chartMotivos = null;
 
+        // --- FUNÇÕES DE INTERFACE ---
         function abrirModal() { document.getElementById('modalChamado').classList.remove('hidden'); }
-        function fecharModal() { document.getElementById('modalChamado').classList.add('hidden'); document.getElementById('formTicket').reset(); toggleAcordo('Não'); }
+        function fecharModal() { 
+            document.getElementById('modalChamado').classList.add('hidden'); 
+            document.getElementById('formTicket').reset(); 
+            toggleAcordo('', false); 
+        }
         function fecharModalDetalhes() { document.getElementById('modalDetalhes').classList.add('hidden'); }
-        
         function toggleOutros(v) { document.getElementById('divOutros').classList.toggle('hidden', v !== 'Outros'); }
         
-        function toggleAcordo(v) {
+        function toggleAcordo(v, dispararAlerta) {
             const div = document.getElementById('divAcordo');
             if(v === 'Sim') {
                 div.classList.remove('hidden');
+            } else if(v === 'Não') {
+                div.classList.add('hidden');
+                if(dispararAlerta) alert("Atenção: É necessário comunicar a loja antes de prosseguir com a tratativa.");
             } else {
                 div.classList.add('hidden');
-                if(v === 'Não') alert("Atenção: É necessário comunicar a loja antes de prosseguir com a tratativa.");
             }
         }
 
         function formatarDataBR(dataStr) {
             if (!dataStr || dataStr === "" || dataStr === "---") return "---";
-            if (/^\d{2}\/\d{2}\/\d{4}$/.test(dataStr)) return dataStr;
             try { 
                 const data = new Date(dataStr);
                 if (isNaN(data.getTime())) return dataStr;
@@ -309,6 +317,7 @@
             } catch (e) { return dataStr; }
         }
 
+        // --- CARREGAMENTO E LOGICA ---
         async function carregarTickets() {
             try {
                 const r = await fetch(`${WEB_APP_URL}?rota=pendencias`);
@@ -328,8 +337,7 @@
                 if(prevista.includes('/')) { const p = prevista.split('/'); dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`; }
                 return (new Date(dPrevRaw).getTime() < hoje.setHours(0,0,0,0)) ? 'Atrasado' : 'Em andamento';
             }
-            const vinteQuatroHoras = 24 * 60 * 60 * 1000;
-            return (hoje.getTime() - dataAbertura.getTime() > vinteQuatroHoras) ? 'Em análise (Atrasado)' : 'Em Análise';
+            return (hoje.getTime() - dataAbertura.getTime() > 86400000) ? 'Em análise (Atrasado)' : 'Em Análise';
         }
 
         function filtrarGeral() {
@@ -389,23 +397,26 @@
             });
         }
 
+        // --- MODAL DE DETALHES ---
         function verDetalhes(idx) {
             const t = dadosGlobais[idx];
             ticketAbertoAtual = { index: idx, row: idx + 2 };
             
+            // MAPA DE COLUNAS: A=0, B=1, C=2, D=3, E=4, F=5, G=6...
             document.getElementById('detalheID').innerText = t[0];
-            document.getElementById('detalheSeac').innerText = t[1];
-            document.getElementById('detalheForn').innerText = t[2];
-            document.getElementById('detalheRef').innerText = t[3];
-            document.getElementById('detalheTipo').innerText = t[17] || "---"; // Coluna R
-            
-            const qtdOriginal = t[5] !== undefined && t[5] !== null ? t[5] : "0";
-            document.getElementById('detalheQtd').innerText = String(qtdOriginal).replace('.', ',');
-            document.getElementById('detalheUM').innerText = t[16] || ""; 
-            document.getElementById('detalheMotivo').innerText = t[7] || "---";
-            document.getElementById('detalheAcordo').innerText = t[19] || "Sem acordo registrado."; // Coluna T
-            document.getElementById('detalheObs').value = t[8] || "";
-            
+            document.getElementById('detalheSeac').innerText = t[1];      // B: Cód Prod
+            document.getElementById('detalheForn').innerText = t[2];      // C: Fornecedor
+            document.getElementById('detalheRef').innerText = t[3];       // D: Referência
+            document.getElementById('detalheCodCli').innerText = t[4] || "---"; // E: Cód Cliente
+            document.getElementById('detalheLote').innerText = t[6] || "---";   // G: Tonalidade/Lote
+            document.getElementById('detalheQtd').innerText = String(t[5] || 0).replace('.', ','); // F: Qtd
+            document.getElementById('detalheUM').innerText = t[16] || "";       // Q: UM
+            document.getElementById('detalheMotivo').innerText = t[7] || "---"; // H: Motivo
+            document.getElementById('detalheTipo').innerText = t[17] || "---";  // R: Tipo
+            document.getElementById('detalheAcordo').innerText = t[19] || "Sem acordo registrado."; // T: Acordo
+            document.getElementById('detalheObs').value = t[8] || "";           // I: Obs
+
+            // Timeline
             const dA = formatarDataBR(t[10]), dT = formatarDataBR(t[15]), dP = formatarDataBR(t[12]), dC = t[11] ? formatarDataBR(t[11]) : "---";
             document.getElementById('timeAbertura').innerText = dA;
             document.getElementById('timeTriagem').innerText = dT;
@@ -463,11 +474,11 @@
             setTimeout(carregarTickets, 800);
         }
 
+        // --- ENVIO FORMULARIO ---
         document.getElementById('formTicket').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnSalvar'); 
-            btn.disabled = true;
-            btn.innerText = "Salvando...";
+            btn.disabled = true; btn.innerText = "Salvando...";
 
             const payload = Object.fromEntries(new FormData(e.target));
             payload.criado_por = localStorage.getItem('vilarejo_user') || 'Sistema'; 
@@ -484,6 +495,7 @@
             finally { btn.disabled = false; btn.innerText = "Salvar Ticket"; }
         });
 
+        // --- DASHBOARD E CARDS ---
         function atualizarCardsGerais(dados) {
             let ana = 0, and = 0, atr = 0, res = 0;
             dados.forEach(d => {
