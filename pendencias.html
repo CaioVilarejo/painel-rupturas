@@ -42,7 +42,6 @@
                 <div class="flex justify-between items-center mb-6">
                     <div>
                         <h1 class="text-xl font-black uppercase tracking-widest text-gray-800 italic">Controle de Pendências CD</h1>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase">Logado como: <span id="displayLoginTop" class="text-primary">---</span></p>
                     </div>
                     <button onclick="abrirDashboard()" class="bg-gray-800 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 hover:bg-black transition-all shadow-lg">
                         <span class="material-symbols-outlined text-sm">analytics</span> Dashboard
@@ -115,7 +114,7 @@
                                     <th class="p-4">Produto / Fornecedor</th>
                                     <th class="p-4 text-center">Data Abertura</th>
                                     <th class="p-4 text-center">Responsável</th>
-                                    <th class="p-4 text-center">Previsão CD</th>
+                                    <th class="p-4 text-center">Previsão</th>
                                     <th class="p-4 text-center">Ações</th>
                                 </tr>
                             </thead>
@@ -295,10 +294,7 @@
         let ticketAbertoAtual = null;
         let chartMotivos = null;
 
-        // --- INICIALIZAÇÃO E LOGIN ---
         document.addEventListener('DOMContentLoaded', () => {
-            const user = localStorage.getItem('vilarejo_user') || 'Usuário';
-            if(document.getElementById('displayLoginTop')) document.getElementById('displayLoginTop').innerText = user;
             carregarTickets();
         });
 
@@ -310,7 +306,6 @@
             } catch (e) { console.error("Erro na conexão."); }
         }
 
-        // --- FUNÇÕES DE FORMULÁRIO ---
         function abrirModal() { document.getElementById('modalChamado').classList.remove('hidden'); }
         function fecharModal() { document.getElementById('modalChamado').classList.add('hidden'); document.getElementById('formTicket').reset(); toggleAcordo('', false); }
         function fecharModalDetalhes() { document.getElementById('modalDetalhes').classList.add('hidden'); }
@@ -321,25 +316,17 @@
             else { div.classList.add('hidden'); if(v === 'Não' && alertar) alert("Comunique a loja primeiro."); }
         }
 
-        // --- SUBMIT DO TICKET (CORREÇÃO DEFINITIVA CRIADOR) ---
         document.getElementById('formTicket').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnSalvar');
             btn.disabled = true; btn.innerText = "Enviando...";
-            
             const formData = new FormData(e.target);
             const data = Object.fromEntries(formData);
-            
-            // BUSCANDO EXATAMENTE DA CHAVE QUE VOCÊ CONFIRMOU
             const usuarioLogado = localStorage.getItem('vilarejo_user') || "Desconhecido";
-            
-            // Enviando nas duas chaves possíveis que o backend pode estar lendo
             data.autor = usuarioLogado;
             data.criado_por = usuarioLogado;
-            
             data.rota = 'pendencias'; 
             data.action = 'insert';
-
             if (data.motivo === 'Outros') data.motivo = document.getElementById('inputOutros').value;
 
             try {
@@ -350,7 +337,6 @@
             finally { btn.disabled = false; btn.innerText = "Salvar Ticket"; }
         };
 
-        // --- TRATAMENTO DE STATUS E TABELA ---
         function formatarDataBR(str) {
             if (!str || str === "" || str === "---") return "---";
             const d = new Date(str);
@@ -387,21 +373,30 @@
                 else if(s === 'Aguardando Aceite CD') badge = 'bg-orange-100 text-orange-700';
                 else if(s === 'Em andamento') badge = 'bg-blue-100 text-blue-700';
                 else if(s === 'Prazo Recusado') badge = 'bg-red-100 text-red-700';
+                else if(s === 'Cancelado') badge = 'bg-gray-400 text-white';
 
                 let acao = '';
+                // AJUSTE: BOTÕES EMPILHADOS E TEXTOS INTUITIVOS
                 if (s === 'Aguardando Aceite CD') {
                     acao = `
-                        <div class="flex gap-2 justify-center">
-                            <button onclick="mudarStatus(${row}, 'Em andamento')" class="bg-emerald-50 text-emerald-600 px-2 py-1 rounded text-[9px] font-black hover:bg-emerald-600 hover:text-white">ACEITAR</button>
-                            <button onclick="mudarStatus(${row}, 'Prazo Recusado')" class="bg-red-50 text-red-600 px-2 py-1 rounded text-[9px] font-black hover:bg-red-600 hover:text-white">RECUSAR</button>
+                        <div class="flex flex-col gap-1 items-center">
+                            <button onclick="mudarStatus(${row}, 'Em andamento')" class="w-24 bg-emerald-50 text-emerald-600 px-2 py-1 rounded text-[8px] font-black hover:bg-emerald-600 hover:text-white uppercase leading-tight">Aceitar Prazo</button>
+                            <button onclick="mudarStatus(${row}, 'Prazo Recusado')" class="w-24 bg-red-50 text-red-600 px-2 py-1 rounded text-[8px] font-black hover:bg-red-600 hover:text-white uppercase leading-tight">Rejeitar</button>
                         </div>`;
                 } else if (s === 'Em andamento') {
-                    acao = `<button onclick="mudarStatus(${row}, 'Resolvido')" class="bg-emerald-50 text-emerald-600 p-1.5 rounded hover:bg-emerald-600 hover:text-white"><span class="material-symbols-outlined text-sm">check</span></button>`;
-                } else if (s === 'Resolvido') {
-                    acao = `<div class="flex flex-col"><span class="text-[8px] font-black text-emerald-600">Concluído</span><span class="text-[10px] font-bold">${formatarDataBR(l[11])}</span></div>`;
+                    acao = `
+                        <div class="flex flex-col gap-1 items-center">
+                            <button onclick="mudarStatus(${row}, 'Resolvido')" class="w-24 bg-emerald-600 text-white px-2 py-1 rounded text-[8px] font-black hover:bg-emerald-700 uppercase leading-tight">Resolvido</button>
+                            <button onclick="mudarStatus(${row}, 'Cancelado')" class="w-24 bg-gray-500 text-white px-2 py-1 rounded text-[8px] font-black hover:bg-gray-600 uppercase leading-tight">Cancelado</button>
+                        </div>`;
+                } else if (s === 'Resolvido' || s === 'Cancelado') {
+                    acao = `<div class="flex flex-col items-center"><span class="text-[8px] font-black ${s === 'Resolvido' ? 'text-emerald-600' : 'text-gray-400'} uppercase">${s}</span><span class="text-[9px] font-bold text-gray-500">${formatarDataBR(l[11])}</span></div>`;
                 }
 
                 let dP = l[12] && l[12] !== "---" ? (l[12].includes('/') ? l[12].split('/').reverse().join('-') : l[12].split('T')[0]) : "";
+                
+                // AJUSTE: DESTAQUE AMARELO NA PREVISÃO
+                const destaqueYellow = (s === 'Aguardando Prazo' || s === 'Aguardando Aceite CD') ? 'bg-yellow-200 border-yellow-400 text-yellow-900' : 'bg-white';
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 border-b border-gray-100">
@@ -410,13 +405,13 @@
                         <td class="p-4"><div class="flex flex-col"><span class="font-bold">${l[1]}</span><span class="text-[10px] text-gray-400 font-black">${l[2]}</span></div></td>
                         <td class="p-4 text-center text-xs font-bold">${formatarDataBR(l[10])}</td>
                         <td class="p-4 text-center">
-                            <select onchange="atualizarCampo(${row}, 'responsavel', this.value)" class="text-[10px] border rounded p-1 font-bold">
+                            <select onchange="atualizarCampo(${row}, 'responsavel', this.value)" class="text-[10px] border rounded p-1 font-bold bg-white">
                                 <option value="">---</option>
                                 ${LISTA_RESPONSAVEIS.map(r => `<option value="${r}" ${l[14] === r ? 'selected' : ''}>${r}</option>`).join('')}
                             </select>
                         </td>
                         <td class="p-4 text-center">
-                            <input type="date" value="${dP}" onchange="definirPrevisao(${row}, this.value)" class="text-[10px] border rounded p-1 font-bold">
+                            <input type="date" value="${dP}" onchange="definirPrevisao(${row}, this.value)" class="text-[10px] border rounded p-1.5 font-black outline-none transition-colors ${destaqueYellow}">
                         </td>
                         <td class="p-4 text-center">${acao}</td>
                     </tr>`;
@@ -425,7 +420,7 @@
 
         async function mudarStatus(r, s) {
             await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: r, field: 'status', value: s }) });
-            if(s === 'Resolvido') {
+            if(s === 'Resolvido' || s === 'Cancelado') {
                 await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: r, field: 'data_conclusao', value: new Date().toLocaleDateString('pt-BR') }) });
             }
             setTimeout(carregarTickets, 600);
@@ -443,7 +438,6 @@
             setTimeout(carregarTickets, 500);
         }
 
-        // --- MODAL DETALHES ---
         function verDetalhes(idx) {
             const t = dadosGlobais[idx];
             ticketAbertoAtual = { index: idx, row: idx + 2 };
@@ -490,7 +484,6 @@
             btn.disabled = false; btn.innerText = "Salvar Alterações";
         }
 
-        // --- DASHBOARD ---
         function abrirDashboard() { 
             document.getElementById('modalDashboard').classList.remove('hidden');
             document.getElementById('dashDataInicio').value = "";
@@ -505,10 +498,8 @@
             const filtrar = (iniStr !== "" && fimStr !== "");
             const ini = filtrar ? new Date(iniStr + "T00:00:00") : null;
             const fim = filtrar ? new Date(fimStr + "T23:59:59") : null;
-
             const cont = { "Quebra fábrica": 0, "Quebra depósito/Loja": 0, "Quebra de produto na embalagem(Externa)": 0, "Divergência de Estoque": 0, "Outros": 0 };
             let total = 0;
-
             dadosGlobais.forEach(d => {
                 const dataT = new Date(d[10]);
                 if (!filtrar || (dataT >= ini && dataT <= fim)) {
@@ -517,7 +508,6 @@
                     if (cont[m] !== undefined) cont[m]++; else cont["Outros"]++;
                 }
             });
-
             document.getElementById('totalMesDash').innerText = total;
             renderizarGraficoDash(cont, total);
         }
@@ -533,7 +523,6 @@
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '70%' }
             });
-
             const leg = document.getElementById('listaLegendaDash');
             leg.innerHTML = '';
             Object.entries(cont).forEach(([m, q], i) => {
