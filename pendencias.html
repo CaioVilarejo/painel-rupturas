@@ -23,7 +23,7 @@
         .modal-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
 
-        /* --- AJUSTE VISUAL LINHA DO TEMPO --- */
+        /* --- AJUSTE VISUAL LINHA DO TEMPO (CORREÇÃO DA SOBREPOSIÇÃO) --- */
         .timeline-container { position: relative; display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 10px; margin-top: 20px; margin-bottom: 30px; }
         .timeline-line { position: absolute; top: 10px; left: 0; height: 4px; background: #e2e8f0; width: 100%; z-index: 1; border-radius: 10px; }
         .timeline-progress { position: absolute; top: 10px; left: 0; height: 4px; background: #E30613; width: 0%; z-index: 2; transition: width 0.8s ease; border-radius: 10px; }
@@ -41,7 +41,7 @@
             <div class="max-w-7xl mx-auto">
                 
                 <div class="flex justify-between items-center mb-6">
-                    <h1 class="text-xl font-black uppercase tracking-widest text-gray-800">Controle de Ocorrências</h1>
+                    <h1 class="text-xl font-black uppercase tracking-widest text-gray-800 italic">Controle de Pendências CD</h1>
                     <button onclick="abrirDashboard()" class="bg-gray-800 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 hover:bg-black transition-all shadow-lg">
                         <span class="material-symbols-outlined text-sm">analytics</span> Dashboard
                     </button>
@@ -69,7 +69,7 @@
                 <div class="flex flex-col md:flex-row justify-between items-end gap-4 mb-6 bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 w-full">
                         <div>
-                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Buscar ID</label>
+                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Buscar ID / Fornecedor</label>
                             <input type="text" id="inputBuscaID" onkeyup="filtrarGeral()" placeholder="TKT-..." class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold outline-none focus:border-primary">
                         </div>
                         <div>
@@ -111,9 +111,9 @@
                                     <th class="p-4">ID Ticket</th>
                                     <th class="p-4">Status</th>
                                     <th class="p-4">Produto / Fornecedor</th>
-                                    <th class="p-4 text-center">Abertura</th>
+                                    <th class="p-4 text-center">Data Abertura</th>
                                     <th class="p-4 text-center">Responsável</th>
-                                    <th class="p-4 text-center">Previsão</th>
+                                    <th class="p-4 text-center">Previsão CD</th>
                                     <th class="p-4 text-center">Ações</th>
                                 </tr>
                             </thead>
@@ -140,12 +140,15 @@
                     <input type="number" name="quantidade" step="0.01" lang="pt-BR" placeholder="Quantidade" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
                     <select name="um" required class="p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary">
                         <option value="" disabled selected>Unidade</option>
-                        <option value="UN">UN</option><option value="M2">M²</option><option value="SC">SC</option>
+                        <option value="UN">UN</option>
+                        <option value="M2">M²</option>
+                        <option value="SC">SC</option>
                     </select>
                     <input type="text" name="lote" placeholder="Tonalidade / Lote" class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
                     <select name="tipo_solicitacao" required class="p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary">
                         <option value="" disabled selected>Tipo de Solicitação</option>
-                        <option value="Complemento">Complemento</option><option value="Compra Nova">Compra Nova</option>
+                        <option value="Complemento">Complemento</option>
+                        <option value="Compra Nova">Compra Nova</option>
                     </select>
                     <div class="col-span-full">
                         <select name="motivo" onchange="toggleOutros(this.value)" class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold">
@@ -163,7 +166,8 @@
                         <label class="text-[10px] font-black text-gray-400 uppercase block mb-2">Foi comunicado à loja?</label>
                         <select name="comunicado_loja" id="selectComunicado" onchange="toggleAcordo(this.value, true)" required class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold">
                             <option value="" disabled selected>Selecione...</option>
-                            <option value="Sim">Sim</option><option value="Não">Não</option>
+                            <option value="Sim">Sim</option>
+                            <option value="Não">Não</option>
                         </select>
                     </div>
                     <div id="divAcordo" class="col-span-full hidden">
@@ -228,7 +232,9 @@
                 </div>
                 <div class="p-4 bg-white rounded-2xl border-2 border-gray-100">
                     <label class="text-[10px] font-black text-gray-400 uppercase mb-2 block tracking-widest">Responsável Atual</label>
-                    <select id="selectResponsavelModal" class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary"></select>
+                    <select id="selectResponsavelModal" class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary">
+                        <option value="">Selecione um responsável...</option>
+                    </select>
                 </div>
                 <div class="space-y-3">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Histórico de Tratativas</label>
@@ -275,26 +281,27 @@
                 const response = await fetch(`${WEB_APP_URL}?rota=pendencias`);
                 dadosGlobais = await response.json();
                 filtrarGeral();
-            } catch (e) {
-                console.error("Erro na conexão com Google Sheets.");
-            }
+            } catch (e) { console.error("Erro na conexão."); }
         }
 
         function abrirModal() { document.getElementById('modalChamado').classList.remove('hidden'); }
         function fecharModal() { document.getElementById('modalChamado').classList.add('hidden'); document.getElementById('formTicket').reset(); toggleAcordo('', false); }
         function fecharModalDetalhes() { document.getElementById('modalDetalhes').classList.add('hidden'); }
         function toggleOutros(v) { document.getElementById('divOutros').classList.toggle('hidden', v !== 'Outros'); }
-        function toggleAcordo(v, alertar) {
+        function toggleAcordo(v, dispararAlerta) {
             const div = document.getElementById('divAcordo');
-            if(v === 'Sim') div.classList.remove('hidden');
-            else { div.classList.add('hidden'); if(v === 'Não' && alertar) alert("Comunique a loja antes de prosseguir."); }
+            if(v === 'Sim') { div.classList.remove('hidden'); } 
+            else if(v === 'Não') { div.classList.add('hidden'); if(dispararAlerta) alert("Atenção: É necessário comunicar a loja antes de prosseguir com a tratativa."); }
+            else { div.classList.add('hidden'); }
         }
 
         function formatarDataBR(dataStr) {
             if (!dataStr || dataStr === "" || dataStr === "---") return "---";
-            const data = new Date(dataStr);
-            if (isNaN(data.getTime())) return dataStr;
-            return `${String(data.getUTCDate()).padStart(2, '0')}/${String(data.getUTCMonth() + 1).padStart(2, '0')}/${data.getUTCFullYear()}`;
+            try {
+                const data = new Date(dataStr);
+                if (isNaN(data.getTime())) return dataStr;
+                return `${String(data.getUTCDate()).padStart(2, '0')}/${String(data.getUTCMonth() + 1).padStart(2, '0')}/${data.getUTCFullYear()}`;
+            } catch (e) { return dataStr; }
         }
 
         function calcularStatusReal(linha) {
@@ -308,9 +315,10 @@
             const busca = document.getElementById('inputBuscaID').value.toLowerCase();
             const statusF = document.getElementById('selectStatus').value;
             const motivoF = document.getElementById('selectMotivoFiltro').value;
-            const filtrados = dadosGlobais.filter(l => {
-                const sReal = calcularStatusReal(l);
-                return l[0].toLowerCase().includes(busca) && (statusF === "todos" || sReal === statusF) && (motivoF === "todos" || l[7] === motivoF);
+            const filtrados = dadosGlobais.filter(linha => {
+                const sReal = calcularStatusReal(linha);
+                const termo = (linha[0] + " " + linha[2]).toLowerCase();
+                return termo.includes(busca) && (statusF === "todos" || sReal === statusF) && (motivoF === "todos" || linha[7] === motivoF);
             });
             renderizarTabela(filtrados);
             atualizarCardsGerais(dadosGlobais);
@@ -323,45 +331,77 @@
                 const idxGlobal = dadosGlobais.findIndex(dg => dg[0] === linha[0]);
                 const rowNum = idxGlobal + 2;
                 const sReal = calcularStatusReal(linha);
-                let badge = 'bg-gray-100 text-gray-700';
-                if(sReal === 'Resolvido') badge = 'bg-emerald-100 text-emerald-700';
-                else if(sReal === 'Aguardando Prazo') badge = 'bg-yellow-100 text-yellow-700';
-                else if(sReal === 'Aguardando Aceite CD') badge = 'bg-orange-100 text-orange-700';
-                else if(sReal === 'Em andamento') badge = 'bg-blue-100 text-blue-700';
+                
+                let badgeColor = 'bg-gray-100 text-gray-700';
+                if(sReal === 'Resolvido') badgeColor = 'bg-emerald-100 text-emerald-700';
+                else if(sReal === 'Aguardando Prazo') badgeColor = 'bg-yellow-100 text-yellow-700';
+                else if(sReal === 'Aguardando Aceite CD') badgeColor = 'bg-orange-100 text-orange-700';
+                else if(sReal === 'Em andamento') badgeColor = 'bg-blue-100 text-blue-700';
+                else if(sReal === 'Prazo Recusado' || sReal === 'Cancelado') badgeColor = 'bg-red-100 text-red-700';
 
                 let acaoHTML = '';
-                if (sReal === 'Aguardando Aceite CD') {
-                    acaoHTML = `<div class="flex gap-2 justify-center"><button onclick="mudarStatus(${rowNum}, 'Em andamento')" class="bg-emerald-50 text-emerald-600 px-2 py-1 rounded text-[9px] font-black hover:bg-emerald-600 hover:text-white">ACEITAR</button><button onclick="mudarStatus(${rowNum}, 'Prazo Recusado')" class="bg-red-50 text-red-600 px-2 py-1 rounded text-[9px] font-black hover:bg-red-600 hover:text-white">RECUSAR</button></div>`;
+                if (sReal === 'Aguardando Prazo') {
+                    acaoHTML = `<span class="text-[9px] text-gray-400 font-bold uppercase italic">Defina o prazo...</span>`;
+                } else if (sReal === 'Aguardando Aceite CD') {
+                    acaoHTML = `<div class="flex gap-2 justify-center"><button onclick="mudarStatus(${rowNum}, 'Em andamento')" class="bg-emerald-50 text-emerald-600 px-2 py-1 rounded-md hover:bg-emerald-600 hover:text-white transition-all text-[9px] font-black">ACEITAR</button><button onclick="mudarStatus(${rowNum}, 'Prazo Recusado')" class="bg-red-50 text-red-600 px-2 py-1 rounded-md hover:bg-red-600 hover:text-white transition-all text-[9px] font-black">RECUSAR</button></div>`;
                 } else if (sReal === 'Em andamento') {
-                    acaoHTML = `<div class="flex gap-2 justify-center"><button onclick="mudarStatus(${rowNum}, 'Resolvido')" class="p-1.5 bg-emerald-50 text-emerald-600 rounded hover:bg-emerald-600 hover:text-white"><span class="material-symbols-outlined text-sm">check</span></button></div>`;
+                    acaoHTML = `<div class="flex gap-2 justify-center"><button onclick="mudarStatus(${rowNum}, 'Resolvido')" title="Concluir" class="bg-emerald-50 text-emerald-600 p-1.5 rounded-lg hover:bg-emerald-600 hover:text-white transition-all shadow-sm"><span class="material-symbols-outlined text-sm">check</span></button><button onclick="mudarStatus(${rowNum}, 'Cancelado')" title="Cancelar" class="bg-gray-100 text-gray-400 p-1.5 rounded-lg hover:bg-red-600 hover:text-white transition-all shadow-sm"><span class="material-symbols-outlined text-sm">close</span></button></div>`;
+                } else if (sReal === 'Resolvido') {
+                    acaoHTML = `<div class="flex flex-col items-center"><span class="text-[8px] font-black text-emerald-600 uppercase">Concluído em</span><span class="text-[10px] font-bold text-gray-600">${formatarDataBR(linha[11])}</span></div>`;
+                } else {
+                    acaoHTML = `<span class="text-[10px] font-black uppercase opacity-20 italic">Finalizado</span>`;
                 }
 
-                let dPrev = ""; if(linha[12] && linha[12] !== "---") dPrev = linha[12].includes('/') ? linha[12].split('/').reverse().join('-') : linha[12].split('T')[0];
+                let dPrevInput = "";
+                if(linha[12] && linha[12] !== "---") {
+                    dPrevInput = linha[12].includes('/') ? linha[12].split('/').reverse().join('-') : linha[12].split('T')[0];
+                }
 
-                tbody.innerHTML += `<tr class="border-b border-gray-100"><td class="p-4 font-black text-primary italic"><button onclick="verDetalhes(${idxGlobal})">${linha[0]}</button></td><td class="p-4"><span class="px-2 py-1 rounded text-[9px] font-black uppercase ${badge}">${sReal}</span></td><td class="p-4"><div class="flex flex-col"><span class="font-bold">${linha[1]}</span><span class="text-[10px] text-gray-400 font-black">${linha[2]}</span></div></td><td class="p-4 text-center text-xs font-bold">${formatarDataBR(linha[10])}</td><td class="p-4 text-center"><select onchange="atualizarCampo(${rowNum}, 'responsavel', this.value)" class="text-[10px] border rounded p-1 font-bold">${LISTA_RESPONSAVEIS.map(r => `<option value="${r}" ${linha[14] === r ? 'selected' : ''}>${r}</option>`).join('')}</select></td><td class="p-4 text-center"><input type="date" value="${dPrev}" onchange="definirPrevisao(${rowNum}, this.value)" class="text-[10px] border rounded p-1 font-bold"></td><td class="p-4 text-center">${acaoHTML}</td></tr>`;
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50/50 transition-colors border-b border-gray-100">
+                        <td class="p-4 font-black text-primary italic"><button onclick="verDetalhes(${idxGlobal})" class="hover:underline">${linha[0]}</button></td>
+                        <td class="p-4"><span class="px-2 py-1 rounded text-[9px] font-black uppercase ${badgeColor}">${sReal}</span></td>
+                        <td class="p-4"><div class="flex flex-col"><span class="font-bold text-gray-800">${linha[1]}</span><span class="text-[10px] text-gray-400 uppercase font-black">${linha[2]}</span></div></td>
+                        <td class="p-4 text-center text-xs font-bold text-gray-600">${formatarDataBR(linha[10])}</td>
+                        <td class="p-4 text-center">
+                            <select onchange="atualizarCampo(${rowNum}, 'responsavel', this.value)" class="text-[10px] border border-gray-200 rounded-lg p-1.5 font-bold outline-none bg-white">
+                                <option value="">---</option>
+                                ${LISTA_RESPONSAVEIS.map(r => `<option value="${r}" ${linha[14] === r ? 'selected' : ''}>${r}</option>`).join('')}
+                            </select>
+                        </td>
+                        <td class="p-4 text-center">
+                            <input type="date" value="${dPrevInput}" onchange="definirPrevisao(${rowNum}, this.value)" ${(sReal !== 'Aguardando Prazo' && sReal !== 'Aguardando Aceite CD') ? 'disabled' : ''} class="text-[10px] border border-gray-200 rounded-lg p-1 font-bold outline-none bg-white disabled:bg-gray-50">
+                        </td>
+                        <td class="p-4 text-center">${acaoHTML}</td>
+                    </tr>
+                `;
             });
         }
 
-        async function mudarStatus(row, s) { 
-            await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: 'status', value: s }) }); 
-            if(s === 'Resolvido') {
-                const hoje = new Date().toLocaleDateString('pt-BR');
-                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: 'data_conclusao', value: hoje }) });
-            }
-            setTimeout(carregarTickets, 600); 
+        async function mudarStatus(row, novoStatus) {
+            try {
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: 'status', value: novoStatus }) });
+                if(novoStatus === 'Resolvido') {
+                    const hoje = new Date().toLocaleDateString('pt-BR');
+                    await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: 'data_conclusao', value: hoje }) });
+                }
+                setTimeout(carregarTickets, 600);
+            } catch (e) { alert("Erro ao atualizar status."); }
         }
 
-        async function definirPrevisao(row, val) { 
-            if(!val) return; 
+        async function definirPrevisao(row, valor) {
+            if(!valor) return;
             const hoje = new Date().toLocaleDateString('pt-BR');
-            await atualizarCampo(row, 'previsao', val); 
-            await atualizarCampo(row, 'data_definicao', hoje); 
-            await mudarStatus(row, 'Aguardando Aceite CD'); 
+            await atualizarCampo(row, 'previsao', valor);
+            await atualizarCampo(row, 'data_definicao', hoje);
+            await mudarStatus(row, 'Aguardando Aceite CD');
         }
 
-        async function atualizarCampo(row, field, val) { 
-            await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: field, value: val }) }); 
-            setTimeout(carregarTickets, 500);
+        async function atualizarCampo(row, campo, valor) {
+            try {
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: campo, value: valor }) });
+                setTimeout(carregarTickets, 500);
+            } catch (e) {}
         }
 
         function verDetalhes(idx) {
@@ -380,36 +420,47 @@
             document.getElementById('detalheTipo').innerText = t[19] || "---";
             document.getElementById('detalheComunicado').innerText = t[17] || "Não informado";
             document.getElementById('detalheAcordo').innerText = t[18] || "---";
-            
-            const dA = formatarDataBR(t[10]), dT = formatarDataBR(t[15]), dP = formatarDataBR(t[12]), dC = formatarDataBR(t[11]);
-            document.getElementById('dateStep1').innerText = dA;
-            document.getElementById('dateStep2').innerText = dT;
-            document.getElementById('dateStep3').innerText = dP;
-            document.getElementById('dateStep4').innerText = dC;
-            
+
+            const dAbertura = formatarDataBR(t[10]);
+            const dTriagem = formatarDataBR(t[15]);
+            const dPrevisao = formatarDataBR(t[12]);
+            const dConclu = formatarDataBR(t[11]);
+
+            document.getElementById('dateStep1').innerText = dAbertura;
+            document.getElementById('dateStep2').innerText = dTriagem;
+            document.getElementById('dateStep3').innerText = dPrevisao;
+            document.getElementById('dateStep4').innerText = dConclu;
+
             [1,2,3,4].forEach(i => document.getElementById(`step${i}`).classList.remove('active'));
-            let perc = 0;
-            if(dA !== "---") { document.getElementById('step1').classList.add('active'); perc = 5; }
-            if(dT !== "---") { document.getElementById('step2').classList.add('active'); perc = 33; }
-            if(dP !== "---") { document.getElementById('step3').classList.add('active'); perc = 66; }
-            if(dC !== "---") { document.getElementById('step4').classList.add('active'); perc = 100; }
-            document.getElementById('progressoLinha').style.width = perc + "%";
+            let progresso = 0;
+            if (dAbertura !== "---") { document.getElementById('step1').classList.add('active'); progresso = 0; }
+            if (dTriagem !== "---") { document.getElementById('step2').classList.add('active'); progresso = 33; }
+            if (dPrevisao !== "---") { document.getElementById('step3').classList.add('active'); progresso = 66; }
+            if (dConclu !== "---") { document.getElementById('step4').classList.add('active'); progresso = 100; }
+            document.getElementById('progressoLinha').style.width = progresso + "%";
 
             const sel = document.getElementById('selectResponsavelModal');
-            sel.innerHTML = '<option value="">Selecione...</option>' + LISTA_RESPONSAVEIS.map(r => `<option value="${r}" ${t[14] === r ? 'selected' : ''}>${r}</option>`).join('');
+            sel.innerHTML = '<option value="">Selecione...</option>';
+            LISTA_RESPONSAVEIS.forEach(r => {
+                sel.innerHTML += `<option value="${r}" ${t[14] === r ? 'selected' : ''}>${r}</option>`;
+            });
 
             document.getElementById('modalDetalhes').classList.remove('hidden');
         }
 
         async function salvarAlteracoesNoModal() {
+            if(!ticketAbertoAtual) return;
             const btn = document.getElementById('btnSalvarObs');
-            btn.disabled = true; btn.innerText = "Gravando...";
             const novaObs = document.getElementById('detalheObs').value;
             const novoResp = document.getElementById('selectResponsavelModal').value;
-            await atualizarCampo(ticketAbertoAtual.row, 'observacao', novaObs);
-            await atualizarCampo(ticketAbertoAtual.row, 'responsavel', novoResp);
-            fecharModalDetalhes();
-            btn.disabled = false; btn.innerText = "Salvar Alterações";
+            btn.disabled = true; btn.innerText = "Gravando...";
+            try {
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: ticketAbertoAtual.row, field: 'observacao', value: novaObs }) });
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: ticketAbertoAtual.row, field: 'responsavel', value: novoResp }) });
+                alert("Alterações salvas com sucesso!");
+                fecharModalDetalhes();
+                carregarTickets();
+            } catch (e) { alert("Erro ao salvar."); } finally { btn.disabled = false; btn.innerText = "Salvar Alterações"; }
         }
 
         document.getElementById('formTicket').onsubmit = async (e) => {
@@ -418,21 +469,29 @@
             btn.disabled = true; btn.innerText = "Enviando...";
             const formData = new FormData(e.target);
             const data = Object.fromEntries(formData.entries());
-            data.rota = 'pendencias'; data.action = 'insert';
-            await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-            fecharModal();
-            btn.disabled = false; btn.innerText = "Salvar Ticket";
-            setTimeout(carregarTickets, 800);
+            
+            // LOGICA DA COLUNA N (AUTOR) MANTIDA DO SEU BACKUP
+            const userLogged = localStorage.getItem('usuarioNome') || "Sistema";
+            data.autor = userLogged;
+            data.rota = 'pendencias';
+            data.action = 'insert';
+
+            try {
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
+                alert("Ticket registrado com sucesso!");
+                fecharModal();
+                setTimeout(carregarTickets, 800);
+            } catch (e) { alert("Erro ao salvar ticket."); } finally { btn.disabled = false; btn.innerText = "Salvar Ticket"; }
         };
 
         function atualizarCardsGerais(dados) {
             let a = 0, b = 0, c = 0, d = 0;
-            dados.forEach(l => {
-                const s = calcularStatusReal(l);
-                if(s === 'Aguardando Prazo') a++;
-                else if(s === 'Aguardando Aceite CD') b++;
-                else if(s === 'Em andamento') c++;
-                else if(s === 'Resolvido') d++;
+            dados.forEach(linha => {
+                const status = calcularStatusReal(linha);
+                if (status === 'Aguardando Prazo') a++;
+                else if (status === 'Aguardando Aceite CD') b++;
+                else if (status === 'Em andamento') c++;
+                else if (status === 'Resolvido') d++;
             });
             document.getElementById('cardAnalise').innerText = a;
             document.getElementById('cardAndamento').innerText = b;
@@ -447,39 +506,52 @@
         function fecharDashboard() { document.getElementById('modalDashboard').classList.add('hidden'); }
 
         function gerarEstatisticasDash() {
-            const cont = { "Quebra fábrica": 0, "Quebra depósito/Loja": 0, "Divergência de Estoque": 0, "Outros": 0 };
-            let total = 0;
-            const agora = new Date();
-            const ini = new Date(agora.getFullYear(), agora.getMonth(), 1);
-            const fim = new Date(agora.getFullYear(), agora.getMonth() + 1, 0);
+            const contagemMotivos = { "Quebra fábrica": 0, "Quebra depósito/Loja": 0, "Quebra de produto na embalagem(Externa)": 0, "Divergência de Estoque": 0, "Outros": 0 };
+            let totalMes = 0;
+            const hoje = new Date();
+            const mesAtual = hoje.getMonth();
+            const anoAtual = hoje.getFullYear();
 
             dadosGlobais.forEach(d => {
-                const da = new Date(d[10]);
-                if (da >= ini && da <= fim) {
-                    total++;
-                    const m = d[7] || "";
-                    if (cont[m] !== undefined) cont[m]++; else cont["Outros"]++;
+                const dataAbertura = new Date(d[10]);
+                if (dataAbertura.getMonth() === mesAtual && dataAbertura.getFullYear() === anoAtual) {
+                    totalMes++;
+                    const motivo = d[7] || "Outros";
+                    if (contagemMotivos[motivo] !== undefined) contagemMotivos[motivo]++; else contagemMotivos["Outros"]++;
                 }
             });
-            document.getElementById('totalMesDash').innerText = total;
-            renderizarGrafico(cont);
-        }
 
-        function renderizarGrafico(cont) {
+            document.getElementById('totalMesDash').innerText = totalMes;
             const ctx = document.getElementById('graficoMotivos').getContext('2d');
-            if(chartMotivos) chartMotivos.destroy();
+            if (chartMotivos) chartMotivos.destroy();
             chartMotivos = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: Object.keys(cont),
-                    datasets: [{ data: Object.values(cont), backgroundColor: ['#E30613', '#111827', '#3b82f6', '#94a3b8', '#10b981'], borderWidth: 0 }]
+                    labels: Object.keys(contagemMotivos),
+                    datasets: [{
+                        data: Object.values(contagemMotivos),
+                        backgroundColor: ['#E30613', '#111827', '#3b82f6', '#10b981', '#f59e0b'],
+                        borderWidth: 0
+                    }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '70%' }
             });
-            const leg = document.getElementById('listaLegendaDash');
-            leg.innerHTML = '';
-            Object.keys(cont).forEach(m => {
-                leg.innerHTML += `<div class="flex justify-between p-3 bg-gray-50 rounded-xl font-bold text-xs"><span>${m}</span><span>${cont[m]}</span></div>`;
+
+            const listaLegenda = document.getElementById('listaLegendaDash');
+            listaLegenda.innerHTML = '';
+            Object.entries(contagemMotivos).forEach(([motivo, qtd]) => {
+                const perc = totalMes > 0 ? ((qtd / totalMes) * 100).toFixed(0) : 0;
+                listaLegenda.innerHTML += `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                        <div class="flex items-center gap-3">
+                            <span class="w-2 h-2 rounded-full" style="background-color: ${chartMotivos.data.datasets[0].backgroundColor[Object.keys(contagemMotivos).indexOf(motivo)]}"></span>
+                            <span class="text-[10px] font-bold text-gray-600 uppercase">${motivo}</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-xs font-black text-gray-800">${qtd}</span>
+                            <span class="text-[10px] font-bold text-gray-400">${perc}%</span>
+                        </div>
+                    </div>`;
             });
         }
 
