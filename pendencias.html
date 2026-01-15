@@ -23,7 +23,6 @@
         .modal-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
 
-        /* --- AJUSTE VISUAL LINHA DO TEMPO --- */
         .timeline-container { position: relative; display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 10px; margin-top: 20px; margin-bottom: 30px; }
         .timeline-line { position: absolute; top: 10px; left: 0; height: 4px; background: #e2e8f0; width: 100%; z-index: 1; border-radius: 10px; }
         .timeline-progress { position: absolute; top: 10px; left: 0; height: 4px; background: #E30613; width: 0%; z-index: 2; transition: width 0.8s ease; border-radius: 10px; }
@@ -252,21 +251,21 @@
     <div id="modalDashboard" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden flex items-center justify-center z-[10000] p-4">
         <div class="bg-white w-full max-w-4xl h-[85vh] rounded-3xl shadow-2xl flex flex-col p-8 overflow-y-auto no-scrollbar">
             <div class="flex justify-between items-center mb-6">
-                <div><h2 class="text-2xl font-black italic uppercase">Dashboard Geral</h2><p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Análise estatística e filtros por período</p></div>
+                <div><h2 class="text-2xl font-black italic uppercase">Dashboard Geral</h2><p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Filtros por período</p></div>
                 <button onclick="fecharDashboard()" class="text-gray-400 hover:text-black"><span class="material-symbols-outlined text-3xl">close</span></button>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 bg-gray-50 p-4 rounded-2xl border border-gray-100">
                 <div>
-                    <label class="text-[9px] font-black text-gray-400 uppercase ml-1">Início do Período</label>
+                    <label class="text-[9px] font-black text-gray-400 uppercase ml-1">Data Início</label>
                     <input type="date" id="dashDataInicio" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold outline-none">
                 </div>
                 <div>
-                    <label class="text-[9px] font-black text-gray-400 uppercase ml-1">Fim do Período</label>
+                    <label class="text-[9px] font-black text-gray-400 uppercase ml-1">Data Fim</label>
                     <input type="date" id="dashDataFim" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold outline-none">
                 </div>
                 <div class="flex items-end">
-                    <button onclick="processarDadosDash()" class="w-full bg-primary text-white py-2 rounded-xl font-black uppercase text-[10px] hover:bg-red-700 shadow-md">Filtrar Dados</button>
+                    <button onclick="processarDadosDash()" class="w-full bg-primary text-white py-2 rounded-xl font-black uppercase text-[10px] hover:bg-red-700">Filtrar</button>
                 </div>
             </div>
 
@@ -276,7 +275,7 @@
                 </div>
                 <div class="space-y-4">
                     <div class="bg-primary/5 p-6 rounded-3xl border border-primary/10">
-                        <p class="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Ocorrências no Período</p>
+                        <p class="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Total no Período</p>
                         <h4 id="totalMesDash" class="text-5xl font-black text-primary italic">0</h4>
                     </div>
                     <div id="listaLegendaDash" class="space-y-2 overflow-y-auto max-h-48 pr-2"></div>
@@ -346,11 +345,21 @@
                 else if(s === 'Aguardando Prazo') badge = 'bg-yellow-100 text-yellow-700';
                 else if(s === 'Aguardando Aceite CD') badge = 'bg-orange-100 text-orange-700';
                 else if(s === 'Em andamento') badge = 'bg-blue-100 text-blue-700';
+                else if(s === 'Prazo Recusado') badge = 'bg-red-100 text-red-700';
 
                 let acao = '';
-                if (s === 'Aguardando Aceite CD') acao = `<button onclick="mudarStatus(${row}, 'Em andamento')" class="bg-emerald-50 text-emerald-600 px-2 py-1 rounded text-[9px] font-black hover:bg-emerald-600 hover:text-white">ACEITAR</button>`;
-                else if (s === 'Em andamento') acao = `<button onclick="mudarStatus(${row}, 'Resolvido')" class="bg-emerald-50 text-emerald-600 p-1.5 rounded hover:bg-emerald-600 hover:text-white"><span class="material-symbols-outlined text-sm">check</span></button>`;
-                else if (s === 'Resolvido') acao = `<div class="flex flex-col"><span class="text-[8px] font-black text-emerald-600">Concluído</span><span class="text-[10px] font-bold">${formatarDataBR(l[11])}</span></div>`;
+                // RESTAURADA LÓGICA DE ACEITAR E RECUSAR
+                if (s === 'Aguardando Aceite CD') {
+                    acao = `
+                        <div class="flex gap-2 justify-center">
+                            <button onclick="mudarStatus(${row}, 'Em andamento')" class="bg-emerald-50 text-emerald-600 px-2 py-1 rounded text-[9px] font-black hover:bg-emerald-600 hover:text-white">ACEITAR</button>
+                            <button onclick="mudarStatus(${row}, 'Prazo Recusado')" class="bg-red-50 text-red-600 px-2 py-1 rounded text-[9px] font-black hover:bg-red-600 hover:text-white">RECUSAR</button>
+                        </div>`;
+                } else if (s === 'Em andamento') {
+                    acao = `<button onclick="mudarStatus(${row}, 'Resolvido')" class="bg-emerald-50 text-emerald-600 p-1.5 rounded hover:bg-emerald-600 hover:text-white"><span class="material-symbols-outlined text-sm">check</span></button>`;
+                } else if (s === 'Resolvido') {
+                    acao = `<div class="flex flex-col"><span class="text-[8px] font-black text-emerald-600">Concluído</span><span class="text-[10px] font-bold">${formatarDataBR(l[11])}</span></div>`;
+                }
 
                 let dP = l[12] && l[12] !== "---" ? (l[12].includes('/') ? l[12].split('/').reverse().join('-') : l[12].split('T')[0]) : "";
 
@@ -376,7 +385,9 @@
 
         async function mudarStatus(r, s) {
             await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: r, field: 'status', value: s }) });
-            if(s === 'Resolvido') await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: r, field: 'data_conclusao', value: new Date().toLocaleDateString('pt-BR') }) });
+            if(s === 'Resolvido') {
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: r, field: 'data_conclusao', value: new Date().toLocaleDateString('pt-BR') }) });
+            }
             setTimeout(carregarTickets, 600);
         }
 
@@ -406,6 +417,7 @@
             document.getElementById('detalheMotivo').innerText = t[7] || "---";
             document.getElementById('detalheObs').value = t[8] || "";
             document.getElementById('detalheTipo').innerText = t[19] || "---";
+            // MOSTRANDO O CRIADOR (Coluna N = index 13)
             document.getElementById('detalheAutor').innerText = t[13] || "Não identificado";
             document.getElementById('detalheComunicado').innerText = t[17] || "Não informado";
             document.getElementById('detalheAcordo').innerText = t[18] || "---";
@@ -444,7 +456,7 @@
             btn.disabled = true; btn.innerText = "Enviando...";
             const data = Object.fromEntries(new FormData(e.target));
             
-            // CORREÇÃO: Usando vilarejo_user do seu menu.js
+            // CORREÇÃO: Utilizando a chave 'vilarejo_user' e mapeando para 'autor' (Coluna N)
             data.autor = localStorage.getItem('vilarejo_user') || "Sistema";
             data.rota = 'pendencias'; data.action = 'insert';
 
