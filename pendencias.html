@@ -222,17 +222,11 @@
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Tonalidade/Lote</label><p id="detalheLote" class="font-bold text-gray-800"></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Qtd / UM</label><p class="font-bold text-gray-800"><span id="detalheQtd"></span> <span id="detalheUM" class="text-primary"></span></p></div>
                     
-                    <div>
-                        <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Tipo Solicitação</label>
-                        <p id="detalheTipo" class="font-bold text-blue-700"></p>
-                    </div>
-                    <div>
-                        <label class="text-[9px] font-black text-primary uppercase tracking-widest">Criado por</label>
-                        <p id="detalheAutor" class="font-bold text-gray-800 uppercase italic"></p>
-                    </div>
+                    <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Tipo Solicitação</label><p id="detalheTipo" class="font-bold text-blue-700"></p></div>
+                    <div><label class="text-[9px] font-black text-primary uppercase tracking-widest">Criado por</label><p id="detalheAutor" class="font-bold text-gray-800 uppercase italic"></p></div>
                 </div>
 
-                <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100" id="boxAcordoLoja">
+                <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100">
                     <label class="text-[10px] font-black text-blue-400 uppercase mb-1 block tracking-widest">Comunicado à Loja / Acordo</label>
                     <p class="text-sm font-bold text-blue-900"><span id="detalheComunicado"></span> — <span id="detalheAcordo"></span></p>
                 </div>
@@ -258,21 +252,21 @@
     <div id="modalDashboard" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden flex items-center justify-center z-[10000] p-4">
         <div class="bg-white w-full max-w-4xl h-[85vh] rounded-3xl shadow-2xl flex flex-col p-8 overflow-y-auto no-scrollbar">
             <div class="flex justify-between items-center mb-6">
-                <div><h2 class="text-2xl font-black italic uppercase">Dashboard Geral</h2><p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Análise de ocorrências por período</p></div>
+                <div><h2 class="text-2xl font-black italic uppercase">Dashboard Geral</h2><p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Análise estatística e filtros por período</p></div>
                 <button onclick="fecharDashboard()" class="text-gray-400 hover:text-black"><span class="material-symbols-outlined text-3xl">close</span></button>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 bg-gray-50 p-4 rounded-2xl border border-gray-100">
                 <div>
-                    <label class="text-[9px] font-black text-gray-400 uppercase ml-1">Data Inicial</label>
+                    <label class="text-[9px] font-black text-gray-400 uppercase ml-1">Início do Período</label>
                     <input type="date" id="dashDataInicio" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold outline-none">
                 </div>
                 <div>
-                    <label class="text-[9px] font-black text-gray-400 uppercase ml-1">Data Final</label>
+                    <label class="text-[9px] font-black text-gray-400 uppercase ml-1">Fim do Período</label>
                     <input type="date" id="dashDataFim" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold outline-none">
                 </div>
                 <div class="flex items-end">
-                    <button onclick="gerarEstatisticasDash()" class="w-full bg-primary text-white py-2 rounded-xl font-black uppercase text-[10px]">Filtrar Dados</button>
+                    <button onclick="processarDadosDash()" class="w-full bg-primary text-white py-2 rounded-xl font-black uppercase text-[10px] hover:bg-red-700 shadow-md">Filtrar Dados</button>
                 </div>
             </div>
 
@@ -282,7 +276,7 @@
                 </div>
                 <div class="space-y-4">
                     <div class="bg-primary/5 p-6 rounded-3xl border border-primary/10">
-                        <p class="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Total no Período</p>
+                        <p class="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Ocorrências no Período</p>
                         <h4 id="totalMesDash" class="text-5xl font-black text-primary italic">0</h4>
                     </div>
                     <div id="listaLegendaDash" class="space-y-2 overflow-y-auto max-h-48 pr-2"></div>
@@ -311,110 +305,90 @@
         function fecharModal() { document.getElementById('modalChamado').classList.add('hidden'); document.getElementById('formTicket').reset(); toggleAcordo('', false); }
         function fecharModalDetalhes() { document.getElementById('modalDetalhes').classList.add('hidden'); }
         function toggleOutros(v) { document.getElementById('divOutros').classList.toggle('hidden', v !== 'Outros'); }
-        function toggleAcordo(v, dispararAlerta) {
+        function toggleAcordo(v, alertar) {
             const div = document.getElementById('divAcordo');
-            if(v === 'Sim') { div.classList.remove('hidden'); } 
-            else if(v === 'Não') { div.classList.add('hidden'); if(dispararAlerta) alert("Atenção: Comunique a loja antes de prosseguir."); }
-            else { div.classList.add('hidden'); }
+            if(v === 'Sim') div.classList.remove('hidden'); 
+            else { div.classList.add('hidden'); if(v === 'Não' && alertar) alert("Comunique a loja primeiro."); }
         }
 
-        function formatarDataBR(dataStr) {
-            if (!dataStr || dataStr === "" || dataStr === "---") return "---";
-            try {
-                const data = new Date(dataStr);
-                if (isNaN(data.getTime())) return dataStr;
-                return `${String(data.getUTCDate()).padStart(2, '0')}/${String(data.getUTCMonth() + 1).padStart(2, '0')}/${data.getUTCFullYear()}`;
-            } catch (e) { return dataStr; }
+        function formatarDataBR(str) {
+            if (!str || str === "" || str === "---") return "---";
+            const d = new Date(str);
+            if (isNaN(d.getTime())) return str;
+            return `${String(d.getUTCDate()).padStart(2, '0')}/${String(d.getUTCMonth() + 1).padStart(2, '0')}/${d.getUTCFullYear()}`;
         }
 
-        function calcularStatusReal(linha) {
-            const statusPlanilha = linha[9]; 
-            const prevista = linha[12];     
-            if (['Resolvido', 'Cancelado', 'Prazo Recusado', 'Em andamento', 'Aguardando Aceite CD'].includes(statusPlanilha)) return statusPlanilha;
-            return (!prevista || prevista === "" || prevista === "---") ? 'Aguardando Prazo' : 'Aguardando Aceite CD';
+        function calcularStatusReal(l) {
+            const s = l[9], p = l[12];
+            if (['Resolvido', 'Cancelado', 'Prazo Recusado', 'Em andamento', 'Aguardando Aceite CD'].includes(s)) return s;
+            return (!p || p === "" || p === "---") ? 'Aguardando Prazo' : 'Aguardando Aceite CD';
         }
 
         function filtrarGeral() {
             const busca = document.getElementById('inputBuscaID').value.toLowerCase();
             const statusF = document.getElementById('selectStatus').value;
             const motivoF = document.getElementById('selectMotivoFiltro').value;
-            const filtrados = dadosGlobais.filter(linha => {
-                const sReal = calcularStatusReal(linha);
-                const termo = (linha[0] + " " + linha[2]).toLowerCase();
-                return termo.includes(busca) && (statusF === "todos" || sReal === statusF) && (motivoF === "todos" || linha[7] === motivoF);
+            const fil = dadosGlobais.filter(l => {
+                const s = calcularStatusReal(l), t = (l[0] + " " + l[2]).toLowerCase();
+                return t.includes(busca) && (statusF === "todos" || s === statusF) && (motivoF === "todos" || l[7] === motivoF);
             });
-            renderizarTabela(filtrados);
-            atualizarCardsGerais(dadosGlobais);
+            renderizarTabela(fil);
+            atualizarCards(dadosGlobais);
         }
 
         function renderizarTabela(dados) {
             const tbody = document.getElementById('tabelaChamados');
             tbody.innerHTML = '';
-            dados.forEach(linha => {
-                const idxGlobal = dadosGlobais.findIndex(dg => dg[0] === linha[0]);
-                const rowNum = idxGlobal + 2;
-                const sReal = calcularStatusReal(linha);
-                
-                let badgeColor = 'bg-gray-100 text-gray-700';
-                if(sReal === 'Resolvido') badgeColor = 'bg-emerald-100 text-emerald-700';
-                else if(sReal === 'Aguardando Prazo') badgeColor = 'bg-yellow-100 text-yellow-700';
-                else if(sReal === 'Aguardando Aceite CD') badgeColor = 'bg-orange-100 text-orange-700';
-                else if(sReal === 'Em andamento') badgeColor = 'bg-blue-100 text-blue-700';
+            dados.forEach(l => {
+                const idx = dadosGlobais.findIndex(dg => dg[0] === l[0]), row = idx + 2, s = calcularStatusReal(l);
+                let badge = 'bg-gray-100 text-gray-700';
+                if(s === 'Resolvido') badge = 'bg-emerald-100 text-emerald-700';
+                else if(s === 'Aguardando Prazo') badge = 'bg-yellow-100 text-yellow-700';
+                else if(s === 'Aguardando Aceite CD') badge = 'bg-orange-100 text-orange-700';
+                else if(s === 'Em andamento') badge = 'bg-blue-100 text-blue-700';
 
-                let acaoHTML = '';
-                if (sReal === 'Aguardando Aceite CD') {
-                    acaoHTML = `<div class="flex gap-2 justify-center"><button onclick="mudarStatus(${rowNum}, 'Em andamento')" class="bg-emerald-50 text-emerald-600 px-2 py-1 rounded text-[9px] font-black hover:bg-emerald-600 hover:text-white">ACEITAR</button></div>`;
-                } else if (sReal === 'Em andamento') {
-                    acaoHTML = `<div class="flex gap-2 justify-center"><button onclick="mudarStatus(${rowNum}, 'Resolvido')" class="bg-emerald-50 text-emerald-600 p-1 rounded hover:bg-emerald-600 hover:text-white"><span class="material-symbols-outlined text-sm">check</span></button></div>`;
-                } else if (sReal === 'Resolvido') {
-                    acaoHTML = `<div class="flex flex-col items-center"><span class="text-[8px] font-black text-emerald-600 uppercase">Concluído em</span><span class="text-[10px] font-bold text-gray-600">${formatarDataBR(linha[11])}</span></div>`;
-                }
+                let acao = '';
+                if (s === 'Aguardando Aceite CD') acao = `<button onclick="mudarStatus(${row}, 'Em andamento')" class="bg-emerald-50 text-emerald-600 px-2 py-1 rounded text-[9px] font-black hover:bg-emerald-600 hover:text-white">ACEITAR</button>`;
+                else if (s === 'Em andamento') acao = `<button onclick="mudarStatus(${row}, 'Resolvido')" class="bg-emerald-50 text-emerald-600 p-1.5 rounded hover:bg-emerald-600 hover:text-white"><span class="material-symbols-outlined text-sm">check</span></button>`;
+                else if (s === 'Resolvido') acao = `<div class="flex flex-col"><span class="text-[8px] font-black text-emerald-600">Concluído</span><span class="text-[10px] font-bold">${formatarDataBR(l[11])}</span></div>`;
 
-                let dPrevInput = "";
-                if(linha[12] && linha[12] !== "---") {
-                    dPrevInput = linha[12].includes('/') ? linha[12].split('/').reverse().join('-') : linha[12].split('T')[0];
-                }
+                let dP = l[12] && l[12] !== "---" ? (l[12].includes('/') ? l[12].split('/').reverse().join('-') : l[12].split('T')[0]) : "";
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 border-b border-gray-100">
-                        <td class="p-4 font-black text-primary italic"><button onclick="verDetalhes(${idxGlobal})">${linha[0]}</button></td>
-                        <td class="p-4"><span class="px-2 py-1 rounded text-[9px] font-black uppercase ${badgeColor}">${sReal}</span></td>
-                        <td class="p-4"><div class="flex flex-col"><span class="font-bold">${linha[1]}</span><span class="text-[10px] text-gray-400 font-black">${linha[2]}</span></div></td>
-                        <td class="p-4 text-center text-xs font-bold">${formatarDataBR(linha[10])}</td>
+                        <td class="p-4 font-black text-primary italic"><button onclick="verDetalhes(${idx})">${l[0]}</button></td>
+                        <td class="p-4"><span class="px-2 py-1 rounded text-[9px] font-black uppercase ${badge}">${s}</span></td>
+                        <td class="p-4"><div class="flex flex-col"><span class="font-bold">${l[1]}</span><span class="text-[10px] text-gray-400 font-black">${l[2]}</span></div></td>
+                        <td class="p-4 text-center text-xs font-bold">${formatarDataBR(l[10])}</td>
                         <td class="p-4 text-center">
-                            <select onchange="atualizarCampo(${rowNum}, 'responsavel', this.value)" class="text-[10px] border rounded p-1 font-bold">
+                            <select onchange="atualizarCampo(${row}, 'responsavel', this.value)" class="text-[10px] border rounded p-1 font-bold">
                                 <option value="">---</option>
-                                ${LISTA_RESPONSAVEIS.map(r => `<option value="${r}" ${linha[14] === r ? 'selected' : ''}>${r}</option>`).join('')}
+                                ${LISTA_RESPONSAVEIS.map(r => `<option value="${r}" ${l[14] === r ? 'selected' : ''}>${r}</option>`).join('')}
                             </select>
                         </td>
                         <td class="p-4 text-center">
-                            <input type="date" value="${dPrevInput}" onchange="definirPrevisao(${rowNum}, this.value)" class="text-[10px] border rounded p-1 font-bold">
+                            <input type="date" value="${dP}" onchange="definirPrevisao(${row}, this.value)" class="text-[10px] border rounded p-1 font-bold">
                         </td>
-                        <td class="p-4 text-center">${acaoHTML}</td>
-                    </tr>
-                `;
+                        <td class="p-4 text-center">${acao}</td>
+                    </tr>`;
             });
         }
 
-        async function mudarStatus(row, novoStatus) {
-            await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: 'status', value: novoStatus }) });
-            if(novoStatus === 'Resolvido') {
-                const hoje = new Date().toLocaleDateString('pt-BR');
-                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: 'data_conclusao', value: hoje }) });
-            }
+        async function mudarStatus(r, s) {
+            await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: r, field: 'status', value: s }) });
+            if(s === 'Resolvido') await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: r, field: 'data_conclusao', value: new Date().toLocaleDateString('pt-BR') }) });
             setTimeout(carregarTickets, 600);
         }
 
-        async function definirPrevisao(row, valor) {
-            if(!valor) return;
-            const hoje = new Date().toLocaleDateString('pt-BR');
-            await atualizarCampo(row, 'previsao', valor);
-            await atualizarCampo(row, 'data_definicao', hoje);
-            await mudarStatus(row, 'Aguardando Aceite CD');
+        async function definirPrevisao(r, v) {
+            if(!v) return;
+            await atualizarCampo(r, 'previsao', v);
+            await atualizarCampo(r, 'data_definicao', new Date().toLocaleDateString('pt-BR'));
+            await mudarStatus(r, 'Aguardando Aceite CD');
         }
 
-        async function atualizarCampo(row, campo, valor) {
-            await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: campo, value: valor }) });
+        async function atualizarCampo(r, f, v) {
+            await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: r, field: f, value: v }) });
             setTimeout(carregarTickets, 500);
         }
 
@@ -432,11 +406,9 @@
             document.getElementById('detalheMotivo').innerText = t[7] || "---";
             document.getElementById('detalheObs').value = t[8] || "";
             document.getElementById('detalheTipo').innerText = t[19] || "---";
+            document.getElementById('detalheAutor').innerText = t[13] || "Não identificado";
             document.getElementById('detalheComunicado').innerText = t[17] || "Não informado";
             document.getElementById('detalheAcordo').innerText = t[18] || "---";
-            
-            // CAMPO CRIADOR (COLUNA N = INDEX 13)
-            document.getElementById('detalheAutor').innerText = t[13] || "Não identificado";
 
             const dA = formatarDataBR(t[10]), dT = formatarDataBR(t[15]), dP = formatarDataBR(t[12]), dC = formatarDataBR(t[11]);
             document.getElementById('dateStep1').innerText = dA;
@@ -454,17 +426,14 @@
 
             const sel = document.getElementById('selectResponsavelModal');
             sel.innerHTML = '<option value="">Selecione...</option>' + LISTA_RESPONSAVEIS.map(r => `<option value="${r}" ${t[14] === r ? 'selected' : ''}>${r}</option>`).join('');
-
             document.getElementById('modalDetalhes').classList.remove('hidden');
         }
 
         async function salvarAlteracoesNoModal() {
             const btn = document.getElementById('btnSalvarObs');
             btn.disabled = true; btn.innerText = "Gravando...";
-            const novaObs = document.getElementById('detalheObs').value;
-            const novoResp = document.getElementById('selectResponsavelModal').value;
-            await atualizarCampo(ticketAbertoAtual.row, 'observacao', novaObs);
-            await atualizarCampo(ticketAbertoAtual.row, 'responsavel', novoResp);
+            await atualizarCampo(ticketAbertoAtual.row, 'observacao', document.getElementById('detalheObs').value);
+            await atualizarCampo(ticketAbertoAtual.row, 'responsavel', document.getElementById('selectResponsavelModal').value);
             fecharModalDetalhes();
             btn.disabled = false; btn.innerText = "Salvar Alterações";
         }
@@ -473,13 +442,11 @@
             e.preventDefault();
             const btn = document.getElementById('btnSalvar');
             btn.disabled = true; btn.innerText = "Enviando...";
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData.entries());
+            const data = Object.fromEntries(new FormData(e.target));
             
-            // RECUPERA O NOME DO LOGIN PARA SALVAR NA COLUNA N
-            data.autor = localStorage.getItem('usuarioNome') || "Sistema";
-            data.rota = 'pendencias'; 
-            data.action = 'insert';
+            // CORREÇÃO: Usando vilarejo_user do seu menu.js
+            data.autor = localStorage.getItem('vilarejo_user') || "Sistema";
+            data.rota = 'pendencias'; data.action = 'insert';
 
             await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
             fecharModal();
@@ -487,14 +454,11 @@
             setTimeout(carregarTickets, 800);
         };
 
-        function atualizarCardsGerais(dados) {
-            let a = 0, b = 0, c = 0, d = 0;
+        function atualizarCards(dados) {
+            let a=0,b=0,c=0,d=0;
             dados.forEach(l => {
                 const s = calcularStatusReal(l);
-                if(s === 'Aguardando Prazo') a++;
-                else if(s === 'Aguardando Aceite CD') b++;
-                else if(s === 'Em andamento') c++;
-                else if(s === 'Resolvido') d++;
+                if(s==='Aguardando Prazo') a++; else if(s==='Aguardando Aceite CD') b++; else if(s==='Em andamento') c++; else if(s==='Resolvido') d++;
             });
             document.getElementById('cardAnalise').innerText = a;
             document.getElementById('cardAndamento').innerText = b;
@@ -503,41 +467,34 @@
         }
 
         function abrirDashboard() { 
-            document.getElementById('modalDashboard').classList.remove('hidden'); 
-            gerarEstatisticasDash();
+            document.getElementById('modalDashboard').classList.remove('hidden');
+            document.getElementById('dashDataInicio').value = "";
+            document.getElementById('dashDataFim').value = "";
+            processarDadosDash();
         }
         function fecharDashboard() { document.getElementById('modalDashboard').classList.add('hidden'); }
 
-        function gerarEstatisticasDash() {
-            const contagemMotivos = { "Quebra fábrica": 0, "Quebra depósito/Loja": 0, "Quebra de produto na embalagem(Externa)": 0, "Divergência de Estoque": 0, "Outros": 0 };
+        function processarDadosDash() {
+            const iniStr = document.getElementById('dashDataInicio').value;
+            const fimStr = document.getElementById('dashDataFim').value;
+            const filtrar = (iniStr !== "" && fimStr !== "");
+            const ini = filtrar ? new Date(iniStr + "T00:00:00") : null;
+            const fim = filtrar ? new Date(fimStr + "T23:59:59") : null;
+
+            const cont = { "Quebra fábrica": 0, "Quebra depósito/Loja": 0, "Quebra de produto na embalagem(Externa)": 0, "Divergência de Estoque": 0, "Outros": 0 };
             let total = 0;
-            
-            const dataInicio = document.getElementById('dashDataInicio').value;
-            const dataFim = document.getElementById('dashDataFim').value;
 
             dadosGlobais.forEach(d => {
-                const dataTicket = new Date(d[10]);
-                let validarData = true;
-
-                if (dataInicio) {
-                    const dIni = new Date(dataInicio);
-                    if (dataTicket < dIni) validarData = false;
-                }
-                if (dataFim) {
-                    const dFim = new Date(dataFim);
-                    dFim.setHours(23, 59, 59); // Garante que pegue o dia inteiro
-                    if (dataTicket > dFim) validarData = false;
-                }
-
-                if (validarData) {
+                const dataT = new Date(d[10]);
+                if (!filtrar || (dataT >= ini && dataT <= fim)) {
                     total++;
-                    const motivo = d[7] || "Outros";
-                    if (contagemMotivos[motivo] !== undefined) contagemMotivos[motivo]++; else contagemMotivos["Outros"]++;
+                    const m = d[7] || "Outros";
+                    if (cont[m] !== undefined) cont[m]++; else cont["Outros"]++;
                 }
             });
 
             document.getElementById('totalMesDash').innerText = total;
-            renderizarGraficoDash(contagemMotivos, total);
+            renderizarGraficoDash(cont, total);
         }
 
         function renderizarGraficoDash(cont, total) {
@@ -547,11 +504,7 @@
                 type: 'doughnut',
                 data: {
                     labels: Object.keys(cont),
-                    datasets: [{ 
-                        data: Object.values(cont), 
-                        backgroundColor: ['#E30613', '#111827', '#3b82f6', '#10b981', '#f59e0b'], 
-                        borderWidth: 0 
-                    }]
+                    datasets: [{ data: Object.values(cont), backgroundColor: ['#E30613', '#111827', '#3b82f6', '#10b981', '#f59e0b'], borderWidth: 0 }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '70%' }
             });
@@ -566,10 +519,7 @@
                             <span class="w-2 h-2 rounded-full" style="background-color: ${chartMotivos.data.datasets[0].backgroundColor[i]}"></span>
                             <span class="uppercase text-gray-500">${m}</span>
                         </div>
-                        <div class="flex gap-3">
-                            <span>${q}</span>
-                            <span class="text-gray-400">${perc}%</span>
-                        </div>
+                        <div class="flex gap-3"><span>${q}</span><span class="text-gray-400">${perc}%</span></div>
                     </div>`;
             });
         }
