@@ -21,20 +21,18 @@
         .modal-scroll::-webkit-scrollbar { width: 6px; }
         .modal-scroll::-webkit-scrollbar-track { background: #f8fafc; border-radius: 10px; }
         .modal-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        
-        .timeline-container { position: relative; display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 10px; margin-top: 20px;}
-        .timeline-line { position: absolute; top: 50%; left: 0; transform: translateY(-50%); height: 4px; background: #e2e8f0; width: 100%; z-index: 1; border-radius: 10px; }
-        .timeline-progress { position: absolute; top: 50%; left: 0; transform: translateY(-50%); height: 4px; background: #E30613; width: 0%; z-index: 2; transition: width 0.8s ease; border-radius: 10px; }
-        .timeline-step { position: relative; z-index: 3; background: #fff; border: 3px solid #e2e8f0; width: 16px; height: 16px; border-radius: 50%; transition: all 0.4s; }
-        .timeline-step.active { border-color: #E30613; background: #E30613; box-shadow: 0 0 0 4px rgba(227, 6, 19, 0.2); }
-        
         .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* --- AJUSTE VISUAL LINHA DO TEMPO --- */
+        .timeline-container { position: relative; display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 10px; margin-top: 20px; margin-bottom: 30px; }
+        .timeline-line { position: absolute; top: 8px; left: 0; height: 4px; background: #e2e8f0; width: 100%; z-index: 1; border-radius: 10px; }
+        .timeline-progress { position: absolute; top: 8px; left: 0; height: 4px; background: #E30613; width: 0%; z-index: 2; transition: width 0.8s ease; border-radius: 10px; }
+        .timeline-step { position: relative; z-index: 3; background: #fff; border: 3px solid #e2e8f0; width: 18px; height: 18px; border-radius: 50%; transition: all 0.4s; margin-bottom: 12px; } /* Espaçamento aqui */
+        .timeline-step.active { border-color: #E30613; background: #E30613; box-shadow: 0 0 0 4px rgba(227, 6, 19, 0.2); }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-900">
     <div class="flex h-screen overflow-hidden">
-        <div id="sidebar-container"></div>
-
         <main class="flex-1 overflow-y-auto p-4 md:p-8 no-scrollbar">
             <div class="max-w-7xl mx-auto">
                 
@@ -46,16 +44,16 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-orange-500">
-                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Em Análise</p>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-yellow-500">
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Aguardando Prazo</p>
                         <h3 id="cardAnalise" class="text-3xl font-black">0</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-orange-500">
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Aguardando Aceite</p>
+                        <h3 id="cardAndamento" class="text-3xl font-black">0</h3>
                     </div>
                     <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-blue-500">
                         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Em Andamento</p>
-                        <h3 id="cardAndamento" class="text-3xl font-black">0</h3>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-red-500">
-                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Atrasados</p>
                         <h3 id="cardAtraso" class="text-3xl font-black">0</h3>
                     </div>
                     <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-emerald-500">
@@ -74,10 +72,12 @@
                             <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Status</label>
                             <select id="selectStatus" onchange="filtrarGeral()" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white outline-none">
                                 <option value="todos">Todos os Status</option>
-                                <option value="Em Análise">Em Análise</option>
+                                <option value="Aguardando Prazo">Aguardando Prazo</option>
+                                <option value="Aguardando Aceite CD">Aguardando Aceite CD</option>
                                 <option value="Em andamento">Em Andamento</option>
-                                <option value="Atrasado">Atrasado</option>
                                 <option value="Resolvido">Resolvido</option>
+                                <option value="Prazo Recusado">Prazo Recusado</option>
+                                <option value="Cancelado">Cancelado</option>
                             </select>
                         </div>
                         <div>
@@ -127,7 +127,8 @@
                 <h2 class="text-xl font-black text-primary uppercase">Registrar Pendência</h2>
                 <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600"><span class="material-symbols-outlined">close</span></button>
             </div>
-            <div class="overflow-y-auto modal-scroll p-6 pb-20"> <form id="formTicket" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="overflow-y-auto modal-scroll p-6 pb-20"> 
+                <form id="formTicket" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <input type="text" name="cod_seac" placeholder="Cód Produto Seac" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
                     <input type="text" name="fornecedor" placeholder="Fornecedor" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
                     <input type="text" name="referencia" placeholder="Referência" required class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
@@ -192,26 +193,37 @@
             <div class="p-6 border-b flex justify-between items-center bg-gray-50 rounded-t-3xl">
                 <div>
                     <h2 id="detalheID" class="text-3xl font-black text-gray-800 tracking-tighter"></h2>
-                    <span id="detalheStatusBadge" class="text-[10px] font-black uppercase px-2 py-0.5 rounded"></span>
                 </div>
                 <button onclick="fecharModalDetalhes()" class="text-gray-400 hover:text-primary"><span class="material-symbols-outlined text-3xl">close</span></button>
             </div>
             
             <div class="p-8 overflow-y-auto modal-scroll space-y-8">
-                <div class="bg-gray-50 p-8 rounded-3xl border border-gray-100">
-                    <div class="timeline-container mb-6">
+                
+                <div class="px-2">
+                    <div class="timeline-container">
                         <div class="timeline-line"></div>
-                        <div id="timelineProgress" class="timeline-progress"></div>
-                        <div class="timeline-step active"></div>
-                        <div id="stepTriagem" class="timeline-step"></div>
-                        <div id="stepPrevisao" class="timeline-step"></div>
-                        <div id="stepConclusao" class="timeline-step"></div>
-                    </div>
-                    <div class="flex justify-between text-[9px] font-black uppercase text-gray-400">
-                        <div class="text-center w-1/4">Abertura<p id="timeAbertura" class="text-gray-800 font-bold mt-1">--/--</p></div>
-                        <div class="text-center w-1/4">Triagem<p id="timeTriagem" class="text-gray-800 font-bold mt-1">---</p></div>
-                        <div class="text-center w-1/4">Previsão<p id="timePrevisaoModal" class="text-gray-800 font-bold mt-1">---</p></div>
-                        <div class="text-center w-1/4">Conclusão<p id="timeConclusao" class="text-gray-800 font-bold mt-1">---</p></div>
+                        <div id="progressoLinha" class="timeline-progress"></div>
+                        
+                        <div class="flex flex-col items-center relative z-10 text-center">
+                            <div id="step1" class="timeline-step"></div>
+                            <span class="text-[9px] font-black uppercase">Abertura</span>
+                            <span id="dateStep1" class="text-[8px] text-gray-400 font-bold">--/--</span>
+                        </div>
+                        <div class="flex flex-col items-center relative z-10 text-center">
+                            <div id="step2" class="timeline-step"></div>
+                            <span class="text-[9px] font-black uppercase">Triagem</span>
+                            <span id="dateStep2" class="text-[8px] text-gray-400 font-bold">--/--</span>
+                        </div>
+                        <div class="flex flex-col items-center relative z-10 text-center">
+                            <div id="step3" class="timeline-step"></div>
+                            <span class="text-[9px] font-black uppercase">Previsão</span>
+                            <span id="dateStep3" class="text-[8px] text-gray-400 font-bold">--/--</span>
+                        </div>
+                        <div class="flex flex-col items-center relative z-10 text-center">
+                            <div id="step4" class="timeline-step"></div>
+                            <span class="text-[9px] font-black uppercase">Conclusão</span>
+                            <span id="dateStep4" class="text-[8px] text-gray-400 font-bold">--/--</span>
+                        </div>
                     </div>
                 </div>
 
@@ -224,10 +236,11 @@
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Tonalidade/Lote</label><p id="detalheLote" class="font-bold text-gray-800"></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Qtd / UM</label><p class="font-bold text-gray-800"><span id="detalheQtd"></span> <span id="detalheUM" class="text-primary"></span></p></div>
                     <div><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Tipo Solicitação</label><p id="detalheTipo" class="font-bold text-blue-700"></p></div>
-                    <div class="col-span-full bg-blue-50 p-3 rounded-xl">
-                        <label class="text-[9px] font-black text-blue-400 uppercase tracking-widest">Acordo com Loja</label>
-                        <p id="detalheAcordo" class="font-bold text-blue-900 italic"></p>
-                    </div>
+                </div>
+
+                <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100" id="boxAcordoLoja">
+                    <label class="text-[10px] font-black text-blue-400 uppercase mb-1 block tracking-widest">Comunicado à Loja / Acordo</label>
+                    <p class="text-sm font-bold text-blue-900"><span id="detalheComunicado"></span> — <span id="detalheAcordo"></span></p>
                 </div>
 
                 <div class="p-4 bg-white rounded-2xl border-2 border-gray-100">
@@ -239,7 +252,7 @@
 
                 <div class="space-y-3">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Histórico de Tratativas</label>
-                    <textarea id="detalheObs" rows="5" class="w-full border-2 border-gray-100 rounded-2xl p-4 text-sm outline-none focus:border-primary bg-gray-50 transition-all resize-none font-medium"></textarea>
+                    <textarea id="detalheObs" rows="5" class="w-full border-2 border-gray-100 rounded-2xl p-4 text-sm outline-none focus:border-primary bg-gray-50 font-medium"></textarea>
                 </div>
             </div>
             <div class="p-6 bg-white border-t rounded-b-3xl">
@@ -258,11 +271,11 @@
                 <div class="flex flex-col md:flex-row gap-6 items-end bg-gray-100 p-6 rounded-3xl">
                     <div class="flex-1">
                         <label class="text-[9px] font-bold text-gray-400">De:</label>
-                        <input type="date" id="dashDataInicio" onchange="processarDadosDash()" class="w-full border-b-2 py-2 text-sm font-bold bg-transparent">
+                        <input type="date" id="dashDataInicio" onchange="processarDadosDash()" class="w-full border-b-2 py-2 text-sm font-bold bg-transparent outline-none">
                     </div>
                     <div class="flex-1">
                         <label class="text-[9px] font-bold text-gray-400">Até:</label>
-                        <input type="date" id="dashDataFim" onchange="processarDadosDash()" class="w-full border-b-2 py-2 text-sm font-bold bg-transparent">
+                        <input type="date" id="dashDataFim" onchange="processarDadosDash()" class="w-full border-b-2 py-2 text-sm font-bold bg-transparent outline-none">
                     </div>
                     <div class="bg-white px-8 py-3 rounded-2xl border min-w-[150px] text-center">
                         <p class="text-[9px] font-black text-gray-400 uppercase">Total Geral</p>
@@ -277,7 +290,6 @@
         </div>
     </div>
 
-    <script src="menu.js"></script>
     <script>
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbznCForFxpY6CAU6W3UgglusC8oqyfDz0dqM-l_95xtr9CK9TcFvbw_V7LJQk8jTZH-/exec'; 
         const LISTA_RESPONSAVEIS = ["Eduardo", "Edson", "Fábio", "Leandro", "Herialdo", "Bruna", "Renielle", "Caio"];
@@ -286,7 +298,7 @@
         let ticketAbertoAtual = null;
         let chartMotivos = null;
 
-        // --- FUNÇÕES DE INTERFACE ---
+        // --- INTERFACE ---
         function abrirModal() { document.getElementById('modalChamado').classList.remove('hidden'); }
         function fecharModal() { 
             document.getElementById('modalChamado').classList.add('hidden'); 
@@ -298,14 +310,11 @@
         
         function toggleAcordo(v, dispararAlerta) {
             const div = document.getElementById('divAcordo');
-            if(v === 'Sim') {
-                div.classList.remove('hidden');
-            } else if(v === 'Não') {
+            if(v === 'Sim') { div.classList.remove('hidden'); } 
+            else if(v === 'Não') {
                 div.classList.add('hidden');
                 if(dispararAlerta) alert("Atenção: É necessário comunicar a loja antes de prosseguir com a tratativa.");
-            } else {
-                div.classList.add('hidden');
-            }
+            } else { div.classList.add('hidden'); }
         }
 
         function formatarDataBR(dataStr) {
@@ -317,7 +326,7 @@
             } catch (e) { return dataStr; }
         }
 
-        // --- CARREGAMENTO E LOGICA ---
+        // --- DADOS ---
         async function carregarTickets() {
             try {
                 const r = await fetch(`${WEB_APP_URL}?rota=pendencias`);
@@ -327,17 +336,12 @@
         }
 
         function calcularStatusReal(linha) {
-            const statusBase = linha[9];
-            const dataAbertura = new Date(linha[10]);
-            const prevista = linha[12];
-            const hoje = new Date();
-            if (statusBase === 'Resolvido') return 'Resolvido';
-            if (prevista && prevista !== "" && prevista !== "---") {
-                let dPrevRaw = prevista;
-                if(prevista.includes('/')) { const p = prevista.split('/'); dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`; }
-                return (new Date(dPrevRaw).getTime() < hoje.setHours(0,0,0,0)) ? 'Atrasado' : 'Em andamento';
+            const statusPlanilha = linha[9]; 
+            const prevista = linha[12];     
+            if (['Resolvido', 'Cancelado', 'Prazo Recusado', 'Em andamento', 'Aguardando Aceite CD'].includes(statusPlanilha)) {
+                return statusPlanilha;
             }
-            return (hoje.getTime() - dataAbertura.getTime() > 86400000) ? 'Em análise (Atrasado)' : 'Em Análise';
+            return (!prevista || prevista === "" || prevista === "---") ? 'Aguardando Prazo' : 'Aguardando Aceite CD';
         }
 
         function filtrarGeral() {
@@ -347,11 +351,9 @@
 
             const filtrados = dadosGlobais.filter(linha => {
                 const sReal = calcularStatusReal(linha);
-                const matchID = linha[0].toLowerCase().includes(busca);
-                let matchStatus = statusF === "todos" || sReal === statusF;
-                if(statusF === "Em Análise" && sReal === "Em análise (Atrasado)") matchStatus = true;
-                const matchMotivo = motivoF === "todos" || linha[7] === motivoF;
-                return matchID && matchStatus && matchMotivo;
+                return linha[0].toLowerCase().includes(busca) && 
+                       (statusF === "todos" || sReal === statusF) &&
+                       (motivoF === "todos" || linha[7] === motivoF);
             });
             renderizarTabela(filtrados);
             atualizarCardsGerais(dadosGlobais);
@@ -360,80 +362,142 @@
         function renderizarTabela(dados) {
             const tbody = document.getElementById('tabelaChamados');
             tbody.innerHTML = '';
+            
             dados.forEach(linha => {
-                const idx = dadosGlobais.findIndex(dg => dg[0] === linha[0]);
-                const row = idx + 2;
+                const idxGlobal = dadosGlobais.findIndex(dg => dg[0] === linha[0]);
+                const rowNum = idxGlobal + 2;
                 const sReal = calcularStatusReal(linha);
                 
-                let color = 'bg-blue-100 text-blue-700';
-                if(sReal === 'Resolvido') color = 'bg-emerald-100 text-emerald-700';
-                else if(sReal.toLowerCase().includes('análise')) color = 'bg-orange-100 text-orange-700';
-                else if(sReal === 'Atrasado') color = 'bg-red-100 text-red-700';
+                let badgeColor = 'bg-gray-100 text-gray-700';
+                if(sReal === 'Resolvido') badgeColor = 'bg-emerald-100 text-emerald-700';
+                else if(sReal === 'Aguardando Prazo') badgeColor = 'bg-yellow-100 text-yellow-700';
+                else if(sReal === 'Aguardando Aceite CD') badgeColor = 'bg-orange-100 text-orange-700';
+                else if(sReal === 'Em andamento') badgeColor = 'bg-blue-100 text-blue-700';
+                else if(sReal === 'Prazo Recusado' || sReal === 'Cancelado') badgeColor = 'bg-red-100 text-red-700';
 
-                let dPrevRaw = linha[12];
-                if(dPrevRaw && dPrevRaw.includes('/')) { const p = dPrevRaw.split('/'); dPrevRaw = `${p[2]}-${p[1]}-${p[0]}`; }
+                let acaoHTML = '';
+                if (sReal === 'Aguardando Prazo') {
+                    acaoHTML = `<span class="text-[9px] text-gray-400 font-bold uppercase italic">Defina o prazo...</span>`;
+                } 
+                else if (sReal === 'Aguardando Aceite CD') {
+                    acaoHTML = `
+                        <div class="flex gap-2 justify-center">
+                            <button onclick="mudarStatus(${rowNum}, 'Em andamento')" class="bg-emerald-50 text-emerald-600 px-2 py-1 rounded-md hover:bg-emerald-600 hover:text-white transition-all text-[9px] font-black">ACEITAR</button>
+                            <button onclick="mudarStatus(${rowNum}, 'Prazo Recusado')" class="bg-red-50 text-red-600 px-2 py-1 rounded-md hover:bg-red-600 hover:text-white transition-all text-[9px] font-black">RECUSAR</button>
+                        </div>`;
+                }
+                else if (sReal === 'Em andamento') {
+                    acaoHTML = `
+                        <div class="flex gap-2 justify-center">
+                            <button onclick="mudarStatus(${rowNum}, 'Resolvido')" title="Concluir" class="bg-emerald-50 text-emerald-600 p-1.5 rounded-lg hover:bg-emerald-600 hover:text-white transition-all shadow-sm">
+                                <span class="material-symbols-outlined text-sm">check</span>
+                            </button>
+                            <button onclick="mudarStatus(${rowNum}, 'Cancelado')" title="Cancelar" class="bg-gray-100 text-gray-400 p-1.5 rounded-lg hover:bg-red-600 hover:text-white transition-all shadow-sm">
+                                <span class="material-symbols-outlined text-sm">close</span>
+                            </button>
+                        </div>`;
+                } else {
+                    acaoHTML = `<span class="text-[10px] font-black uppercase opacity-20 italic">Finalizado</span>`;
+                }
 
-                let acaoHTML = sReal === 'Resolvido' ? 
-                    `<span class="text-[10px] font-black text-emerald-600 uppercase italic">${formatarDataBR(linha[11])}</span>` :
-                    `<button onclick="finalizarTicket(${row})" class="bg-emerald-50 text-emerald-600 p-2 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"><span class="material-symbols-outlined text-sm">check</span></button>`;
+                let dPrevInput = "";
+                if(linha[12] && linha[12] !== "---") {
+                    dPrevInput = linha[12].includes('/') ? linha[12].split('/').reverse().join('-') : linha[12].split('T')[0];
+                }
 
                 tbody.innerHTML += `
-                    <tr>
-                        <td class="p-4 font-black text-primary"><button onclick="verDetalhes(${idx})" class="hover:underline">${linha[0]}</button></td>
-                        <td class="p-4"><span class="px-2 py-1 rounded text-[9px] font-black uppercase ${color}">${sReal}</span></td>
-                        <td class="p-4"><b>${linha[1]}</b><br><small class="text-gray-400 uppercase font-black">${linha[2]}</small></td>
-                        <td class="p-4 text-center text-xs font-bold">${formatarDataBR(linha[10])}</td>
+                    <tr class="hover:bg-gray-50/50 transition-colors border-b border-gray-100">
+                        <td class="p-4 font-black text-primary italic"><button onclick="verDetalhes(${idxGlobal})" class="hover:underline">${linha[0]}</button></td>
+                        <td class="p-4"><span class="px-2 py-1 rounded text-[9px] font-black uppercase ${badgeColor}">${sReal}</span></td>
+                        <td class="p-4"><div class="flex flex-col"><span class="font-bold text-gray-800">${linha[1]}</span><span class="text-[10px] text-gray-400 uppercase font-black">${linha[2]}</span></div></td>
+                        <td class="p-4 text-center text-xs font-bold text-gray-600">${formatarDataBR(linha[10])}</td>
                         <td class="p-4 text-center">
-                            <select onchange="atualizarCampo(${row}, 'responsavel', this.value)" class="text-[10px] border rounded p-1 font-bold">
+                            <select onchange="atualizarCampo(${rowNum}, 'responsavel', this.value)" class="text-[10px] border border-gray-200 rounded-lg p-1.5 font-bold outline-none bg-white">
                                 <option value="">---</option>
                                 ${LISTA_RESPONSAVEIS.map(r => `<option value="${r}" ${linha[14] === r ? 'selected' : ''}>${r}</option>`).join('')}
                             </select>
                         </td>
                         <td class="p-4 text-center">
-                            <input type="date" value="${dPrevRaw ? dPrevRaw.split('T')[0] : ''}" onchange="definirPrevisao(${row}, this.value)" class="text-[10px] border rounded p-1 font-bold">
+                            <input type="date" value="${dPrevInput}" onchange="definirPrevisao(${rowNum}, this.value)" 
+                                ${(sReal !== 'Aguardando Prazo' && sReal !== 'Aguardando Aceite CD') ? 'disabled' : ''}
+                                class="text-[10px] border border-gray-200 rounded-lg p-1 font-bold outline-none bg-white disabled:bg-gray-50">
                         </td>
                         <td class="p-4 text-center">${acaoHTML}</td>
                     </tr>`;
             });
         }
 
-        // --- MODAL DE DETALHES ---
+        // --- TRATATIVAS DATABASE ---
+        async function mudarStatus(row, novoStatus) {
+            try {
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: 'status', value: novoStatus }) });
+                if(novoStatus === 'Resolvido') {
+                    const hoje = new Date().toLocaleDateString('pt-BR');
+                    await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: 'data_conclusao', value: hoje }) });
+                }
+                setTimeout(carregarTickets, 600);
+            } catch (e) { alert("Erro ao atualizar."); }
+        }
+
+        async function definirPrevisao(row, valor) {
+            if(!valor) return;
+            const hoje = new Date().toLocaleDateString('pt-BR');
+            await atualizarCampo(row, 'previsao', valor);
+            await atualizarCampo(row, 'data_definicao', hoje);
+            await mudarStatus(row, 'Aguardando Aceite CD');
+        }
+
+        async function atualizarCampo(row, campo, valor) {
+            try {
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: campo, value: valor }) });
+                setTimeout(carregarTickets, 500);
+            } catch (e) {}
+        }
+
+        // --- VISUALIZAÇÃO DETALHES & TIMELINE ---
         function verDetalhes(idx) {
             const t = dadosGlobais[idx];
             ticketAbertoAtual = { index: idx, row: idx + 2 };
             
-            // MAPA DE COLUNAS: A=0, B=1, C=2, D=3, E=4, F=5, G=6...
             document.getElementById('detalheID').innerText = t[0];
-            document.getElementById('detalheSeac').innerText = t[1];      // B: Cód Prod
-            document.getElementById('detalheForn').innerText = t[2];      // C: Fornecedor
-            document.getElementById('detalheRef').innerText = t[3];       // D: Referência
-            document.getElementById('detalheCodCli').innerText = t[4] || "---"; // E: Cód Cliente
-            document.getElementById('detalheLote').innerText = t[6] || "---";   // G: Tonalidade/Lote
-            document.getElementById('detalheQtd').innerText = String(t[5] || 0).replace('.', ','); // F: Qtd
-            document.getElementById('detalheUM').innerText = t[16] || "";       // Q: UM
-            document.getElementById('detalheMotivo').innerText = t[7] || "---"; // H: Motivo
-            document.getElementById('detalheTipo').innerText = t[17] || "---";  // R: Tipo
-            document.getElementById('detalheAcordo').innerText = t[19] || "Sem acordo registrado."; // T: Acordo
-            document.getElementById('detalheObs').value = t[8] || "";           // I: Obs
+            document.getElementById('detalheSeac').innerText = t[1];      
+            document.getElementById('detalheForn').innerText = t[2];      
+            document.getElementById('detalheRef').innerText = t[3];       
+            document.getElementById('detalheCodCli').innerText = t[4] || "---"; 
+            document.getElementById('detalheLote').innerText = t[6] || "---";   
+            document.getElementById('detalheQtd').innerText = String(t[5] || 0).replace('.', ','); 
+            document.getElementById('detalheUM').innerText = t[16] || "";       
+            document.getElementById('detalheMotivo').innerText = t[7] || "---"; 
+            document.getElementById('detalheObs').value = t[8] || "";
+            document.getElementById('detalheTipo').innerText = t[19] || "---"; 
+            
+            // --- CORREÇÃO DO ACORDO ---
+            document.getElementById('detalheComunicado').innerText = t[17] || "Não informado";
+            document.getElementById('detalheAcordo').innerText = t[18] || "---";
 
-            // Timeline
-            const dA = formatarDataBR(t[10]), dT = formatarDataBR(t[15]), dP = formatarDataBR(t[12]), dC = t[11] ? formatarDataBR(t[11]) : "---";
-            document.getElementById('timeAbertura').innerText = dA;
-            document.getElementById('timeTriagem').innerText = dT;
-            document.getElementById('timePrevisaoModal').innerText = dP;
-            document.getElementById('timeConclusao').innerText = dC;
+            // --- LÓGICA TIMELINE ---
+            const dAbertura = formatarDataBR(t[10]);
+            const dTriagem  = formatarDataBR(t[15]); 
+            const dPrevisao = formatarDataBR(t[12]); 
+            const dConclu   = formatarDataBR(t[11]); 
 
-            const p = document.getElementById('timelineProgress'), sT = document.getElementById('stepTriagem'), sP = document.getElementById('stepPrevisao'), sC = document.getElementById('stepConclusao');
-            [sT, sP, sC].forEach(s => s.classList.remove('active'));
-            p.style.width = "5%";
-            if (dT !== "---") { p.style.width = "33%"; sT.classList.add('active'); }
-            if (dP !== "---") { p.style.width = "66%"; sP.classList.add('active'); }
-            if (dC !== "---") { p.style.width = "100%"; sC.classList.add('active'); }
+            document.getElementById('dateStep1').innerText = dAbertura;
+            document.getElementById('dateStep2').innerText = dTriagem;
+            document.getElementById('dateStep3').innerText = dPrevisao;
+            document.getElementById('dateStep4').innerText = dConclu;
+
+            [1,2,3,4].forEach(i => document.getElementById(`step${i}`).classList.remove('active'));
+            let progresso = 0;
+            if (dAbertura !== "---") { document.getElementById('step1').classList.add('active'); progresso = 0; }
+            if (dTriagem !== "---")  { document.getElementById('step2').classList.add('active'); progresso = 33; }
+            if (dPrevisao !== "---") { document.getElementById('step3').classList.add('active'); progresso = 66; }
+            if (dConclu !== "---")   { document.getElementById('step4').classList.add('active'); progresso = 100; }
+            document.getElementById('progressoLinha').style.width = progresso + "%";
 
             const sel = document.getElementById('selectResponsavelModal');
             sel.innerHTML = '<option value="">Selecione...</option>';
             LISTA_RESPONSAVEIS.forEach(r => sel.innerHTML += `<option value="${r}" ${t[14] === r ? 'selected' : ''}>${r}</option>`);
-
+            
             document.getElementById('modalDetalhes').classList.remove('hidden');
         }
 
@@ -446,46 +510,22 @@
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: ticketAbertoAtual.row, field: 'observacao', value: novaObs }) });
                 await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: ticketAbertoAtual.row, field: 'responsavel', value: novoResp }) });
-                alert("Salvo com sucesso!");
+                alert("Salvo!");
                 fecharModalDetalhes();
                 carregarTickets();
-            } catch (e) { alert("Erro ao salvar."); }
+            } catch (e) { alert("Erro."); }
             finally { btn.disabled = false; btn.innerText = "Salvar Alterações"; }
         }
 
-        async function atualizarCampo(row, campo, valor) {
-            try {
-                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: campo, value: valor }) });
-                setTimeout(carregarTickets, 800);
-            } catch (e) {}
-        }
-
-        async function definirPrevisao(row, valor) {
-            if(!valor) return;
-            const hoje = new Date().toLocaleDateString('pt-BR');
-            await atualizarCampo(row, 'previsao', valor);
-            await atualizarCampo(row, 'status', 'Em andamento');
-            await atualizarCampo(row, 'data_definicao', hoje);
-        }
-
-        async function finalizarTicket(row) {
-            if(!confirm("Concluir chamado?")) return;
-            await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update', row: row, status: 'Resolvido' }) });
-            setTimeout(carregarTickets, 800);
-        }
-
-        // --- ENVIO FORMULARIO ---
+        // --- SUBMIT ---
         document.getElementById('formTicket').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnSalvar'); 
             btn.disabled = true; btn.innerText = "Salvando...";
-
             const payload = Object.fromEntries(new FormData(e.target));
             payload.criado_por = localStorage.getItem('vilarejo_user') || 'Sistema'; 
             if (payload.motivo === 'Outros') payload.motivo = document.getElementById('inputOutros').value;
-            payload.rota = 'pendencias'; 
-            payload.action = 'insert';
-
+            payload.rota = 'pendencias'; payload.action = 'insert';
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
                 alert("Ticket registrado!");
@@ -495,16 +535,19 @@
             finally { btn.disabled = false; btn.innerText = "Salvar Ticket"; }
         });
 
-        // --- DASHBOARD E CARDS ---
+        // --- DASHBOARD ---
         function atualizarCardsGerais(dados) {
-            let ana = 0, and = 0, atr = 0, res = 0;
+            let ana = 0, ace = 0, and = 0, res = 0;
             dados.forEach(d => {
                 const s = calcularStatusReal(d);
-                if(s === 'Resolvido') res++; else if(s.includes('Análise')) ana++; else if(s === 'Atrasado') atr++; else and++;
+                if(s === 'Resolvido') res++; 
+                else if(s === 'Aguardando Prazo') ana++; 
+                else if(s === 'Aguardando Aceite CD') ace++; 
+                else if(s === 'Em andamento') and++;
             });
             document.getElementById('cardAnalise').innerText = ana;
-            document.getElementById('cardAndamento').innerText = and;
-            document.getElementById('cardAtraso').innerText = atr;
+            document.getElementById('cardAndamento').innerText = ace;
+            document.getElementById('cardAtraso').innerText = and;
             document.getElementById('cardResolvido').innerText = res;
         }
 
@@ -518,8 +561,11 @@
         function fecharDashboard() { document.getElementById('modalDashboard').classList.add('hidden'); }
 
         function processarDadosDash() {
-            const ini = new Date(document.getElementById('dashDataInicio').value + "T00:00:00");
-            const fim = new Date(document.getElementById('dashDataFim').value + "T23:59:59");
+            const iniStr = document.getElementById('dashDataInicio').value;
+            const fimStr = document.getElementById('dashDataFim').value;
+            if(!iniStr || !fimStr) return;
+            const ini = new Date(iniStr + "T00:00:00");
+            const fim = new Date(fimStr + "T23:59:59");
             let total = 0;
             const cont = { "Quebra fábrica": 0, "Quebra depósito/Loja": 0, "Quebra de produto na embalagem(Externa)": 0, "Divergência de Estoque": 0, "Outros": 0 };
             dadosGlobais.forEach(d => {
@@ -541,7 +587,7 @@
                 type: 'doughnut',
                 data: {
                     labels: Object.keys(cont),
-                    datasets: [{ data: Object.values(cont), backgroundColor: ['#E30613', '#111827', '#3b82f6', '#94a3b8'], borderWidth: 0 }]
+                    datasets: [{ data: Object.values(cont), backgroundColor: ['#E30613', '#111827', '#3b82f6', '#94a3b8', '#10b981'], borderWidth: 0 }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
