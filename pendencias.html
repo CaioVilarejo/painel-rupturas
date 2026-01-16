@@ -19,11 +19,27 @@
     </script>
 
     <style type="text/css">
-        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; scroll-behavior: smooth; overflow: hidden; }
         .modal-scroll::-webkit-scrollbar { width: 6px; }
         .modal-scroll::-webkit-scrollbar-track { background: #f8fafc; border-radius: 10px; }
         .modal-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        /* REMOVER SCROLLBAR PADRÃO DO NAVEGADOR */
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        * { -ms-overflow-style: none; scrollbar-width: none; }
+        *::-webkit-scrollbar { display: none; }
+
+        /* BARRA DE SCROLL MINIMALISTA (CONFORME PRINT) */
+        .custom-scroll-container { position: fixed; right: 10px; top: 20px; bottom: 20px; width: 30px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; z-index: 100; padding: 10px 0; }
+        .scroll-track { flex: 1; width: 6px; background: #f1f1f1; border-radius: 10px; position: relative; margin: 10px 0; }
+        .scroll-thumb { width: 100%; background: #a1a1a1; border-radius: 10px; position: absolute; top: 0; transition: height 0.1s ease-out; cursor: pointer; }
+        .scroll-arrow { color: #a1a1a1; font-size: 20px; cursor: pointer; transition: color 0.2s; user-select: none; }
+        .scroll-arrow:hover { color: #E30613; }
+
+        /* CABEÇALHO FIXO (STICKY HEADER) */
+        .sticky-header th { position: sticky; top: 0; background-color: #f9fafb; z-index: 20; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .table-container { max-height: 65vh; overflow-y: auto; position: relative; }
+        .table-container::-webkit-scrollbar { display: none; }
 
         .timeline-container { position: relative; display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 10px; margin-top: 20px; margin-bottom: 30px; }
         .timeline-line { position: absolute; top: 10px; left: 0; height: 4px; background: #e2e8f0; width: 100%; z-index: 1; border-radius: 10px; }
@@ -32,15 +48,33 @@
         .timeline-step.active { border-color: #E30613; background: #E30613; box-shadow: 0 0 0 4px rgba(227, 6, 19, 0.2); }
         
         .btn-acao-tabela { width: 100px; text-transform: uppercase; font-weight: 900; font-size: 8px; padding: 6px 2px; border-radius: 6px; transition: all 0.2s; }
+        
+        /* ABAS DA TABELA */
+        .tab-btn { padding: 12px 24px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; border-bottom: 3px solid transparent; transition: all 0.3s; color: #94a3b8; }
+        .tab-btn.active { border-bottom-color: #E30613; color: #E30613; background: rgba(227, 6, 19, 0.05); }
+
+        /* DROPDOWN FILTRO MULTISELEÇÃO */
+        .filter-dropdown { position: relative; display: inline-block; width: 100%; }
+        .filter-content { display: none; position: absolute; background-color: white; min-width: 200px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1); z-index: 50; border-radius: 12px; padding: 12px; border: 1px solid #e5e7eb; margin-top: 4px; max-height: 300px; overflow-y: auto; }
+        .filter-dropdown:hover .filter-content { display: block; }
+        .filter-option { display: flex; align-items: center; gap: 8px; padding: 6px 0; cursor: pointer; font-size: 11px; font-weight: 600; color: #4b5563; }
+        .filter-option input { cursor: pointer; accent-color: #E30613; }
+        .filter-option:hover { color: #111827; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-900">
 
-    <div class="flex h-screen overflow-hidden">
-        
-        <div id="sidebar-container"></div>
+    <!-- BARRA DE SCROLL MINIMALISTA (CONFORME PRINT) -->
+    <div class="custom-scroll-container">
+        <span class="material-symbols-outlined scroll-arrow" onclick="rolarParaTopo()">expand_less</span>
+        <div class="scroll-track">
+            <div id="scrollThumb" class="scroll-thumb" style="height: 20%;"></div>
+        </div>
+        <span class="material-symbols-outlined scroll-arrow" onclick="rolarParaFim()">expand_more</span>
+    </div>
 
-        <main class="flex-1 overflow-y-auto p-4 md:p-8 no-scrollbar">
+    <div class="flex h-screen overflow-hidden">
+        <main class="flex-1 overflow-y-auto p-4 md:p-8 no-scrollbar" id="main-scroll-container">
             <div class="max-w-7xl mx-auto">
                 
                 <div class="flex justify-between items-center mb-6">
@@ -52,7 +86,8 @@
                     </button>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <!-- SEÇÃO: CARDS -->
+                <div id="secao-cards" class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                     <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-yellow-500">
                         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Aguardando Prazo</p>
                         <h3 id="cardAnalise" class="text-3xl font-black">0</h3>
@@ -71,35 +106,45 @@
                     </div>
                 </div>
 
-                <div class="flex flex-col md:flex-row justify-between items-end gap-4 mb-6 bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                <!-- SEÇÃO: FILTROS -->
+                <div id="secao-filtros" class="flex flex-col md:flex-row justify-between items-end gap-4 mb-6 bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 w-full">
                         <div>
                             <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Buscar ID / Fornecedor</label>
                             <input type="text" id="inputBuscaID" onkeyup="filtrarGeral()" placeholder="TKT-..." class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold outline-none focus:border-primary">
                         </div>
-                        <div>
-                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Status</label>
-                            <select id="selectStatus" onchange="filtrarGeral()" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white outline-none">
-                                <option value="todos">Todos os Status</option>
-                                <option value="Aguardando Prazo">Aguardando Prazo</option>
-                                <option value="Aguardando Aceite CD">Aguardando Aceite CD</option>
-                                <option value="Em andamento">Em Andamento</option>
-                                <option value="Resolvido">Resolvido</option>
-                                <option value="Prazo Recusado">Prazo Recusado</option>
-                                <option value="Cancelado">Cancelado</option>
-                            </select>
+                        
+                        <div class="filter-dropdown">
+                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Status (Múltiplos)</label>
+                            <div class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white flex justify-between items-center cursor-pointer">
+                                <span id="labelStatus">Todos os Status</span>
+                                <span class="material-symbols-outlined text-sm">expand_more</span>
+                            </div>
+                            <div class="filter-content" id="checklistStatus">
+                                <label class="filter-option"><input type="checkbox" value="Aguardando Prazo" checked onchange="filtrarGeral()"> Aguardando Prazo</label>
+                                <label class="filter-option"><input type="checkbox" value="Aguardando Aceite CD" checked onchange="filtrarGeral()"> Aguardando Aceite CD</label>
+                                <label class="filter-option"><input type="checkbox" value="Em andamento" checked onchange="filtrarGeral()"> Em Andamento</label>
+                                <label class="filter-option"><input type="checkbox" value="Resolvido" checked onchange="filtrarGeral()"> Resolvido</label>
+                                <label class="filter-option"><input type="checkbox" value="Prazo Recusado" checked onchange="filtrarGeral()"> Prazo Recusado</label>
+                                <label class="filter-option"><input type="checkbox" value="Cancelado" checked onchange="filtrarGeral()"> Cancelado</label>
+                            </div>
                         </div>
-                        <div>
-                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Motivo</label>
-                            <select id="selectMotivoFiltro" onchange="filtrarGeral()" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white outline-none">
-                                <option value="todos">Todos os Motivos</option>
-                                <option value="Quebra fábrica">Quebra fábrica</option>
-                                <option value="Quebra depósito/Loja">Quebra depósito/Loja</option>
-                                <option value="Quebra de produto na embalagem(Externa)">Quebra produto embalagem</option>
-                                <option value="Divergência de Estoque">Divergência de Estoque</option>
-                                <option value="Outros">Outros</option>
-                            </select>
+
+                        <div class="filter-dropdown">
+                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Motivo (Múltiplos)</label>
+                            <div class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white flex justify-between items-center cursor-pointer">
+                                <span id="labelMotivo">Todos os Motivos</span>
+                                <span class="material-symbols-outlined text-sm">expand_more</span>
+                            </div>
+                            <div class="filter-content" id="checklistMotivo">
+                                <label class="filter-option"><input type="checkbox" value="Quebra fábrica" checked onchange="filtrarGeral()"> Quebra fábrica</label>
+                                <label class="filter-option"><input type="checkbox" value="Quebra depósito/Loja" checked onchange="filtrarGeral()"> Quebra depósito/Loja</label>
+                                <label class="filter-option"><input type="checkbox" value="Quebra de produto na embalagem(Externa)" checked onchange="filtrarGeral()"> Quebra produto embalagem</label>
+                                <label class="filter-option"><input type="checkbox" value="Divergência de Estoque" checked onchange="filtrarGeral()"> Divergência de Estoque</label>
+                                <label class="filter-option"><input type="checkbox" value="Outros" checked onchange="filtrarGeral()"> Outros</label>
+                            </div>
                         </div>
+
                         <div class="flex items-end">
                             <button onclick="abrirModal()" class="w-full bg-primary text-white px-4 py-2.5 rounded-xl font-bold uppercase text-[10px] shadow-lg hover:bg-red-700 transition-all flex items-center justify-center gap-2">
                                 <span class="material-symbols-outlined text-sm">add_circle</span> Novo Ticket
@@ -108,10 +153,15 @@
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="overflow-x-auto">
+                <!-- SEÇÃO: TABELA COM ABAS E CABEÇALHO FIXO -->
+                <div id="secao-tabela" class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="flex border-b border-gray-100">
+                        <button onclick="mudarAba('tratativa')" id="tabTratativa" class="tab-btn active">Em Tratativa</button>
+                        <button onclick="mudarAba('finalizados')" id="tabFinalizados" class="tab-btn">Finalizados</button>
+                    </div>
+                    <div class="table-container no-scrollbar" id="table-scroll-container">
                         <table class="w-full text-left border-collapse">
-                            <thead>
+                            <thead class="sticky-header">
                                 <tr class="bg-gray-50 border-b text-[10px] font-black text-gray-400 uppercase">
                                     <th class="p-4">ID Ticket</th>
                                     <th class="p-4">Status</th>
@@ -130,6 +180,7 @@
         </main>
     </div>
 
+    <!-- MODAIS -->
     <div id="modalChamado" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[9999]">
         <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl flex flex-col max-h-[95vh]">
             <div class="p-6 border-b bg-gray-50 flex justify-between items-center rounded-t-3xl">
@@ -150,7 +201,7 @@
                     <input type="text" name="lote" placeholder="Tonalidade / Lote" class="p-3 border rounded-xl outline-none focus:border-primary text-sm font-bold">
                     <select name="tipo_solicitacao" required class="p-3 border rounded-xl outline-none bg-white text-sm font-bold focus:border-primary">
                         <option value="" disabled selected>Tipo de Solicitação</option>
-                        <option value="Complemento">Complemento</option><option value="Compra Nova">Compra Nova</option>
+                        <option value="Troca">Troca</option><option value="Devolução">Devolução</option><option value="Bonificação">Bonificação</option>
                     </select>
                     <div class="col-span-full">
                         <select name="motivo" onchange="toggleOutros(this.value)" class="w-full p-3 border rounded-xl outline-none bg-white text-sm font-bold">
@@ -296,13 +347,51 @@
         let dadosGlobais = [];
         let ticketAbertoAtual = null;
         let chartMotivos = null;
+        let abaAtual = 'tratativa';
 
-        document.addEventListener('DOMContentLoaded', carregarTickets);
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarTickets();
+            inicializarCustomScroll();
+        });
 
+        // ========== BARRA DE SCROLL MINIMALISTA ==========
+        function inicializarCustomScroll() {
+            const thumb = document.getElementById('scrollThumb');
+            const container = document.getElementById('main-scroll-container');
+            
+            container.addEventListener('scroll', () => {
+                const scrolled = container.scrollTop;
+                const height = container.scrollHeight - container.clientHeight;
+                const percentage = (scrolled / height) * 80; // 80% para não sumir
+                thumb.style.top = percentage + '%';
+            });
+        }
+
+        function rolarParaTopo() { document.getElementById('main-scroll-container').scrollTo({ top: 0, behavior: 'smooth' }); }
+        function rolarParaFim() { 
+            const container = document.getElementById('main-scroll-container');
+            container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' }); 
+        }
+
+        // ========== SISTEMA DE ABAS ==========
+        function mudarAba(aba) {
+            abaAtual = aba;
+            document.getElementById('tabTratativa').classList.toggle('active', aba === 'tratativa');
+            document.getElementById('tabFinalizados').classList.toggle('active', aba === 'finalizados');
+            filtrarGeral();
+        }
+
+        // ========== CARREGAR TICKETS ==========
         async function carregarTickets() {
             try {
                 const response = await fetch(`${WEB_APP_URL}?rota=pendencias`);
                 dadosGlobais = await response.json();
+                // ORDENAÇÃO INVERSA: IDs maiores (mais novos) primeiro
+                dadosGlobais.sort((a, b) => {
+                    const idA = parseInt(a[0].replace('TKT-', ''));
+                    const idB = parseInt(b[0].replace('TKT-', ''));
+                    return idB - idA;
+                });
                 filtrarGeral();
             } catch (e) { console.error("Erro na conexão."); }
         }
@@ -354,12 +443,24 @@
 
         function filtrarGeral() {
             const busca = document.getElementById('inputBuscaID').value.toLowerCase();
-            const statusF = document.getElementById('selectStatus').value;
-            const motivoF = document.getElementById('selectMotivoFiltro').value;
+            const statusSelecionados = Array.from(document.querySelectorAll('#checklistStatus input:checked')).map(i => i.value);
+            const motivosSelecionados = Array.from(document.querySelectorAll('#checklistMotivo input:checked')).map(i => i.value);
+
+            document.getElementById('labelStatus').innerText = statusSelecionados.length === 6 ? "Todos os Status" : `${statusSelecionados.length} selecionados`;
+            document.getElementById('labelMotivo').innerText = motivosSelecionados.length === 5 ? "Todos os Motivos" : `${motivosSelecionados.length} selecionados`;
+
             const fil = dadosGlobais.filter(l => {
                 const s = calcularStatusReal(l);
-                return (l[0] + " " + l[2]).toLowerCase().includes(busca) && (statusF === "todos" || s === statusF) && (motivoF === "todos" || l[7] === motivoF);
+                const motivo = l[7] || "Outros";
+                const statusFinalizados = ['Resolvido', 'Cancelado', 'Prazo Recusado'];
+                const pertenceAAba = (abaAtual === 'finalizados') ? statusFinalizados.includes(s) : !statusFinalizados.includes(s);
+                if (!pertenceAAba) return false;
+                const matchBusca = (l[0] + " " + l[2]).toLowerCase().includes(busca);
+                const matchStatus = statusSelecionados.includes(s);
+                const matchMotivo = motivosSelecionados.includes(motivo);
+                return matchBusca && matchStatus && matchMotivo;
             });
+
             renderizarTabela(fil);
             atualizarCards(dadosGlobais);
         }
@@ -368,7 +469,8 @@
             const tbody = document.getElementById('tabelaChamados');
             tbody.innerHTML = '';
             dados.forEach(l => {
-                const idx = dadosGlobais.findIndex(dg => dg[0] === l[0]), row = idx + 2, s = calcularStatusReal(l);
+                const ticketID = l[0];
+                const s = calcularStatusReal(l);
                 let badge = 'bg-gray-100 text-gray-700';
                 if(s === 'Resolvido') badge = 'bg-emerald-100 text-emerald-700';
                 else if(s === 'Aguardando Prazo') badge = 'bg-yellow-100 text-yellow-700';
@@ -379,19 +481,11 @@
 
                 let acao = '';
                 if (s === 'Aguardando Aceite CD') {
-                    acao = `
-                        <div class="flex flex-col gap-1 items-center">
-                            <button onclick="confirmarMudarStatus(${row}, 'Em andamento', 'Aceitar Prazo')" class="btn-acao-tabela bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white">Aceitar Prazo</button>
-                            <button onclick="confirmarMudarStatus(${row}, 'Prazo Recusado', 'Rejeitar')" class="btn-acao-tabela bg-red-50 text-red-600 hover:bg-red-600 hover:text-white">Rejeitar</button>
-                        </div>`;
+                    acao = `<div class="flex flex-col gap-1 items-center"><button onclick="confirmarMudarStatus('${ticketID}', 'Em andamento', 'Aceitar Prazo')" class="btn-acao-tabela bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white">Aceitar Prazo</button><button onclick="confirmarMudarStatus('${ticketID}', 'Prazo Recusado', 'Rejeitar')" class="btn-acao-tabela bg-red-50 text-red-600 hover:bg-red-600 hover:text-white">Rejeitar</button></div>`;
                 } else if (s === 'Em andamento') {
-                    acao = `
-                        <div class="flex flex-col gap-1 items-center">
-                            <button onclick="confirmarMudarStatus(${row}, 'Resolvido', 'Resolver')" class="btn-acao-tabela bg-emerald-600 text-white hover:bg-emerald-700">Resolvido</button>
-                            <button onclick="confirmarMudarStatus(${row}, 'Cancelado', 'Cancelar')" class="btn-acao-tabela bg-gray-500 text-white hover:bg-gray-600">Cancelado</button>
-                        </div>`;
-                } else if (s === 'Resolvido' || s === 'Cancelado') {
-                    acao = `<div class="flex flex-col items-center"><span class="text-[8px] font-black ${s === 'Resolvido' ? 'text-emerald-600' : 'text-gray-400'} uppercase">${s}</span></div>`;
+                    acao = `<div class="flex flex-col gap-1 items-center"><button onclick="confirmarMudarStatus('${ticketID}', 'Resolvido', 'Resolver')" class="btn-acao-tabela bg-emerald-600 text-white hover:bg-emerald-700">Resolvido</button><button onclick="confirmarMudarStatus('${ticketID}', 'Cancelado', 'Cancelar')" class="btn-acao-tabela bg-gray-500 text-white hover:bg-gray-600">Cancelado</button></div>`;
+                } else {
+                    acao = `<div class="flex flex-col items-center"><span class="text-[8px] font-black uppercase text-gray-400">${s}</span></div>`;
                 }
 
                 let dP = l[12] && l[12] !== "---" ? (l[12].includes('/') ? l[12].split('/').reverse().join('-') : l[12].split('T')[0]) : "";
@@ -399,79 +493,59 @@
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 border-b border-gray-100">
-                        <td class="p-4 font-black text-primary italic"><button onclick="verDetalhes(${idx})">${l[0]}</button></td>
+                        <td class="p-4 font-black text-primary italic"><button onclick="verDetalhesPorID('${ticketID}')">${ticketID}</button></td>
                         <td class="p-4"><span class="px-2 py-1 rounded text-[9px] font-black uppercase ${badge}">${s}</span></td>
                         <td class="p-4"><div class="flex flex-col"><span class="font-bold">${l[1]}</span><span class="text-[10px] text-gray-400 font-black">${l[2]}</span></div></td>
                         <td class="p-4 text-center text-xs font-bold">${formatarDataBR(l[10])}</td>
                         <td class="p-4 text-center">
-                            <select onchange="atualizarCampo(${row}, 'responsavel', this.value)" class="text-[10px] border rounded p-1 font-bold bg-white">
+                            <select onchange="atualizarCampoPorID('${ticketID}', 'responsavel', this.value)" class="text-[10px] border rounded p-1 font-bold bg-white">
                                 <option value="">---</option>
                                 ${LISTA_RESPONSAVEIS.map(r => `<option value="${r}" ${l[14] === r ? 'selected' : ''}>${r}</option>`).join('')}
                             </select>
                         </td>
                         <td class="p-4 text-center">
-                            <input type="date" value="${dP}" onchange="confirmarPrevisao(${row}, this.value)" class="text-[10px] border rounded p-1.5 outline-none transition-colors ${destaqueYellow}">
+                            <input type="date" value="${dP}" onchange="confirmarPrevisao('${ticketID}', this.value)" class="text-[10px] border rounded p-1.5 outline-none transition-colors ${destaqueYellow}">
                         </td>
                         <td class="p-4 text-center">${acao}</td>
                     </tr>`;
             });
         }
 
-        // --- FUNÇÕES DE CONFIRMAÇÃO COM SWEETALERT2 ---
-
-        async function confirmarMudarStatus(row, status, label) {
-            const result = await Swal.fire({
-                title: `Deseja ${label}?`,
-                text: `Esta ação alterará o status do ticket para: ${status}`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: status.includes('Resolvido') || status.includes('andamento') ? '#059669' : '#dc2626',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Sim, confirmar!',
-                cancelButtonText: 'Cancelar'
-            });
-
+        async function confirmarMudarStatus(ticketID, status, label) {
+            const result = await Swal.fire({ title: `Deseja ${label}?`, text: `Esta ação alterará o status do ticket ${ticketID} para: ${status}`, icon: 'question', showCancelButton: true, confirmButtonColor: status.includes('Resolvido') || status.includes('andamento') ? '#059669' : '#dc2626', cancelButtonColor: '#6b7280', confirmButtonText: 'Sim, confirmar!', cancelButtonText: 'Cancelar' });
             if (result.isConfirmed) {
                 Swal.fire({ title: 'Processando...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
-                
-                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: 'status', value: status }) });
-                
-                if(status === 'Resolvido' || status === 'Cancelado') {
-                    await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: 'data_conclusao', value: new Date().toLocaleDateString('pt-BR') }) });
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', ticket_id: ticketID, field: 'status', value: status }) });
+                if(['Resolvido', 'Cancelado', 'Prazo Recusado'].includes(status)) {
+                    await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', ticket_id: ticketID, field: 'data_conclusao', value: new Date().toLocaleDateString('pt-BR') }) });
                 }
-
                 await carregarTickets();
                 Swal.fire('Atualizado!', 'O status foi alterado com sucesso.', 'success');
             }
         }
 
-        async function confirmarPrevisao(row, data) {
+        async function confirmarPrevisao(ticketID, data) {
             if(!data) return;
-            const result = await Swal.fire({
-                title: 'Definir Previsão?',
-                text: `Nova data prevista: ${formatarDataBR(data)}`,
-                icon: 'calendar_month',
-                showCancelButton: true,
-                confirmButtonText: 'Confirmar data'
-            });
-
+            const result = await Swal.fire({ title: 'Definir Previsão?', text: `Nova data prevista: ${formatarDataBR(data)}`, icon: 'calendar_month', showCancelButton: true, confirmButtonText: 'Confirmar data' });
             if(result.isConfirmed) {
                 Swal.fire({ title: 'Enviando...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
-                await atualizarCampo(row, 'previsao', data);
-                await atualizarCampo(row, 'data_definicao', new Date().toLocaleDateString('pt-BR'));
-                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: row, field: 'status', value: 'Aguardando Aceite CD' }) });
+                await atualizarCampoPorID(ticketID, 'previsao', data);
+                await atualizarCampoPorID(ticketID, 'data_definicao', new Date().toLocaleDateString('pt-BR'));
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', ticket_id: ticketID, field: 'status', value: 'Aguardando Aceite CD' }) });
                 await carregarTickets();
                 Swal.fire('Pronto!', 'Previsão enviada para aceite da loja.', 'success');
             }
         }
 
-        async function atualizarCampo(r, f, v) {
-            await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', row: r, field: f, value: v }) });
+        async function atualizarCampoPorID(ticketID, f, v) {
+            await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ rota: 'pendencias', action: 'update_field', ticket_id: ticketID, field: f, value: v }) });
         }
 
-        function verDetalhes(idx) {
+        function verDetalhesPorID(ticketID) {
+            const idx = dadosGlobais.findIndex(t => t[0] === ticketID);
+            if (idx === -1) return;
             const t = dadosGlobais[idx];
-            ticketAbertoAtual = { index: idx, row: idx + 2 };
+            ticketAbertoAtual = { ticketID: ticketID };
             document.getElementById('detalheID').innerText = t[0];
             document.getElementById('detalheSeac').innerText = t[1];
             document.getElementById('detalheForn').innerText = t[2];
@@ -486,14 +560,8 @@
             document.getElementById('detalheAutor').innerText = t[13] || "---";
             document.getElementById('detalheComunicado').innerText = t[17] || "---";
             document.getElementById('detalheAcordo').innerText = t[18] || "---";
-
-            // TIMELINE LOGIC
             const dA = formatarDataBR(t[10]), dT = formatarDataBR(t[15]), dP = formatarDataBR(t[12]), dC = formatarDataBR(t[11]);
-            document.getElementById('dateStep1').innerText = dA;
-            document.getElementById('dateStep2').innerText = dT;
-            document.getElementById('dateStep3').innerText = dP;
-            document.getElementById('dateStep4').innerText = dC;
-
+            document.getElementById('dateStep1').innerText = dA; document.getElementById('dateStep2').innerText = dT; document.getElementById('dateStep3').innerText = dP; document.getElementById('dateStep4').innerText = dC;
             [1,2,3,4].forEach(i => document.getElementById(`step${i}`).classList.remove('active'));
             let perc = 0;
             if (dA !== "---") { document.getElementById('step1').classList.add('active'); perc = 5; }
@@ -501,7 +569,6 @@
             if (dP !== "---") { document.getElementById('step3').classList.add('active'); perc = 66; }
             if (dC !== "---") { document.getElementById('step4').classList.add('active'); perc = 100; }
             document.getElementById('progressoLinha').style.width = perc + "%";
-
             const sel = document.getElementById('selectResponsavelModal');
             sel.innerHTML = '<option value="">Selecione...</option>' + LISTA_RESPONSAVEIS.map(r => `<option value="${r}" ${t[14] === r ? 'selected' : ''}>${r}</option>`).join('');
             document.getElementById('modalDetalhes').classList.remove('hidden');
@@ -510,21 +577,16 @@
         async function salvarAlteracoesNoModal() {
             const btn = document.getElementById('btnSalvarObs');
             btn.disabled = true; btn.innerText = "Gravando...";
-            await atualizarCampo(ticketAbertoAtual.row, 'observacao', document.getElementById('detalheObs').value);
-            await atualizarCampo(ticketAbertoAtual.row, 'responsavel', document.getElementById('selectResponsavelModal').value);
+            await atualizarCampoPorID(ticketAbertoAtual.ticketID, 'observacao', document.getElementById('detalheObs').value);
+            await atualizarCampoPorID(ticketAbertoAtual.ticketID, 'responsavel', document.getElementById('selectResponsavelModal').value);
             fecharModalDetalhes();
             Swal.fire('Salvo!', 'Tratativas atualizadas.', 'success');
             btn.disabled = false; btn.innerText = "Salvar Alterações";
             carregarTickets();
         }
 
-        // --- DASHBOARD FUNCTIONS ---
-        function abrirDashboard() { 
-            document.getElementById('modalDashboard').classList.remove('hidden');
-            processarDadosDash();
-        }
+        function abrirDashboard() { document.getElementById('modalDashboard').classList.remove('hidden'); processarDadosDash(); }
         function fecharDashboard() { document.getElementById('modalDashboard').classList.add('hidden'); }
-
         function processarDadosDash() {
             const iniStr = document.getElementById('dashDataInicio').value;
             const fimStr = document.getElementById('dashDataFim').value;
@@ -533,7 +595,6 @@
             const fim = filtrar ? new Date(fimStr + "T23:59:59") : null;
             const cont = { "Quebra fábrica": 0, "Quebra depósito/Loja": 0, "Quebra de produto na embalagem(Externa)": 0, "Divergência de Estoque": 0, "Outros": 0 };
             let total = 0;
-
             dadosGlobais.forEach(d => {
                 const dataT = new Date(d[10]);
                 if (!filtrar || (dataT >= ini && dataT <= fim)) {
@@ -545,45 +606,29 @@
             document.getElementById('totalMesDash').innerText = total;
             renderizarGraficoDash(cont, total);
         }
-
         function renderizarGraficoDash(cont, total) {
             const ctx = document.getElementById('graficoMotivos').getContext('2d');
             if(chartMotivos) chartMotivos.destroy();
             chartMotivos = new Chart(ctx, {
                 type: 'doughnut',
-                data: {
-                    labels: Object.keys(cont),
-                    datasets: [{ data: Object.values(cont), backgroundColor: ['#E30613', '#111827', '#3b82f6', '#10b981', '#f59e0b'], borderWidth: 0 }]
-                },
+                data: { labels: Object.keys(cont), datasets: [{ data: Object.values(cont), backgroundColor: ['#E30613', '#111827', '#3b82f6', '#10b981', '#f59e0b'], borderWidth: 0 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '70%' }
             });
             const leg = document.getElementById('listaLegendaDash');
             leg.innerHTML = '';
             Object.entries(cont).forEach(([m, q], i) => {
                 const perc = total > 0 ? ((q / total) * 100).toFixed(0) : 0;
-                leg.innerHTML += `
-                    <div class="flex justify-between p-3 bg-gray-50 rounded-xl font-bold text-xs items-center">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full" style="background-color: ${chartMotivos.data.datasets[0].backgroundColor[i]}"></span>
-                            <span class="uppercase text-gray-500">${m}</span>
-                        </div>
-                        <div class="flex gap-3"><span>${q}</span><span class="text-gray-400">${perc}%</span></div>
-                    </div>`;
+                leg.innerHTML += `<div class="flex justify-between p-3 bg-gray-50 rounded-xl font-bold text-xs items-center"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full" style="background-color: ${chartMotivos.data.datasets[0].backgroundColor[i]}"></span><span class="uppercase text-gray-500">${m}</span></div><div class="flex gap-3"><span>${q}</span><span class="text-gray-400">${perc}%</span></div></div>`;
             });
         }
-
         function atualizarCards(dados) {
             let a=0,b=0,c=0,d=0;
             dados.forEach(l => {
                 const s = calcularStatusReal(l);
                 if(s==='Aguardando Prazo') a++; else if(s==='Aguardando Aceite CD') b++; else if(s==='Em andamento') c++; else if(s==='Resolvido') d++;
             });
-            document.getElementById('cardAnalise').innerText = a;
-            document.getElementById('cardAndamento').innerText = b;
-            document.getElementById('cardAtraso').innerText = c;
-            document.getElementById('cardResolvido').innerText = d;
+            document.getElementById('cardAnalise').innerText = a; document.getElementById('cardAndamento').innerText = b; document.getElementById('cardAtraso').innerText = c; document.getElementById('cardResolvido').innerText = d;
         }
     </script>
-    <script src="menu.js"></script>
 </body>
 </html>
