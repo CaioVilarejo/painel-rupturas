@@ -74,6 +74,9 @@
     </div>
 
     <div class="flex h-screen overflow-hidden">
+        <!-- CONTAINER PARA O MENU LATERAL (menu.js) -->
+        <div id="sidebar-container"></div>
+
         <main class="flex-1 overflow-y-auto p-4 md:p-8 no-scrollbar" id="main-scroll-container">
             <div class="max-w-7xl mx-auto">
                 
@@ -630,5 +633,7 @@
             document.getElementById('cardAnalise').innerText = a; document.getElementById('cardAndamento').innerText = b; document.getElementById('cardAtraso').innerText = c; document.getElementById('cardResolvido').innerText = d;
         }
     </script>
+    <!-- IMPORTAÇÃO DO MENU.JS -->
+    <script src="menu.js"></script>
 </body>
 </html>
