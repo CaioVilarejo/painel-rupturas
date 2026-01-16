@@ -21,7 +21,7 @@
     <style type="text/css">
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
         
-        /* MODIFICAÇÃO: Barra de rolagem visível e moderna */
+        /* ALTERAÇÃO 1: Estilização da barra de rolagem para que ela apareça */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -81,17 +81,17 @@
             <div class="p-6 border-b border-gray-50 bg-gray-50/50 flex flex-col md:flex-row gap-4">
                 <div class="relative flex-1">
                     <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">search</span>
-                    <input type="text" id="inputBuscaID" oninput="filtrarGeral()" placeholder="Buscar por ID ou Fornecedor..." class="w-full pl-12 pr-4 py-3 rounded-2xl border-none bg-white shadow-sm text-sm font-bold focus:ring-2 focus:ring-primary/20 outline-none">
+                    <input type="text" id="inputBuscaID" oninput="filtrarGeral()" placeholder="Buscar por ID ou Fornecedor..." class="w-full pl-12 pr-4 py-3 rounded-2xl border-none bg-white shadow-sm text-sm font-bold outline-none">
                 </div>
                 <div class="flex gap-4">
-                    <select id="selectStatus" onchange="filtrarGeral()" class="bg-white border-none rounded-2xl px-4 py-3 text-xs font-black uppercase shadow-sm outline-none focus:ring-2 focus:ring-primary/20">
+                    <select id="selectStatus" onchange="filtrarGeral()" class="bg-white border rounded-2xl px-4 py-3 text-xs font-black uppercase shadow-sm outline-none">
                         <option value="todos">Todos Status</option>
                         <option value="Aguardando Prazo">Aguardando Prazo</option>
                         <option value="Aguardando Aceite CD">Aguardando Aceite</option>
                         <option value="Em andamento">Em Andamento</option>
                         <option value="Resolvido">Resolvido</option>
                     </select>
-                    <select id="selectMotivoFiltro" onchange="filtrarGeral()" class="bg-white border-none rounded-2xl px-4 py-3 text-xs font-black uppercase shadow-sm outline-none focus:ring-2 focus:ring-primary/20">
+                    <select id="selectMotivoFiltro" onchange="filtrarGeral()" class="bg-white border rounded-2xl px-4 py-3 text-xs font-black uppercase shadow-sm outline-none">
                         <option value="todos">Todos Motivos</option>
                         <option value="Quebra fábrica">Quebra fábrica</option>
                         <option value="Quebra depósito/Loja">Quebra depósito</option>
@@ -105,7 +105,7 @@
                     <thead>
                         <tr class="text-[10px] font-black uppercase text-gray-400 tracking-widest border-b border-gray-100">
                             <th class="p-4">ID Ticket</th>
-                            <th class="p-4">Status Atual</th>
+                            <th class="p-4">Status</th>
                             <th class="p-4">Loja / Fornecedor</th>
                             <th class="p-4 text-center">Data Abertura</th>
                             <th class="p-4 text-center">Responsável</th>
@@ -131,7 +131,7 @@
                 </button>
             </div>
             
-            <div class="p-8 overflow-y-auto custom-scroll">
+            <div class="p-8 overflow-y-auto">
                 <div class="timeline-container">
                     <div class="timeline-line"></div>
                     <div id="progressoLinha" class="timeline-progress"></div>
@@ -145,21 +145,26 @@
                     <div><p class="text-[9px] font-black text-gray-400 uppercase mb-1">Loja Solicitante</p><p id="detalheSeac" class="font-bold text-sm">---</p></div>
                     <div><p class="text-[9px] font-black text-gray-400 uppercase mb-1">Fornecedor</p><p id="detalheForn" class="font-bold text-sm">---</p></div>
                     <div><p class="text-[9px] font-black text-gray-400 uppercase mb-1">Referência / Produto</p><p id="detalheRef" class="font-bold text-sm">---</p></div>
+                    <div><p class="text-[9px] font-black text-gray-400 uppercase mb-1">Cod. Cliente</p><p id="detalheCodCli" class="font-bold text-sm">---</p></div>
+                    <div><p class="text-[9px] font-black text-gray-400 uppercase mb-1">Lote</p><p id="detalheLote" class="font-bold text-sm">---</p></div>
                     <div><p class="text-[9px] font-black text-gray-400 uppercase mb-1">Quantidade</p><p class="font-bold text-sm"><span id="detalheQtd">0</span> <span id="detalheUM" class="text-[10px] text-primary"></span></p></div>
                     <div><p class="text-[9px] font-black text-gray-400 uppercase mb-1">Motivo</p><p id="detalheMotivo" class="font-bold text-sm">---</p></div>
+                    <div><p class="text-[9px] font-black text-gray-400 uppercase mb-1">Tipo Solicitação</p><p id="detalheTipo" class="font-bold text-sm">---</p></div>
                     <div><p class="text-[9px] font-black text-gray-400 uppercase mb-1">Autor</p><p id="detalheAutor" class="font-bold text-sm">---</p></div>
+                    <div><p class="text-[9px] font-black text-gray-400 uppercase mb-1">Comunicado Loja</p><p id="detalheComunicado" class="font-bold text-sm">---</p></div>
+                    <div><p class="text-[9px] font-black text-gray-400 uppercase mb-1">Resumo Acordo</p><p id="detalheAcordo" class="font-bold text-sm">---</p></div>
                 </div>
 
                 <div class="space-y-4">
                     <div>
-                        <label class="text-[9px] font-black text-gray-400 uppercase ml-1">Responsável pela Tratativa</label>
-                        <select id="selectResponsavelModal" class="w-full border border-gray-200 rounded-2xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/20 mt-1">
+                        <label class="text-[9px] font-black text-gray-400 uppercase ml-1">Responsável</label>
+                        <select id="selectResponsavelModal" class="w-full border border-gray-200 rounded-2xl px-4 py-3 text-sm font-bold outline-none mt-1">
                             <option value="">Selecione...</option>
                         </select>
                     </div>
                     <div>
-                        <label class="text-[9px] font-black text-gray-400 uppercase ml-1">Observações e Tratativas CD</label>
-                        <textarea id="detalheObs" rows="4" class="w-full border border-gray-200 rounded-2xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/20 mt-1" placeholder="Digite aqui o andamento da resolução..."></textarea>
+                        <label class="text-[9px] font-black text-gray-400 uppercase ml-1">Tratativas CD</label>
+                        <textarea id="detalheObs" rows="4" class="w-full border border-gray-200 rounded-2xl px-4 py-3 text-sm font-bold outline-none mt-1" placeholder="Andamento da resolução..."></textarea>
                     </div>
                 </div>
             </div>
@@ -211,6 +216,7 @@
         const LISTA_RESPONSAVEIS = ["Eduardo", "Edson", "Fábio", "Leandro", "Herialdo", "Bruna", "Renielle", "Caio"];
         
         let dadosGlobais = [];
+        let ticketAbertoAtual = null;
         let chartMotivos = null;
 
         document.addEventListener('DOMContentLoaded', carregarTickets);
@@ -244,8 +250,7 @@
             const motivoF = document.getElementById('selectMotivoFiltro').value;
             const fil = dadosGlobais.filter(l => {
                 const s = calcularStatusReal(l);
-                const stringBusca = (l[0] + " " + l[2]).toLowerCase();
-                return stringBusca.includes(busca) && (statusF === "todos" || s === statusF) && (motivoF === "todos" || l[7] === motivoF);
+                return (l[0] + " " + l[2]).toLowerCase().includes(busca) && (statusF === "todos" || s === statusF) && (motivoF === "todos" || l[7] === motivoF);
             });
             renderizarTabela(fil);
             atualizarCards(dadosGlobais);
@@ -255,7 +260,8 @@
             const tbody = document.getElementById('tabelaChamados');
             tbody.innerHTML = '';
             dados.forEach(l => {
-                const tktID = l[0]; // ID FIXO TKT-XXXXX
+                // ALTERAÇÃO 2: Definimos o tktID para ser usado nas ações
+                const tktID = l[0];
                 const s = calcularStatusReal(l);
                 const idxOriginal = dadosGlobais.findIndex(dg => dg[0] === tktID);
                 
@@ -269,19 +275,21 @@
 
                 let acao = '';
                 if (s === 'Aguardando Aceite CD') {
+                    // ALTERAÇÃO 2: Passamos tktID no onclick
                     acao = `
                         <div class="flex flex-col gap-1 items-center">
                             <button onclick="confirmarMudarStatus('${tktID}', 'Em andamento', 'Aceitar Prazo')" class="btn-acao-tabela bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white">Aceitar Prazo</button>
                             <button onclick="confirmarMudarStatus('${tktID}', 'Prazo Recusado', 'Rejeitar')" class="btn-acao-tabela bg-red-50 text-red-600 hover:bg-red-600 hover:text-white">Rejeitar</button>
                         </div>`;
                 } else if (s === 'Em andamento') {
+                    // ALTERAÇÃO 2: Passamos tktID no onclick
                     acao = `
                         <div class="flex flex-col gap-1 items-center">
                             <button onclick="confirmarMudarStatus('${tktID}', 'Resolvido', 'Resolver')" class="btn-acao-tabela bg-emerald-600 text-white hover:bg-emerald-700">Resolvido</button>
                             <button onclick="confirmarMudarStatus('${tktID}', 'Cancelado', 'Cancelar')" class="btn-acao-tabela bg-gray-500 text-white hover:bg-gray-600">Cancelado</button>
                         </div>`;
-                } else {
-                    acao = `<div class="flex flex-col items-center"><span class="text-[8px] font-black uppercase text-gray-400">${s}</span></div>`;
+                } else if (s === 'Resolvido' || s === 'Cancelado') {
+                    acao = `<div class="flex flex-col items-center"><span class="text-[8px] font-black ${s === 'Resolvido' ? 'text-emerald-600' : 'text-gray-400'} uppercase">${s}</span></div>`;
                 }
 
                 let dP = l[12] && l[12] !== "---" ? (l[12].includes('/') ? l[12].split('/').reverse().join('-') : l[12].split('T')[0]) : "";
@@ -300,7 +308,7 @@
                             </select>
                         </td>
                         <td class="p-4 text-center">
-                            <input type="date" value="${dP}" onchange="confirmarPrevisao('${tktID}', this.value)" class="text-[10px] border rounded p-1.5 outline-none transition-colors ${destaqueYellow}">
+                            <input type="date" value="${dP}" onchange="confirmarPrevisao('${tktID}', this.value)" class="text-[10px] border rounded p-1.5 outline-none ${destaqueYellow}">
                         </td>
                         <td class="p-4 text-center">${acao}</td>
                     </tr>`;
@@ -310,11 +318,11 @@
         async function confirmarMudarStatus(tktID, status, label) {
             const result = await Swal.fire({
                 title: `Deseja ${label}?`,
-                text: `ID: ${tktID}`,
+                text: `Ticket: ${tktID}`,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: status.includes('Resolvido') || status.includes('andamento') ? '#059669' : '#dc2626',
-                confirmButtonText: 'Sim, confirmar!'
+                confirmButtonText: 'Confirmar'
             });
 
             if (result.isConfirmed) {
@@ -324,7 +332,7 @@
                     await atualizarCampo(tktID, 'data_conclusao', new Date().toLocaleDateString('pt-BR'));
                 }
                 await carregarTickets();
-                Swal.fire('Atualizado!', 'Status alterado.', 'success');
+                Swal.fire('Atualizado!', 'O status foi alterado.', 'success');
             }
         }
 
@@ -332,10 +340,9 @@
             if(!data) return;
             const result = await Swal.fire({
                 title: 'Definir Previsão?',
-                text: `Data: ${formatarDataBR(data)} para o ID ${tktID}`,
+                text: `Nova data: ${formatarDataBR(data)} para o ${tktID}`,
                 icon: 'calendar_month',
-                showCancelButton: true,
-                confirmButtonText: 'Confirmar'
+                showCancelButton: true
             });
 
             if(result.isConfirmed) {
@@ -349,7 +356,7 @@
         }
 
         async function atualizarCampo(tktID, f, v) {
-            // MODIFICAÇÃO: Enviando tktID para o Script localizar corretamente
+            // ALTERAÇÃO 2: Enviamos tktID para o .gs
             await fetch(WEB_APP_URL, { 
                 method: 'POST', 
                 mode: 'no-cors', 
@@ -359,15 +366,21 @@
 
         function verDetalhes(idx) {
             const t = dadosGlobais[idx];
+            ticketAbertoAtual = { index: idx, tktID: t[0] };
             document.getElementById('detalheID').innerText = t[0];
             document.getElementById('detalheSeac').innerText = t[1];
             document.getElementById('detalheForn').innerText = t[2];
             document.getElementById('detalheRef').innerText = t[3];
+            document.getElementById('detalheCodCli').innerText = t[4] || "---";
+            document.getElementById('detalheLote').innerText = t[6] || "---";
             document.getElementById('detalheQtd').innerText = String(t[5] || 0).replace('.', ',');
             document.getElementById('detalheUM').innerText = t[16] || "";
             document.getElementById('detalheMotivo').innerText = t[7] || "---";
             document.getElementById('detalheObs').value = t[8] || "";
+            document.getElementById('detalheTipo').innerText = t[19] || "---";
             document.getElementById('detalheAutor').innerText = t[13] || "---";
+            document.getElementById('detalheComunicado').innerText = t[17] || "---";
+            document.getElementById('detalheAcordo').innerText = t[18] || "---";
 
             const dA = formatarDataBR(t[10]), dT = formatarDataBR(t[15]), dP = formatarDataBR(t[12]), dC = formatarDataBR(t[11]);
             document.getElementById('dateStep1').innerText = dA;
@@ -390,7 +403,7 @@
 
         async function salvarAlteracoesNoModal() {
             const btn = document.getElementById('btnSalvarObs');
-            const tktID = document.getElementById('detalheID').innerText;
+            const tktID = ticketAbertoAtual.tktID;
             btn.disabled = true; btn.innerText = "Gravando...";
             await atualizarCampo(tktID, 'observacao', document.getElementById('detalheObs').value);
             await atualizarCampo(tktID, 'responsavel', document.getElementById('selectResponsavelModal').value);
@@ -400,10 +413,7 @@
             carregarTickets();
         }
 
-        function abrirDashboard() { 
-            document.getElementById('modalDashboard').classList.remove('hidden');
-            processarDadosDash();
-        }
+        function abrirDashboard() { document.getElementById('modalDashboard').classList.remove('hidden'); processarDadosDash(); }
         function fecharDashboard() { document.getElementById('modalDashboard').classList.add('hidden'); }
 
         function processarDadosDash() {
@@ -442,14 +452,9 @@
             leg.innerHTML = '';
             Object.entries(cont).forEach(([m, q], i) => {
                 const perc = total > 0 ? ((q / total) * 100).toFixed(0) : 0;
-                leg.innerHTML += `
-                    <div class="flex justify-between p-3 bg-gray-50 rounded-xl font-bold text-xs items-center">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full" style="background-color: ${chartMotivos.data.datasets[0].backgroundColor[i]}"></span>
-                            <span class="uppercase text-gray-500">${m}</span>
-                        </div>
-                        <div class="flex gap-3"><span>${q}</span><span class="text-gray-400">${perc}%</span></div>
-                    </div>`;
+                leg.innerHTML += `<div class="flex justify-between p-3 bg-gray-50 rounded-xl font-bold text-xs items-center">
+                    <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full" style="background-color: ${chartMotivos.data.datasets[0].backgroundColor[i]}"></span><span class="uppercase text-gray-500">${m}</span></div>
+                    <div class="flex gap-3"><span>${q}</span><span class="text-gray-400">${perc}%</span></div></div>`;
             });
         }
 
