@@ -24,19 +24,36 @@
         * { -ms-overflow-style: none; scrollbar-width: none; }
         *::-webkit-scrollbar { display: none; }
 
+        /* BARRA DE SCROLL GERAL DO SITE */
         .custom-scroll-container { position: fixed; right: 10px; top: 20px; bottom: 20px; width: 30px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; z-index: 100; padding: 10px 0; }
         .scroll-track { flex: 1; width: 6px; background: #f1f1f1; border-radius: 10px; position: relative; margin: 10px 0; }
         .scroll-thumb { width: 100%; background: #a1a1a1; border-radius: 10px; position: absolute; top: 0; transition: height 0.1s ease-out; cursor: pointer; }
         .scroll-arrow { color: #a1a1a1; font-size: 20px; cursor: pointer; transition: color 0.2s; user-select: none; }
         .scroll-arrow:hover { color: #E30613; }
 
+        /* BARRA DE SCROLL HORIZONTAL SUPERIOR */
+        .top-scroll-wrapper { width: 100%; overflow-x: auto; height: 12px; background: #f9fafb; border-bottom: 1px solid #e5e7eb; }
+        .top-scroll-content { height: 1px; }
+        .top-scroll-wrapper::-webkit-scrollbar { display: block; height: 8px; }
+        .top-scroll-wrapper::-webkit-scrollbar-track { background: #f1f1f1; }
+        .top-scroll-wrapper::-webkit-scrollbar-thumb { background: #a1a1a1; border-radius: 10px; }
+        .top-scroll-wrapper::-webkit-scrollbar-thumb:hover { background: #E30613; }
+
+        /* TABELA E CONTAINERS */
         .sticky-header th { position: sticky; top: 0; background-color: #f9fafb; z-index: 20; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .table-container { max-height: 65vh; overflow-y: auto; position: relative; border: 1px solid #e5e7eb; border-radius: 12px; }
+        .table-container { max-height: 65vh; overflow-y: auto; overflow-x: auto; position: relative; border: 1px solid #e5e7eb; border-radius: 0 0 12px 12px; }
         
+        /* BARRA DE SCROLL VERTICAL DA TABELA (ESTILO MINIMALISTA) */
+        .table-container::-webkit-scrollbar { display: block; width: 8px; }
+        .table-container::-webkit-scrollbar-track { background: #f1f1f1; }
+        .table-container::-webkit-scrollbar-thumb { background: #a1a1a1; border-radius: 10px; }
+        .table-container::-webkit-scrollbar-thumb:hover { background: #E30613; }
+
         .sticky-col { position: sticky; z-index: 21; background-color: white; }
-        .sticky-col-1 { left: 0; width: 250px; min-width: 250px; max-width: 250px; } /* REDUZIDO */
+        .sticky-col-1 { left: 0; width: 280px; min-width: 280px; max-width: 280px; border-right: 2px solid #f3f4f6; }
         thead .sticky-col { z-index: 41; background-color: #f9fafb; }
 
+        /* FILTROS */
         .filter-dropdown { position: relative; display: inline-block; width: 100%; }
         .filter-content { display: none; position: absolute; background-color: white; min-width: 200px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1); z-index: 50; border-radius: 12px; padding: 12px; border: 1px solid #e5e7eb; margin-top: 4px; max-height: 300px; overflow-y: auto; }
         .filter-dropdown:hover .filter-content { display: block; }
@@ -59,9 +76,10 @@
         .modal { display: none; position: fixed; z-index: 200; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
         .modal-content { background-color: white; margin: 5% auto; padding: 30px; border-radius: 24px; width: 90%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
 
-        /* AJUSTE DE COLUNAS ESPECÍFICAS */
+        /* AJUSTE DE COLUNAS */
         .col-fixed-width { width: 140px; min-width: 140px; }
         .col-small { width: 80px; min-width: 80px; }
+        .desc-cell { white-space: normal !important; line-height: 1.2; word-break: break-word; padding: 12px 16px !important; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-900">
@@ -143,7 +161,12 @@
                     </div>
 
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                        <div class="table-container no-scrollbar">
+                        <!-- BARRA DE SCROLL HORIZONTAL SUPERIOR -->
+                        <div class="top-scroll-wrapper" id="topScrollWrapper">
+                            <div class="top-scroll-content" id="topScrollContent"></div>
+                        </div>
+                        
+                        <div class="table-container no-scrollbar" id="tableContainer">
                             <table class="w-full text-left border-collapse" id="tabelaAlvos">
                                 <thead class="sticky-header"><tr class="bg-gray-50 border-b text-[10px] font-black text-gray-400 uppercase" id="headerRow"></tr></thead>
                                 <tbody id="tableBody" class="divide-y divide-gray-100 text-xs font-medium"></tbody>
@@ -193,11 +216,22 @@
             auxiliares: { linhas: [], subgrupos: [], cores: [] }
         };
 
+        const UNIDADES_INVALIDAS = ["UN", "CJ", "LT", "SC", "M2", "GL", "PCT", "PL", "CX", "M", "JG", "RL", "PLT", "BD", "KG", "QT"];
+
         document.addEventListener('DOMContentLoaded', () => {
             inicializarCustomScroll();
             setupEventListeners();
             carregarDadosCompletos();
+            sincronizarScrolls();
         });
+
+        function sincronizarScrolls() {
+            const topScroll = document.getElementById('topScrollWrapper');
+            const tableScroll = document.getElementById('tableContainer');
+            
+            topScroll.addEventListener('scroll', () => { tableScroll.scrollLeft = topScroll.scrollLeft; });
+            tableScroll.addEventListener('scroll', () => { topScroll.scrollLeft = tableScroll.scrollLeft; });
+        }
 
         async function carregarDadosCompletos() {
             try {
@@ -206,7 +240,6 @@
                 if (!data.error) {
                     state.sheetsData = data.dataMap || {};
                     state.auxiliares = data.auxiliares || { linhas: [], subgrupos: [], cores: [] };
-                    console.log("Dados do Sheets carregados:", state.sheetsData);
                 }
             } catch (err) { console.error("Erro ao carregar dados:", err); }
         }
@@ -309,15 +342,24 @@
             const custoIdx = state.displayHeaders.findIndex(h => normalizeText(h).includes('custo'));
             if (custoIdx !== -1) state.displayHeaders.splice(custoIdx + 1, 0, 'Comprar');
 
-            state.allData = data.slice(headerRowIndex + 1).filter(row => Array.isArray(row) && row[0] && !String(row[0]).includes('Total')).map(row => {
+            state.allData = data.slice(headerRowIndex + 1).filter(row => {
+                if (!Array.isArray(row) || !row[0]) return false;
+                const descri = String(row[state.columnIndices.descri] || "").trim().toUpperCase();
+                
+                // FILTRO: Ignorar Exata Sistemas e Unidades de Medida
+                if (descri.includes("WWW.EXATASISTEMAS.COM")) return false;
+                if (UNIDADES_INVALIDAS.includes(descri)) return false;
+                if (descri.includes("TOTAL")) return false;
+                
+                return true;
+            }).map(row => {
                 const item = {};
                 state.originalHeaders.forEach((h, i) => item[h] = row[i]);
                 
-                // CORREÇÃO: Garantir que o código seja tratado como string limpa
-                const codigoRaw = row[state.columnIndices.codigo];
-                const codigo = String(codigoRaw || "").trim();
+                // LIMPEZA DE CÓDIGO: Remover zeros à esquerda
+                const codigoRaw = String(row[state.columnIndices.codigo] || "").trim();
+                const codigo = codigoRaw.replace(/^0+/, ''); 
                 
-                // Busca dados salvos no Sheets
                 const saved = state.sheetsData[codigo] || {};
                 
                 item['Estoque Futuro'] = (parseFloat(row[state.columnIndices.estoque]) || 0) + (parseFloat(row[state.columnIndices.pedido]) || 0) - (parseFloat(row[state.columnIndices.inverter]) || 0);
@@ -337,6 +379,11 @@
             document.getElementById('main-content').classList.remove('hidden');
             renderizarHeader();
             aplicarFiltros();
+            
+            // Ajustar largura do scroll superior
+            setTimeout(() => {
+                document.getElementById('topScrollContent').style.width = document.getElementById('tabelaAlvos').offsetWidth + 'px';
+            }, 100);
         }
 
         function popularChecklist(id, itens, filterKey) {
@@ -365,7 +412,6 @@
                 const th = document.createElement('th');
                 const isDescri = (h === state.originalHeaders[state.columnIndices.descri]);
                 
-                // CLASSES DE LARGURA
                 let widthClass = "p-4 whitespace-nowrap ";
                 if (isDescri) widthClass += "sticky-col sticky-col-1 ";
                 else if (['Linha', 'Subgrupo', 'Cor'].includes(h)) widthClass += "col-fixed-width ";
@@ -402,7 +448,7 @@
                     const isDescri = (h === descriHeader);
                     
                     let widthClass = "p-4 ";
-                    if (isDescri) widthClass += "sticky-col sticky-col-1 font-bold text-gray-800 truncate ";
+                    if (isDescri) widthClass += "sticky-col sticky-col-1 font-bold text-gray-800 desc-cell ";
                     else if (['Linha', 'Subgrupo', 'Cor'].includes(h)) widthClass += "col-fixed-width ";
                     else if (h === 'Alvo') widthClass += "col-small ";
                     
