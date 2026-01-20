@@ -21,9 +21,7 @@
     <style type="text/css">
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; scroll-behavior: smooth; overflow: hidden; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        * { -ms-overflow-style: none; scrollbar-width: none; }
-        *::-webkit-scrollbar { display: none; }
-
+        
         /* BARRA DE SCROLL GERAL DO SITE */
         .custom-scroll-container { position: fixed; right: 10px; top: 20px; bottom: 20px; width: 30px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; z-index: 100; padding: 10px 0; }
         .scroll-track { flex: 1; width: 6px; background: #f1f1f1; border-radius: 10px; position: relative; margin: 10px 0; }
@@ -31,20 +29,20 @@
         .scroll-arrow { color: #a1a1a1; font-size: 20px; cursor: pointer; transition: color 0.2s; user-select: none; }
         .scroll-arrow:hover { color: #E30613; }
 
-        /* BARRA DE SCROLL HORIZONTAL SUPERIOR */
-        .top-scroll-wrapper { width: 100%; overflow-x: auto; height: 12px; background: #f9fafb; border-bottom: 1px solid #e5e7eb; }
+        /* BARRA DE SCROLL HORIZONTAL SUPERIOR - FORÇADA */
+        .top-scroll-wrapper { width: 100%; overflow-x: scroll !important; height: 16px; background: #f9fafb; border: 1px solid #e5e7eb; border-bottom: none; border-radius: 12px 12px 0 0; }
         .top-scroll-content { height: 1px; }
-        .top-scroll-wrapper::-webkit-scrollbar { display: block; height: 8px; }
+        .top-scroll-wrapper::-webkit-scrollbar { display: block !important; height: 8px; }
         .top-scroll-wrapper::-webkit-scrollbar-track { background: #f1f1f1; }
         .top-scroll-wrapper::-webkit-scrollbar-thumb { background: #a1a1a1; border-radius: 10px; }
         .top-scroll-wrapper::-webkit-scrollbar-thumb:hover { background: #E30613; }
 
         /* TABELA E CONTAINERS */
-        .sticky-header th { position: sticky; top: 0; background-color: #f9fafb; z-index: 20; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .table-container { max-height: 65vh; overflow-y: auto; overflow-x: auto; position: relative; border: 1px solid #e5e7eb; border-radius: 0 0 12px 12px; }
+        .sticky-header th { position: sticky; top: 0; background-color: #f9fafb; z-index: 20; box-shadow: 0 1px 2px rgba(0,0,0,0.05); text-align: left !important; padding: 12px 16px; }
+        .table-container { max-height: 65vh; overflow-y: scroll !important; overflow-x: scroll !important; position: relative; border: 1px solid #e5e7eb; border-radius: 0 0 12px 12px; background: white; }
         
-        /* BARRA DE SCROLL VERTICAL DA TABELA (ESTILO MINIMALISTA) */
-        .table-container::-webkit-scrollbar { display: block; width: 8px; }
+        /* BARRA DE SCROLL DA TABELA - FORÇADA */
+        .table-container::-webkit-scrollbar { display: block !important; width: 8px; height: 8px; }
         .table-container::-webkit-scrollbar-track { background: #f1f1f1; }
         .table-container::-webkit-scrollbar-thumb { background: #a1a1a1; border-radius: 10px; }
         .table-container::-webkit-scrollbar-thumb:hover { background: #E30613; }
@@ -63,9 +61,9 @@
         .btn-primary { background-color: #E30613; color: white; font-weight: 800; text-transform: uppercase; font-size: 10px; padding: 10px 20px; border-radius: 12px; transition: all 0.2s; }
         .btn-primary:hover { background-color: #c40510; transform: translateY(-1px); }
         
-        .alvo-input { width: 70px; padding: 4px 6px; font-size: 11px; font-weight: 800; border: 1px solid #e2e8f0; border-radius: 6px; background-color: #fffbeb; text-align: right; outline: none; }
+        .alvo-input { width: 60px; padding: 4px 6px; font-size: 11px; font-weight: 800; border: 1px solid #e2e8f0; border-radius: 6px; background-color: #fffbeb; text-align: right; outline: none; }
         
-        .select-custom { width: 130px; padding: 4px; font-size: 10px; font-weight: 700; border: 1px solid #e2e8f0; border-radius: 6px; outline: none; background-color: #f9fafb; cursor: pointer; }
+        .select-custom { width: 120px; padding: 4px; font-size: 10px; font-weight: 700; border: 1px solid #e2e8f0; border-radius: 6px; outline: none; background-color: #f9fafb; cursor: pointer; }
         .select-custom:focus { border-color: #E30613; }
 
         .sync-indicator { font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 4px 8px; border-radius: 6px; display: none; }
@@ -76,10 +74,16 @@
         .modal { display: none; position: fixed; z-index: 200; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
         .modal-content { background-color: white; margin: 5% auto; padding: 30px; border-radius: 24px; width: 90%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
 
-        /* AJUSTE DE COLUNAS */
-        .col-fixed-width { width: 140px; min-width: 140px; }
-        .col-small { width: 80px; min-width: 80px; }
-        .desc-cell { white-space: normal !important; line-height: 1.2; word-break: break-word; padding: 12px 16px !important; }
+        /* AJUSTE DE LARGURAS DE COLUNAS */
+        .col-codigo { width: 70px; min-width: 70px; } /* REDUZIDO PELA METADE */
+        .col-fixed-width { width: 130px; min-width: 130px; }
+        .col-small { width: 70px; min-width: 70px; } /* OTIMIZADO */
+        .desc-cell { white-space: normal !important; line-height: 1.2; word-break: break-word; padding: 12px 16px !important; text-align: left !important; }
+        
+        /* ALINHAMENTO GERAL À ESQUERDA */
+        td, th { text-align: left !important; }
+        .text-right-force { text-align: right !important; }
+        .text-center-force { text-align: center !important; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-900">
@@ -166,7 +170,7 @@
                             <div class="top-scroll-content" id="topScrollContent"></div>
                         </div>
                         
-                        <div class="table-container no-scrollbar" id="tableContainer">
+                        <div class="table-container" id="tableContainer">
                             <table class="w-full text-left border-collapse" id="tabelaAlvos">
                                 <thead class="sticky-header"><tr class="bg-gray-50 border-b text-[10px] font-black text-gray-400 uppercase" id="headerRow"></tr></thead>
                                 <tbody id="tableBody" class="divide-y divide-gray-100 text-xs font-medium"></tbody>
@@ -331,7 +335,8 @@
                 estoque: normHeaders.indexOf('estoque'),
                 pedido: normHeaders.indexOf('pedido'),
                 inverter: normHeaders.indexOf('inverter'),
-                custo: normHeaders.findIndex(h => h.includes('custo'))
+                custo: normHeaders.findIndex(h => h.includes('custo')),
+                hbt: normHeaders.indexOf('hbt')
             };
 
             state.displayHeaders = [...state.originalHeaders];
@@ -345,21 +350,15 @@
             state.allData = data.slice(headerRowIndex + 1).filter(row => {
                 if (!Array.isArray(row) || !row[0]) return false;
                 const descri = String(row[state.columnIndices.descri] || "").trim().toUpperCase();
-                
-                // FILTRO: Ignorar Exata Sistemas e Unidades de Medida
                 if (descri.includes("WWW.EXATASISTEMAS.COM")) return false;
                 if (UNIDADES_INVALIDAS.includes(descri)) return false;
                 if (descri.includes("TOTAL")) return false;
-                
                 return true;
             }).map(row => {
                 const item = {};
                 state.originalHeaders.forEach((h, i) => item[h] = row[i]);
-                
-                // LIMPEZA DE CÓDIGO: Remover zeros à esquerda
                 const codigoRaw = String(row[state.columnIndices.codigo] || "").trim();
                 const codigo = codigoRaw.replace(/^0+/, ''); 
-                
                 const saved = state.sheetsData[codigo] || {};
                 
                 item['Estoque Futuro'] = (parseFloat(row[state.columnIndices.estoque]) || 0) + (parseFloat(row[state.columnIndices.pedido]) || 0) - (parseFloat(row[state.columnIndices.inverter]) || 0);
@@ -380,10 +379,10 @@
             renderizarHeader();
             aplicarFiltros();
             
-            // Ajustar largura do scroll superior
             setTimeout(() => {
-                document.getElementById('topScrollContent').style.width = document.getElementById('tabelaAlvos').offsetWidth + 'px';
-            }, 100);
+                const tableWidth = document.getElementById('tabelaAlvos').offsetWidth;
+                document.getElementById('topScrollContent').style.width = tableWidth + 'px';
+            }, 200);
         }
 
         function popularChecklist(id, itens, filterKey) {
@@ -411,11 +410,13 @@
             state.displayHeaders.forEach((h, i) => {
                 const th = document.createElement('th');
                 const isDescri = (h === state.originalHeaders[state.columnIndices.descri]);
+                const normH = normalizeText(h);
                 
                 let widthClass = "p-4 whitespace-nowrap ";
                 if (isDescri) widthClass += "sticky-col sticky-col-1 ";
+                else if (h === 'Código') widthClass += "col-codigo ";
                 else if (['Linha', 'Subgrupo', 'Cor'].includes(h)) widthClass += "col-fixed-width ";
-                else if (h === 'Alvo') widthClass += "col-small ";
+                else if (normH === 'hbt' || normH === 'estoque' || normH === 'pedido' || normH === 'inverter' || normH === 'estoque futuro' || normH === 'alvo') widthClass += "col-small ";
 
                 th.className = widthClass;
                 th.innerText = h;
@@ -446,11 +447,13 @@
                 state.displayHeaders.forEach((h, i) => {
                     const td = document.createElement('td');
                     const isDescri = (h === descriHeader);
+                    const normH = normalizeText(h);
                     
                     let widthClass = "p-4 ";
                     if (isDescri) widthClass += "sticky-col sticky-col-1 font-bold text-gray-800 desc-cell ";
+                    else if (h === 'Código') widthClass += "col-codigo ";
                     else if (['Linha', 'Subgrupo', 'Cor'].includes(h)) widthClass += "col-fixed-width ";
-                    else if (h === 'Alvo') widthClass += "col-small ";
+                    else if (normH === 'hbt' || normH === 'estoque' || normH === 'pedido' || normH === 'inverter' || normH === 'estoque futuro' || normH === 'alvo') widthClass += "col-small ";
                     
                     td.className = widthClass;
                     
@@ -467,15 +470,14 @@
                         td.innerHTML = `<input type="number" value="${row[h] || 0}" onchange="atualizarLocal('${row._codigo}', 'Alvo', this.value)" class="alvo-input">`;
                     } else if (h === 'Comprar') {
                         td.innerText = row[h];
-                        td.classList.add('font-black', 'text-primary', 'text-center', 'text-sm');
+                        td.classList.add('font-black', 'text-primary', 'text-sm');
                     } else if (h === 'Estoque Futuro') {
                         td.innerText = row[h];
-                        td.classList.add('font-bold', 'text-center');
+                        td.classList.add('font-bold');
                     } else {
                         let val = row[h] || '';
                         if (typeof val === 'number' && (h.includes('R$') || h.includes('Custo'))) {
                             td.innerText = val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                            td.classList.add('text-right');
                         } else { td.innerText = val; }
                     }
                     tr.appendChild(td);
