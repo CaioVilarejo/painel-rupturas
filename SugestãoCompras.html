@@ -32,22 +32,53 @@
         .scroll-arrow:hover { color: #E30613; }
 
         /* TABELA E CONTAINERS */
-        .sticky-header th { position: sticky; top: 0; background-color: #f9fafb; z-index: 20; box-shadow: 0 1px 2px rgba(0,0,0,0.05); text-align: left !important; padding: 12px 16px; }
         .table-container { max-height: 65vh; overflow-y: scroll !important; overflow-x: scroll !important; position: relative; border: 1px solid #e5e7eb; border-radius: 12px; background: white; }
-        
-        /* BARRA DE SCROLL DA TABELA */
         .table-container::-webkit-scrollbar { display: block !important; width: 8px; height: 8px; }
         .table-container::-webkit-scrollbar-track { background: #f1f1f1; }
         .table-container::-webkit-scrollbar-thumb { background: #a1a1a1; border-radius: 10px; }
         .table-container::-webkit-scrollbar-thumb:hover { background: #E30613; }
 
-        .sticky-col { position: sticky; z-index: 21; background-color: white; }
-        .sticky-col-1 { left: 0; width: 280px; min-width: 280px; max-width: 280px; border-right: 2px solid #f3f4f6; }
-        thead .sticky-col { z-index: 41; background-color: #f9fafb; }
+        /* CORREÇÃO ESTRUTURAL DO ESPAÇO VAZIO */
+        table { border-spacing: 0; border-collapse: separate; width: max-content; min-width: 100%; table-layout: fixed; }
+        
+        .sticky-header th { position: sticky; top: 0; background-color: #f9fafb; z-index: 40; box-shadow: 0 1px 2px rgba(0,0,0,0.05); text-align: left !important; padding: 12px 16px; }
+        
+        /* Coluna 1: Descrição (Fixa) */
+        .col-desc { 
+            position: sticky !important; 
+            left: 0 !important; 
+            z-index: 30 !important; 
+            background-color: white !important;
+            width: 280px !important; 
+            min-width: 280px !important; 
+            max-width: 280px !important;
+            border-right: 1px solid #e5e7eb !important;
+        }
+        thead .col-desc { z-index: 50 !important; background-color: #f9fafb !important; }
+
+        /* Coluna 2: Código (Fixa logo após a descrição) */
+        .col-codigo { 
+            position: sticky !important; 
+            left: 280px !important; 
+            z-index: 29 !important; 
+            background-color: white !important;
+            width: 80px !important; 
+            min-width: 80px !important; 
+            max-width: 80px !important;
+            border-right: 1px solid #e5e7eb !important;
+            text-align: center !important;
+            padding: 12px 8px !important;
+        }
+        thead .col-codigo { z-index: 49 !important; background-color: #f9fafb !important; }
+
+        /* Outras colunas - Sem sticky para não criar gaps */
+        .col-fixed-width { width: 130px !important; min-width: 130px !important; }
+        .col-small { width: 70px !important; min-width: 70px !important; }
+        .desc-cell { white-space: normal !important; line-height: 1.2; word-break: break-word; }
 
         /* FILTROS */
         .filter-dropdown { position: relative; display: inline-block; width: 100%; }
-        .filter-content { display: none; position: absolute; background-color: white; min-width: 200px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1); z-index: 50; border-radius: 12px; padding: 12px; border: 1px solid #e5e7eb; margin-top: 4px; max-height: 300px; overflow-y: auto; }
+        .filter-content { display: none; position: absolute; background-color: white; min-width: 200px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1); z-index: 100; border-radius: 12px; padding: 12px; border: 1px solid #e5e7eb; margin-top: 4px; max-height: 300px; overflow-y: auto; }
         .filter-dropdown:hover .filter-content { display: block; }
         .filter-option { display: flex; align-items: center; gap: 8px; padding: 6px 0; cursor: pointer; font-size: 11px; font-weight: 600; color: #4b5563; }
         .filter-option input { cursor: pointer; accent-color: #E30613; }
@@ -67,14 +98,8 @@
         /* MODAL */
         .modal { display: none; position: fixed; z-index: 200; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
         .modal-content { background-color: white; margin: 5% auto; padding: 30px; border-radius: 24px; width: 90%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
-
-        /* AJUSTE DE LARGURAS DE COLUNAS - FORÇADO */
-        .col-codigo { width: 60px !important; min-width: 60px !important; max-width: 60px !important; overflow: hidden; text-overflow: ellipsis; }
-        .col-fixed-width { width: 130px !important; min-width: 130px !important; }
-        .col-small { width: 70px !important; min-width: 70px !important; }
-        .desc-cell { white-space: normal !important; line-height: 1.2; word-break: break-word; padding: 12px 16px !important; text-align: left !important; }
         
-        td, th { text-align: left !important; }
+        td, th { text-align: left !important; border-bottom: 1px solid #f3f4f6; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-900">
@@ -162,7 +187,7 @@
 
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                         <div class="table-container" id="tableContainer">
-                            <table class="w-full text-left border-collapse" id="tabelaAlvos">
+                            <table class="text-left" id="tabelaAlvos">
                                 <thead class="sticky-header"><tr class="bg-gray-50 border-b text-[10px] font-black text-gray-400 uppercase" id="headerRow"></tr></thead>
                                 <tbody id="tableBody" class="divide-y divide-gray-100 text-xs font-medium"></tbody>
                             </table>
@@ -229,9 +254,7 @@
                     state.sheetsData = data.dataMap || {};
                     state.auxiliares = data.auxiliares || { linhas: [], subgrupos: [], cores: [] };
                     state.isDataLoaded = true;
-                    console.log("Dados do Sheets carregados.");
                     
-                    // Se já houver dados na tabela, atualiza eles com o que chegou do Sheets
                     if (state.allData.length > 0) {
                         state.allData = state.allData.map(item => {
                             const saved = state.sheetsData[item._codigo] || {};
@@ -353,13 +376,22 @@
                 und: normHeaders.indexOf('und')
             };
 
-            state.displayHeaders = [...state.originalHeaders];
-            const codIdx = state.displayHeaders.indexOf('Código');
-            if (codIdx !== -1) state.displayHeaders.splice(codIdx + 1, 0, 'Linha', 'Subgrupo', 'Cor');
-            const invIdx = state.displayHeaders.indexOf('Inverter');
-            if (invIdx !== -1) state.displayHeaders.splice(invIdx + 1, 0, 'Estoque Futuro', 'Alvo');
-            const custoIdx = state.displayHeaders.findIndex(h => normalizeText(h).includes('custo'));
-            if (custoIdx !== -1) state.displayHeaders.splice(custoIdx + 1, 0, 'Comprar', 'Custo Total');
+            // REESTRUTURAÇÃO DA ORDEM DAS COLUNAS PARA ELIMINAR GAPS
+            state.displayHeaders = [];
+            const descHeader = state.originalHeaders[state.columnIndices.descri];
+            const codHeader = state.originalHeaders[state.columnIndices.codigo];
+            
+            state.displayHeaders.push(descHeader);
+            state.displayHeaders.push(codHeader);
+            state.displayHeaders.push('Linha', 'Subgrupo', 'Cor');
+            
+            state.originalHeaders.forEach(h => {
+                if (h !== descHeader && h !== codHeader && !state.displayHeaders.includes(h)) {
+                    state.displayHeaders.push(h);
+                    if (h === 'Inverter') state.displayHeaders.push('Estoque Futuro', 'Alvo');
+                    if (normalizeText(h).includes('custo')) state.displayHeaders.push('Comprar', 'Custo Total');
+                }
+            });
 
             state.allData = data.slice(headerRowIndex + 1).filter(row => {
                 if (!Array.isArray(row) || !row[0]) return false;
@@ -425,11 +457,12 @@
             state.displayHeaders.forEach((h, i) => {
                 const th = document.createElement('th');
                 const isDescri = (h === state.originalHeaders[state.columnIndices.descri]);
+                const isCodigo = (h === state.originalHeaders[state.columnIndices.codigo]);
                 const normH = normalizeText(h);
                 
                 let widthClass = "p-4 whitespace-nowrap ";
-                if (isDescri) widthClass += "sticky-col sticky-col-1 ";
-                else if (h === 'Código') widthClass += "col-codigo ";
+                if (isDescri) widthClass += "col-desc ";
+                else if (isCodigo) widthClass += "col-codigo ";
                 else if (['Linha', 'Subgrupo', 'Cor'].includes(h)) widthClass += "col-fixed-width ";
                 else if (normH === 'hbt' || normH === 'estoque' || normH === 'pedido' || normH === 'inverter' || normH === 'estoque futuro' || normH === 'alvo') widthClass += "col-small ";
 
@@ -455,6 +488,7 @@
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
             const descriHeader = state.originalHeaders[state.columnIndices.descri];
+            const codHeader = state.originalHeaders[state.columnIndices.codigo];
 
             dados.forEach(row => {
                 const tr = document.createElement('tr');
@@ -462,11 +496,12 @@
                 state.displayHeaders.forEach((h, i) => {
                     const td = document.createElement('td');
                     const isDescri = (h === descriHeader);
+                    const isCodigo = (h === codHeader);
                     const normH = normalizeText(h);
                     
                     let widthClass = "p-4 ";
-                    if (isDescri) widthClass += "sticky-col sticky-col-1 font-bold text-gray-800 desc-cell ";
-                    else if (h === 'Código') widthClass += "col-codigo ";
+                    if (isDescri) widthClass += "col-desc font-bold text-gray-800 desc-cell ";
+                    else if (isCodigo) widthClass += "col-codigo ";
                     else if (['Linha', 'Subgrupo', 'Cor'].includes(h)) widthClass += "col-fixed-width ";
                     else if (normH === 'hbt' || normH === 'estoque' || normH === 'pedido' || normH === 'inverter' || normH === 'estoque futuro' || normH === 'alvo') widthClass += "col-small ";
                     
