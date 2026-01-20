@@ -7,6 +7,8 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"/>
@@ -29,19 +31,11 @@
         .scroll-arrow { color: #a1a1a1; font-size: 20px; cursor: pointer; transition: color 0.2s; user-select: none; }
         .scroll-arrow:hover { color: #E30613; }
 
-        /* BARRA DE SCROLL HORIZONTAL SUPERIOR - FORÇADA */
-        .top-scroll-wrapper { width: 100%; overflow-x: scroll !important; height: 16px; background: #f9fafb; border: 1px solid #e5e7eb; border-bottom: none; border-radius: 12px 12px 0 0; }
-        .top-scroll-content { height: 1px; }
-        .top-scroll-wrapper::-webkit-scrollbar { display: block !important; height: 8px; }
-        .top-scroll-wrapper::-webkit-scrollbar-track { background: #f1f1f1; }
-        .top-scroll-wrapper::-webkit-scrollbar-thumb { background: #a1a1a1; border-radius: 10px; }
-        .top-scroll-wrapper::-webkit-scrollbar-thumb:hover { background: #E30613; }
-
         /* TABELA E CONTAINERS */
         .sticky-header th { position: sticky; top: 0; background-color: #f9fafb; z-index: 20; box-shadow: 0 1px 2px rgba(0,0,0,0.05); text-align: left !important; padding: 12px 16px; }
-        .table-container { max-height: 65vh; overflow-y: scroll !important; overflow-x: scroll !important; position: relative; border: 1px solid #e5e7eb; border-radius: 0 0 12px 12px; background: white; }
+        .table-container { max-height: 65vh; overflow-y: scroll !important; overflow-x: scroll !important; position: relative; border: 1px solid #e5e7eb; border-radius: 12px; background: white; }
         
-        /* BARRA DE SCROLL DA TABELA - FORÇADA */
+        /* BARRA DE SCROLL DA TABELA */
         .table-container::-webkit-scrollbar { display: block !important; width: 8px; height: 8px; }
         .table-container::-webkit-scrollbar-track { background: #f1f1f1; }
         .table-container::-webkit-scrollbar-thumb { background: #a1a1a1; border-radius: 10px; }
@@ -75,15 +69,12 @@
         .modal-content { background-color: white; margin: 5% auto; padding: 30px; border-radius: 24px; width: 90%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
 
         /* AJUSTE DE LARGURAS DE COLUNAS */
-        .col-codigo { width: 70px; min-width: 70px; } /* REDUZIDO PELA METADE */
+        .col-codigo { width: 70px; min-width: 70px; }
         .col-fixed-width { width: 130px; min-width: 130px; }
-        .col-small { width: 70px; min-width: 70px; } /* OTIMIZADO */
+        .col-small { width: 70px; min-width: 70px; }
         .desc-cell { white-space: normal !important; line-height: 1.2; word-break: break-word; padding: 12px 16px !important; text-align: left !important; }
         
-        /* ALINHAMENTO GERAL À ESQUERDA */
         td, th { text-align: left !important; }
-        .text-right-force { text-align: right !important; }
-        .text-center-force { text-align: center !important; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-900">
@@ -159,17 +150,17 @@
                             </div>
                             <div class="filter-content" id="checklistSubgrupo"></div>
                         </div>
-                        <button onclick="exportarExcel()" class="bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-lg">
-                            <span class="material-symbols-outlined text-sm">download</span> Exportar
-                        </button>
+                        <div class="flex gap-2">
+                            <button onclick="exportarExcel()" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-lg">
+                                <span class="material-symbols-outlined text-sm">table_view</span> Excel Completo
+                            </button>
+                            <button onclick="exportarPDF()" class="bg-red-600 text-white px-4 py-2.5 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 hover:bg-red-700 transition-all shadow-lg">
+                                <span class="material-symbols-outlined text-sm">picture_as_pdf</span> PDF Simplificado
+                            </button>
+                        </div>
                     </div>
 
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                        <!-- BARRA DE SCROLL HORIZONTAL SUPERIOR -->
-                        <div class="top-scroll-wrapper" id="topScrollWrapper">
-                            <div class="top-scroll-content" id="topScrollContent"></div>
-                        </div>
-                        
                         <div class="table-container" id="tableContainer">
                             <table class="w-full text-left border-collapse" id="tabelaAlvos">
                                 <thead class="sticky-header"><tr class="bg-gray-50 border-b text-[10px] font-black text-gray-400 uppercase" id="headerRow"></tr></thead>
@@ -226,16 +217,7 @@
             inicializarCustomScroll();
             setupEventListeners();
             carregarDadosCompletos();
-            sincronizarScrolls();
         });
-
-        function sincronizarScrolls() {
-            const topScroll = document.getElementById('topScrollWrapper');
-            const tableScroll = document.getElementById('tableContainer');
-            
-            topScroll.addEventListener('scroll', () => { tableScroll.scrollLeft = topScroll.scrollLeft; });
-            tableScroll.addEventListener('scroll', () => { topScroll.scrollLeft = tableScroll.scrollLeft; });
-        }
 
         async function carregarDadosCompletos() {
             try {
@@ -244,6 +226,7 @@
                 if (!data.error) {
                     state.sheetsData = data.dataMap || {};
                     state.auxiliares = data.auxiliares || { linhas: [], subgrupos: [], cores: [] };
+                    console.log("Dados do Sheets carregados:", Object.keys(state.sheetsData).length);
                 }
             } catch (err) { console.error("Erro ao carregar dados:", err); }
         }
@@ -336,7 +319,9 @@
                 pedido: normHeaders.indexOf('pedido'),
                 inverter: normHeaders.indexOf('inverter'),
                 custo: normHeaders.findIndex(h => h.includes('custo')),
-                hbt: normHeaders.indexOf('hbt')
+                hbt: normHeaders.indexOf('hbt'),
+                referencia: normHeaders.indexOf('referência'),
+                und: normHeaders.indexOf('und')
             };
 
             state.displayHeaders = [...state.originalHeaders];
@@ -345,7 +330,7 @@
             const invIdx = state.displayHeaders.indexOf('Inverter');
             if (invIdx !== -1) state.displayHeaders.splice(invIdx + 1, 0, 'Estoque Futuro', 'Alvo');
             const custoIdx = state.displayHeaders.findIndex(h => normalizeText(h).includes('custo'));
-            if (custoIdx !== -1) state.displayHeaders.splice(custoIdx + 1, 0, 'Comprar');
+            if (custoIdx !== -1) state.displayHeaders.splice(custoIdx + 1, 0, 'Comprar', 'Custo Total');
 
             state.allData = data.slice(headerRowIndex + 1).filter(row => {
                 if (!Array.isArray(row) || !row[0]) return false;
@@ -357,6 +342,8 @@
             }).map(row => {
                 const item = {};
                 state.originalHeaders.forEach((h, i) => item[h] = row[i]);
+                
+                // LIMPEZA DE CÓDIGO E RECUPERAÇÃO DE DADOS
                 const codigoRaw = String(row[state.columnIndices.codigo] || "").trim();
                 const codigo = codigoRaw.replace(/^0+/, ''); 
                 const saved = state.sheetsData[codigo] || {};
@@ -367,6 +354,10 @@
                 item['Cor'] = saved.cor || '';
                 item['Alvo'] = saved.alvo || 0;
                 item['Comprar'] = Math.max(0, (parseFloat(item['Alvo']) || 0) - item['Estoque Futuro']);
+                
+                const custo = parseFloat(row[state.columnIndices.custo]) || 0;
+                item['Custo Total'] = item['Comprar'] * custo;
+                
                 item._codigo = codigo;
                 return item;
             });
@@ -378,11 +369,6 @@
             document.getElementById('main-content').classList.remove('hidden');
             renderizarHeader();
             aplicarFiltros();
-            
-            setTimeout(() => {
-                const tableWidth = document.getElementById('tabelaAlvos').offsetWidth;
-                document.getElementById('topScrollContent').style.width = tableWidth + 'px';
-            }, 200);
         }
 
         function popularChecklist(id, itens, filterKey) {
@@ -471,6 +457,9 @@
                     } else if (h === 'Comprar') {
                         td.innerText = row[h];
                         td.classList.add('font-black', 'text-primary', 'text-sm');
+                    } else if (h === 'Custo Total') {
+                        td.innerText = (row[h] || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                        td.classList.add('font-black', 'text-emerald-600');
                     } else if (h === 'Estoque Futuro') {
                         td.innerText = row[h];
                         td.classList.add('font-bold');
@@ -490,7 +479,11 @@
             const item = state.allData.find(d => d._codigo === codigo);
             if (item) {
                 item[campo] = valor;
-                if (campo === 'Alvo') item['Comprar'] = Math.max(0, (parseFloat(valor) || 0) - item['Estoque Futuro']);
+                if (campo === 'Alvo') {
+                    item['Comprar'] = Math.max(0, (parseFloat(valor) || 0) - item['Estoque Futuro']);
+                    const custo = parseFloat(item[state.originalHeaders[state.columnIndices.custo]]) || 0;
+                    item['Custo Total'] = item['Comprar'] * custo;
+                }
                 salvarNoSheets(codigo);
                 aplicarFiltros();
             }
@@ -502,16 +495,63 @@
             dados.forEach(item => {
                 const custo = parseFloat(item[state.originalHeaders[state.columnIndices.custo]]) || 0;
                 totalEstoque += (custo * (parseFloat(item['Estoque']) || 0));
-                totalPedido += (custo * (parseFloat(item['Comprar']) || 0));
+                totalPedido += item['Custo Total'] || 0;
             });
             document.getElementById('cardValorEstoque').innerText = totalEstoque.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('cardTotalPedido').innerText = totalPedido.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
 
         function exportarExcel() {
-            const table = document.getElementById('tabelaAlvos');
-            const wb = XLSX.utils.table_to_book(table, { sheet: "Sugestão" });
-            XLSX.writeFile(wb, `Sugestao_Compras_${new Date().toLocaleDateString()}.xlsx`);
+            const filtrados = state.allData.filter(d => d['Comprar'] > 0);
+            if (filtrados.length === 0) return Swal.fire('Aviso', 'Nenhum item com sugestão de compra.', 'info');
+            
+            const ws = XLSX.utils.json_to_sheet(filtrados.map(d => {
+                const obj = {};
+                state.displayHeaders.forEach(h => obj[h] = d[h]);
+                return obj;
+            }));
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Sugestão");
+            XLSX.writeFile(wb, `Sugestao_Completa_${new Date().toLocaleDateString()}.xlsx`);
+        }
+
+        function exportarPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = jsPDF({ orientation: 'landscape' });
+            
+            const filtrados = state.allData.filter(d => d['Comprar'] > 0);
+            if (filtrados.length === 0) return Swal.fire('Aviso', 'Nenhum item com sugestão de compra.', 'info');
+
+            const colunas = ["Descrição", "Código", "Linha", "Subgrupo", "Cor", "HBT", "Referência", "Und", "Custo", "Comprar", "Custo Total"];
+            const rows = filtrados.map(d => [
+                d[state.originalHeaders[state.columnIndices.descri]],
+                d._codigo,
+                d['Linha'],
+                d['Subgrupo'],
+                d['Cor'],
+                d[state.originalHeaders[state.columnIndices.hbt]],
+                d[state.originalHeaders[state.columnIndices.referencia]],
+                d[state.originalHeaders[state.columnIndices.und]],
+                (parseFloat(d[state.originalHeaders[state.columnIndices.custo]]) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+                d['Comprar'],
+                (d['Custo Total'] || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+            ]);
+
+            doc.setFontSize(14);
+            doc.text("Sugestão de Compras Simplificada - Vilarejo", 14, 15);
+            doc.setFontSize(10);
+            doc.text(`Data: ${new Date().toLocaleDateString()}`, 14, 22);
+
+            doc.autoTable({
+                head: [colunas],
+                body: rows,
+                startY: 25,
+                theme: 'grid',
+                styles: { fontSize: 7, cellPadding: 2 },
+                headStyles: { fillColor: [227, 6, 19], textColor: 255 }
+            });
+
+            doc.save(`Sugestao_Simplificada_${new Date().toLocaleDateString()}.pdf`);
         }
 
         function abrirModalCadastro() { document.getElementById('modalCadastro').style.display = 'block'; }
