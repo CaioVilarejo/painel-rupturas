@@ -60,6 +60,7 @@ function carregarMenu() {
         { nome: 'Representação', icone: 'description', link: 'representacao.html' },
         { nome: 'Contas', icone: 'payments', link: 'contas.html' },
         { nome: 'Pendências CD', icone: 'confirmation_number', link: 'pendencias.html' },
+        { nome: 'Sugestão Compras', icone: 'confirmation_number', link: 'SugestãoCompras.html' },
         { nome: 'Calculadora', icone: 'calculate', link: 'calculadora.html' }
     ];
 
