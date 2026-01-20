@@ -68,10 +68,10 @@
         .modal { display: none; position: fixed; z-index: 200; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
         .modal-content { background-color: white; margin: 5% auto; padding: 30px; border-radius: 24px; width: 90%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
 
-        /* AJUSTE DE LARGURAS DE COLUNAS */
-        .col-codigo { width: 60px !important; min-width: 60px !important; max-width: 60px !important; }
-        .col-fixed-width { width: 130px; min-width: 130px; }
-        .col-small { width: 70px; min-width: 70px; }
+        /* AJUSTE DE LARGURAS DE COLUNAS - FORÇADO */
+        .col-codigo { width: 60px !important; min-width: 60px !important; max-width: 60px !important; overflow: hidden; text-overflow: ellipsis; }
+        .col-fixed-width { width: 130px !important; min-width: 130px !important; }
+        .col-small { width: 70px !important; min-width: 70px !important; }
         .desc-cell { white-space: normal !important; line-height: 1.2; word-break: break-word; padding: 12px 16px !important; text-align: left !important; }
         
         td, th { text-align: left !important; }
@@ -209,7 +209,8 @@
             columnIndices: {},
             sheetsData: {},
             auxiliares: { linhas: [], subgrupos: [], cores: [] },
-            isDataLoaded: false
+            isDataLoaded: false,
+            isProcessing: false
         };
 
         const UNIDADES_INVALIDAS = ["UN", "CJ", "LT", "SC", "M2", "GL", "PCT", "PL", "CX", "M", "JG", "RL", "PLT", "BD", "KG", "QT"];
@@ -228,7 +229,23 @@
                     state.sheetsData = data.dataMap || {};
                     state.auxiliares = data.auxiliares || { linhas: [], subgrupos: [], cores: [] };
                     state.isDataLoaded = true;
-                    console.log("Dados do Sheets carregados e prontos.");
+                    console.log("Dados do Sheets carregados.");
+                    
+                    // Se já houver dados na tabela, atualiza eles com o que chegou do Sheets
+                    if (state.allData.length > 0) {
+                        state.allData = state.allData.map(item => {
+                            const saved = state.sheetsData[item._codigo] || {};
+                            item['Linha'] = saved.linha || item['Linha'] || '';
+                            item['Subgrupo'] = saved.subgrupo || item['Subgrupo'] || '';
+                            item['Cor'] = saved.cor || item['Cor'] || '';
+                            item['Alvo'] = saved.alvo || item['Alvo'] || 0;
+                            item['Comprar'] = Math.max(0, (parseFloat(item['Alvo']) || 0) - item['Estoque Futuro']);
+                            const custo = parseFloat(item[state.originalHeaders[state.columnIndices.custo]]) || 0;
+                            item['Custo Total'] = item['Comprar'] * custo;
+                            return item;
+                        });
+                        aplicarFiltros();
+                    }
                 }
             } catch (err) { console.error("Erro ao carregar dados:", err); }
         }
@@ -252,9 +269,7 @@
 
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
-                // Atualiza o cache local imediatamente
                 state.sheetsData[codigo] = { linha: payload.linha, subgrupo: payload.subgrupo, cor: payload.cor, alvo: payload.alvo };
-                
                 statusEl.innerText = "Sincronizado";
                 statusEl.className = "sync-indicator sync-success inline-block";
                 setTimeout(() => statusEl.style.display = 'none', 2000);
@@ -288,11 +303,11 @@
         function setupEventListeners() {
             document.getElementById('file-input').addEventListener('change', handleFileUpload);
             document.getElementById('reset-btn').addEventListener('click', () => {
-                // Limpa apenas a visualização, mantém o cache de dados do Sheets
                 state.allData = [];
                 document.getElementById('upload-area').classList.remove('hidden');
                 document.getElementById('main-content').classList.add('hidden');
                 document.getElementById('file-input').value = '';
+                state.isProcessing = false;
             });
         }
 
@@ -302,11 +317,7 @@
             const file = e.target.files[0];
             if (!file) return;
             
-            if (!state.isDataLoaded) {
-                Swal.fire('Aguarde', 'Ainda estamos carregando os dados do Google Sheets. Tente novamente em instantes.', 'info');
-                return;
-            }
-
+            state.isProcessing = true;
             const reader = new FileReader();
             reader.onload = (evt) => {
                 const data = new Uint8Array(evt.target.result);
@@ -319,7 +330,10 @@
 
         function processarDados(data) {
             let headerRowIndex = data.findIndex(row => Array.isArray(row) && row.some(cell => normalizeText(cell).includes('descri')));
-            if (headerRowIndex === -1) return Swal.fire('Erro', 'Cabeçalho não encontrado.', 'error');
+            if (headerRowIndex === -1) {
+                state.isProcessing = false;
+                return Swal.fire('Erro', 'Cabeçalho não encontrado.', 'error');
+            }
 
             const preHeaderRows = data.slice(0, headerRowIndex);
             document.getElementById('preHeaderInfo').innerHTML = preHeaderRows.map(row => Array.isArray(row) ? row.filter(c => String(c || '').trim()).join(' | ') : '').filter(s => s).join('<br>');
@@ -358,7 +372,6 @@
                 const item = {};
                 state.originalHeaders.forEach((h, i) => item[h] = row[i]);
                 
-                // LIMPEZA DE CÓDIGO E RECUPERAÇÃO DE DADOS DO CACHE
                 const codigoRaw = String(row[state.columnIndices.codigo] || "").trim();
                 const codigo = codigoRaw.replace(/^0+/, ''); 
                 const saved = state.sheetsData[codigo] || {};
@@ -384,6 +397,7 @@
             document.getElementById('main-content').classList.remove('hidden');
             renderizarHeader();
             aplicarFiltros();
+            state.isProcessing = false;
         }
 
         function popularChecklist(id, itens, filterKey) {
@@ -527,7 +541,7 @@
             }));
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Sugestão");
-            XLSX.writeFile(wb, `Sugestao_Completa_${new Date().toLocaleDateString()}.xlsx`);
+            XLSX.writeFile(wb, `Gerenciamento_Alvos_${new Date().toLocaleDateString()}.xlsx`);
         }
 
         function exportarPDF() {
