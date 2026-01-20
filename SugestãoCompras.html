@@ -71,7 +71,7 @@
         }
         thead .col-codigo { z-index: 49 !important; background-color: #f9fafb !important; }
 
-        /* Outras colunas - Sem sticky para não criar gaps */
+        /* Outras colunas */
         .col-fixed-width { width: 130px !important; min-width: 130px !important; }
         .col-small { width: 70px !important; min-width: 70px !important; }
         .desc-cell { white-space: normal !important; line-height: 1.2; word-break: break-word; }
@@ -376,7 +376,7 @@
                 und: normHeaders.indexOf('und')
             };
 
-            // REESTRUTURAÇÃO DA ORDEM DAS COLUNAS PARA ELIMINAR GAPS
+            // REESTRUTURAÇÃO DA ORDEM DAS COLUNAS
             state.displayHeaders = [];
             const descHeader = state.originalHeaders[state.columnIndices.descri];
             const codHeader = state.originalHeaders[state.columnIndices.codigo];
@@ -404,8 +404,13 @@
                 const item = {};
                 state.originalHeaders.forEach((h, i) => item[h] = row[i]);
                 
+                // LIMPEZA DE ZEROS À ESQUERDA NO CÓDIGO
                 const codigoRaw = String(row[state.columnIndices.codigo] || "").trim();
                 const codigo = codigoRaw.replace(/^0+/, ''); 
+                
+                // ATUALIZA O CÓDIGO NO ITEM PARA EXIBIÇÃO LIMPA
+                item[codHeader] = codigo;
+                
                 const saved = state.sheetsData[codigo] || {};
                 
                 item['Estoque Futuro'] = (parseFloat(row[state.columnIndices.estoque]) || 0) + (parseFloat(row[state.columnIndices.pedido]) || 0) - (parseFloat(row[state.columnIndices.inverter]) || 0);
