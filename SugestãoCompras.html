@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sugestão de Compras - Vilarejo</title>
+    <title>Gerenciamento de Alvos - Vilarejo</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -69,7 +69,7 @@
         .modal-content { background-color: white; margin: 5% auto; padding: 30px; border-radius: 24px; width: 90%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
 
         /* AJUSTE DE LARGURAS DE COLUNAS */
-        .col-codigo { width: 70px; min-width: 70px; }
+        .col-codigo { width: 60px !important; min-width: 60px !important; max-width: 60px !important; }
         .col-fixed-width { width: 130px; min-width: 130px; }
         .col-small { width: 70px; min-width: 70px; }
         .desc-cell { white-space: normal !important; line-height: 1.2; word-break: break-word; padding: 12px 16px !important; text-align: left !important; }
@@ -93,7 +93,7 @@
                 
                 <header class="flex justify-between items-center mb-8 border-b pb-6">
                     <div>
-                        <h1 class="text-2xl font-black uppercase tracking-widest text-gray-800 italic">Sugestão de Compras</h1>
+                        <h1 class="text-2xl font-black uppercase tracking-widest text-gray-800 italic">Gerenciamento de Alvos</h1>
                         <div id="preHeaderInfo" class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Carregue o arquivo de Giro de Estoque para iniciar</div>
                     </div>
                     <div class="flex items-center gap-3">
@@ -208,7 +208,8 @@
             filters: { linha: [], subgrupo: [] },
             columnIndices: {},
             sheetsData: {},
-            auxiliares: { linhas: [], subgrupos: [], cores: [] }
+            auxiliares: { linhas: [], subgrupos: [], cores: [] },
+            isDataLoaded: false
         };
 
         const UNIDADES_INVALIDAS = ["UN", "CJ", "LT", "SC", "M2", "GL", "PCT", "PL", "CX", "M", "JG", "RL", "PLT", "BD", "KG", "QT"];
@@ -226,7 +227,8 @@
                 if (!data.error) {
                     state.sheetsData = data.dataMap || {};
                     state.auxiliares = data.auxiliares || { linhas: [], subgrupos: [], cores: [] };
-                    console.log("Dados do Sheets carregados:", Object.keys(state.sheetsData).length);
+                    state.isDataLoaded = true;
+                    console.log("Dados do Sheets carregados e prontos.");
                 }
             } catch (err) { console.error("Erro ao carregar dados:", err); }
         }
@@ -250,6 +252,9 @@
 
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
+                // Atualiza o cache local imediatamente
+                state.sheetsData[codigo] = { linha: payload.linha, subgrupo: payload.subgrupo, cor: payload.cor, alvo: payload.alvo };
+                
                 statusEl.innerText = "Sincronizado";
                 statusEl.className = "sync-indicator sync-success inline-block";
                 setTimeout(() => statusEl.style.display = 'none', 2000);
@@ -283,7 +288,11 @@
         function setupEventListeners() {
             document.getElementById('file-input').addEventListener('change', handleFileUpload);
             document.getElementById('reset-btn').addEventListener('click', () => {
-                Swal.fire({ title: 'Limpar tudo?', icon: 'warning', showCancelButton: true }).then(r => { if(r.isConfirmed) location.reload(); });
+                // Limpa apenas a visualização, mantém o cache de dados do Sheets
+                state.allData = [];
+                document.getElementById('upload-area').classList.remove('hidden');
+                document.getElementById('main-content').classList.add('hidden');
+                document.getElementById('file-input').value = '';
             });
         }
 
@@ -292,6 +301,12 @@
         function handleFileUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
+            
+            if (!state.isDataLoaded) {
+                Swal.fire('Aguarde', 'Ainda estamos carregando os dados do Google Sheets. Tente novamente em instantes.', 'info');
+                return;
+            }
+
             const reader = new FileReader();
             reader.onload = (evt) => {
                 const data = new Uint8Array(evt.target.result);
@@ -343,7 +358,7 @@
                 const item = {};
                 state.originalHeaders.forEach((h, i) => item[h] = row[i]);
                 
-                // LIMPEZA DE CÓDIGO E RECUPERAÇÃO DE DADOS
+                // LIMPEZA DE CÓDIGO E RECUPERAÇÃO DE DADOS DO CACHE
                 const codigoRaw = String(row[state.columnIndices.codigo] || "").trim();
                 const codigo = codigoRaw.replace(/^0+/, ''); 
                 const saved = state.sheetsData[codigo] || {};
@@ -538,7 +553,7 @@
             ]);
 
             doc.setFontSize(14);
-            doc.text("Sugestão de Compras Simplificada - Vilarejo", 14, 15);
+            doc.text("Gerenciamento de Alvos - Vilarejo", 14, 15);
             doc.setFontSize(10);
             doc.text(`Data: ${new Date().toLocaleDateString()}`, 14, 22);
 
@@ -551,7 +566,7 @@
                 headStyles: { fillColor: [227, 6, 19], textColor: 255 }
             });
 
-            doc.save(`Sugestao_Simplificada_${new Date().toLocaleDateString()}.pdf`);
+            doc.save(`Gerenciamento_Alvos_${new Date().toLocaleDateString()}.pdf`);
         }
 
         function abrirModalCadastro() { document.getElementById('modalCadastro').style.display = 'block'; }
