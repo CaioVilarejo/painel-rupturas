@@ -109,6 +109,9 @@
             background-color: #fff5f5;
             transform: scale(1.02);
         }
+
+        .btn-clear-filter { width: 100%; text-align: center; padding: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; color: #E30613; border-bottom: 1px solid #f3f4f6; margin-bottom: 8px; cursor: pointer; transition: background 0.2s; }
+        .btn-clear-filter:hover { background-color: #fff5f5; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-900">
@@ -434,7 +437,7 @@
                 inverter: normHeaders.indexOf('inverter'),
                 custo: normHeaders.findIndex(h => h.includes('custo')),
                 hbt: normHeaders.indexOf('hbt'),
-                referencia: normHeaders.indexOf('referência'),
+                referencia: normHeaders.findIndex(h => normalizeText(h) === 'referencia' || normalizeText(h) === 'referência'),
                 und: normHeaders.indexOf('und')
             };
 
@@ -454,7 +457,13 @@
             state.displayHeaders.push('Estoque Futuro', 'Alvo', 'Comprar', 'Custo Total');
 
             const rows = data.slice(headerRowIndex + 1);
-            state.allData = rows.filter(row => row[state.columnIndices.descri]).map(row => {
+            state.allData = rows.filter(row => {
+                const desc = String(row[state.columnIndices.descri] || '').trim();
+                if (!desc) return false;
+                if (desc.includes('www.exatasistemas.com')) return false;
+                if (UNIDADES_INVALIDAS.includes(desc.toUpperCase())) return false;
+                return true;
+            }).map(row => {
                 const obj = { _codigo: String(row[state.columnIndices.codigo] || '') };
                 state.originalHeaders.forEach((h, i) => obj[h] = row[i]);
                 
@@ -490,17 +499,32 @@
 
             const render = (id, items, type) => {
                 const container = document.getElementById(id);
-                container.innerHTML = items.map(item => `
+                let html = `<div class="btn-clear-filter" onclick="limparFiltro('${type}')">Limpar Filtro</div>`;
+                html += items.map(item => `
                     <label class="filter-option">
                         <input type="checkbox" value="${item}" ${state.filters[type].includes(item) ? 'checked' : ''} onchange="toggleFiltro('${type}', '${item}')">
                         ${item}
                     </label>
                 `).join('');
+                container.innerHTML = html;
             };
 
             render('checklistLinha', linhas, 'linha');
             render('checklistSubgrupo', subgrupos, 'subgrupo');
             render('checklistCor', cores, 'cor');
+        }
+
+        function limparFiltro(type) {
+            state.filters[type] = [];
+            const labelMap = { linha: 'Linha', subgrupo: 'Subgrupo', cor: 'Cor' };
+            const defaultLabel = { linha: 'Todas', subgrupo: 'Todos', cor: 'Todas' };
+            document.getElementById(`label${labelMap[type]}`).innerText = defaultLabel[type];
+            
+            // Desmarcar checkboxes visualmente
+            const container = document.getElementById(`checklist${labelMap[type]}`);
+            container.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            
+            aplicarFiltros();
         }
 
         function toggleFiltro(type, value) {
@@ -660,7 +684,7 @@
                 d['Subgrupo'],
                 d['Cor'],
                 d[state.originalHeaders[state.columnIndices.hbt]],
-                d[state.originalHeaders[state.columnIndices.referencia]],
+                d[state.originalHeaders[state.columnIndices.referencia]] || '',
                 d[state.originalHeaders[state.columnIndices.und]],
                 (parseFloat(d[state.originalHeaders[state.columnIndices.custo]]) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
                 d['Comprar'],
