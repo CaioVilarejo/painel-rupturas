@@ -86,7 +86,9 @@
         .btn-primary { background-color: #E30613; color: white; font-weight: 800; text-transform: uppercase; font-size: 10px; padding: 10px 20px; border-radius: 12px; transition: all 0.2s; }
         .btn-primary:hover { background-color: #c40510; transform: translateY(-1px); }
         
-        .alvo-input { width: 60px; padding: 4px 6px; font-size: 11px; font-weight: 800; border: 1px solid #e2e8f0; border-radius: 6px; background-color: #fffbeb; text-align: right; outline: none; }
+        /* REMOVER SETAS DO INPUT DE NÚMERO */
+        .alvo-input { width: 60px; padding: 4px 6px; font-size: 11px; font-weight: 800; border: 1px solid #e2e8f0; border-radius: 6px; background-color: #fffbeb; text-align: right; outline: none; -moz-appearance: textfield; }
+        .alvo-input::-webkit-outer-spin-button, .alvo-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         
         .select-custom { width: 120px; padding: 4px; font-size: 10px; font-weight: 700; border: 1px solid #e2e8f0; border-radius: 6px; outline: none; background-color: #f9fafb; cursor: pointer; }
         .select-custom:focus { border-color: #E30613; }
@@ -100,6 +102,13 @@
         .modal-content { background-color: white; margin: 5% auto; padding: 30px; border-radius: 24px; width: 90%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
         
         td, th { text-align: left !important; border-bottom: 1px solid #f3f4f6; }
+
+        /* Estilo para área de drag over */
+        #upload-area.dragover {
+            border-color: #E30613;
+            background-color: #fff5f5;
+            transform: scale(1.02);
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-900">
@@ -134,7 +143,7 @@
                     </div>
                 </header>
 
-                <div id="upload-area" class="bg-white border-4 border-dashed border-gray-200 rounded-3xl p-16 text-center mb-8 transition-all hover:border-primary/30">
+                <div id="upload-area" class="bg-white border-4 border-dashed border-gray-200 rounded-3xl p-16 text-center mb-8 transition-all hover:border-primary/30 cursor-pointer">
                     <span class="material-symbols-outlined text-6xl text-gray-300 mb-4">inventory_2</span>
                     <h2 class="text-xl font-black text-gray-700 uppercase">Arraste sua planilha aqui</h2>
                     <p class="text-gray-400 text-sm font-medium mt-2">Suporta arquivos .csv, .xls e .xlsx</p>
@@ -161,19 +170,26 @@
                             <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Buscar Produto</label>
                             <input type="text" id="globalSearch" onkeyup="aplicarFiltros()" placeholder="Nome ou código..." class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold outline-none focus:border-primary">
                         </div>
-                        <div class="filter-dropdown w-48">
+                        <div class="filter-dropdown w-40">
                             <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Linha</label>
                             <div class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white flex justify-between items-center cursor-pointer">
                                 <span id="labelLinha">Todas</span><span class="material-symbols-outlined text-sm">expand_more</span>
                             </div>
                             <div class="filter-content" id="checklistLinha"></div>
                         </div>
-                        <div class="filter-dropdown w-48">
+                        <div class="filter-dropdown w-40">
                             <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Subgrupo</label>
                             <div class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white flex justify-between items-center cursor-pointer">
                                 <span id="labelSubgrupo">Todos</span><span class="material-symbols-outlined text-sm">expand_more</span>
                             </div>
                             <div class="filter-content" id="checklistSubgrupo"></div>
+                        </div>
+                        <div class="filter-dropdown w-40">
+                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Cor</label>
+                            <div class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white flex justify-between items-center cursor-pointer">
+                                <span id="labelCor">Todas</span><span class="material-symbols-outlined text-sm">expand_more</span>
+                            </div>
+                            <div class="filter-content" id="checklistCor"></div>
                         </div>
                         <div class="flex gap-2">
                             <button onclick="exportarExcel()" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-lg">
@@ -230,7 +246,7 @@
             allData: [],
             originalHeaders: [],
             displayHeaders: [],
-            filters: { linha: [], subgrupo: [] },
+            filters: { linha: [], subgrupo: [], cor: [] },
             columnIndices: {},
             sheetsData: {},
             auxiliares: { linhas: [], subgrupos: [], cores: [] },
@@ -267,6 +283,7 @@
                             item['Custo Total'] = item['Comprar'] * custo;
                             return item;
                         });
+                        renderizarChecklists();
                         aplicarFiltros();
                     }
                 }
@@ -324,13 +341,58 @@
         }
 
         function setupEventListeners() {
-            document.getElementById('file-input').addEventListener('change', handleFileUpload);
-            document.getElementById('reset-btn').addEventListener('click', () => {
+            const fileInput = document.getElementById('file-input');
+            const uploadArea = document.getElementById('upload-area');
+            const resetBtn = document.getElementById('reset-btn');
+
+            fileInput.addEventListener('change', handleFileUpload);
+
+            // Drag and Drop Events
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, () => uploadArea.classList.add('dragover'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('dragover'), false);
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    handleFileUpload({ target: { files: files } });
+                }
+            }, false);
+
+            uploadArea.addEventListener('click', () => fileInput.click());
+
+            resetBtn.addEventListener('click', () => {
                 state.allData = [];
+                state.filters = { linha: [], subgrupo: [], cor: [] };
                 document.getElementById('upload-area').classList.remove('hidden');
                 document.getElementById('main-content').classList.add('hidden');
-                document.getElementById('file-input').value = '';
+                fileInput.value = '';
                 state.isProcessing = false;
+                
+                // Limpar informações extras
+                document.getElementById('preHeaderInfo').innerText = "Carregue o arquivo de Giro de Estoque para iniciar";
+                document.getElementById('cardTotalItens').innerText = "0";
+                document.getElementById('cardValorEstoque').innerText = "R$ 0,00";
+                document.getElementById('cardTotalPedido').innerText = "R$ 0,00";
+                document.getElementById('globalSearch').value = '';
+                document.getElementById('tableBody').innerHTML = '';
+                document.getElementById('headerRow').innerHTML = '';
+                document.getElementById('labelLinha').innerText = 'Todas';
+                document.getElementById('labelSubgrupo').innerText = 'Todos';
+                document.getElementById('labelCor').innerText = 'Todas';
             });
         }
 
@@ -376,7 +438,6 @@
                 und: normHeaders.indexOf('und')
             };
 
-            // REESTRUTURAÇÃO DA ORDEM DAS COLUNAS
             state.displayHeaders = [];
             const descHeader = state.originalHeaders[state.columnIndices.descri];
             const codHeader = state.originalHeaders[state.columnIndices.codigo];
@@ -388,117 +449,111 @@
             state.originalHeaders.forEach(h => {
                 if (h !== descHeader && h !== codHeader && !state.displayHeaders.includes(h)) {
                     state.displayHeaders.push(h);
-                    if (h === 'Inverter') state.displayHeaders.push('Estoque Futuro', 'Alvo');
-                    if (normalizeText(h).includes('custo')) state.displayHeaders.push('Comprar', 'Custo Total');
                 }
             });
+            state.displayHeaders.push('Estoque Futuro', 'Alvo', 'Comprar', 'Custo Total');
 
-            state.allData = data.slice(headerRowIndex + 1).filter(row => {
-                if (!Array.isArray(row) || !row[0]) return false;
-                const descri = String(row[state.columnIndices.descri] || "").trim().toUpperCase();
-                if (descri.includes("WWW.EXATASISTEMAS.COM")) return false;
-                if (UNIDADES_INVALIDAS.includes(descri)) return false;
-                if (descri.includes("TOTAL")) return false;
-                return true;
-            }).map(row => {
-                const item = {};
-                state.originalHeaders.forEach((h, i) => item[h] = row[i]);
+            const rows = data.slice(headerRowIndex + 1);
+            state.allData = rows.filter(row => row[state.columnIndices.descri]).map(row => {
+                const obj = { _codigo: String(row[state.columnIndices.codigo] || '') };
+                state.originalHeaders.forEach((h, i) => obj[h] = row[i]);
                 
-                // LIMPEZA DE ZEROS À ESQUERDA NO CÓDIGO
-                const codigoRaw = String(row[state.columnIndices.codigo] || "").trim();
-                const codigo = codigoRaw.replace(/^0+/, ''); 
+                const saved = state.sheetsData[obj._codigo] || {};
+                obj['Linha'] = saved.linha || '';
+                obj['Subgrupo'] = saved.subgrupo || '';
+                obj['Cor'] = saved.cor || '';
+                obj['Alvo'] = saved.alvo || 0;
                 
-                // ATUALIZA O CÓDIGO NO ITEM PARA EXIBIÇÃO LIMPA
-                item[codHeader] = codigo;
+                const estoque = parseFloat(obj[state.originalHeaders[state.columnIndices.estoque]]) || 0;
+                const pedido = parseFloat(obj[state.originalHeaders[state.columnIndices.pedido]]) || 0;
+                const inverter = parseFloat(obj[state.originalHeaders[state.columnIndices.inverter]]) || 0;
+                obj['Estoque Futuro'] = (estoque + pedido) - inverter;
                 
-                const saved = state.sheetsData[codigo] || {};
+                obj['Comprar'] = Math.max(0, (parseFloat(obj['Alvo']) || 0) - obj['Estoque Futuro']);
+                const custo = parseFloat(obj[state.originalHeaders[state.columnIndices.custo]]) || 0;
+                obj['Custo Total'] = obj['Comprar'] * custo;
                 
-                item['Estoque Futuro'] = (parseFloat(row[state.columnIndices.estoque]) || 0) + (parseFloat(row[state.columnIndices.pedido]) || 0) - (parseFloat(row[state.columnIndices.inverter]) || 0);
-                item['Linha'] = saved.linha || '';
-                item['Subgrupo'] = saved.subgrupo || '';
-                item['Cor'] = saved.cor || '';
-                item['Alvo'] = saved.alvo || 0;
-                item['Comprar'] = Math.max(0, (parseFloat(item['Alvo']) || 0) - item['Estoque Futuro']);
-                
-                const custo = parseFloat(row[state.columnIndices.custo]) || 0;
-                item['Custo Total'] = item['Comprar'] * custo;
-                
-                item._codigo = codigo;
-                return item;
+                return obj;
             });
-
-            popularChecklist('checklistLinha', [...new Set(state.allData.map(d => d['Linha'] || 'Sem Linha'))].sort(), 'linha');
-            popularChecklist('checklistSubgrupo', [...new Set(state.allData.map(d => d['Subgrupo'] || 'Sem Subgrupo'))].sort(), 'subgrupo');
 
             document.getElementById('upload-area').classList.add('hidden');
             document.getElementById('main-content').classList.remove('hidden');
-            renderizarHeader();
-            aplicarFiltros();
-            state.isProcessing = false;
-        }
-
-        function popularChecklist(id, itens, filterKey) {
-            const container = document.getElementById(id);
-            container.innerHTML = '';
-            itens.forEach(item => {
-                const label = document.createElement('label');
-                label.className = 'filter-option';
-                label.innerHTML = `<input type="checkbox" value="${item}" checked onchange="atualizarFiltro('${filterKey}')"> ${item}`;
-                container.appendChild(label);
-            });
-        }
-
-        function atualizarFiltro(key) {
-            const checks = document.querySelectorAll(`#checklist${key.charAt(0).toUpperCase() + key.slice(1)} input:checked`);
-            state.filters[key] = Array.from(checks).map(c => c.value);
-            const total = document.querySelectorAll(`#checklist${key.charAt(0).toUpperCase() + key.slice(1)} input`).length;
-            document.getElementById(`label${key.charAt(0).toUpperCase() + key.slice(1)}`).innerText = state.filters[key].length === total ? "Todas" : `${state.filters[key].length} selecionados`;
+            
+            renderizarChecklists();
             aplicarFiltros();
         }
 
-        function renderizarHeader() {
-            const header = document.getElementById('headerRow');
-            header.innerHTML = '';
-            state.displayHeaders.forEach((h, i) => {
-                const th = document.createElement('th');
-                const isDescri = (h === state.originalHeaders[state.columnIndices.descri]);
-                const isCodigo = (h === state.originalHeaders[state.columnIndices.codigo]);
-                const normH = normalizeText(h);
-                
-                let widthClass = "p-4 whitespace-nowrap ";
-                if (isDescri) widthClass += "col-desc ";
-                else if (isCodigo) widthClass += "col-codigo ";
-                else if (['Linha', 'Subgrupo', 'Cor'].includes(h)) widthClass += "col-fixed-width ";
-                else if (normH === 'hbt' || normH === 'estoque' || normH === 'pedido' || normH === 'inverter' || normH === 'estoque futuro' || normH === 'alvo') widthClass += "col-small ";
+        function renderizarChecklists() {
+            const linhas = [...new Set(state.allData.map(d => d['Linha']).filter(v => v))].sort();
+            const subgrupos = [...new Set(state.allData.map(d => d['Subgrupo']).filter(v => v))].sort();
+            const cores = [...new Set(state.allData.map(d => d['Cor']).filter(v => v))].sort();
 
-                th.className = widthClass;
-                th.innerText = h;
-                header.appendChild(th);
-            });
+            const render = (id, items, type) => {
+                const container = document.getElementById(id);
+                container.innerHTML = items.map(item => `
+                    <label class="filter-option">
+                        <input type="checkbox" value="${item}" ${state.filters[type].includes(item) ? 'checked' : ''} onchange="toggleFiltro('${type}', '${item}')">
+                        ${item}
+                    </label>
+                `).join('');
+            };
+
+            render('checklistLinha', linhas, 'linha');
+            render('checklistSubgrupo', subgrupos, 'subgrupo');
+            render('checklistCor', cores, 'cor');
+        }
+
+        function toggleFiltro(type, value) {
+            const idx = state.filters[type].indexOf(value);
+            if (idx > -1) state.filters[type].splice(idx, 1);
+            else state.filters[type].push(value);
+            
+            const labelMap = { linha: 'Linha', subgrupo: 'Subgrupo', cor: 'Cor' };
+            const defaultLabel = { linha: 'Todas', subgrupo: 'Todos', cor: 'Todas' };
+            
+            document.getElementById(`label${labelMap[type]}`).innerText = 
+                state.filters[type].length === 0 ? defaultLabel[type] : `${state.filters[type].length} selecionados`;
+            
+            aplicarFiltros();
         }
 
         function aplicarFiltros() {
-            const busca = document.getElementById('globalSearch').value.toLowerCase();
-            const filtrados = state.allData.filter(item => {
-                const matchBusca = Object.values(item).some(v => String(v).toLowerCase().includes(busca));
-                const matchLinha = state.filters.linha.length === 0 || state.filters.linha.includes(item['Linha'] || 'Sem Linha');
-                const matchSubgrupo = state.filters.subgrupo.length === 0 || state.filters.subgrupo.includes(item['Subgrupo'] || 'Sem Subgrupo');
-                return matchBusca && matchLinha && matchSubgrupo;
+            const search = normalizeText(document.getElementById('globalSearch').value);
+            const filtrados = state.allData.filter(d => {
+                const matchSearch = !search || normalizeText(d[state.originalHeaders[state.columnIndices.descri]]).includes(search) || normalizeText(d._codigo).includes(search);
+                const matchLinha = state.filters.linha.length === 0 || state.filters.linha.includes(d['Linha']);
+                const matchSubgrupo = state.filters.subgrupo.length === 0 || state.filters.subgrupo.includes(d['Subgrupo']);
+                const matchCor = state.filters.cor.length === 0 || state.filters.cor.includes(d['Cor']);
+                return matchSearch && matchLinha && matchSubgrupo && matchCor;
             });
             renderizarTabela(filtrados);
             atualizarCards(filtrados);
         }
 
         function renderizarTabela(dados) {
+            const headerRow = document.getElementById('headerRow');
             const tbody = document.getElementById('tableBody');
+            headerRow.innerHTML = '';
             tbody.innerHTML = '';
+
             const descriHeader = state.originalHeaders[state.columnIndices.descri];
             const codHeader = state.originalHeaders[state.columnIndices.codigo];
 
+            state.displayHeaders.forEach(h => {
+                const th = document.createElement('th');
+                th.innerText = h;
+                if (h === descriHeader) th.className = "col-desc";
+                else if (h === codHeader) th.className = "col-codigo";
+                else if (['Linha', 'Subgrupo', 'Cor'].includes(h)) th.className = "col-fixed-width";
+                else th.className = "col-small";
+                headerRow.appendChild(th);
+            });
+
             dados.forEach(row => {
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-gray-50 border-b border-gray-100';
-                state.displayHeaders.forEach((h, i) => {
+                tr.className = "hover:bg-gray-50 transition-colors";
+                
+                state.displayHeaders.forEach(h => {
                     const td = document.createElement('td');
                     const isDescri = (h === descriHeader);
                     const isCodigo = (h === codHeader);
@@ -553,6 +608,12 @@
                     const custo = parseFloat(item[state.originalHeaders[state.columnIndices.custo]]) || 0;
                     item['Custo Total'] = item['Comprar'] * custo;
                 }
+                
+                // Atualizar checklists dinamicamente se for uma nova atribuição
+                if (['Linha', 'Subgrupo', 'Cor'].includes(campo)) {
+                    renderizarChecklists();
+                }
+                
                 salvarNoSheets(codigo);
                 aplicarFiltros();
             }
@@ -607,9 +668,9 @@
             ]);
 
             doc.setFontSize(14);
-            doc.text("Gerenciamento de Alvos - Vilarejo", 14, 15);
+            doc.text("Vilarejo - Solução em Casa", 14, 15);
             doc.setFontSize(10);
-            doc.text(`Data: ${new Date().toLocaleDateString()}`, 14, 22);
+            doc.text("Data de Emissão: 21/01/2026", 14, 22);
 
             doc.autoTable({
                 head: [colunas],
@@ -620,7 +681,7 @@
                 headStyles: { fillColor: [227, 6, 19], textColor: 255 }
             });
 
-            doc.save(`Gerenciamento_Alvos_${new Date().toLocaleDateString()}.pdf`);
+            doc.save(`Gerenciamento_Alvos_Vilarejo_21_01_2026.pdf`);
         }
 
         function abrirModalCadastro() { document.getElementById('modalCadastro').style.display = 'block'; }
