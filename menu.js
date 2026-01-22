@@ -57,7 +57,7 @@ function carregarMenu() {
         { nome: 'Histórico', icone: 'timeline', link: 'historico.html' },
         { nome: 'Fornecedores', icone: 'analytics', link: 'Fornecedores.html' }, // Novo item
         { nome: 'Pendências CD', icone: 'confirmation_number', link: 'pendencias.html' },
-        { nome: 'Sugestão Compras', icone: 'confirmation_number', link: 'SugestãoCompras.html' },
+        { nome: 'Gerenciamento Alvos', icone: 'confirmation_number', link: 'GerenciamentoAlvos.html' },
         { nome: 'Contas', icone: 'payments', link: 'contas.html' },
         { nome: 'Atendimento', icone: 'support_agent', link: 'atendimento.html' },
         { nome: 'Representação', icone: 'description', link: 'representacao.html' },
