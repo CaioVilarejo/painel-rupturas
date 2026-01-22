@@ -72,9 +72,7 @@
         thead .col-codigo { z-index: 49 !important; background-color: #f9fafb !important; }
 
         /* AJUSTE DE HOVER UNIFORME */
-        /* Quando passar o mouse na linha (tr), todas as células (td) mudam para o mesmo tom */
         tr:hover td { background-color: #e5e7eb !important; }
-        /* Garante que as colunas fixas também sigam a cor do hover da linha */
         tr:hover .col-desc, tr:hover .col-codigo { background-color: #e5e7eb !important; }
 
         /* Outras colunas */
@@ -96,8 +94,10 @@
         .alvo-input { width: 60px; padding: 4px 6px; font-size: 11px; font-weight: 800; border: 1px solid #e2e8f0; border-radius: 6px; background-color: #fffbeb; text-align: right; outline: none; -moz-appearance: textfield; }
         .alvo-input::-webkit-outer-spin-button, .alvo-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         
-        .select-custom { width: 120px; padding: 4px; font-size: 10px; font-weight: 700; border: 1px solid #e2e8f0; border-radius: 6px; outline: none; background-color: #f9fafb; cursor: pointer; }
-        .select-custom:focus { border-color: #E30613; }
+        /* ESTILO PARA INPUT COM BUSCA (DATALIST) */
+        .searchable-input { width: 120px; padding: 4px 8px; font-size: 10px; font-weight: 700; border: 1px solid #e2e8f0; border-radius: 6px; outline: none; background-color: #f9fafb; cursor: pointer; transition: all 0.2s; }
+        .searchable-input:focus { border-color: #E30613; background-color: white; box-shadow: 0 0 0 2px rgba(227, 6, 19, 0.1); }
+        .searchable-input.invalid { border-color: #ef4444; background-color: #fef2f2; }
 
         .sync-indicator { font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 4px 8px; border-radius: 6px; display: none; }
         .sync-saving { background: #fef3c7; color: #92400e; }
@@ -230,6 +230,12 @@
         </main>
     </div>
 
+    <!-- DATALISTS PARA BUSCA DINÂMICA -->
+    <datalist id="listLinhas"></datalist>
+    <datalist id="listSubgrupos"></datalist>
+    <datalist id="listCores"></datalist>
+    <datalist id="listCanais"></datalist>
+
     <!-- MODAL DE CADASTRO AUXILIAR -->
     <div id="modalCadastro" class="modal">
         <div class="modal-content">
@@ -288,6 +294,8 @@
                     state.auxiliares = data.auxiliares || { linhas: [], subgrupos: [], cores: [], canais: [] };
                     state.isDataLoaded = true;
                     
+                    atualizarDatalists();
+
                     if (state.allData.length > 0) {
                         state.allData = state.allData.map(item => {
                             const saved = state.sheetsData[item._codigo] || {};
@@ -306,6 +314,17 @@
                     }
                 }
             } catch (err) { console.error("Erro ao carregar dados:", err); }
+        }
+
+        function atualizarDatalists() {
+            const fill = (id, items) => {
+                const dl = document.getElementById(id);
+                if (dl) dl.innerHTML = items.map(it => `<option value="${it}">`).join('');
+            };
+            fill('listLinhas', state.auxiliares.linhas);
+            fill('listSubgrupos', state.auxiliares.subgrupos);
+            fill('listCores', state.auxiliares.cores);
+            fill('listCanais', state.auxiliares.canais);
         }
 
         async function salvarNoSheets(codigo) {
@@ -366,7 +385,6 @@
 
             fileInput.addEventListener('change', handleFileUpload);
 
-            // Drag and Drop Events
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                 uploadArea.addEventListener(eventName, (e) => {
                     e.preventDefault();
@@ -401,7 +419,6 @@
                 fileInput.value = '';
                 state.isProcessing = false;
                 
-                // Limpar informações extras
                 document.getElementById('preHeaderInfo').innerText = "Carregue o arquivo de Giro de Estoque para iniciar";
                 document.getElementById('cardTotalItens').innerText = "0";
                 document.getElementById('cardValorEstoque').innerText = "R$ 0,00";
@@ -481,7 +498,6 @@
                 if (UNIDADES_INVALIDAS.includes(desc.toUpperCase())) return false;
                 return true;
             }).map(row => {
-                // Remover zero à esquerda do código
                 let rawCodigo = String(row[state.columnIndices.codigo] || '').trim();
                 let cleanCodigo = rawCodigo.replace(/^0+/, '');
                 if (cleanCodigo === '') cleanCodigo = '0';
@@ -620,20 +636,16 @@
                     td.className = widthClass;
                     
                     if (['Linha', 'Subgrupo', 'Cor', 'Canal'].includes(h)) {
-                        const optionsMap = {
-                            'Linha': state.auxiliares.linhas,
-                            'Subgrupo': state.auxiliares.subgrupos,
-                            'Cor': state.auxiliares.cores,
-                            'Canal': state.auxiliares.canais
-                        };
-                        const options = optionsMap[h] || [];
-                        let selectHtml = `<select onchange="atualizarLocal('${row._codigo}', '${h}', this.value)" class="select-custom">`;
-                        selectHtml += `<option value="">Selecione...</option>`;
-                        options.forEach(opt => {
-                            selectHtml += `<option value="${opt}" ${row[h] === opt ? 'selected' : ''}>${opt}</option>`;
-                        });
-                        selectHtml += `</select>`;
-                        td.innerHTML = selectHtml;
+                        const listIdMap = { 'Linha': 'listLinhas', 'Subgrupo': 'listSubgrupos', 'Cor': 'listCores', 'Canal': 'listCanais' };
+                        const listId = listIdMap[h];
+                        td.innerHTML = `
+                            <input type="text" 
+                                   list="${listId}" 
+                                   value="${row[h] || ''}" 
+                                   onchange="validarEAtualizarLocal('${row._codigo}', '${h}', this)" 
+                                   placeholder="Buscar..."
+                                   class="searchable-input">
+                        `;
                     } else if (h === 'Alvo') {
                         td.innerHTML = `<input type="number" value="${row[h] || 0}" onchange="atualizarLocal('${row._codigo}', 'Alvo', this.value)" class="alvo-input">`;
                     } else if (h === 'Comprar') {
@@ -657,6 +669,50 @@
                 });
                 tbody.appendChild(tr);
             });
+        }
+
+        function validarEAtualizarLocal(codigo, campo, input) {
+            const valor = input.value.trim();
+            const auxiliaresMap = {
+                'Linha': state.auxiliares.linhas,
+                'Subgrupo': state.auxiliares.subgrupos,
+                'Cor': state.auxiliares.cores,
+                'Canal': state.auxiliares.canais
+            };
+            
+            const listaValida = auxiliaresMap[campo];
+            
+            // Se o valor estiver vazio, permite limpar
+            if (valor === "") {
+                input.classList.remove('invalid');
+                atualizarLocal(codigo, campo, "");
+                return;
+            }
+
+            // Verifica se o valor digitado existe na lista (case-insensitive)
+            const itemEncontrado = listaValida.find(it => it.toLowerCase() === valor.toLowerCase());
+
+            if (itemEncontrado) {
+                input.value = itemEncontrado; // Ajusta para o case correto da lista
+                input.classList.remove('invalid');
+                atualizarLocal(codigo, campo, itemEncontrado);
+            } else {
+                // Valor inválido: avisa o usuário e restaura o valor anterior
+                input.classList.add('invalid');
+                const itemOriginal = state.allData.find(d => d._codigo === codigo);
+                const valorOriginal = itemOriginal ? itemOriginal[campo] : "";
+                
+                Swal.fire({
+                    title: 'Valor Inválido',
+                    text: `O valor "${valor}" não está cadastrado. Por favor, selecione um item da lista ou cadastre-o no menu "Cadastros".`,
+                    icon: 'warning',
+                    confirmButtonText: 'Entendido',
+                    confirmButtonColor: '#E30613'
+                }).then(() => {
+                    input.value = valorOriginal;
+                    input.classList.remove('invalid');
+                });
+            }
         }
 
         function atualizarLocal(codigo, campo, valor) {
@@ -711,7 +767,6 @@
             const filtrados = state.allData.filter(d => d['Comprar'] > 0);
             if (filtrados.length === 0) return Swal.fire('Aviso', 'Nenhum item com sugestão de compra.', 'info');
 
-            // INCLUSÃO DA COLUNA CANAL NO PDF
             const colunas = ["Descrição", "Código", "Linha", "Subgrupo", "Cor", "Canal", "HBT", "Referência", "Und", "Custo", "Comprar", "Custo Total"];
             const rows = filtrados.map(d => [
                 d[state.originalHeaders[state.columnIndices.descri]],
