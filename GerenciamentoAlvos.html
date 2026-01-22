@@ -71,6 +71,12 @@
         }
         thead .col-codigo { z-index: 49 !important; background-color: #f9fafb !important; }
 
+        /* AJUSTE DE HOVER UNIFORME */
+        /* Quando passar o mouse na linha (tr), todas as células (td) mudam para o mesmo tom */
+        tr:hover td { background-color: #e5e7eb !important; }
+        /* Garante que as colunas fixas também sigam a cor do hover da linha */
+        tr:hover .col-desc, tr:hover .col-codigo { background-color: #e5e7eb !important; }
+
         /* Outras colunas */
         .col-fixed-width { width: 130px !important; min-width: 130px !important; }
         .col-small { width: 70px !important; min-width: 70px !important; }
@@ -194,6 +200,13 @@
                             </div>
                             <div class="filter-content" id="checklistCor"></div>
                         </div>
+                        <div class="filter-dropdown w-40">
+                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Canal</label>
+                            <div class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white flex justify-between items-center cursor-pointer">
+                                <span id="labelCanal">Todos</span><span class="material-symbols-outlined text-sm">expand_more</span>
+                            </div>
+                            <div class="filter-content" id="checklistCanal"></div>
+                        </div>
                         <div class="flex gap-2">
                             <button onclick="exportarExcel()" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-lg">
                                 <span class="material-symbols-outlined text-sm">table_view</span> Excel Completo
@@ -231,6 +244,7 @@
                         <option value="linha">Linha</option>
                         <option value="subgrupo">Subgrupo</option>
                         <option value="cor">Cor</option>
+                        <option value="canal">Canal</option>
                     </select>
                 </div>
                 <div>
@@ -249,10 +263,10 @@
             allData: [],
             originalHeaders: [],
             displayHeaders: [],
-            filters: { linha: [], subgrupo: [], cor: [] },
+            filters: { linha: [], subgrupo: [], cor: [], canal: [] },
             columnIndices: {},
             sheetsData: {},
-            auxiliares: { linhas: [], subgrupos: [], cores: [] },
+            auxiliares: { linhas: [], subgrupos: [], cores: [], canais: [] },
             isDataLoaded: false,
             isProcessing: false
         };
@@ -271,7 +285,7 @@
                 const data = await response.json();
                 if (!data.error) {
                     state.sheetsData = data.dataMap || {};
-                    state.auxiliares = data.auxiliares || { linhas: [], subgrupos: [], cores: [] };
+                    state.auxiliares = data.auxiliares || { linhas: [], subgrupos: [], cores: [], canais: [] };
                     state.isDataLoaded = true;
                     
                     if (state.allData.length > 0) {
@@ -280,6 +294,7 @@
                             item['Linha'] = saved.linha || item['Linha'] || '';
                             item['Subgrupo'] = saved.subgrupo || item['Subgrupo'] || '';
                             item['Cor'] = saved.cor || item['Cor'] || '';
+                            item['Canal'] = saved.canal || item['Canal'] || '';
                             item['Alvo'] = saved.alvo || item['Alvo'] || 0;
                             item['Comprar'] = Math.max(0, (parseFloat(item['Alvo']) || 0) - item['Estoque Futuro']);
                             const custo = parseFloat(item[state.originalHeaders[state.columnIndices.custo]]) || 0;
@@ -307,12 +322,13 @@
                 linha: item['Linha'] || "",
                 subgrupo: item['Subgrupo'] || "",
                 cor: item['Cor'] || "",
+                canal: item['Canal'] || "",
                 alvo: item['Alvo'] || 0
             };
 
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
-                state.sheetsData[codigo] = { linha: payload.linha, subgrupo: payload.subgrupo, cor: payload.cor, alvo: payload.alvo };
+                state.sheetsData[codigo] = { linha: payload.linha, subgrupo: payload.subgrupo, cor: payload.cor, canal: payload.canal, alvo: payload.alvo };
                 statusEl.innerText = "Sincronizado";
                 statusEl.className = "sync-indicator sync-success inline-block";
                 setTimeout(() => statusEl.style.display = 'none', 2000);
@@ -379,7 +395,7 @@
 
             resetBtn.addEventListener('click', () => {
                 state.allData = [];
-                state.filters = { linha: [], subgrupo: [], cor: [] };
+                state.filters = { linha: [], subgrupo: [], cor: [], canal: [] };
                 document.getElementById('upload-area').classList.remove('hidden');
                 document.getElementById('main-content').classList.add('hidden');
                 fileInput.value = '';
@@ -396,6 +412,7 @@
                 document.getElementById('labelLinha').innerText = 'Todas';
                 document.getElementById('labelSubgrupo').innerText = 'Todos';
                 document.getElementById('labelCor').innerText = 'Todas';
+                document.getElementById('labelCanal').innerText = 'Todos';
             });
         }
 
@@ -437,7 +454,7 @@
                 inverter: normHeaders.indexOf('inverter'),
                 custo: normHeaders.findIndex(h => h.includes('custo')),
                 hbt: normHeaders.indexOf('hbt'),
-                referencia: normHeaders.findIndex(h => normalizeText(h) === 'referencia' || normalizeText(h) === 'referência'),
+                referencia: normHeaders.indexOf('referencia'),
                 und: normHeaders.indexOf('und')
             };
 
@@ -447,7 +464,7 @@
             
             state.displayHeaders.push(descHeader);
             state.displayHeaders.push(codHeader);
-            state.displayHeaders.push('Linha', 'Subgrupo', 'Cor');
+            state.displayHeaders.push('Linha', 'Subgrupo', 'Cor', 'Canal');
             
             state.originalHeaders.forEach(h => {
                 if (h !== descHeader && h !== codHeader && !state.displayHeaders.includes(h)) {
@@ -464,13 +481,19 @@
                 if (UNIDADES_INVALIDAS.includes(desc.toUpperCase())) return false;
                 return true;
             }).map(row => {
-                const obj = { _codigo: String(row[state.columnIndices.codigo] || '') };
+                // Remover zero à esquerda do código
+                let rawCodigo = String(row[state.columnIndices.codigo] || '').trim();
+                let cleanCodigo = rawCodigo.replace(/^0+/, '');
+                if (cleanCodigo === '') cleanCodigo = '0';
+
+                const obj = { _codigo: cleanCodigo };
                 state.originalHeaders.forEach((h, i) => obj[h] = row[i]);
                 
                 const saved = state.sheetsData[obj._codigo] || {};
                 obj['Linha'] = saved.linha || '';
                 obj['Subgrupo'] = saved.subgrupo || '';
                 obj['Cor'] = saved.cor || '';
+                obj['Canal'] = saved.canal || '';
                 obj['Alvo'] = saved.alvo || 0;
                 
                 const estoque = parseFloat(obj[state.originalHeaders[state.columnIndices.estoque]]) || 0;
@@ -496,9 +519,11 @@
             const linhas = [...new Set(state.allData.map(d => d['Linha']).filter(v => v))].sort();
             const subgrupos = [...new Set(state.allData.map(d => d['Subgrupo']).filter(v => v))].sort();
             const cores = [...new Set(state.allData.map(d => d['Cor']).filter(v => v))].sort();
+            const canais = [...new Set(state.allData.map(d => d['Canal']).filter(v => v))].sort();
 
             const render = (id, items, type) => {
                 const container = document.getElementById(id);
+                if (!container) return;
                 let html = `<div class="btn-clear-filter" onclick="limparFiltro('${type}')">Limpar Filtro</div>`;
                 html += items.map(item => `
                     <label class="filter-option">
@@ -512,17 +537,19 @@
             render('checklistLinha', linhas, 'linha');
             render('checklistSubgrupo', subgrupos, 'subgrupo');
             render('checklistCor', cores, 'cor');
+            render('checklistCanal', canais, 'canal');
         }
 
         function limparFiltro(type) {
             state.filters[type] = [];
-            const labelMap = { linha: 'Linha', subgrupo: 'Subgrupo', cor: 'Cor' };
-            const defaultLabel = { linha: 'Todas', subgrupo: 'Todos', cor: 'Todas' };
+            const labelMap = { linha: 'Linha', subgrupo: 'Subgrupo', cor: 'Cor', canal: 'Canal' };
+            const defaultLabel = { linha: 'Todas', subgrupo: 'Todos', cor: 'Todas', canal: 'Todos' };
             document.getElementById(`label${labelMap[type]}`).innerText = defaultLabel[type];
             
-            // Desmarcar checkboxes visualmente
             const container = document.getElementById(`checklist${labelMap[type]}`);
-            container.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            if (container) {
+                container.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            }
             
             aplicarFiltros();
         }
@@ -532,8 +559,8 @@
             if (idx > -1) state.filters[type].splice(idx, 1);
             else state.filters[type].push(value);
             
-            const labelMap = { linha: 'Linha', subgrupo: 'Subgrupo', cor: 'Cor' };
-            const defaultLabel = { linha: 'Todas', subgrupo: 'Todos', cor: 'Todas' };
+            const labelMap = { linha: 'Linha', subgrupo: 'Subgrupo', cor: 'Cor', canal: 'Canal' };
+            const defaultLabel = { linha: 'Todas', subgrupo: 'Todos', cor: 'Todas', canal: 'Todos' };
             
             document.getElementById(`label${labelMap[type]}`).innerText = 
                 state.filters[type].length === 0 ? defaultLabel[type] : `${state.filters[type].length} selecionados`;
@@ -548,7 +575,8 @@
                 const matchLinha = state.filters.linha.length === 0 || state.filters.linha.includes(d['Linha']);
                 const matchSubgrupo = state.filters.subgrupo.length === 0 || state.filters.subgrupo.includes(d['Subgrupo']);
                 const matchCor = state.filters.cor.length === 0 || state.filters.cor.includes(d['Cor']);
-                return matchSearch && matchLinha && matchSubgrupo && matchCor;
+                const matchCanal = state.filters.canal.length === 0 || state.filters.canal.includes(d['Canal']);
+                return matchSearch && matchLinha && matchSubgrupo && matchCor && matchCanal;
             });
             renderizarTabela(filtrados);
             atualizarCards(filtrados);
@@ -568,14 +596,14 @@
                 th.innerText = h;
                 if (h === descriHeader) th.className = "col-desc";
                 else if (h === codHeader) th.className = "col-codigo";
-                else if (['Linha', 'Subgrupo', 'Cor'].includes(h)) th.className = "col-fixed-width";
+                else if (['Linha', 'Subgrupo', 'Cor', 'Canal'].includes(h)) th.className = "col-fixed-width";
                 else th.className = "col-small";
                 headerRow.appendChild(th);
             });
 
             dados.forEach(row => {
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-gray-50 transition-colors";
+                tr.className = "transition-colors";
                 
                 state.displayHeaders.forEach(h => {
                     const td = document.createElement('td');
@@ -586,13 +614,19 @@
                     let widthClass = "p-4 ";
                     if (isDescri) widthClass += "col-desc font-bold text-gray-800 desc-cell ";
                     else if (isCodigo) widthClass += "col-codigo ";
-                    else if (['Linha', 'Subgrupo', 'Cor'].includes(h)) widthClass += "col-fixed-width ";
+                    else if (['Linha', 'Subgrupo', 'Cor', 'Canal'].includes(h)) widthClass += "col-fixed-width ";
                     else if (normH === 'hbt' || normH === 'estoque' || normH === 'pedido' || normH === 'inverter' || normH === 'estoque futuro' || normH === 'alvo') widthClass += "col-small ";
                     
                     td.className = widthClass;
                     
-                    if (['Linha', 'Subgrupo', 'Cor'].includes(h)) {
-                        const options = h === 'Linha' ? state.auxiliares.linhas : (h === 'Subgrupo' ? state.auxiliares.subgrupos : state.auxiliares.cores);
+                    if (['Linha', 'Subgrupo', 'Cor', 'Canal'].includes(h)) {
+                        const optionsMap = {
+                            'Linha': state.auxiliares.linhas,
+                            'Subgrupo': state.auxiliares.subgrupos,
+                            'Cor': state.auxiliares.cores,
+                            'Canal': state.auxiliares.canais
+                        };
+                        const options = optionsMap[h] || [];
                         let selectHtml = `<select onchange="atualizarLocal('${row._codigo}', '${h}', this.value)" class="select-custom">`;
                         selectHtml += `<option value="">Selecione...</option>`;
                         options.forEach(opt => {
@@ -611,6 +645,8 @@
                     } else if (h === 'Estoque Futuro') {
                         td.innerText = row[h];
                         td.classList.add('font-bold');
+                    } else if (isCodigo) {
+                        td.innerText = row._codigo;
                     } else {
                         let val = row[h] || '';
                         if (typeof val === 'number' && (h.includes('R$') || h.includes('Custo'))) {
@@ -633,8 +669,7 @@
                     item['Custo Total'] = item['Comprar'] * custo;
                 }
                 
-                // Atualizar checklists dinamicamente se for uma nova atribuição
-                if (['Linha', 'Subgrupo', 'Cor'].includes(campo)) {
+                if (['Linha', 'Subgrupo', 'Cor', 'Canal'].includes(campo)) {
                     renderizarChecklists();
                 }
                 
@@ -676,13 +711,15 @@
             const filtrados = state.allData.filter(d => d['Comprar'] > 0);
             if (filtrados.length === 0) return Swal.fire('Aviso', 'Nenhum item com sugestão de compra.', 'info');
 
-            const colunas = ["Descrição", "Código", "Linha", "Subgrupo", "Cor", "HBT", "Referência", "Und", "Custo", "Comprar", "Custo Total"];
+            // INCLUSÃO DA COLUNA CANAL NO PDF
+            const colunas = ["Descrição", "Código", "Linha", "Subgrupo", "Cor", "Canal", "HBT", "Referência", "Und", "Custo", "Comprar", "Custo Total"];
             const rows = filtrados.map(d => [
                 d[state.originalHeaders[state.columnIndices.descri]],
                 d._codigo,
                 d['Linha'],
                 d['Subgrupo'],
                 d['Cor'],
+                d['Canal'],
                 d[state.originalHeaders[state.columnIndices.hbt]],
                 d[state.originalHeaders[state.columnIndices.referencia]] || '',
                 d[state.originalHeaders[state.columnIndices.und]],
@@ -694,7 +731,7 @@
             doc.setFontSize(14);
             doc.text("Vilarejo - Solução em Casa", 14, 15);
             doc.setFontSize(10);
-            doc.text("Data de Emissão: 21/01/2026", 14, 22);
+            doc.text(`Data de Emissão: ${new Date().toLocaleDateString('pt-BR')}`, 14, 22);
 
             doc.autoTable({
                 head: [colunas],
@@ -705,7 +742,7 @@
                 headStyles: { fillColor: [227, 6, 19], textColor: 255 }
             });
 
-            doc.save(`Gerenciamento_Alvos_Vilarejo_21_01_2026.pdf`);
+            doc.save(`Gerenciamento_Alvos_Vilarejo_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '_')}.pdf`);
         }
 
         function abrirModalCadastro() { document.getElementById('modalCadastro').style.display = 'block'; }
