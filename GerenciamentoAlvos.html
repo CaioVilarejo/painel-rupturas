@@ -92,15 +92,22 @@
         .btn-action.edit:hover { color: #2563eb; }
         .btn-action.delete:hover { color: #E30613; }
 
-        /* AJUSTES PARA O MENU LATERAL FIXO */
-        #sidebar { position: fixed; left: 0; top: 0; height: 100%; width: 256px; background: white; z-index: 150; border-right: 1px solid #e5e7eb; overflow-y: auto; }
+        /* AJUSTES PARA O MENU LATERAL FIXO (ESTILO DASHBOARD) */
+        #sidebar { position: fixed; left: 0; top: 0; height: 100%; width: 256px; background: white; z-index: 150; border-right: 1px solid #e5e7eb; transition: transform 0.3s ease; }
         #main-scroll-container { margin-left: 256px; width: calc(100% - 256px); }
+        
+        /* Ocultar sidebar em telas pequenas (opcional, seguindo menu.js) */
+        @media (max-width: 768px) {
+            #sidebar { transform: translateX(-100%); }
+            #sidebar.open { transform: translateX(0); }
+            #main-scroll-container { margin-left: 0; width: 100%; }
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-900">
 
-    <!-- CONTAINER DA SIDEBAR FIXA -->
-    <aside id="sidebar">
+    <!-- ESTRUTURA DE SIDEBAR DO DASHBOARD -->
+    <aside id="sidebar" class="bg-white shadow-xl transition-all duration-300">
         <div id="sidebar-container"></div>
     </aside>
 
@@ -274,25 +281,8 @@
         </div>
     </div>
 
-    <!-- SCRIPT DO MENU LATERAL (CARREGAMENTO GARANTIDO) -->
-    <script>
-        // Função para carregar o menu.js garantindo que o DOM esteja pronto
-        function carregarMenu() {
-            const script = document.createElement('script');
-            script.src = "https://vilarejo-cd.github.io/pendencias/menu.js";
-            script.onload = () => {
-                console.log("Menu carregado com sucesso.");
-                // Se o menu.js precisar de uma inicialização manual, ela pode ser feita aqui
-            };
-            document.body.appendChild(script);
-        }
-        
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', carregarMenu);
-        } else {
-            carregarMenu();
-        }
-    </script>
+    <!-- SCRIPT DO MENU LATERAL (NO FINAL DO BODY COMO NO DASHBOARD) -->
+    <script src="https://vilarejo-cd.github.io/pendencias/menu.js"></script>
 
     <script>
         // ATENÇÃO: Substitua pela sua URL do Web App
