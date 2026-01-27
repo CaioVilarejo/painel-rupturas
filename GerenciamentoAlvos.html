@@ -21,7 +21,7 @@
     </script>
 
     <style type="text/css">
-        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; scroll-behavior: smooth; overflow: hidden; }
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; scroll-behavior: smooth; overflow: hidden; margin: 0; padding: 0; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
         /* BARRA DE SCROLL GERAL DO SITE */
@@ -92,23 +92,39 @@
         .btn-action.edit:hover { color: #2563eb; }
         .btn-action.delete:hover { color: #E30613; }
 
-        /* AJUSTES PARA O MENU LATERAL FIXO (ESTILO DASHBOARD) */
-        #sidebar { position: fixed; left: 0; top: 0; height: 100%; width: 256px; background: white; z-index: 150; border-right: 1px solid #e5e7eb; transition: transform 0.3s ease; }
-        #main-scroll-container { margin-left: 256px; width: calc(100% - 256px); }
+        /* FORÇAR EXIBIÇÃO DA SIDEBAR */
+        #sidebar { 
+            position: fixed !important; 
+            left: 0 !important; 
+            top: 0 !important; 
+            height: 100vh !important; 
+            width: 256px !important; 
+            background: white !important; 
+            z-index: 999 !important; 
+            border-right: 1px solid #e5e7eb !important; 
+            display: block !important; 
+            visibility: visible !important; 
+            opacity: 1 !important;
+            transform: none !important;
+        }
+        #main-scroll-container { 
+            margin-left: 256px !important; 
+            width: calc(100% - 256px) !important; 
+            height: 100vh !important;
+            overflow-y: auto !important;
+        }
         
-        /* Ocultar sidebar em telas pequenas (opcional, seguindo menu.js) */
         @media (max-width: 768px) {
-            #sidebar { transform: translateX(-100%); }
-            #sidebar.open { transform: translateX(0); }
-            #main-scroll-container { margin-left: 0; width: 100%; }
+            #sidebar { width: 256px !important; }
+            #main-scroll-container { margin-left: 256px !important; width: calc(100% - 256px) !important; }
         }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-900">
 
-    <!-- ESTRUTURA DE SIDEBAR DO DASHBOARD -->
-    <aside id="sidebar" class="bg-white shadow-xl transition-all duration-300">
-        <div id="sidebar-container"></div>
+    <!-- SIDEBAR FORÇADA -->
+    <aside id="sidebar">
+        <div id="sidebar-container" style="width: 100%; height: 100%;"></div>
     </aside>
 
     <div class="custom-scroll-container">
@@ -118,7 +134,7 @@
     </div>
 
     <div class="flex h-screen overflow-hidden">
-        <main class="flex-1 overflow-y-auto p-4 md:p-8 no-scrollbar" id="main-scroll-container">
+        <main class="flex-1 p-4 md:p-8 no-scrollbar" id="main-scroll-container">
             <div class="max-w-full mx-auto">
                 
                 <header class="flex justify-between items-center mb-8 border-b pb-6">
@@ -281,10 +297,23 @@
         </div>
     </div>
 
-    <!-- SCRIPT DO MENU LATERAL (NO FINAL DO BODY COMO NO DASHBOARD) -->
+    <!-- SCRIPT DO MENU LATERAL -->
     <script src="https://vilarejo-cd.github.io/pendencias/menu.js"></script>
 
     <script>
+        // SCRIPT DE VERIFICAÇÃO DO MENU
+        window.onload = function() {
+            setTimeout(function() {
+                const container = document.getElementById('sidebar-container');
+                if (container && container.innerHTML.trim() === "") {
+                    console.warn("Menu não carregou, tentando reinjetar script...");
+                    const script = document.createElement('script');
+                    script.src = "https://vilarejo-cd.github.io/pendencias/menu.js?v=" + Date.now();
+                    document.body.appendChild(script);
+                }
+            }, 2000);
+        };
+
         // ATENÇÃO: Substitua pela sua URL do Web App
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbznCForFxpY6CAU6W3UgglusC8oqyfDz0dqM-l_95xtr9CK9TcFvbw_V7LJQk8jTZH-/exec"; 
 
