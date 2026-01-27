@@ -91,9 +91,18 @@
         .btn-action { color: #9ca3af; cursor: pointer; transition: color 0.2s; }
         .btn-action.edit:hover { color: #2563eb; }
         .btn-action.delete:hover { color: #E30613; }
+
+        /* AJUSTES PARA O MENU LATERAL FIXO */
+        #sidebar { position: fixed; left: 0; top: 0; height: 100%; width: 256px; background: white; shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); z-index: 150; border-right: 1px solid #e5e7eb; }
+        #main-scroll-container { margin-left: 256px; width: calc(100% - 256px); }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-900">
+
+    <!-- CONTAINER DA SIDEBAR FIXA -->
+    <aside id="sidebar">
+        <div id="sidebar-container"></div>
+    </aside>
 
     <div class="custom-scroll-container">
         <span class="material-symbols-outlined scroll-arrow" onclick="rolarParaTopo()">expand_less</span>
@@ -102,9 +111,6 @@
     </div>
 
     <div class="flex h-screen overflow-hidden">
-        <!-- CONTAINER DO MENU LATERAL (RESTAURADO) -->
-        <div id="sidebar-container"></div>
-
         <main class="flex-1 overflow-y-auto p-4 md:p-8 no-scrollbar" id="main-scroll-container">
             <div class="max-w-full mx-auto">
                 
