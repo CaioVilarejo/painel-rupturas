@@ -93,7 +93,7 @@
         .btn-action.delete:hover { color: #E30613; }
 
         /* AJUSTES PARA O MENU LATERAL FIXO */
-        #sidebar { position: fixed; left: 0; top: 0; height: 100%; width: 256px; background: white; shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); z-index: 150; border-right: 1px solid #e5e7eb; }
+        #sidebar { position: fixed; left: 0; top: 0; height: 100%; width: 256px; background: white; z-index: 150; border-right: 1px solid #e5e7eb; overflow-y: auto; }
         #main-scroll-container { margin-left: 256px; width: calc(100% - 256px); }
     </style>
 </head>
@@ -274,8 +274,25 @@
         </div>
     </div>
 
-    <!-- SCRIPT DO MENU LATERAL (RESTAURADO) -->
-    <script src="https://vilarejo-cd.github.io/pendencias/menu.js"></script>
+    <!-- SCRIPT DO MENU LATERAL (CARREGAMENTO GARANTIDO) -->
+    <script>
+        // Função para carregar o menu.js garantindo que o DOM esteja pronto
+        function carregarMenu() {
+            const script = document.createElement('script');
+            script.src = "https://vilarejo-cd.github.io/pendencias/menu.js";
+            script.onload = () => {
+                console.log("Menu carregado com sucesso.");
+                // Se o menu.js precisar de uma inicialização manual, ela pode ser feita aqui
+            };
+            document.body.appendChild(script);
+        }
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', carregarMenu);
+        } else {
+            carregarMenu();
+        }
+    </script>
 
     <script>
         // ATENÇÃO: Substitua pela sua URL do Web App
