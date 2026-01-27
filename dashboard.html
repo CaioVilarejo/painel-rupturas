@@ -1,293 +1,996 @@
 <!DOCTYPE html>
-<html class="light" lang="pt-BR">
+<html lang="pt-BR">
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Rupturas - Vilarejo Monitor</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Alvos - Vilarejo</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
-    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
 
     <script>
         tailwind.config = {
-            darkMode: "class",
-            theme: { extend: { colors: { "primary": "#E30613", "sheets-green": "#1ea362", "background-dark": "#121212", "blue-custom": "#3B82F6", "gray-custom": "#6B7280" } } }
+            theme: { extend: { colors: { "primary": "#E30613" } } }
         }
     </script>
-    <style>
-        body { font-family: 'Roboto', sans-serif; }
-        .ping-animation {
-            animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
-        }
-        @keyframes ping {
-            75%, 100% { transform: scale(2); opacity: 0; }
+
+    <style type="text/css">
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; scroll-behavior: smooth; overflow: hidden; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        /* BARRA DE SCROLL GERAL DO SITE */
+        .custom-scroll-container { position: fixed; right: 10px; top: 20px; bottom: 20px; width: 30px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; z-index: 100; padding: 10px 0; }
+        .scroll-track { flex: 1; width: 6px; background: #f1f1f1; border-radius: 10px; position: relative; margin: 10px 0; }
+        .scroll-thumb { width: 100%; background: #a1a1a1; border-radius: 10px; position: absolute; top: 0; transition: height 0.1s ease-out; cursor: pointer; }
+        .scroll-arrow { color: #a1a1a1; font-size: 20px; cursor: pointer; transition: color 0.2s; user-select: none; }
+        .scroll-arrow:hover { color: #E30613; }
+
+        /* TABELA E CONTAINERS */
+        .table-container { max-height: 65vh; overflow-y: scroll !important; overflow-x: scroll !important; position: relative; border: 1px solid #e5e7eb; border-radius: 12px; background: white; }
+        .table-container::-webkit-scrollbar { display: block !important; width: 8px; height: 8px; }
+        .table-container::-webkit-scrollbar-track { background: #f1f1f1; }
+        .table-container::-webkit-scrollbar-thumb { background: #a1a1a1; border-radius: 10px; }
+        .table-container::-webkit-scrollbar-thumb:hover { background: #E30613; }
+
+        table { border-spacing: 0; border-collapse: separate; width: max-content; min-width: 100%; table-layout: fixed; }
+        .sticky-header th { position: sticky; top: 0; background-color: #f9fafb; z-index: 40; box-shadow: 0 1px 2px rgba(0,0,0,0.05); text-align: left !important; padding: 12px 16px; }
+        
+        .col-desc { position: sticky !important; left: 0 !important; z-index: 30 !important; background-color: white !important; width: 280px !important; min-width: 280px !important; max-width: 280px !important; border-right: 1px solid #e5e7eb !important; }
+        thead .col-desc { z-index: 50 !important; background-color: #f9fafb !important; }
+
+        .col-codigo { position: sticky !important; left: 280px !important; z-index: 29 !important; background-color: white !important; width: 80px !important; min-width: 80px !important; max-width: 80px !important; border-right: 1px solid #e5e7eb !important; text-align: center !important; padding: 12px 8px !important; }
+        thead .col-codigo { z-index: 49 !important; background-color: #f9fafb !important; }
+
+        tr:hover td { background-color: #e5e7eb !important; }
+        tr:hover .col-desc, tr:hover .col-codigo { background-color: #e5e7eb !important; }
+
+        .col-fixed-width { width: 130px !important; min-width: 130px !important; }
+        .col-small { width: 70px !important; min-width: 70px !important; }
+        .desc-cell { white-space: normal !important; line-height: 1.2; word-break: break-word; }
+
+        /* FILTROS */
+        .filter-dropdown { position: relative; display: inline-block; width: 100%; }
+        .filter-content { display: none; position: absolute; background-color: white; min-width: 200px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1); z-index: 100; border-radius: 12px; padding: 12px; border: 1px solid #e5e7eb; margin-top: 4px; max-height: 300px; overflow-y: auto; }
+        .filter-dropdown:hover .filter-content { display: block; }
+        .filter-option { display: flex; align-items: center; gap: 8px; padding: 6px 0; cursor: pointer; font-size: 11px; font-weight: 600; color: #4b5563; }
+        .filter-option input { cursor: pointer; accent-color: #E30613; }
+
+        .btn-primary { background-color: #E30613; color: white; font-weight: 800; text-transform: uppercase; font-size: 10px; padding: 10px 20px; border-radius: 12px; transition: all 0.2s; }
+        .btn-primary:hover { background-color: #c40510; transform: translateY(-1px); }
+        
+        .alvo-input { width: 60px; padding: 4px 6px; font-size: 11px; font-weight: 800; border: 1px solid #e2e8f0; border-radius: 6px; background-color: #fffbeb; text-align: right; outline: none; }
+        .searchable-input { width: 120px; padding: 4px 8px; font-size: 10px; font-weight: 700; border: 1px solid #e2e8f0; border-radius: 6px; outline: none; background-color: #f9fafb; cursor: pointer; transition: all 0.2s; }
+        .searchable-input:focus { border-color: #E30613; background-color: white; box-shadow: 0 0 0 2px rgba(227, 6, 19, 0.1); }
+        .searchable-input.invalid { border-color: #ef4444; background-color: #fef2f2; }
+
+        .sync-indicator { font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 4px 8px; border-radius: 6px; display: none; }
+        .sync-saving { background: #fef3c7; color: #92400e; }
+        .sync-success { background: #d1fae5; color: #065f46; }
+
+        /* MODAL */
+        .modal { display: none; position: fixed; z-index: 200; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
+        .modal-content { background-color: white; margin: 5% auto; padding: 30px; border-radius: 24px; width: 90%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        
+        td, th { text-align: left !important; border-bottom: 1px solid #f3f4f6; }
+
+        .btn-clear-filter { width: 100%; text-align: center; padding: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; color: #E30613; border-bottom: 1px solid #f3f4f6; margin-bottom: 8px; cursor: pointer; transition: background 0.2s; }
+        .btn-clear-filter:hover { background-color: #fff5f5; }
+
+        /* Estilos para a lista de itens no modal de exclusão/edição */
+        .item-list-container { max-height: 250px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 12px; margin-top: 10px; }
+        .item-list-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid #f3f4f6; }
+        .item-list-row:last-child { border-bottom: none; }
+        .item-list-name { font-size: 11px; font-weight: 600; color: #4b5563; flex: 1; }
+        .action-icons { display: flex; gap: 12px; }
+        .btn-action { color: #9ca3af; cursor: pointer; transition: color 0.2s; }
+        .btn-action.edit:hover { color: #2563eb; }
+        .btn-action.delete:hover { color: #E30613; }
+
+        /* AJUSTES PARA O MENU LATERAL FIXO (ESTILO DASHBOARD) */
+        #sidebar { position: fixed; left: 0; top: 0; height: 100%; width: 256px; background: white; z-index: 150; border-right: 1px solid #e5e7eb; transition: transform 0.3s ease; }
+        #main-scroll-container { margin-left: 256px; width: calc(100% - 256px); }
+        
+        /* Ocultar sidebar em telas pequenas (opcional, seguindo menu.js) */
+        @media (max-width: 768px) {
+            #sidebar { transform: translateX(-100%); }
+            #sidebar.open { transform: translateX(0); }
+            #main-scroll-container { margin-left: 0; width: 100%; }
         }
     </style>
 </head>
-<body class="bg-gray-100 antialiased">
-    <div class="flex h-screen overflow-hidden">
-        
+<body class="bg-gray-100 text-gray-900">
+
+    <!-- ESTRUTURA DE SIDEBAR DO DASHBOARD -->
+    <aside id="sidebar" class="bg-white shadow-xl transition-all duration-300">
         <div id="sidebar-container"></div>
+    </aside>
 
-        <main class="flex-1 overflow-y-auto p-6 lg:p-10">
-            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 border-b pb-6">
-                <div>
-                    <div class="flex items-center gap-3">
-                        <h1 class="text-3xl font-black text-gray-800 tracking-tight">Visão Geral de Rupturas</h1>
-                        <span id="baseUpdateDate" class="text-[10px] font-bold text-gray-500 bg-gray-200 px-2 py-1 rounded uppercase tracking-widest mt-2">Base: Carregando...</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-gray-500 text-sm mt-1">
-                        <span class="relative flex h-2 w-2">
-                            <span class="animate-ping absolute h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                            <span class="relative rounded-full h-2 w-2 bg-green-500"></span>
-                        </span>
-                        <span id="lastUpdate">Sincronizando com Google Sheets...</span>
-                    </div>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="carregarDados()" class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg font-bold text-sm text-gray-700 hover:bg-gray-50">
-                        <span class="material-symbols-outlined text-sm">refresh</span> Sincronizar
-                    </button>
-                </div>
-            </header>
+    <div class="custom-scroll-container">
+        <span class="material-symbols-outlined scroll-arrow" onclick="rolarParaTopo()">expand_less</span>
+        <div class="scroll-track"><div id="scrollThumb" class="scroll-thumb" style="height: 20%;"></div></div>
+        <span class="material-symbols-outlined scroll-arrow" onclick="rolarParaFim()">expand_more</span>
+    </div>
 
-            <div id="alertaRuptura" class="hidden mb-8 bg-primary/10 border-l-4 border-primary p-4 rounded-lg shadow-sm flex items-center justify-between animate-pulse">
-                <div class="flex items-center gap-4">
+    <div class="flex h-screen overflow-hidden">
+        <main class="flex-1 overflow-y-auto p-4 md:p-8 no-scrollbar" id="main-scroll-container">
+            <div class="max-w-full mx-auto">
+                
+                <header class="flex justify-between items-center mb-8 border-b pb-6">
                     <div>
-                        <p class="font-black text-xl text-primary uppercase">Alerta Crítico: Rupturas Futuras!</p>
-                        <p class="text-base text-gray-700" id="alertaTexto"></p> 
+                        <h1 class="text-2xl font-black uppercase tracking-widest text-gray-800 italic">Gerenciamento de Alvos</h1>
+                        <div id="preHeaderInfo" class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Carregue o arquivo de Giro de Estoque para iniciar</div>
                     </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                <div class="bg-white p-6 rounded-xl border shadow-lg flex flex-col justify-between" id="countH"></div>
-                <div class="bg-white p-6 rounded-xl border shadow-lg flex flex-col justify-between" id="countB"></div>
-                <div class="bg-white p-6 rounded-xl border shadow-lg flex flex-col justify-between" id="countTH"></div>
-            </div>
-
-            <div class="bg-white rounded-xl border shadow-sm p-6 mb-10">
-                <h3 class="font-bold text-lg mb-4 text-gray-800">Visão Geral de Rupturas por Classificação</h3>
-                <div class="relative h-64 w-full">
-                    <canvas id="rupturaChart"></canvas>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
-                <div class="p-6 border-b flex justify-between items-center flex-wrap gap-4">
-                    <h3 class="font-bold text-lg w-full md:w-auto text-gray-800">Detalhe dos Itens em Ruptura</h3>
-                    
-                    <div class="flex gap-4 w-full md:w-auto flex-wrap">
-                        <select id="groupFilter" onchange="aplicarFiltros()" class="border-gray-300 rounded-lg text-sm px-4 py-2">
-                            <option value="todos">Filtrar por Grupo (Todos)</option>
-                        </select>
-                        
-                        <select id="statusFilter" onchange="aplicarFiltros()" class="border-gray-300 rounded-lg text-sm px-4 py-2">
-                            <option value="todos">Status (Atual e Futuro)</option>
-                            <option value="atual">Somente Ruptura Atual</option>
-                            <option value="futuro">Somente Ruptura Futura (Críticos)</option>
-                        </select>
-
-                        <input type="text" id="searchInput" onkeyup="aplicarFiltros()" placeholder="Buscar produto ou código..." class="border-gray-300 rounded-lg text-sm w-full md:w-48 px-4 py-2">
+                    <div class="flex items-center gap-3">
+                        <div id="syncStatus" class="sync-indicator"></div>
+                        <button onclick="abrirModalCadastro()" class="bg-blue-600 text-white px-4 py-2 rounded-xl font-bold text-[10px] uppercase hover:bg-blue-700 transition-all flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm">add_circle</span> Cadastrar
+                        </button>
+                        <button onclick="abrirModalExclusao()" class="bg-red-600 text-white px-4 py-2 rounded-xl font-bold text-[10px] uppercase hover:bg-red-700 transition-all flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm">edit_square</span> Excluir/Editar
+                        </button>
+                        <button id="reset-btn" class="bg-gray-200 text-gray-600 px-4 py-2 rounded-xl font-bold text-[10px] uppercase hover:bg-gray-300 transition-all">Limpar</button>
+                        <button onclick="document.getElementById('file-input').click()" class="btn-primary flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm">upload_file</span> Carregar Planilha
+                        </button>
+                        <input type="file" id="file-input" class="hidden" accept=".csv, .xls, .xlsx">
                     </div>
+                </header>
+
+                <div id="upload-area" class="bg-white border-4 border-dashed border-gray-200 rounded-3xl p-16 text-center mb-8 transition-all hover:border-primary/30 cursor-pointer">
+                    <span class="material-symbols-outlined text-6xl text-gray-300 mb-4">inventory_2</span>
+                    <h2 class="text-xl font-black text-gray-700 uppercase">Arraste sua planilha aqui</h2>
+                    <p class="text-gray-400 text-sm font-medium mt-2">Suporta arquivos .csv, .xls e .xlsx</p>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm" id="tabelaDados">
-                        <thead class="bg-gray-50 border-b">
-                            <tr>
-                                <th class="px-6 py-4 font-bold text-gray-700">Descrição do Produto</th>
-                                <th class="px-6 py-4 font-bold text-gray-700">Código</th>
-                                <th class="px-6 py-4 font-bold text-gray-700">Classificação</th>
-                                <th class="px-6 py-4 font-bold text-gray-700">Grupo</th> 
-                                <th class="px-6 py-4 font-bold text-center text-gray-700">Estoque</th>
-                                <th class="px-6 py-4 font-bold text-center text-gray-700">Pedido</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100"></tbody>
-                    </table>
-                </div>
-                <div class="p-4 bg-gray-100 text-[10px] text-gray-400 font-bold uppercase tracking-widest" id="tableFooter">
-                    Carregando dados...
+
+                <div id="main-content" class="hidden space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-primary">
+                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Itens</p>
+                            <h3 id="cardTotalItens" class="text-3xl font-black">0</h3>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-blue-500">
+                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Valor em Estoque</p>
+                            <h3 id="cardValorEstoque" class="text-3xl font-black">R$ 0,00</h3>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-emerald-500">
+                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Sugestão Pedido</p>
+                            <h3 id="cardTotalPedido" class="text-3xl font-black text-emerald-600">R$ 0,00</h3>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-wrap gap-4 items-end">
+                        <div class="flex-1 min-w-[200px]">
+                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Buscar Produto</label>
+                            <input type="text" id="globalSearch" onkeyup="aplicarFiltros()" placeholder="Nome ou código..." class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold outline-none focus:border-primary">
+                        </div>
+                        <div class="filter-dropdown w-40">
+                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Linha</label>
+                            <div class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white flex justify-between items-center cursor-pointer">
+                                <span id="labelLinha">Todas</span><span class="material-symbols-outlined text-sm">expand_more</span>
+                            </div>
+                            <div class="filter-content" id="checklistLinha"></div>
+                        </div>
+                        <div class="filter-dropdown w-40">
+                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Subgrupo</label>
+                            <div class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white flex justify-between items-center cursor-pointer">
+                                <span id="labelSubgrupo">Todos</span><span class="material-symbols-outlined text-sm">expand_more</span>
+                            </div>
+                            <div class="filter-content" id="checklistSubgrupo"></div>
+                        </div>
+                        <div class="filter-dropdown w-40">
+                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Cor</label>
+                            <div class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white flex justify-between items-center cursor-pointer">
+                                <span id="labelCor">Todas</span><span class="material-symbols-outlined text-sm">expand_more</span>
+                            </div>
+                            <div class="filter-content" id="checklistCor"></div>
+                        </div>
+                        <div class="filter-dropdown w-40">
+                            <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Canal</label>
+                            <div class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold bg-white flex justify-between items-center cursor-pointer">
+                                <span id="labelCanal">Todos</span><span class="material-symbols-outlined text-sm">expand_more</span>
+                            </div>
+                            <div class="filter-content" id="checklistCanal"></div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="exportarExcel()" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-lg">
+                                <span class="material-symbols-outlined text-sm">table_view</span> Excel Completo
+                            </button>
+                            <button onclick="exportarPDF()" class="bg-red-600 text-white px-4 py-2.5 rounded-xl font-bold text-[10px] uppercase flex items-center gap-2 hover:bg-red-700 transition-all shadow-lg">
+                                <span class="material-symbols-outlined text-sm">picture_as_pdf</span> PDF Simplificado
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="table-container" id="tableContainer">
+                            <table class="text-left" id="tabelaAlvos">
+                                <thead class="sticky-header"><tr class="bg-gray-50 border-b text-[10px] font-black text-gray-400 uppercase" id="headerRow"></tr></thead>
+                                <tbody id="tableBody" class="divide-y divide-gray-100 text-xs font-medium"></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <script src="menu.js"></script>
+    <!-- DATALISTS PARA BUSCA DINÂMICA -->
+    <datalist id="listLinhas"></datalist>
+    <datalist id="listSubgrupos"></datalist>
+    <datalist id="listCores"></datalist>
+    <datalist id="listCanais"></datalist>
+
+    <!-- MODAL DE CADASTRO -->
+    <div id="modalCadastro" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-black uppercase italic">Novo Cadastro</h2>
+                <button onclick="fecharModalCadastro()" class="text-gray-400 hover:text-primary"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <div class="space-y-6">
+                <div>
+                    <label class="text-[10px] font-black text-gray-400 uppercase block mb-2">Tipo de Cadastro</label>
+                    <select id="tipoCadastro" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold outline-none focus:border-primary">
+                        <option value="linha">Linha</option>
+                        <option value="subgrupo">Subgrupo</option>
+                        <option value="cor">Cor</option>
+                        <option value="canal">Canal</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-black text-gray-400 uppercase block mb-2">Novo Valor</label>
+                    <input type="text" id="valorCadastro" placeholder="Digite o nome..." class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold outline-none focus:border-primary">
+                </div>
+                <button onclick="salvarCadastroAuxiliar()" class="btn-primary w-full py-3">Salvar no Google Sheets</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE EXCLUSÃO/EDIÇÃO -->
+    <div id="modalExclusao" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-black uppercase italic">Excluir/Editar Cadastros</h2>
+                <button onclick="fecharModalExclusao()" class="text-gray-400 hover:text-primary"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-black text-gray-400 uppercase block mb-2">Tipo</label>
+                    <select id="tipoExclusao" onchange="renderizarListaExclusao()" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold outline-none focus:border-primary">
+                        <option value="linha">Linha</option>
+                        <option value="subgrupo">Subgrupo</option>
+                        <option value="cor">Cor</option>
+                        <option value="canal">Canal</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-black text-gray-400 uppercase block mb-2">Buscar Item</label>
+                    <input type="text" id="searchExclusao" onkeyup="renderizarListaExclusao()" placeholder="Digite para filtrar..." class="w-full border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold outline-none focus:border-primary">
+                </div>
+                
+                <div id="listaExclusao" class="item-list-container no-scrollbar">
+                    <!-- Itens serão carregados aqui -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT DO MENU LATERAL (NO FINAL DO BODY COMO NO DASHBOARD) -->
+    <script src="https://vilarejo-cd.github.io/pendencias/menu.js"></script>
 
     <script>
-        // Configurações das abas do Google Sheets
-        const BASE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?';
-        const CSV_URL = `${BASE_SHEET_URL}gid=0&single=true&output=csv`;
-        const AUX_URL = `${BASE_SHEET_URL}gid=2012060533&single=true&output=csv`;
+        // ATENÇÃO: Substitua pela sua URL do Web App
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbznCForFxpY6CAU6W3UgglusC8oqyfDz0dqM-l_95xtr9CK9TcFvbw_V7LJQk8jTZH-/exec"; 
 
-        let rupturaChart;
-        let todosItensRompidos = []; 
-        const itemColors = { 'H': '#E30613', 'B': '#3B82F6', 'TH': '#6B7280' };
+        let state = {
+            allData: [],
+            originalHeaders: [],
+            displayHeaders: [],
+            filters: { linha: [], subgrupo: [], cor: [], canal: [] },
+            columnIndices: {},
+            sheetsData: {},
+            auxiliares: { linhas: [], subgrupos: [], cores: [], canais: [] },
+            isDataLoaded: false,
+            isProcessing: false
+        };
 
-        function isRompido(status) {
-            return status && status.trim().toUpperCase() === 'ROMPIDO';
-        }
+        const UNIDADES_INVALIDAS = ["UN", "CJ", "LT", "SC", "M2", "GL", "PCT", "PL", "CX", "M", "JG", "RL", "PLT", "BD", "KG", "QT"];
 
-        async function carregarDados() {
-            document.getElementById('lastUpdate').innerText = "Sincronizando...";
+        document.addEventListener('DOMContentLoaded', () => {
+            inicializarCustomScroll();
+            setupEventListeners();
+            carregarDadosCompletos();
+        });
 
-            Papa.parse(AUX_URL, {
-                download: true,
-                header: false,
-                complete: function(results) {
-                    if (results.data && results.data[1] && results.data[1][1]) {
-                        document.getElementById('baseUpdateDate').innerText = `Base: ${results.data[1][1]}`;
+        async function carregarDadosCompletos() {
+            try {
+                const response = await fetch(`${WEB_APP_URL}?rota=alvos`);
+                const data = await response.json();
+                if (!data.error) {
+                    state.sheetsData = data.dataMap || {};
+                    state.auxiliares = data.auxiliares || { linhas: [], subgrupos: [], cores: [], canais: [] };
+                    state.isDataLoaded = true;
+                    
+                    atualizarDatalists();
+
+                    if (state.allData.length > 0) {
+                        state.allData = state.allData.map(item => {
+                            const saved = state.sheetsData[item._codigo] || {};
+                            item['Linha'] = saved.linha || item['Linha'] || '';
+                            item['Subgrupo'] = saved.subgrupo || item['Subgrupo'] || '';
+                            item['Cor'] = saved.cor || item['Cor'] || '';
+                            item['Canal'] = saved.canal || item['Canal'] || '';
+                            item['Alvo'] = saved.alvo || item['Alvo'] || 0;
+                            item['Comprar'] = Math.max(0, (parseFloat(item['Alvo']) || 0) - item['Estoque Futuro']);
+                            const custo = parseFloat(item[state.originalHeaders[state.columnIndices.custo]]) || 0;
+                            item['Custo Total'] = item['Comprar'] * custo;
+                            return item;
+                        });
+                        renderizarChecklists();
+                        aplicarFiltros();
                     }
                 }
-            });
-
-            Papa.parse(CSV_URL, {
-                download: true,
-                header: true,
-                complete: function(results) {
-                    if (results.data && results.data.length > 0) {
-                        const dadosLimpos = results.data.filter(item => item['Descrição do produto'] && item['HBT']);
-                        processarPlanilha(dadosLimpos);
-                    }
-                }
-            });
+            } catch (err) { console.error("Erro ao carregar dados:", err); }
         }
 
-        function processarPlanilha(dados) {
-            const rompidos = dados.filter(item => isRompido(item['Romp.Atual']) || isRompido(item['Romp.Futuro']));
-            todosItensRompidos = rompidos;
+        function atualizarDatalists() {
+            const fill = (id, items) => {
+                const dl = document.getElementById(id);
+                if (dl) dl.innerHTML = items.map(it => `<option value="${it}">`).join('');
+            };
+            fill('listLinhas', state.auxiliares.linhas);
+            fill('listSubgrupos', state.auxiliares.subgrupos);
+            fill('listCores', state.auxiliares.cores);
+            fill('listCanais', state.auxiliares.canais);
+        }
 
-            const rompidosH = rompidos.filter(i => i['HBT'].trim() === 'H');
-            const rompidosB = rompidos.filter(i => i['HBT'].trim() === 'B');
-            const rompidosTH = rompidos.filter(i => i['HBT'].trim() === 'TH');
+        function abrirModalCadastro() { document.getElementById('modalCadastro').style.display = 'block'; }
+        function fecharModalCadastro() { document.getElementById('modalCadastro').style.display = 'none'; }
 
-            const contadores = {
-                H: { atual: rompidosH.filter(i => isRompido(i['Romp.Atual'])).length, futuro: rompidosH.filter(i => isRompido(i['Romp.Futuro'])).length },
-                B: { atual: rompidosB.filter(i => isRompido(i['Romp.Atual'])).length, futuro: rompidosB.filter(i => isRompido(i['Romp.Futuro'])).length },
-                TH: { atual: rompidosTH.filter(i => isRompido(i['Romp.Atual'])).length, futuro: rompidosTH.filter(i => isRompido(i['Romp.Futuro'])).length }
+        function abrirModalExclusao() { 
+            document.getElementById('modalExclusao').style.display = 'block'; 
+            document.getElementById('searchExclusao').value = '';
+            renderizarListaExclusao();
+        }
+        function fecharModalExclusao() { document.getElementById('modalExclusao').style.display = 'none'; }
+
+        function renderizarListaExclusao() {
+            const tipo = document.getElementById('tipoExclusao').value;
+            const search = normalizeText(document.getElementById('searchExclusao').value);
+            const container = document.getElementById('listaExclusao');
+            
+            const itemsMap = {
+                'linha': state.auxiliares.linhas,
+                'subgrupo': state.auxiliares.subgrupos,
+                'cor': state.auxiliares.cores,
+                'canal': state.auxiliares.canais
             };
 
-            atualizarCard('countH', 'Item H', contadores.H.atual, contadores.H.futuro);
-            atualizarCard('countB', 'Item B', contadores.B.atual, contadores.B.futuro);
-            atualizarCard('countTH', 'Item TH', contadores.TH.atual, contadores.TH.futuro);
-            
-            criarGraficoRuptura(contadores);
-
-            const totalFuturoGeral = contadores.H.futuro + contadores.B.futuro + contadores.TH.futuro;
-            const alertaDiv = document.getElementById('alertaRuptura');
-            if (totalFuturoGeral > 0) {
-                alertaDiv.style.display = 'flex';
-                document.getElementById('alertaTexto').innerText = `Existem ${totalFuturoGeral} itens críticos que continuarão rompidos por falta de pedido.`;
-            } else {
-                alertaDiv.style.display = 'none';
+            let items = itemsMap[tipo] || [];
+            if (search) {
+                items = items.filter(it => normalizeText(it).includes(search));
             }
 
-            popularFiltrosGrupo(dados);
-            aplicarFiltros(); 
-            document.getElementById('lastUpdate').innerText = `Sincronizado: ${new Date().toLocaleTimeString()}`;
-        }
+            if (items.length === 0) {
+                container.innerHTML = '<div class="p-4 text-center text-gray-400 text-[10px] font-bold uppercase">Nenhum item encontrado</div>';
+                return;
+            }
 
-        function atualizarCard(id, titulo, total, futuro) {
-            const elemento = document.getElementById(id);
-            const mainColorClass = id === 'countH' ? 'text-primary' : id === 'countB' ? 'text-blue-custom' : 'text-gray-custom';
-
-            elemento.innerHTML = `
-                <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">${titulo}</h3>
-                <div class="flex flex-col items-start pb-3 border-b-2 border-gray-100 mb-2">
-                    <span class="text-[10px] font-black text-primary uppercase mb-1 flex items-center gap-1 tracking-wider">
-                        <span class="material-symbols-outlined text-sm">warning</span> RUPTURA FUTURA
-                    </span>
-                    <div class="flex items-center gap-2">
-                        <span class="text-4xl font-black ${futuro > 0 ? 'text-primary' : 'text-gray-300'}">${futuro}</span>
-                        ${futuro > 0 ? `<span class="material-symbols-outlined text-xl text-primary ping-animation">priority_high</span>` : ''}
+            container.innerHTML = items.map(item => `
+                <div class="item-list-row">
+                    <span class="item-list-name">${item}</span>
+                    <div class="action-icons">
+                        <span class="material-symbols-outlined btn-action edit text-lg" onclick="abrirEdicao('${tipo}', '${item}')">edit</span>
+                        <span class="material-symbols-outlined btn-action delete text-lg" onclick="confirmarExclusao('${tipo}', '${item}')">delete</span>
                     </div>
                 </div>
-                <div class="flex flex-col items-start mt-2">
-                    <span class="text-[10px] font-bold text-gray-400 uppercase mb-1 tracking-wider">Ruptura Atual</span>
-                    <span class="text-2xl font-black ${mainColorClass}">${total}</span>
-                </div>
-            `;
+            `).join('');
         }
 
-        function popularFiltrosGrupo(dados) {
-            const filter = document.getElementById('groupFilter');
-            const gruposUnicos = [...new Set(dados.map(item => (item['Grupo'] || 'Sem Grupo').trim()))].sort();
-            filter.innerHTML = '<option value="todos">Filtrar por Grupo (Todos)</option>'; 
-            gruposUnicos.forEach(grupo => {
-                const option = document.createElement('option');
-                option.value = grupo.toLowerCase(); 
-                option.textContent = grupo;
-                filter.appendChild(option);
+        async function abrirEdicao(tipo, valorAntigo) {
+            const { value: valorNovo } = await Swal.fire({
+                title: `Editar ${tipo}`,
+                input: 'text',
+                inputValue: valorAntigo,
+                showCancelButton: true,
+                confirmButtonColor: '#2563eb',
+                confirmButtonText: 'Salvar Alteração',
+                cancelButtonText: 'Cancelar',
+                inputValidator: (value) => {
+                    if (!value) return 'Você precisa digitar um nome!';
+                    if (value === valorAntigo) return 'O nome é igual ao anterior!';
+                }
             });
+
+            if (valorNovo) {
+                executarEdicao(tipo, valorAntigo, valorNovo);
+            }
+        }
+
+        async function executarEdicao(tipo, valorAntigo, valorNovo) {
+            Swal.showLoading();
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        rota: "alvos_auxiliar_edit", 
+                        tipo: tipo, 
+                        valorAntigo: valorAntigo, 
+                        valorNovo: valorNovo 
+                    })
+                });
+                const res = await response.json();
+                if (res.success) {
+                    const campoMap = { 'linha': 'Linha', 'subgrupo': 'Subgrupo', 'cor': 'Cor', 'canal': 'Canal' };
+                    const campo = campoMap[tipo];
+                    
+                    state.allData.forEach(item => {
+                        if (item[campo] === valorAntigo) {
+                            item[campo] = valorNovo;
+                        }
+                    });
+
+                    await carregarDadosCompletos();
+                    renderizarListaExclusao();
+                    
+                    Swal.fire('Editado!', `"${valorAntigo}" foi alterado para "${valorNovo}" com sucesso.`, 'success');
+                    if (state.allData.length > 0) {
+                        renderizarChecklists();
+                        aplicarFiltros();
+                    }
+                } else {
+                    Swal.fire('Erro', res.error || 'Falha ao editar.', 'error');
+                }
+            } catch (err) { Swal.fire('Erro', 'Falha na comunicação.', 'error'); }
+        }
+
+        async function confirmarExclusao(tipo, valor) {
+            const result = await Swal.fire({
+                title: 'Tem certeza?',
+                text: `Deseja excluir "${valor}"? Todos os produtos vinculados a este item ficarão com este campo em branco na planilha.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#E30613',
+                cancelButtonColor: '#9ca3af',
+                confirmButtonText: 'Sim, excluir!',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (result.isConfirmed) {
+                executarExclusao(tipo, valor);
+            }
+        }
+
+        async function executarExclusao(tipo, valor) {
+            Swal.showLoading();
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ rota: "alvos_auxiliar_delete", tipo: tipo, valor: valor })
+                });
+                const res = await response.json();
+                if (res.success) {
+                    const campoMap = { 'linha': 'Linha', 'subgrupo': 'Subgrupo', 'cor': 'Cor', 'canal': 'Canal' };
+                    const campo = campoMap[tipo];
+                    
+                    state.allData.forEach(item => {
+                        if (item[campo] === valor) {
+                            item[campo] = "";
+                        }
+                    });
+
+                    await carregarDadosCompletos();
+                    renderizarListaExclusao();
+                    
+                    Swal.fire('Excluído!', `${valor} foi removido e os produtos vinculados foram limpos.`, 'success');
+                    if (state.allData.length > 0) {
+                        renderizarChecklists();
+                        aplicarFiltros();
+                    }
+                } else {
+                    Swal.fire('Erro', res.error || 'Falha ao excluir.', 'error');
+                }
+            } catch (err) { Swal.fire('Erro', 'Falha na comunicação.', 'error'); }
+        }
+
+        async function salvarCadastroAuxiliar() {
+            const tipo = document.getElementById('tipoCadastro').value;
+            const valor = document.getElementById('valorCadastro').value.trim();
+            if (!valor) return Swal.fire('Erro', 'Digite um valor.', 'error');
+
+            Swal.showLoading();
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ rota: "alvos_auxiliar", tipo: tipo, valor: valor })
+                });
+                const res = await response.json();
+                if (res.success) {
+                    Swal.fire('Sucesso', 'Cadastrado com sucesso!', 'success');
+                    document.getElementById('valorCadastro').value = '';
+                    await carregarDadosCompletos();
+                    if (state.allData.length > 0) renderizarTabela(state.allData);
+                } else {
+                    Swal.fire('Erro', res.error || 'Falha ao salvar.', 'error');
+                }
+            } catch (err) { Swal.fire('Erro', 'Falha ao salvar.', 'error'); }
+        }
+
+        async function salvarNoSheets(codigo) {
+            const statusEl = document.getElementById('syncStatus');
+            if (statusEl) {
+                statusEl.innerText = "Salvando...";
+                statusEl.className = "sync-indicator sync-saving inline-block";
+            }
+            
+            const item = state.allData.find(d => d._codigo === codigo);
+            if (!item) return;
+
+            const payload = {
+                rota: "alvos_save",
+                codigo: codigo,
+                linha: item['Linha'] || "",
+                subgrupo: item['Subgrupo'] || "",
+                cor: item['Cor'] || "",
+                canal: item['Canal'] || "",
+                alvo: item['Alvo'] || 0
+            };
+
+            try {
+                await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
+                if (statusEl) {
+                    statusEl.innerText = "Sincronizado";
+                    statusEl.className = "sync-indicator sync-success inline-block";
+                    setTimeout(() => statusEl.style.display = 'none', 2000);
+                }
+            } catch (err) {
+                if (statusEl) {
+                    statusEl.innerText = "Erro ao salvar";
+                    statusEl.className = "sync-indicator bg-red-100 text-red-600 inline-block";
+                }
+            }
+        }
+
+        function setupEventListeners() {
+            const fileInput = document.getElementById('file-input');
+            const uploadArea = document.getElementById('upload-area');
+            const resetBtn = document.getElementById('reset-btn');
+
+            fileInput.addEventListener('change', handleFileUpload);
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, () => uploadArea.classList.add('dragover'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('dragover'), false);
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    handleFileUpload({ target: { files: files } });
+                }
+            }, false);
+
+            uploadArea.addEventListener('click', () => fileInput.click());
+
+            resetBtn.addEventListener('click', () => {
+                state.allData = [];
+                state.filters = { linha: [], subgrupo: [], cor: [], canal: [] };
+                document.getElementById('upload-area').classList.remove('hidden');
+                document.getElementById('main-content').classList.add('hidden');
+                fileInput.value = '';
+                state.isProcessing = false;
+                
+                document.getElementById('preHeaderInfo').innerText = "Carregue o arquivo de Giro de Estoque para iniciar";
+                document.getElementById('cardTotalItens').innerText = "0";
+                document.getElementById('cardValorEstoque').innerText = "R$ 0,00";
+                document.getElementById('cardTotalPedido').innerText = "R$ 0,00";
+                document.getElementById('globalSearch').value = '';
+                document.getElementById('tableBody').innerHTML = '';
+                document.getElementById('headerRow').innerHTML = '';
+                document.getElementById('labelLinha').innerText = 'Todas';
+                document.getElementById('labelSubgrupo').innerText = 'Todos';
+                document.getElementById('labelCor').innerText = 'Todas';
+                document.getElementById('labelCanal').innerText = 'Todos';
+            });
+        }
+
+        function normalizeText(t) { return String(t || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim(); }
+
+        function handleFileUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            state.isProcessing = true;
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                const data = new Uint8Array(evt.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1, defval: null });
+                if (jsonData.length > 0) processarDados(jsonData);
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function processarDados(data) {
+            let headerRowIndex = data.findIndex(row => Array.isArray(row) && row.some(cell => normalizeText(cell).includes('descri')));
+            if (headerRowIndex === -1) {
+                state.isProcessing = false;
+                return Swal.fire('Erro', 'Cabeçalho não encontrado.', 'error');
+            }
+
+            const preHeaderRows = data.slice(0, headerRowIndex);
+            document.getElementById('preHeaderInfo').innerHTML = preHeaderRows.map(row => Array.isArray(row) ? row.filter(c => String(c || '').trim()).join(' | ') : '').filter(s => s).join('<br>');
+
+            state.originalHeaders = data[headerRowIndex].map(h => String(h || '').trim());
+            const normHeaders = state.originalHeaders.map(h => normalizeText(h));
+
+            state.columnIndices = {
+                descri: normHeaders.findIndex(h => h.includes('descri')),
+                codigo: normHeaders.indexOf('codigo'),
+                estoque: normHeaders.indexOf('estoque'),
+                pedido: normHeaders.indexOf('pedido'),
+                inverter: normHeaders.indexOf('inverter'),
+                custo: normHeaders.findIndex(h => h.includes('custo')),
+                hbt: normHeaders.indexOf('hbt'),
+                referencia: normHeaders.indexOf('referencia'),
+                und: normHeaders.indexOf('und')
+            };
+
+            state.displayHeaders = [];
+            const descHeader = state.originalHeaders[state.columnIndices.descri];
+            const codHeader = state.originalHeaders[state.columnIndices.codigo];
+            
+            state.displayHeaders.push(descHeader);
+            state.displayHeaders.push(codHeader);
+            state.displayHeaders.push('Linha', 'Subgrupo', 'Cor', 'Canal');
+            
+            state.originalHeaders.forEach(h => {
+                if (h !== descHeader && h !== codHeader && !state.displayHeaders.includes(h)) {
+                    state.displayHeaders.push(h);
+                }
+            });
+            state.displayHeaders.push('Estoque Futuro', 'Alvo', 'Comprar', 'Custo Total');
+
+            const rows = data.slice(headerRowIndex + 1);
+            state.allData = rows.filter(row => {
+                const desc = String(row[state.columnIndices.descri] || '').trim();
+                if (!desc) return false;
+                if (desc.includes('www.exatasistemas.com')) return false;
+                if (UNIDADES_INVALIDAS.includes(desc.toUpperCase())) return false;
+                return true;
+            }).map(row => {
+                let rawCodigo = String(row[state.columnIndices.codigo] || '');
+                let cleanCodigo = rawCodigo.replace(/^0+/, '');
+                if (cleanCodigo === '') cleanCodigo = '0';
+
+                const obj = { _codigo: cleanCodigo };
+                state.originalHeaders.forEach((h, i) => obj[h] = row[i]);
+                
+                const saved = state.sheetsData[obj._codigo] || {};
+                obj['Linha'] = saved.linha || '';
+                obj['Subgrupo'] = saved.subgrupo || '';
+                obj['Cor'] = saved.cor || '';
+                obj['Canal'] = saved.canal || '';
+                obj['Alvo'] = saved.alvo || 0;
+                
+                const estoque = parseFloat(obj[state.originalHeaders[state.columnIndices.estoque]]) || 0;
+                const pedido = parseFloat(obj[state.originalHeaders[state.columnIndices.pedido]]) || 0;
+                const inverter = parseFloat(obj[state.originalHeaders[state.columnIndices.inverter]]) || 0;
+                obj['Estoque Futuro'] = (estoque + pedido) - inverter;
+                
+                obj['Comprar'] = Math.max(0, (parseFloat(obj['Alvo']) || 0) - obj['Estoque Futuro']);
+                const custo = parseFloat(obj[state.originalHeaders[state.columnIndices.custo]]) || 0;
+                obj['Custo Total'] = obj['Comprar'] * custo;
+                
+                return obj;
+            });
+
+            document.getElementById('upload-area').classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+            
+            renderizarChecklists();
+            aplicarFiltros();
+        }
+
+        function renderizarChecklists() {
+            const linhas = [...new Set(state.allData.map(d => d['Linha']).filter(v => v))].sort();
+            const subgrupos = [...new Set(state.allData.map(d => d['Subgrupo']).filter(v => v))].sort();
+            const cores = [...new Set(state.allData.map(d => d['Cor']).filter(v => v))].sort();
+            const canais = [...new Set(state.allData.map(d => d['Canal']).filter(v => v))].sort();
+
+            const render = (id, items, type) => {
+                const container = document.getElementById(id);
+                if (!container) return;
+                let html = `<div class="btn-clear-filter" onclick="limparFiltro('${type}')">Limpar Filtro</div>`;
+                html += items.map(item => `
+                    <label class="filter-option">
+                        <input type="checkbox" value="${item}" ${state.filters[type].includes(item) ? 'checked' : ''} onchange="toggleFiltro('${type}', '${item}')">
+                        ${item}
+                    </label>
+                `).join('');
+                container.innerHTML = html;
+            };
+
+            render('checklistLinha', linhas, 'linha');
+            render('checklistSubgrupo', subgrupos, 'subgrupo');
+            render('checklistCor', cores, 'cor');
+            render('checklistCanal', canais, 'canal');
+        }
+
+        function limparFiltro(type) {
+            state.filters[type] = [];
+            const labelMap = { linha: 'Linha', subgrupo: 'Subgrupo', cor: 'Cor', canal: 'Canal' };
+            const defaultLabel = { linha: 'Todas', subgrupo: 'Todos', cor: 'Todas', canal: 'Todos' };
+            document.getElementById(`label${labelMap[type]}`).innerText = defaultLabel[type];
+            
+            const container = document.getElementById(`checklist${labelMap[type]}`);
+            if (container) {
+                container.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            }
+            
+            aplicarFiltros();
+        }
+
+        function toggleFiltro(type, value) {
+            const idx = state.filters[type].indexOf(value);
+            if (idx > -1) state.filters[type].splice(idx, 1);
+            else state.filters[type].push(value);
+            
+            const labelMap = { linha: 'Linha', subgrupo: 'Subgrupo', cor: 'Cor', canal: 'Canal' };
+            const defaultLabel = { linha: 'Todas', subgrupo: 'Todos', cor: 'Todas', canal: 'Todos' };
+            
+            document.getElementById(`label${labelMap[type]}`).innerText = 
+                state.filters[type].length === 0 ? defaultLabel[type] : `${state.filters[type].length} selecionados`;
+            
+            aplicarFiltros();
         }
 
         function aplicarFiltros() {
-            const searchInput = document.getElementById('searchInput').value.toUpperCase();
-            const groupFilter = document.getElementById('groupFilter').value.toLowerCase();
-            const statusFilter = document.getElementById('statusFilter').value;
-            const tbody = document.querySelector('#tabelaDados tbody');
+            const search = normalizeText(document.getElementById('globalSearch').value);
+            const filtrados = state.allData.filter(d => {
+                const matchSearch = !search || normalizeText(d[state.originalHeaders[state.columnIndices.descri]]).includes(search) || normalizeText(d._codigo).includes(search);
+                const matchLinha = state.filters.linha.length === 0 || state.filters.linha.includes(d['Linha']);
+                const matchSubgrupo = state.filters.subgrupo.length === 0 || state.filters.subgrupo.includes(d['Subgrupo']);
+                const matchCor = state.filters.cor.length === 0 || state.filters.cor.includes(d['Cor']);
+                const matchCanal = state.filters.canal.length === 0 || state.filters.canal.includes(d['Canal']);
+                return matchSearch && matchLinha && matchSubgrupo && matchCor && matchCanal;
+            });
+            renderizarTabela(filtrados);
+            atualizarCards(filtrados);
+        }
+
+        function renderizarTabela(dados) {
+            const headerRow = document.getElementById('headerRow');
+            const tbody = document.getElementById('tableBody');
+            headerRow.innerHTML = '';
+            tbody.innerHTML = '';
+
+            const descriHeader = state.originalHeaders[state.columnIndices.descri];
+            const codHeader = state.originalHeaders[state.columnIndices.codigo];
+
+            state.displayHeaders.forEach(h => {
+                const th = document.createElement('th');
+                th.innerText = h;
+                if (h === descriHeader) th.className = "col-desc";
+                else if (h === codHeader) th.className = "col-codigo";
+                else if (['Linha', 'Subgrupo', 'Cor', 'Canal'].includes(h)) th.className = "col-fixed-width";
+                else th.className = "col-small";
+                headerRow.appendChild(th);
+            });
+
+            dados.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = "transition-colors";
+                
+                state.displayHeaders.forEach(h => {
+                    const td = document.createElement('td');
+                    const isDescri = (h === descriHeader);
+                    const isCodigo = (h === codHeader);
+                    const normH = normalizeText(h);
+                    
+                    let widthClass = "p-4 ";
+                    if (isDescri) widthClass += "col-desc font-bold text-gray-800 desc-cell ";
+                    else if (isCodigo) widthClass += "col-codigo ";
+                    else if (['Linha', 'Subgrupo', 'Cor', 'Canal'].includes(h)) widthClass += "col-fixed-width ";
+                    else if (normH === 'hbt' || normH === 'estoque' || normH === 'pedido' || normH === 'inverter' || normH === 'estoque futuro' || normH === 'alvo') widthClass += "col-small ";
+                    
+                    td.className = widthClass;
+                    
+                    if (['Linha', 'Subgrupo', 'Cor', 'Canal'].includes(h)) {
+                        const listIdMap = { 'Linha': 'listLinhas', 'Subgrupo': 'listSubgrupos', 'Cor': 'listCores', 'Canal': 'listCanais' };
+                        const listId = listIdMap[h];
+                        td.innerHTML = `
+                            <input type="text" 
+                                   list="${listId}" 
+                                   value="${row[h] || ''}" 
+                                   onchange="validarEAtualizarLocal('${row._codigo}', '${h}', this)" 
+                                   placeholder="Buscar..."
+                                   class="searchable-input">
+                        `;
+                    } else if (h === 'Alvo') {
+                        td.innerHTML = `<input type="number" value="${row[h] || 0}" onchange="atualizarLocal('${row._codigo}', 'Alvo', this.value)" class="alvo-input">`;
+                    } else if (h === 'Comprar') {
+                        td.innerText = row[h];
+                        td.classList.add('font-black', 'text-primary', 'text-sm');
+                    } else if (h === 'Custo Total') {
+                        td.innerText = (row[h] || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                        td.classList.add('font-black', 'text-emerald-600');
+                    } else if (h === 'Estoque Futuro') {
+                        td.innerText = row[h];
+                        td.classList.add('font-bold');
+                    } else if (isCodigo) {
+                        td.innerText = row._codigo;
+                    } else {
+                        let val = row[h] || '';
+                        if (typeof val === 'number' && (h.includes('R$') || h.includes('Custo'))) {
+                            td.innerText = val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                        } else { td.innerText = val; }
+                    }
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+        }
+
+        function validarEAtualizarLocal(codigo, campo, input) {
+            const valor = input.value.trim();
+            const auxiliaresMap = {
+                'Linha': state.auxiliares.linhas,
+                'Subgrupo': state.auxiliares.subgrupos,
+                'Cor': state.auxiliares.cores,
+                'Canal': state.auxiliares.canais
+            };
             
-            const filtrados = todosItensRompidos.filter(item => {
-                const grupo = (item['Grupo'] || 'Sem Grupo').trim();
-                const desc = (item['Descrição do produto'] || '').toUpperCase();
-                const cod = (item['Código'] || '').toUpperCase();
+            const listaValida = auxiliaresMap[campo];
+            
+            if (valor === "") {
+                input.classList.remove('invalid');
+                atualizarLocal(codigo, campo, "");
+                return;
+            }
 
-                const matchGrupo = groupFilter === 'todos' || grupo.toLowerCase() === groupFilter;
-                const matchSearch = desc.includes(searchInput) || cod.includes(searchInput);
-                const matchStatus = statusFilter === 'todos' || 
-                                   (statusFilter === 'atual' && isRompido(item['Romp.Atual'])) || 
-                                   (statusFilter === 'futuro' && isRompido(item['Romp.Futuro']));
+            const itemEncontrado = listaValida.find(it => it.toLowerCase() === valor.toLowerCase());
 
-                return matchGrupo && matchSearch && matchStatus;
-            });
-
-            tbody.innerHTML = filtrados.map(item => {
-                const ehFuturo = isRompido(item['Romp.Futuro']);
-                const corHBT = itemColors[item['HBT'].trim()] || '#ccc';
-                return `
-                    <tr class="${ehFuturo ? 'bg-primary/5 border-l-4 border-primary' : ''} hover:bg-gray-50 transition-colors">
-                        <td class="px-6 py-4">
-                            <div class="flex flex-col">
-                                <span class="font-bold text-gray-800">${item['Descrição do produto']}</span>
-                                <span class="text-[10px] text-gray-400 uppercase font-bold">${item['Fornecedor'] || ''}</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-gray-500 font-mono text-xs">${item['Código']}</td>
-                        <td class="px-6 py-4">
-                            <span class="inline-block w-2 h-2 rounded-full mr-2" style="background-color: ${corHBT}"></span>
-                            <span class="font-bold text-gray-600">${item['HBT']}</span>
-                        </td>
-                        <td class="px-6 py-4 text-gray-500 text-xs font-bold uppercase">${item['Grupo']}</td>
-                        <td class="px-6 py-4 font-black text-center text-gray-800">${item['Estoque Total']}</td>
-                        <td class="px-6 py-4 text-center font-medium">${item['Pedido'] || '0'}</td>
-                    </tr>
-                `;
-            }).join('');
-
-            document.getElementById('tableFooter').innerText = `Listando ${filtrados.length} registros encontrados`;
+            if (itemEncontrado) {
+                input.value = itemEncontrado; 
+                input.classList.remove('invalid');
+                atualizarLocal(codigo, campo, itemEncontrado);
+            } else {
+                input.classList.add('invalid');
+                const itemOriginal = state.allData.find(d => d._codigo === codigo);
+                const valorOriginal = itemOriginal ? itemOriginal[campo] : "";
+                
+                Swal.fire({
+                    title: 'Valor Inválido',
+                    text: `O valor "${valor}" não está cadastrado. Por favor, selecione um item da lista ou cadastre-o no menu "Cadastrar".`,
+                    icon: 'warning',
+                    confirmButtonText: 'Entendido',
+                    confirmButtonColor: '#E30613'
+                }).then(() => {
+                    input.value = valorOriginal;
+                    input.classList.remove('invalid');
+                });
+            }
         }
 
-        function criarGraficoRuptura(contadores) {
-            const ctx = document.getElementById('rupturaChart');
-            if (rupturaChart) rupturaChart.destroy();
-            rupturaChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Item H', 'Item B', 'Item TH'],
-                    datasets: [
-                        { label: 'Ruptura Atual', data: [contadores.H.atual, contadores.B.atual, contadores.TH.atual], backgroundColor: ['#E30613B0', '#3B82F6B0', '#6B7280B0'], borderRadius: 4 },
-                        { label: 'Ruptura Futura', data: [contadores.H.futuro, contadores.B.futuro, contadores.TH.futuro], backgroundColor: ['#E30613', '#3B82F6', '#6B7280'], borderRadius: 4 }
-                    ]
-                },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { labels: { usePointStyle: true, font: { weight: 'bold' } } } } }
-            });
+        function atualizarLocal(codigo, campo, valor) {
+            const item = state.allData.find(d => d._codigo === codigo);
+            if (item) {
+                item[campo] = valor;
+                if (campo === 'Alvo') {
+                    item['Comprar'] = Math.max(0, (parseFloat(valor) || 0) - item['Estoque Futuro']);
+                    const custo = parseFloat(item[state.originalHeaders[state.columnIndices.custo]]) || 0;
+                    item['Custo Total'] = item['Comprar'] * custo;
+                }
+                
+                if (['Linha', 'Subgrupo', 'Cor', 'Canal'].includes(campo)) {
+                    renderizarChecklists();
+                }
+                
+                salvarNoSheets(codigo);
+                atualizarCards(state.allData);
+            }
         }
 
-        carregarDados();
-        setInterval(carregarDados, 300000);
+        function atualizarCards(dados) {
+            document.getElementById('cardTotalItens').innerText = dados.length;
+            let totalEstoque = 0, totalPedido = 0;
+            dados.forEach(item => {
+                const custo = parseFloat(item[state.originalHeaders[state.columnIndices.custo]]) || 0;
+                totalEstoque += (custo * (parseFloat(item['Estoque']) || 0));
+                totalPedido += item['Custo Total'] || 0;
+            });
+            document.getElementById('cardValorEstoque').innerText = totalEstoque.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('cardTotalPedido').innerText = totalPedido.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function exportarExcel() {
+            const filtrados = state.allData.filter(d => d['Comprar'] > 0);
+            if (filtrados.length === 0) return Swal.fire('Aviso', 'Nenhum item com sugestão de compra.', 'info');
+            
+            const ws = XLSX.utils.json_to_sheet(filtrados.map(d => {
+                const obj = {};
+                state.displayHeaders.forEach(h => obj[h] = d[h]);
+                return obj;
+            }));
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Sugestão");
+            XLSX.writeFile(wb, `Gerenciamento_Alvos_${new Date().toLocaleDateString()}.xlsx`);
+        }
+
+        function exportarPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = jsPDF({ orientation: 'landscape' });
+            
+            const filtrados = state.allData.filter(d => d['Comprar'] > 0);
+            if (filtrados.length === 0) return Swal.fire('Aviso', 'Nenhum item com sugestão de compra.', 'info');
+
+            const colunas = ["Descrição", "Código", "Linha", "Subgrupo", "Cor", "Canal", "HBT", "Referência", "Und", "Custo", "Comprar", "Custo Total"];
+            const rows = filtrados.map(d => [
+                d[state.originalHeaders[state.columnIndices.descri]],
+                d._codigo,
+                d['Linha'],
+                d['Subgrupo'],
+                d['Cor'],
+                d['Canal'],
+                d[state.originalHeaders[state.columnIndices.hbt]],
+                d[state.originalHeaders[state.columnIndices.referencia]] || '',
+                d[state.originalHeaders[state.columnIndices.und]],
+                (parseFloat(d[state.originalHeaders[state.columnIndices.custo]]) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+                d['Comprar'],
+                (d['Custo Total'] || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+            ]);
+
+            doc.setFontSize(14);
+            doc.text("Vilarejo - Solução em Casa", 14, 15);
+            doc.setFontSize(10);
+            doc.text(`Data de Emissão: ${new Date().toLocaleDateString('pt-BR')}`, 14, 22);
+
+            doc.autoTable({
+                head: [colunas],
+                body: rows,
+                startY: 25,
+                theme: 'grid',
+                styles: { fontSize: 7, cellPadding: 2 },
+                headStyles: { fillColor: [227, 6, 19], textColor: 255 }
+            });
+
+            doc.save(`Gerenciamento_Alvos_Vilarejo_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '_')}.pdf`);
+        }
+
+        function inicializarCustomScroll() {
+            const thumb = document.getElementById('scrollThumb');
+            const container = document.getElementById('main-scroll-container');
+            container.addEventListener('scroll', () => {
+                const scrolled = container.scrollTop;
+                const height = container.scrollHeight - container.clientHeight;
+                const percentage = (scrolled / height) * 80;
+                thumb.style.top = percentage + '%';
+            });
+        }
+        function rolarParaTopo() { document.getElementById('main-scroll-container').scrollTo({ top: 0, behavior: 'smooth' }); }
+        function rolarParaFim() { 
+            const container = document.getElementById('main-scroll-container');
+            container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' }); 
+        }
     </script>
 </body>
 </html>
