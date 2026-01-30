@@ -44,52 +44,74 @@
             position: sticky; 
             top: 0; 
             background-color: #f9fafb; 
-            z-index: 10; /* Z-index menor que o do dropdown */
+            z-index: 10; 
             box-shadow: 0 1px 2px rgba(0,0,0,0.05); 
             text-align: left !important; 
             padding: 12px 24px; 
         }
 
-        /* FILTROS AVANÇADOS */
+        /* FILTROS AVANÇADOS MELHORADOS - SEM LACUNA */
         .filter-dropdown { position: relative; display: inline-block; }
         .filter-content { 
             display: none; 
             position: absolute; 
             background-color: white; 
             min-width: 220px; 
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); 
-            z-index: 100; /* Z-index alto para flutuar sobre a tabela */
-            border-radius: 12px; 
+            box-shadow: 0px 10px 25px rgba(0,0,0,0.15); 
+            z-index: 100; 
+            border-radius: 0 0 12px 12px; /* Arredondado apenas embaixo para colar no botão */
             padding: 12px; 
             border: 1px solid #e5e7eb; 
-            margin-top: 4px; 
-            max-height: 300px; 
+            border-top: none; /* Remove borda superior para parecer uma peça única */
+            margin-top: 0; /* ELIMINA A LACUNA TOTALMENTE */
+            max-height: 350px; 
             overflow-y: auto; 
             right: 0;
+            animation: fadeIn 0.15s ease-out;
         }
-        .filter-dropdown:hover .filter-content { display: block; }
+        /* Classe para mostrar o conteúdo via JS */
+        .filter-content.show { display: block; }
+        
+        /* Ajuste no botão quando o menu está aberto */
+        .filter-dropdown.active button {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            border-color: #E30613;
+            background-color: #fff;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
         .filter-option { 
             display: flex; 
             align-items: center; 
-            gap: 8px; 
-            padding: 6px 0; 
+            gap: 10px; 
+            padding: 8px 4px; 
             cursor: pointer; 
-            font-size: 11px; 
+            font-size: 12px; 
             font-weight: 600; 
             color: #4b5563; 
+            border-radius: 6px;
+            transition: background 0.2s;
         }
-        .filter-option input { cursor: pointer; accent-color: #E30613; }
+        .filter-option:hover { background-color: #f9fafb; }
+        .filter-option input { cursor: pointer; accent-color: #E30613; border-radius: 4px; }
+        
         .btn-clear-filter { 
             width: 100%; 
             text-align: center; 
-            padding: 8px; 
-            font-size: 10px; 
+            padding: 10px; 
+            font-size: 11px; 
             font-weight: 800; 
             text-transform: uppercase; 
             color: #E30613; 
             border-bottom: 1px solid #f3f4f6; 
-            margin-bottom: 8px; 
+            margin-bottom: 10px; 
             cursor: pointer; 
+            border-radius: 6px;
         }
         .btn-clear-filter:hover { background-color: #fff5f5; }
 
@@ -106,11 +128,11 @@
         }
         .modal-content {
             background: white;
-            width: 90%;
-            max-width: 1000px;
+            width: 95%;
+            max-width: 1100px;
             max-height: 90vh;
-            border-radius: 20px;
-            padding: 30px;
+            border-radius: 24px;
+            padding: 32px;
             position: relative;
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
             overflow-y: auto;
@@ -169,33 +191,33 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl border shadow-sm overflow-visible"> <!-- Mudado para overflow-visible para os filtros -->
+            <div class="bg-white rounded-xl border shadow-sm overflow-visible">
                 <div class="p-6 border-b flex justify-between items-center flex-wrap gap-4">
                     <h3 class="font-bold text-lg w-full md:w-auto text-gray-800">Detalhe dos Itens em Ruptura</h3>
                     
                     <div class="flex gap-4 w-full md:w-auto flex-wrap items-center">
                         <!-- BUSCA -->
                         <div class="relative">
-                            <input type="text" id="searchInput" onkeyup="aplicarFiltros()" placeholder="Buscar produto ou código..." class="border-gray-300 rounded-lg text-sm w-full md:w-64 px-4 py-2">
+                            <input type="text" id="searchInput" onkeyup="aplicarFiltros()" placeholder="Buscar produto ou código..." class="border-gray-300 rounded-lg text-sm w-full md:w-64 px-4 py-2 focus:ring-primary focus:border-primary">
                         </div>
 
-                        <!-- FILTRO DE GRUPO (MULTISELEÇÃO) -->
+                        <!-- FILTRO DE GRUPO -->
                         <div class="filter-dropdown">
-                            <div class="border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium bg-white flex justify-between items-center cursor-pointer min-w-[180px]">
+                            <button onclick="toggleDropdown(event, 'checklistGrupo')" class="border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium bg-white flex justify-between items-center cursor-pointer min-w-[180px] hover:border-primary transition-colors">
                                 <span id="labelGrupo">Todos os Grupos</span>
                                 <span class="material-symbols-outlined text-sm ml-2">expand_more</span>
-                            </div>
+                            </button>
                             <div class="filter-content" id="checklistGrupo">
                                 <!-- Grupos serão carregados via JS -->
                             </div>
                         </div>
 
-                        <!-- FILTRO DE CLASSIFICAÇÃO (MULTISELEÇÃO) -->
+                        <!-- FILTRO DE CLASSIFICAÇÃO -->
                         <div class="filter-dropdown">
-                            <div class="border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium bg-white flex justify-between items-center cursor-pointer min-w-[160px]">
+                            <button onclick="toggleDropdown(event, 'checklistClassificacao')" class="border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium bg-white flex justify-between items-center cursor-pointer min-w-[160px] hover:border-primary transition-colors">
                                 <span id="labelClassificacao">Classificação</span>
                                 <span class="material-symbols-outlined text-sm ml-2">expand_more</span>
-                            </div>
+                            </button>
                             <div class="filter-content" id="checklistClassificacao">
                                 <div class="btn-clear-filter" onclick="limparFiltro('hbt')">Limpar Filtro</div>
                                 <label class="filter-option"><input type="checkbox" value="H" onchange="toggleFiltro('hbt', 'H')"> Item H</label>
@@ -204,12 +226,12 @@
                             </div>
                         </div>
                         
-                        <!-- FILTRO DE STATUS (MULTISELEÇÃO PADRONIZADO) -->
+                        <!-- FILTRO DE STATUS -->
                         <div class="filter-dropdown">
-                            <div class="border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium bg-white flex justify-between items-center cursor-pointer min-w-[180px]">
+                            <button onclick="toggleDropdown(event, 'checklistStatus')" class="border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium bg-white flex justify-between items-center cursor-pointer min-w-[180px] hover:border-primary transition-colors">
                                 <span id="labelStatus">Status (Todos)</span>
                                 <span class="material-symbols-outlined text-sm ml-2">expand_more</span>
-                            </div>
+                            </button>
                             <div class="filter-content" id="checklistStatus">
                                 <div class="btn-clear-filter" onclick="limparFiltro('status')">Limpar Filtro</div>
                                 <label class="filter-option"><input type="checkbox" value="atual" onchange="toggleFiltro('status', 'atual')"> Ruptura Atual</label>
@@ -244,9 +266,9 @@
     </div>
 
     <!-- MODAL DE HISTÓRICO -->
-    <div id="modalHistorico">
-        <div class="modal-content">
-            <button onclick="fecharModalHistorico()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+    <div id="modalHistorico" onclick="fecharModalHistorico(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button onclick="fecharModalHistorico()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
                 <span class="material-symbols-outlined text-3xl">close</span>
             </button>
             <div class="flex flex-col gap-6">
@@ -295,6 +317,31 @@
             'TH': { atual: 'rgba(107, 114, 128, 1)', futuro: 'rgba(107, 114, 128, 0.4)' }
         };
 
+        // LÓGICA DE DROPDOWNS (CLIQUE ESTÁVEL)
+        function toggleDropdown(event, id) {
+            event.stopPropagation();
+            const content = document.getElementById(id);
+            const parent = content.closest('.filter-dropdown');
+            const isShown = content.classList.contains('show');
+            
+            // Fecha todos os outros primeiro
+            document.querySelectorAll('.filter-content').forEach(c => c.classList.remove('show'));
+            document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('active'));
+            
+            if (!isShown) {
+                content.classList.add('show');
+                parent.classList.add('active');
+            }
+        }
+
+        // Fecha dropdowns ao clicar fora
+        window.onclick = function(event) {
+            if (!event.target.closest('.filter-dropdown')) {
+                document.querySelectorAll('.filter-content').forEach(c => c.classList.remove('show'));
+                document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('active'));
+            }
+        }
+
         function isRompido(status) {
             return status && status.trim().toUpperCase() === 'ROMPIDO';
         }
@@ -311,8 +358,10 @@
             carregarDadosHistorico();
         }
 
-        function fecharModalHistorico() {
-            document.getElementById('modalHistorico').style.display = 'none';
+        function fecharModalHistorico(event) {
+            if (!event || event.target.id === 'modalHistorico') {
+                document.getElementById('modalHistorico').style.display = 'none';
+            }
         }
 
         // CARREGAMENTO DE DADOS PRINCIPAIS
@@ -409,7 +458,7 @@
             let html = `<div class="btn-clear-filter" onclick="limparFiltro('grupos')">Limpar Filtro</div>`;
             gruposUnicos.forEach(grupo => {
                 html += `
-                    <label class="filter-option">
+                    <label class="filter-option" onclick="event.stopPropagation()">
                         <input type="checkbox" value="${grupo}" onchange="toggleFiltro('grupos', '${grupo}')" ${filtrosAtivos.grupos.includes(grupo) ? 'checked' : ''}>
                         ${grupo}
                     </label>
@@ -509,7 +558,7 @@
             });
         }
 
-        // LÓGICA DO HISTÓRICO (INTEGRADA)
+        // LÓGICA DO HISTÓRICO
         async function carregarDadosHistorico() {
             document.getElementById('lastUpdateHistorico').innerText = "Carregando histórico...";
             try {
