@@ -505,17 +505,20 @@
                 const matchHBT = filtrosAtivos.hbt.length === 0 || filtrosAtivos.hbt.includes(hbt);
                 const matchSearch = desc.includes(searchInput) || cod.includes(searchInput);
                 
-                // CORREÇÃO: Lógica do filtro de status melhorada
+                // CORREÇÃO DEFINITIVA: Lógica de exclusividade de status
                 let matchStatus = true;
                 if (filtrosAtivos.status.length > 0) {
                     const isAtual = isRompido(item['Romp.Atual']);
                     const isFuturo = isRompido(item['Romp.Futuro']);
                     
                     if (filtrosAtivos.status.includes('atual') && filtrosAtivos.status.includes('futuro')) {
+                        // Se ambos marcados, mostra qualquer um que tenha pelo menos uma das rupturas
                         matchStatus = isAtual || isFuturo;
                     } else if (filtrosAtivos.status.includes('atual')) {
+                        // Se APENAS "Atual" marcado, o item PRECISA ter ruptura atual
                         matchStatus = isAtual;
                     } else if (filtrosAtivos.status.includes('futuro')) {
+                        // Se APENAS "Futuro" marcado, o item PRECISA ter ruptura futura
                         matchStatus = isFuturo;
                     }
                 }
