@@ -512,10 +512,9 @@
                     const isFuturo = isRompido(item['Romp.Futuro']);
                     
                     if (filtrosAtivos.status.includes('atual') && filtrosAtivos.status.includes('futuro')) {
-                        // Se ambos marcados, mostra qualquer um que tenha pelo menos uma das rupturas
                         matchStatus = isAtual || isFuturo;
                     } else if (filtrosAtivos.status.includes('atual')) {
-                        // Se APENAS "Atual" marcado, o item PRECISA ter ruptura atual
+                        // Se APENAS "Atual" marcado, o item PRECISA ter ruptura atual e NÃO PODE ser apenas futuro
                         matchStatus = isAtual;
                     } else if (filtrosAtivos.status.includes('futuro')) {
                         // Se APENAS "Futuro" marcado, o item PRECISA ter ruptura futura
@@ -527,10 +526,20 @@
             });
 
             tbody.innerHTML = filtrados.map(item => {
+                const ehAtual = isRompido(item['Romp.Atual']);
                 const ehFuturo = isRompido(item['Romp.Futuro']);
                 const corHBT = itemColors[item['HBT'].trim()] || '#ccc';
+                
+                // Define a classe visual baseada no status filtrado ou real
+                let rowClass = "hover:bg-gray-50 transition-colors";
+                if (ehFuturo && !ehAtual) {
+                    rowClass = "bg-primary/5 border-l-4 border-primary " + rowClass;
+                } else if (ehAtual && ehFuturo) {
+                    rowClass = "bg-red-50 border-l-4 border-red-600 " + rowClass;
+                }
+
                 return `
-                    <tr class="${ehFuturo ? 'bg-primary/5 border-l-4 border-primary' : ''} hover:bg-gray-50 transition-colors">
+                    <tr class="${rowClass}">
                         <td class="px-6 py-4">
                             <div class="flex flex-col">
                                 <span class="font-bold text-gray-800">${item['Descrição do produto'] || ''}</span>
