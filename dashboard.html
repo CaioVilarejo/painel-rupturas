@@ -5,17 +5,17 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Rupturas - Vilarejo Monitor</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
 
-<script>
-tailwind.config = {
-            darkMode: "class",
-            theme: { extend: { colors: { "primary": "#E30613", "sheets-green": "#1ea362", "background-dark": "#121212", "blue-custom": "#3B82F6", "gray-custom": "#6B7280" } } }
-}
-</script>
+    <script>
+    tailwind.config = {
+        darkMode: "class",
+        theme: { extend: { colors: { "primary": "#E30613", "sheets-green": "#1ea362", "background-dark": "#121212", "blue-custom": "#3B82F6", "gray-custom": "#6B7280" } } }
+    }
+    </script>
     <style>
         body { font-family: 'Roboto', sans-serif; }
         .ping-animation {
@@ -23,29 +23,97 @@ tailwind.config = {
         }
         @keyframes ping {
             75%, 100% { transform: scale(2); opacity: 0; }
-}
-</style>
+        }
+
+        /* ESTILOS DA TABELA COM CABEÇALHO FIXO */
+        .table-container { 
+            max-height: 60vh; 
+            overflow-y: auto; 
+            position: relative; 
+            border: 1px solid #e5e7eb; 
+            border-radius: 12px; 
+            background: white; 
+        }
+        .table-container::-webkit-scrollbar { width: 8px; height: 8px; }
+        .table-container::-webkit-scrollbar-track { background: #f1f1f1; }
+        .table-container::-webkit-scrollbar-thumb { background: #a1a1a1; border-radius: 10px; }
+        .table-container::-webkit-scrollbar-thumb:hover { background: #E30613; }
+
+        table { border-spacing: 0; border-collapse: separate; width: 100%; }
+        .sticky-header th { 
+            position: sticky; 
+            top: 0; 
+            background-color: #f9fafb; 
+            z-index: 40; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); 
+            text-align: left !important; 
+            padding: 12px 24px; 
+        }
+
+        /* FILTROS AVANÇADOS */
+        .filter-dropdown { position: relative; display: inline-block; }
+        .filter-content { 
+            display: none; 
+            position: absolute; 
+            background-color: white; 
+            min-width: 220px; 
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1); 
+            z-index: 100; 
+            border-radius: 12px; 
+            padding: 12px; 
+            border: 1px solid #e5e7eb; 
+            margin-top: 4px; 
+            max-height: 300px; 
+            overflow-y: auto; 
+            right: 0;
+        }
+        .filter-dropdown:hover .filter-content { display: block; }
+        .filter-option { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            padding: 6px 0; 
+            cursor: pointer; 
+            font-size: 11px; 
+            font-weight: 600; 
+            color: #4b5563; 
+        }
+        .filter-option input { cursor: pointer; accent-color: #E30613; }
+        .btn-clear-filter { 
+            width: 100%; 
+            text-align: center; 
+            padding: 8px; 
+            font-size: 10px; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            color: #E30613; 
+            border-bottom: 1px solid #f3f4f6; 
+            margin-bottom: 8px; 
+            cursor: pointer; 
+        }
+        .btn-clear-filter:hover { background-color: #fff5f5; }
+    </style>
 </head>
 <body class="bg-gray-100 antialiased">
     <div class="flex h-screen overflow-hidden">
         
-<div id="sidebar-container"></div>
+        <div id="sidebar-container"></div>
 
-        <main class="flex-1 overflow-y-auto p-6 lg:p-10">
+        <main class="flex-1 overflow-y-auto p-6 lg:p-10" id="main-scroll-container">
             <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 border-b pb-6">
                 <div>
                     <div class="flex items-center gap-3">
                         <h1 class="text-3xl font-black text-gray-800 tracking-tight">Visão Geral de Rupturas</h1>
                         <span id="baseUpdateDate" class="text-[10px] font-bold text-gray-500 bg-gray-200 px-2 py-1 rounded uppercase tracking-widest mt-2">Base: Carregando...</span>
-</div>
+                    </div>
                     <div class="flex items-center gap-2 text-gray-500 text-sm mt-1">
                         <span class="relative flex h-2 w-2">
                             <span class="animate-ping absolute h-full w-full rounded-full bg-green-400 opacity-75"></span>
                             <span class="relative rounded-full h-2 w-2 bg-green-500"></span>
                         </span>
                         <span id="lastUpdate">Sincronizando com Google Sheets...</span>
-</div>
-</div>
+                    </div>
+                </div>
                 <div class="flex gap-2">
                     <button onclick="carregarDados()" class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg font-bold text-sm text-gray-700 hover:bg-gray-50">
                         <span class="material-symbols-outlined text-sm">refresh</span> Sincronizar
@@ -58,9 +126,9 @@ tailwind.config = {
                     <div>
                         <p class="font-black text-xl text-primary uppercase">Alerta Crítico: Rupturas Futuras!</p>
                         <p class="text-base text-gray-700" id="alertaTexto"></p> 
-</div>
-</div>
-</div>
+                    </div>
+                </div>
+            </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                 <div class="bg-white p-6 rounded-xl border shadow-lg flex flex-col justify-between" id="countH"></div>
@@ -72,30 +140,55 @@ tailwind.config = {
                 <h3 class="font-bold text-lg mb-4 text-gray-800">Visão Geral de Rupturas por Classificação</h3>
                 <div class="relative h-64 w-full">
                     <canvas id="rupturaChart"></canvas>
-</div>
-</div>
+                </div>
+            </div>
 
             <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
                 <div class="p-6 border-b flex justify-between items-center flex-wrap gap-4">
                     <h3 class="font-bold text-lg w-full md:w-auto text-gray-800">Detalhe dos Itens em Ruptura</h3>
                     
-                    <div class="flex gap-4 w-full md:w-auto flex-wrap">
-                        <select id="groupFilter" onchange="aplicarFiltros()" class="border-gray-300 rounded-lg text-sm px-4 py-2">
-                            <option value="todos">Filtrar por Grupo (Todos)</option>
-                        </select>
+                    <div class="flex gap-4 w-full md:w-auto flex-wrap items-center">
+                        <!-- BUSCA -->
+                        <div class="relative">
+                            <input type="text" id="searchInput" onkeyup="aplicarFiltros()" placeholder="Buscar produto ou código..." class="border-gray-300 rounded-lg text-sm w-full md:w-64 px-4 py-2">
+                        </div>
+
+                        <!-- FILTRO DE GRUPO (MULTISELEÇÃO) -->
+                        <div class="filter-dropdown">
+                            <div class="border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium bg-white flex justify-between items-center cursor-pointer min-w-[180px]">
+                                <span id="labelGrupo">Todos os Grupos</span>
+                                <span class="material-symbols-outlined text-sm ml-2">expand_more</span>
+                            </div>
+                            <div class="filter-content" id="checklistGrupo">
+                                <!-- Grupos serão carregados via JS -->
+                            </div>
+                        </div>
+
+                        <!-- FILTRO DE CLASSIFICAÇÃO (MULTISELEÇÃO) -->
+                        <div class="filter-dropdown">
+                            <div class="border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium bg-white flex justify-between items-center cursor-pointer min-w-[160px]">
+                                <span id="labelClassificacao">Classificação</span>
+                                <span class="material-symbols-outlined text-sm ml-2">expand_more</span>
+                            </div>
+                            <div class="filter-content" id="checklistClassificacao">
+                                <div class="btn-clear-filter" onclick="limparFiltro('hbt')">Limpar Filtro</div>
+                                <label class="filter-option"><input type="checkbox" value="H" onchange="toggleFiltro('hbt', 'H')"> Item H</label>
+                                <label class="filter-option"><input type="checkbox" value="B" onchange="toggleFiltro('hbt', 'B')"> Item B</label>
+                                <label class="filter-option"><input type="checkbox" value="TH" onchange="toggleFiltro('hbt', 'TH')"> Item TH</label>
+                            </div>
+                        </div>
                         
+                        <!-- FILTRO DE STATUS -->
                         <select id="statusFilter" onchange="aplicarFiltros()" class="border-gray-300 rounded-lg text-sm px-4 py-2">
                             <option value="todos">Status (Atual e Futuro)</option>
                             <option value="atual">Somente Ruptura Atual</option>
                             <option value="futuro">Somente Ruptura Futura (Críticos)</option>
                         </select>
-
-                        <input type="text" id="searchInput" onkeyup="aplicarFiltros()" placeholder="Buscar produto ou código..." class="border-gray-300 rounded-lg text-sm w-full md:w-48 px-4 py-2">
                     </div>
-</div>
-                <div class="overflow-x-auto">
+                </div>
+                <div class="table-container" id="tableContainer">
                     <table class="w-full text-left text-sm" id="tabelaDados">
-                        <thead class="bg-gray-50 border-b">
+                        <thead class="sticky-header">
                             <tr>
                                 <th class="px-6 py-4 font-bold text-gray-700">Descrição do Produto</th>
                                 <th class="px-6 py-4 font-bold text-gray-700">Código</th>
@@ -107,17 +200,20 @@ tailwind.config = {
                         </thead>
                         <tbody class="divide-y divide-gray-100"></tbody>
                     </table>
-</div>
-                <div class="p-4 bg-gray-100 text-[10px] text-gray-400 font-bold uppercase tracking-widest" id="tableFooter">
-                    Carregando dados...
-</div>
-</div>
+                </div>
+                <div class="p-4 bg-gray-100 text-[10px] text-gray-400 font-bold uppercase tracking-widest flex justify-between items-center">
+                    <span id="tableFooter">Carregando dados...</span>
+                    <button onclick="document.getElementById('tableContainer').scrollTo({ top: 0, behavior: 'smooth' })" class="hover:text-primary flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">arrow_upward</span> Topo
+                    </button>
+                </div>
+            </div>
         </main>
-</div>
+    </div>
 
     <script src="menu.js"></script>
 
-<script>
+    <script>
         // Configurações das abas do Google Sheets
         const BASE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFrtHpxDu4l00gW7WtoY_WnPHtBukuZwecJAI9UKo6ajc5BWKUT07vfqK5MDXHpWsWQ4T8UygDWcwG/pub?';
         const CSV_URL = `${BASE_SHEET_URL}gid=0&single=true&output=csv`;
@@ -125,50 +221,78 @@ tailwind.config = {
 
         let rupturaChart;
         let todosItensRompidos = []; 
+        let filtrosAtivos = { grupos: [], hbt: [] };
         const itemColors = { 'H': '#E30613', 'B': '#3B82F6', 'TH': '#6B7280' };
 
         function isRompido(status) {
             return status && status.trim().toUpperCase() === 'ROMPIDO';
-}
+        }
+
+        // Função para carregar CSV usando fetch para evitar erros de CORS do PapaParse em alguns navegadores
+        async function fetchCSV(url) {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Falha na rede');
+            return await response.text();
+        }
 
         async function carregarDados() {
             document.getElementById('lastUpdate').innerText = "Sincronizando...";
 
-            Papa.parse(AUX_URL, {
-                download: true,
-                header: false,
-                complete: function(results) {
-                    if (results.data && results.data[1] && results.data[1][1]) {
-                        document.getElementById('baseUpdateDate').innerText = `Base: ${results.data[1][1]}`;
-}
-}
-});
+            try {
+                // Carregar Dados Auxiliares (Data da Base)
+                const auxText = await fetchCSV(AUX_URL);
+                Papa.parse(auxText, {
+                    header: false,
+                    complete: function(results) {
+                        if (results.data && results.data[1] && results.data[1][1]) {
+                            document.getElementById('baseUpdateDate').innerText = `Base: ${results.data[1][1]}`;
+                        }
+                    }
+                });
 
-            Papa.parse(CSV_URL, {
-                download: true,
-                header: true,
-                complete: function(results) {
-                    if (results.data && results.data.length > 0) {
-                        const dadosLimpos = results.data.filter(item => item['Descrição do produto'] && item['HBT']);
-                        processarPlanilha(dadosLimpos);
-}
-}
-});
-}
+                // Carregar Dados Principais
+                const csvText = await fetchCSV(CSV_URL);
+                Papa.parse(csvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        if (results.data && results.data.length > 0) {
+                            const dadosLimpos = results.data.filter(item => item['Descrição do produto'] && item['HBT']);
+                            processarPlanilha(dadosLimpos);
+                        }
+                    }
+                });
+            } catch (err) {
+                console.error("Erro ao carregar dados:", err);
+                document.getElementById('lastUpdate').innerText = "Erro na sincronização (CORS/Rede)";
+                
+                // Tenta usar o PapaParse diretamente como fallback se o fetch falhar
+                Papa.parse(CSV_URL, {
+                    download: true,
+                    header: true,
+                    complete: function(results) {
+                        if (results.data && results.data.length > 0) {
+                            const dadosLimpos = results.data.filter(item => item['Descrição do produto'] && item['HBT']);
+                            processarPlanilha(dadosLimpos);
+                        }
+                    }
+                });
+            }
+        }
 
         function processarPlanilha(dados) {
             const rompidos = dados.filter(item => isRompido(item['Romp.Atual']) || isRompido(item['Romp.Futuro']));
             todosItensRompidos = rompidos;
 
-            const rompidosH = rompidos.filter(i => i['HBT'].trim() === 'H');
-            const rompidosB = rompidos.filter(i => i['HBT'].trim() === 'B');
-            const rompidosTH = rompidos.filter(i => i['HBT'].trim() === 'TH');
+            const rompidosH = rompidos.filter(i => (i['HBT'] || '').trim() === 'H');
+            const rompidosB = rompidos.filter(i => (i['HBT'] || '').trim() === 'B');
+            const rompidosTH = rompidos.filter(i => (i['HBT'] || '').trim() === 'TH');
 
             const contadores = {
                 H: { atual: rompidosH.filter(i => isRompido(i['Romp.Atual'])).length, futuro: rompidosH.filter(i => isRompido(i['Romp.Futuro'])).length },
                 B: { atual: rompidosB.filter(i => isRompido(i['Romp.Atual'])).length, futuro: rompidosB.filter(i => isRompido(i['Romp.Futuro'])).length },
                 TH: { atual: rompidosTH.filter(i => isRompido(i['Romp.Atual'])).length, futuro: rompidosTH.filter(i => isRompido(i['Romp.Futuro'])).length }
-};
+            };
 
             atualizarCard('countH', 'Item H', contadores.H.atual, contadores.H.futuro);
             atualizarCard('countB', 'Item B', contadores.B.atual, contadores.B.futuro);
@@ -183,15 +307,16 @@ tailwind.config = {
                 document.getElementById('alertaTexto').innerText = `Existem ${totalFuturoGeral} itens críticos que continuarão rompidos por falta de pedido.`;
             } else {
                 alertaDiv.style.display = 'none';
-}
+            }
 
             popularFiltrosGrupo(dados);
             aplicarFiltros(); 
             document.getElementById('lastUpdate').innerText = `Sincronizado: ${new Date().toLocaleTimeString()}`;
-}
+        }
 
         function atualizarCard(id, titulo, total, futuro) {
             const elemento = document.getElementById(id);
+            if (!elemento) return;
             const mainColorClass = id === 'countH' ? 'text-primary' : id === 'countB' ? 'text-blue-custom' : 'text-gray-custom';
 
             elemento.innerHTML = `
@@ -210,39 +335,71 @@ tailwind.config = {
                     <span class="text-2xl font-black ${mainColorClass}">${total}</span>
                 </div>
             `;
-}
+        }
 
         function popularFiltrosGrupo(dados) {
-            const filter = document.getElementById('groupFilter');
+            const container = document.getElementById('checklistGrupo');
+            if (!container) return;
             const gruposUnicos = [...new Set(dados.map(item => (item['Grupo'] || 'Sem Grupo').trim()))].sort();
-            filter.innerHTML = '<option value="todos">Filtrar por Grupo (Todos)</option>'; 
+            
+            let html = `<div class="btn-clear-filter" onclick="limparFiltro('grupos')">Limpar Filtro</div>`;
             gruposUnicos.forEach(grupo => {
-                const option = document.createElement('option');
-                option.value = grupo.toLowerCase(); 
-                option.textContent = grupo;
-                filter.appendChild(option);
-});
-}
+                html += `
+                    <label class="filter-option">
+                        <input type="checkbox" value="${grupo}" onchange="toggleFiltro('grupos', '${grupo}')" ${filtrosAtivos.grupos.includes(grupo) ? 'checked' : ''}>
+                        ${grupo}
+                    </label>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function toggleFiltro(tipo, valor) {
+            const idx = filtrosAtivos[tipo].indexOf(valor);
+            if (idx > -1) filtrosAtivos[tipo].splice(idx, 1);
+            else filtrosAtivos[tipo].push(valor);
+
+            if (tipo === 'grupos') {
+                document.getElementById('labelGrupo').innerText = filtrosAtivos.grupos.length === 0 ? 'Todos os Grupos' : `${filtrosAtivos.grupos.length} selecionados`;
+            } else if (tipo === 'hbt') {
+                document.getElementById('labelClassificacao').innerText = filtrosAtivos.hbt.length === 0 ? 'Classificação' : `${filtrosAtivos.hbt.length} selecionadas`;
+            }
+            aplicarFiltros();
+        }
+
+        function limparFiltro(tipo) {
+            filtrosAtivos[tipo] = [];
+            if (tipo === 'grupos') {
+                document.getElementById('labelGrupo').innerText = 'Todos os Grupos';
+                document.getElementById('checklistGrupo').querySelectorAll('input').forEach(i => i.checked = false);
+            } else if (tipo === 'hbt') {
+                document.getElementById('labelClassificacao').innerText = 'Classificação';
+                document.getElementById('checklistClassificacao').querySelectorAll('input').forEach(i => i.checked = false);
+            }
+            aplicarFiltros();
+        }
 
         function aplicarFiltros() {
-            const searchInput = document.getElementById('searchInput').value.toUpperCase();
-            const groupFilter = document.getElementById('groupFilter').value.toLowerCase();
+            const searchInput = (document.getElementById('searchInput').value || "").toUpperCase();
             const statusFilter = document.getElementById('statusFilter').value;
             const tbody = document.querySelector('#tabelaDados tbody');
+            if (!tbody) return;
 
             const filtrados = todosItensRompidos.filter(item => {
                 const grupo = (item['Grupo'] || 'Sem Grupo').trim();
+                const hbt = (item['HBT'] || '').trim();
                 const desc = (item['Descrição do produto'] || '').toUpperCase();
                 const cod = (item['Código'] || '').toUpperCase();
 
-                const matchGrupo = groupFilter === 'todos' || grupo.toLowerCase() === groupFilter;
+                const matchGrupo = filtrosAtivos.grupos.length === 0 || filtrosAtivos.grupos.includes(grupo);
+                const matchHBT = filtrosAtivos.hbt.length === 0 || filtrosAtivos.hbt.includes(hbt);
                 const matchSearch = desc.includes(searchInput) || cod.includes(searchInput);
                 const matchStatus = statusFilter === 'todos' || 
                                    (statusFilter === 'atual' && isRompido(item['Romp.Atual'])) || 
                                    (statusFilter === 'futuro' && isRompido(item['Romp.Futuro']));
 
-                return matchGrupo && matchSearch && matchStatus;
-});
+                return matchGrupo && matchHBT && matchSearch && matchStatus;
+            });
 
             tbody.innerHTML = filtrados.map(item => {
                 const ehFuturo = isRompido(item['Romp.Futuro']);
@@ -251,27 +408,30 @@ tailwind.config = {
                     <tr class="${ehFuturo ? 'bg-primary/5 border-l-4 border-primary' : ''} hover:bg-gray-50 transition-colors">
                         <td class="px-6 py-4">
                             <div class="flex flex-col">
-                                <span class="font-bold text-gray-800">${item['Descrição do produto']}</span>
+                                <span class="font-bold text-gray-800">${item['Descrição do produto'] || ''}</span>
                                 <span class="text-[10px] text-gray-400 uppercase font-bold">${item['Fornecedor'] || ''}</span>
                             </div>
                         </td>
-                        <td class="px-6 py-4 text-gray-500 font-mono text-xs">${item['Código']}</td>
+                        <td class="px-6 py-4 text-gray-500 font-mono text-xs">${item['Código'] || ''}</td>
                         <td class="px-6 py-4">
-                            <span class="inline-block w-2 h-2 rounded-full mr-2" style="background-color: ${corHBT}"></span>
-                            <span class="font-bold text-gray-600">${item['HBT']}</span>
+                            <div class="flex items-center">
+                                <span class="inline-block w-2 h-2 rounded-full mr-2" style="background-color: ${corHBT}"></span>
+                                <span class="font-bold text-gray-600">${item['HBT'] || ''}</span>
+                            </div>
                         </td>
-                        <td class="px-6 py-4 text-gray-500 text-xs font-bold uppercase">${item['Grupo']}</td>
-                        <td class="px-6 py-4 font-black text-center text-gray-800">${item['Estoque Total']}</td>
+                        <td class="px-6 py-4 text-gray-500 text-xs font-bold uppercase">${item['Grupo'] || ''}</td>
+                        <td class="px-6 py-4 font-black text-center text-gray-800">${item['Estoque Total'] || '0'}</td>
                         <td class="px-6 py-4 text-center font-medium">${item['Pedido'] || '0'}</td>
                     </tr>
                 `;
             }).join('');
 
             document.getElementById('tableFooter').innerText = `Listando ${filtrados.length} registros encontrados`;
-}
+        }
 
         function criarGraficoRuptura(contadores) {
             const ctx = document.getElementById('rupturaChart');
+            if (!ctx) return;
             if (rupturaChart) rupturaChart.destroy();
             rupturaChart = new Chart(ctx, {
                 type: 'bar',
@@ -283,11 +443,11 @@ tailwind.config = {
                     ]
                 },
                 options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { labels: { usePointStyle: true, font: { weight: 'bold' } } } } }
-});
-}
+            });
+        }
 
         carregarDados();
         setInterval(carregarDados, 300000);
-</script>
+    </script>
 </body>
 </html>
