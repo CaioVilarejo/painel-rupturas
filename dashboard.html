@@ -344,6 +344,15 @@
             return status && status.trim().toUpperCase() === 'ROMPIDO';
         }
 
+        // Definições baseadas na regra de negócio do usuário:
+        // Ruptura Futura: Coluna AB ("Romp.Futuro") está "Rompido"
+        // Ruptura Atual: Apenas Coluna AA ("Romp.Atual") está "Rompido" (e AB está vazia)
+        function getStatusItem(item) {
+            const ehFuturo = isRompido(item['Romp.Futuro']);
+            const ehAtual = isRompido(item['Romp.Atual']) && !ehFuturo;
+            return { ehAtual, ehFuturo };
+        }
+
         async function fetchCSV(url) {
             const response = await fetch(url);
             if (!response.ok) throw new Error('Falha na rede');
@@ -402,9 +411,18 @@
             const rompidosTH = rompidos.filter(i => (i['HBT'] || '').trim() === 'TH');
 
             const contadores = {
-                H: { atual: rompidosH.filter(i => isRompido(i['Romp.Atual'])).length, futuro: rompidosH.filter(i => isRompido(i['Romp.Futuro'])).length },
-                B: { atual: rompidosB.filter(i => isRompido(i['Romp.Atual'])).length, futuro: rompidosB.filter(i => isRompido(i['Romp.Futuro'])).length },
-                TH: { atual: rompidosTH.filter(i => isRompido(i['Romp.Atual'])).length, futuro: rompidosTH.filter(i => isRompido(i['Romp.Futuro'])).length }
+                H: { 
+                    atual: rompidosH.filter(i => getStatusItem(i).ehAtual).length, 
+                    futuro: rompidosH.filter(i => getStatusItem(i).ehFuturo).length 
+                },
+                B: { 
+                    atual: rompidosB.filter(i => getStatusItem(i).ehAtual).length, 
+                    futuro: rompidosB.filter(i => getStatusItem(i).ehFuturo).length 
+                },
+                TH: { 
+                    atual: rompidosTH.filter(i => getStatusItem(i).ehAtual).length, 
+                    futuro: rompidosTH.filter(i => getStatusItem(i).ehFuturo).length 
+                }
             };
 
             atualizarCard('countH', 'Item H', contadores.H.atual, contadores.H.futuro);
@@ -505,20 +523,16 @@
                 const matchHBT = filtrosAtivos.hbt.length === 0 || filtrosAtivos.hbt.includes(hbt);
                 const matchSearch = desc.includes(searchInput) || cod.includes(searchInput);
                 
-                // CORREÇÃO DEFINITIVA: Lógica de exclusividade de status
+                // LÓGICA DE STATUS BASEADA NAS COLUNAS AA E AB
+                const status = getStatusItem(item);
                 let matchStatus = true;
                 if (filtrosAtivos.status.length > 0) {
-                    const isAtual = isRompido(item['Romp.Atual']);
-                    const isFuturo = isRompido(item['Romp.Futuro']);
-                    
                     if (filtrosAtivos.status.includes('atual') && filtrosAtivos.status.includes('futuro')) {
-                        matchStatus = isAtual || isFuturo;
+                        matchStatus = status.ehAtual || status.ehFuturo;
                     } else if (filtrosAtivos.status.includes('atual')) {
-                        // Se APENAS "Atual" marcado, o item PRECISA ter ruptura atual e NÃO PODE ser apenas futuro
-                        matchStatus = isAtual;
+                        matchStatus = status.ehAtual;
                     } else if (filtrosAtivos.status.includes('futuro')) {
-                        // Se APENAS "Futuro" marcado, o item PRECISA ter ruptura futura
-                        matchStatus = isFuturo;
+                        matchStatus = status.ehFuturo;
                     }
                 }
 
@@ -526,16 +540,13 @@
             });
 
             tbody.innerHTML = filtrados.map(item => {
-                const ehAtual = isRompido(item['Romp.Atual']);
-                const ehFuturo = isRompido(item['Romp.Futuro']);
+                const status = getStatusItem(item);
                 const corHBT = itemColors[item['HBT'].trim()] || '#ccc';
                 
-                // Define a classe visual baseada no status filtrado ou real
+                // Define a classe visual baseada na regra: Futuro tem destaque de borda/fundo
                 let rowClass = "hover:bg-gray-50 transition-colors";
-                if (ehFuturo && !ehAtual) {
+                if (status.ehFuturo) {
                     rowClass = "bg-primary/5 border-l-4 border-primary " + rowClass;
-                } else if (ehAtual && ehFuturo) {
-                    rowClass = "bg-red-50 border-l-4 border-red-600 " + rowClass;
                 }
 
                 return `
