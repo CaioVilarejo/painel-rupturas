@@ -54,7 +54,6 @@ function carregarMenu() {
     // LISTA DE ITENS DO MENU ATUALIZADA
     const todosItens = [
         { nome: 'Rupturas', icone: 'analytics', link: 'dashboard.html' },
-        { nome: 'Histórico', icone: 'timeline', link: 'historico.html' },
         { nome: 'Fornecedores', icone: 'analytics', link: 'Fornecedores.html' }, // Novo item
         { nome: 'Pendências CD', icone: 'confirmation_number', link: 'pendencias.html' },
         { nome: 'Gerenciamento Alvos', icone: 'confirmation_number', link: 'GerenciamentoAlvos.html' },
