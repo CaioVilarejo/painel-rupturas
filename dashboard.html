@@ -9,6 +9,8 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
+    <!-- Adicionando plugin de rótulos de dados para o Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
     <script>
     tailwind.config = {
@@ -59,20 +61,18 @@
             min-width: 220px; 
             box-shadow: 0px 10px 25px rgba(0,0,0,0.15); 
             z-index: 100; 
-            border-radius: 0 0 12px 12px; /* Arredondado apenas embaixo para colar no botão */
+            border-radius: 0 0 12px 12px; 
             padding: 12px; 
             border: 1px solid #e5e7eb; 
-            border-top: none; /* Remove borda superior para parecer uma peça única */
-            margin-top: 0; /* ELIMINA A LACUNA TOTALMENTE */
+            border-top: none; 
+            margin-top: 0; 
             max-height: 350px; 
             overflow-y: auto; 
             right: 0;
             animation: fadeIn 0.15s ease-out;
         }
-        /* Classe para mostrar o conteúdo via JS */
         .filter-content.show { display: block; }
         
-        /* Ajuste no botão quando o menu está aberto */
         .filter-dropdown.active button {
             border-bottom-left-radius: 0;
             border-bottom-right-radius: 0;
@@ -186,7 +186,7 @@
 
             <div class="bg-white rounded-xl border shadow-sm p-6 mb-10">
                 <h3 class="font-bold text-lg mb-4 text-gray-800">Visão Geral de Rupturas por Classificação</h3>
-                <div class="relative h-64 w-full">
+                <div class="relative h-80 w-full">
                     <canvas id="rupturaChart"></canvas>
                 </div>
             </div>
@@ -324,7 +324,6 @@
             const parent = content.closest('.filter-dropdown');
             const isShown = content.classList.contains('show');
             
-            // Fecha todos os outros primeiro
             document.querySelectorAll('.filter-content').forEach(c => c.classList.remove('show'));
             document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('active'));
             
@@ -334,7 +333,6 @@
             }
         }
 
-        // Fecha dropdowns ao clicar fora
         window.onclick = function(event) {
             if (!event.target.closest('.filter-dropdown')) {
                 document.querySelectorAll('.filter-content').forEach(c => c.classList.remove('show'));
@@ -506,9 +504,21 @@
                 const matchGrupo = filtrosAtivos.grupos.length === 0 || filtrosAtivos.grupos.includes(grupo);
                 const matchHBT = filtrosAtivos.hbt.length === 0 || filtrosAtivos.hbt.includes(hbt);
                 const matchSearch = desc.includes(searchInput) || cod.includes(searchInput);
-                const matchStatus = filtrosAtivos.status.length === 0 || 
-                                   (filtrosAtivos.status.includes('atual') && isRompido(item['Romp.Atual'])) || 
-                                   (filtrosAtivos.status.includes('futuro') && isRompido(item['Romp.Futuro']));
+                
+                // CORREÇÃO: Lógica do filtro de status melhorada
+                let matchStatus = true;
+                if (filtrosAtivos.status.length > 0) {
+                    const isAtual = isRompido(item['Romp.Atual']);
+                    const isFuturo = isRompido(item['Romp.Futuro']);
+                    
+                    if (filtrosAtivos.status.includes('atual') && filtrosAtivos.status.includes('futuro')) {
+                        matchStatus = isAtual || isFuturo;
+                    } else if (filtrosAtivos.status.includes('atual')) {
+                        matchStatus = isAtual;
+                    } else if (filtrosAtivos.status.includes('futuro')) {
+                        matchStatus = isFuturo;
+                    }
+                }
 
                 return matchGrupo && matchHBT && matchSearch && matchStatus;
             });
@@ -540,11 +550,15 @@
             document.getElementById('tableFooter').innerText = `Listando ${filtrados.length} registros encontrados`;
         }
 
-        // GRÁFICO DASHBOARD
+        // GRÁFICO DASHBOARD - MELHORADO
         function criarGraficoRuptura(contadores) {
             const ctx = document.getElementById('rupturaChart');
             if (!ctx) return;
             if (rupturaChart) rupturaChart.destroy();
+            
+            // Registrando o plugin de rótulos de dados
+            Chart.register(ChartDataLabels);
+
             rupturaChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -554,7 +568,33 @@
                         { label: 'Ruptura Futura', data: [contadores.H.futuro, contadores.B.futuro, contadores.TH.futuro], backgroundColor: ['#E30613', '#3B82F6', '#6B7280'], borderRadius: 4 }
                     ]
                 },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { labels: { usePointStyle: true, font: { weight: 'bold' } } } } }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    scales: { 
+                        y: { 
+                            beginAtZero: true, 
+                            display: false // REMOVE O EIXO ESQUERDO
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }, 
+                    plugins: { 
+                        legend: { 
+                            position: 'right', // LEGENDA À DIREITA
+                            labels: { usePointStyle: true, font: { weight: 'bold' } } 
+                        },
+                        datalabels: { // RÓTULOS DE DADOS EM CIMA DAS BARRAS
+                            anchor: 'end',
+                            align: 'top',
+                            formatter: Math.round,
+                            font: { weight: 'bold', size: 12 },
+                            color: '#4b5563'
+                        },
+                        tooltip: { enabled: true }
+                    } 
+                }
             });
         }
 
@@ -622,7 +662,11 @@
                 options: {
                     responsive: true, maintainAspectRatio: false,
                     scales: { y: { beginAtZero: true }, x: { title: { display: true, text: 'Data' } } },
-                    plugins: { legend: { position: 'top' }, tooltip: { mode: 'index', intersect: false } }
+                    plugins: { 
+                        legend: { position: 'top' }, 
+                        tooltip: { mode: 'index', intersect: false },
+                        datalabels: { display: false } // Desativa rótulos no gráfico de linha para não poluir
+                    }
                 }
             };
 
