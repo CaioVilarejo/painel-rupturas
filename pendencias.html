@@ -145,7 +145,7 @@
                                 <label class="filter-option"><input type="checkbox" value="Quebra de produto na embalagem(Externa)" checked onchange="filtrarGeral()"> Quebra produto embalagem</label>
                                 <label class="filter-option"><input type="checkbox" value="Divergência de Estoque" checked onchange="filtrarGeral()"> Divergência de Estoque</label>
                                 <label class="filter-option"><input type="checkbox" value="Divergência de Recebimento" checked onchange="filtrarGeral()"> Divergência de Recebimento</label>
-                                <label class="filter-option"><input type="checkbox" value="Outros" checked onchange="filtrarGeral()"> Outros</label>
+                                <label class="filter-option"><input type="checkbox" value="Quebra no Transporte" checked onchange="filtrarGeral()"> Quebra no Transporte</label>
                             </div>
                         </div>
 
@@ -214,7 +214,7 @@
                             <option value="Quebra de produto na embalagem(Externa)">Quebra produto embalagem</option>
                             <option value="Divergência de Estoque">Divergência de Estoque</option>
                             <option value="Divergência de Recebimento">Divergência de Recebimento</option>
-                            <option value="Outros">Outros</option>
+                            <option value="Quebra no Transporte">Quebra no Transporte</option>
                         </select>
                     </div>
                     <div id="divOutros" class="col-span-full hidden">
@@ -598,7 +598,7 @@
             const filtrar = (iniStr !== "" && fimStr !== "");
             const ini = filtrar ? new Date(iniStr + "T00:00:00") : null;
             const fim = filtrar ? new Date(fimStr + "T23:59:59") : null;
-            const cont = { "Quebra fábrica": 0, "Quebra depósito/Loja": 0, "Quebra de produto na embalagem(Externa)": 0, "Divergência de Estoque": 0,  "Divergência de Recebimento": 0, "Outros": 0 };
+            const cont = { "Quebra fábrica": 0, "Quebra depósito/Loja": 0, "Quebra de produto na embalagem(Externa)": 0, "Divergência de Estoque": 0,  "Divergência de Recebimento": 0, "Quebra no Transporte": 0 };
             let total = 0;
             dadosGlobais.forEach(d => {
                 const dataT = new Date(d[10]);
