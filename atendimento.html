@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="utf-8"/>
+    <meta charset="utf-f"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Dashboard Atendimento - Vilarejo</title>
     
@@ -23,11 +23,11 @@
         .chart-container { position: relative; height: 380px; width: 100%; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
 
-        /* ESTILOS DOS NOVOS FILTROS (Inspirado no dashboard.html ) */
+        /* ESTILOS DOS NOVOS FILTROS */
         .filter-dropdown { position: relative; display: inline-block; }
         .filter-content { 
             display: none; position: absolute; background-color: white; min-width: 240px;
-            box-shadow: 0px 10px 25px rgba(0,0,0,0.1); z-index: 100; border-radius: 12px; 
+            box-shadow: 0px 10px 25px rgba(0,0,0,0.1 ); z-index: 100; border-radius: 12px; 
             padding: 12px; border: 1px solid #e5e7eb; margin-top: 4px; max-height: 300px; 
             overflow-y: auto; right: 0; animation: fadeIn 0.15s ease-out;
         }
@@ -63,7 +63,6 @@
                         <p class="text-xs text-gray-500 font-bold uppercase tracking-widest">Base completa de atendimentos via Octadesk</p>
                     </div>
 
-                    <!-- NOVO SISTEMA DE FILTROS -->
                     <div class="flex items-center gap-3">
                         <div class="filter-dropdown">
                             <button onclick="toggleDropdown(event, 'filtroPeriodoContainer')" class="flex items-center gap-3 bg-white p-2 rounded-2xl shadow-sm border hover:border-primary transition-all">
@@ -81,7 +80,6 @@
                     </div>
                 </div>
 
-                <!-- O restante do corpo da página permanece o mesmo -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <div class="bg-white p-6 rounded-3xl shadow-sm border">
                         <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Total de Atendimentos no Período</p>
@@ -139,7 +137,6 @@
         let charts = {};
         let filtrosAtivos = { periodos: [] };
 
-        // LÓGICA PARA FECHAR DROPDOWNS AO CLICAR FORA
         function toggleDropdown(event, id) {
             event.stopPropagation();
             const content = document.getElementById(id);
@@ -162,7 +159,7 @@
             const container = document.getElementById('filtroPeriodoContainer');
             const periodos = new Set();
             dados.forEach(d => {
-                const data = new Date(d[7]); // Coluna H
+                const data = new Date(d[7]);
                 if(!isNaN(data)){
                     const label = `${String(data.getMonth() + 1).padStart(2, '0')}/${data.getFullYear()}`;
                     periodos.add(label);
@@ -170,12 +167,13 @@
             });
             
             const ordenados = Array.from(periodos).sort((a,b) => {
-                const [mA, aA] = a.split('/'); const [mB, aB] = b.split('/');
-                return new Date(aA, mA - 1) - new Date(bB, mB - 1);
+                const [mA, aA] = a.split('/'); 
+                const [mB, aB] = b.split('/');
+                // CORREÇÃO APLICADA AQUI: Usando as variáveis corretas aB e mB.
+                return new Date(aA, mA - 1) - new Date(aB, mB - 1);
             });
 
-            // Define o filtro padrão como o último mês disponível
-            if (ordenados.length > 0) {
+            if (filtrosAtivos.periodos.length === 0 && ordenados.length > 0) {
                 filtrosAtivos.periodos = [ordenados[ordenados.length - 1]];
             }
 
@@ -220,7 +218,6 @@
                 });
             }
             
-            // Atualiza o texto do botão de filtro
             const labelPeriodo = document.getElementById('labelPeriodo');
             if (filtrosAtivos.periodos.length === 0) {
                 labelPeriodo.innerText = 'Todos os Meses';
@@ -322,7 +319,6 @@
         function renderPieChart(id, labels, data) {
             if (charts[id]) charts[id].destroy();
             
-            // MELHORIA: Paleta de cores distintas para o gráfico de rosca
             const pieColors = [
                 '#E30613', '#111827', '#3b82f6', '#10b981', '#f59e0b', 
                 '#8b5cf6', '#ec4899', '#64748b', '#ef4444', '#f97316'
