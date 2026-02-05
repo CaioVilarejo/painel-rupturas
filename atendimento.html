@@ -78,16 +78,13 @@
                     </div>
 
                     <div class="flex items-center gap-3">
-                        <!-- FILTRO DE PERÍODO (PADRÃO CLIQUE) -->
                         <div class="filter-dropdown" id="dropdownMes">
                             <button onclick="toggleDropdown(event)" class="bg-white border border-gray-300 rounded-xl px-4 py-2 flex items-center gap-2 shadow-sm hover:border-primary transition-all">
                                 <span class="text-[10px] font-black text-gray-400 uppercase">Período:</span>
                                 <span id="labelMes" class="font-bold text-sm text-gray-700">Carregando...</span>
                                 <span class="material-symbols-outlined text-sm text-gray-400">expand_more</span>
                             </button>
-                            <div class="filter-content" id="checklistMes">
-                                <!-- Opções de meses via JS -->
-                            </div>
+                            <div class="filter-content" id="checklistMes"></div>
                         </div>
 
                         <button onclick="carregarDadosAtendimento()" class="bg-white p-2 border border-gray-300 rounded-xl shadow-sm hover:bg-gray-50 transition-all">
@@ -139,14 +136,12 @@
                         <div class="h-[300px] w-full"><canvas id="chartResponsaveis"></canvas></div>
                     </div>
                 </div>
-
             </div>
         </main>
     </div>
 
     <script src="menu.js"></script>
     <script>
-        // URL validada pelo usuário
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbznCForFxpY6CAU6W3UgglusC8oqyfDz0dqM-l_95xtr9CK9TcFvbw_V7LJQk8jTZH-/exec';
         Chart.register(ChartDataLabels);
 
@@ -154,7 +149,6 @@
         let charts = {};
         let mesSelecionado = "todos";
 
-        // LÓGICA DE DROPDOWN (PADRÃO DASHBOARD)
         function toggleDropdown(event) {
             event.stopPropagation();
             const dropdown = document.getElementById('dropdownMes');
@@ -175,9 +169,14 @@
                 const labelStatus = document.getElementById('labelMes');
                 labelStatus.innerText = "Sincronizando...";
                 
-                // Usando o método fetch padrão que funciona nas outras páginas
-                const response = await fetch(`${WEB_APP_URL}?rota=atendimento`);
-                if (!response.ok) throw new Error('Erro na resposta do servidor');
+                // O segredo para o Google Script é usar redirect: 'follow'
+                // E garantir que a URL termine com /exec
+                const response = await fetch(WEB_APP_URL + '?rota=atendimento', {
+                    method: 'GET',
+                    redirect: 'follow'
+                });
+                
+                if (!response.ok) throw new Error('Erro na rede');
                 
                 dadosBrutos = await response.json();
                 
@@ -185,10 +184,10 @@
                     popularFiltroMeses(dadosBrutos);
                     aplicarFiltros();
                 } else {
-                    labelStatus.innerText = "Base Vazia";
+                    labelStatus.innerText = "Sem dados";
                 }
             } catch (error) { 
-                console.error("Erro ao carregar:", error);
+                console.error("Erro:", error);
                 document.getElementById('labelMes').innerText = "Erro na Base";
             }
         }
@@ -198,7 +197,7 @@
             const periodos = new Set();
             
             dados.forEach(d => {
-                const dataStr = d[7]; // Coluna H
+                const dataStr = d[7];
                 if (dataStr) {
                     const data = new Date(dataStr);
                     if(!isNaN(data)){
@@ -210,10 +209,9 @@
 
             const ordenados = Array.from(periodos).sort((a,b) => {
                 const [mA, aA] = a.split('/'); const [mB, aB] = b.split('/');
-                return new Date(aB, mB-1) - new Date(aA, mA-1); // Ordem decrescente
+                return new Date(aB, mB-1) - new Date(aA, mA-1);
             });
 
-            // Definir o mês mais recente como padrão na primeira carga
             if (mesSelecionado === "todos" && ordenados.length > 0) {
                 mesSelecionado = ordenados[0];
             }
@@ -248,8 +246,7 @@
                 });
             }
             document.getElementById('labelMes').innerText = mesSelecionado === 'todos' ? 'Histórico Total' : mesSelecionado;
-            const divisorHistorico = contarMesesDiferentes(dadosBrutos);
-            processarDashboard(filtrados, divisorHistorico);
+            processarDashboard(filtrados, contarMesesDiferentes(dadosBrutos));
         }
 
         function contarMesesDiferentes(dados) {
@@ -322,10 +319,7 @@
                         legend: { display: false },
                         datalabels: {
                             anchor: 'end', align: 'right', color: '#333', font: { weight: 'bold', size: 10 },
-                            formatter: (val, ctx) => {
-                                const extra = extraInfo[ctx.dataIndex] ? ` (${extraInfo[ctx.dataIndex]})` : '';
-                                return val + sufixo + extra;
-                            }
+                            formatter: (val, ctx) => val + sufixo + (extraInfo[ctx.dataIndex] ? ` (${extraInfo[ctx.dataIndex]})` : '')
                         }
                     },
                     scales: { x: { display: false }, y: { grid: { display: false }, ticks: { font: { size: 9, weight: 'bold' }, color: '#444' } } }
