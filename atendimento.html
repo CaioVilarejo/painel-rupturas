@@ -22,6 +22,32 @@
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
         .chart-container { position: relative; height: 380px; width: 100%; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* ESTILOS DOS NOVOS FILTROS (Inspirado no dashboard.html ) */
+        .filter-dropdown { position: relative; display: inline-block; }
+        .filter-content { 
+            display: none; position: absolute; background-color: white; min-width: 240px;
+            box-shadow: 0px 10px 25px rgba(0,0,0,0.1); z-index: 100; border-radius: 12px; 
+            padding: 12px; border: 1px solid #e5e7eb; margin-top: 4px; max-height: 300px; 
+            overflow-y: auto; right: 0; animation: fadeIn 0.15s ease-out;
+        }
+        .filter-content.show { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .filter-option { 
+            display: flex; align-items: center; gap: 10px; padding: 8px; cursor: pointer;
+            font-size: 12px; font-weight: 600; color: #4b5563; border-radius: 6px;
+            transition: background 0.2s;
+        }
+        .filter-option:hover { background-color: #f9fafb; }
+        .filter-option input { cursor: pointer; accent-color: #E30613; }
+        
+        .btn-clear-filter { 
+            width: 100%; text-align: center; padding: 8px; font-size: 11px; font-weight: 800;
+            text-transform: uppercase; color: #E30613; border-bottom: 1px solid #f3f4f6;
+            margin-bottom: 8px; cursor: pointer; border-radius: 6px;
+        }
+        .btn-clear-filter:hover { background-color: #fff5f5; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-900">
@@ -37,17 +63,25 @@
                         <p class="text-xs text-gray-500 font-bold uppercase tracking-widest">Base completa de atendimentos via Octadesk</p>
                     </div>
 
-                    <div class="flex items-center gap-3 bg-white p-2 rounded-2xl shadow-sm border">
-                        <label class="text-[10px] font-black text-gray-400 uppercase ml-2">Filtrar Período:</label>
-                        <select id="filtroMesAno" onchange="aplicarFiltros()" class="border-none bg-transparent font-bold text-sm outline-none focus:ring-0 cursor-pointer">
-                            <option value="todos">Todos os Meses (Histórico)</option>
-                        </select>
-                        <button onclick="carregarDadosAtendimento()" class="p-2 hover:bg-gray-100 rounded-xl transition-all">
+                    <!-- NOVO SISTEMA DE FILTROS -->
+                    <div class="flex items-center gap-3">
+                        <div class="filter-dropdown">
+                            <button onclick="toggleDropdown(event, 'filtroPeriodoContainer')" class="flex items-center gap-3 bg-white p-2 rounded-2xl shadow-sm border hover:border-primary transition-all">
+                                <label class="text-[10px] font-black text-gray-400 uppercase ml-2">Filtrar Período:</label>
+                                <span id="labelPeriodo" class="font-bold text-sm">Carregando...</span>
+                                <span class="material-symbols-outlined text-gray-600 text-sm">expand_more</span>
+                            </button>
+                            <div id="filtroPeriodoContainer" class="filter-content">
+                                <!-- Opções de filtro serão inseridas aqui pelo JS -->
+                            </div>
+                        </div>
+                        <button onclick="carregarDadosAtendimento()" class="p-2 bg-white border shadow-sm hover:bg-gray-100 rounded-xl transition-all">
                             <span class="material-symbols-outlined text-gray-600 text-sm">refresh</span>
                         </button>
                     </div>
                 </div>
 
+                <!-- O restante do corpo da página permanece o mesmo -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <div class="bg-white p-6 rounded-3xl shadow-sm border">
                         <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Total de Atendimentos no Período</p>
@@ -99,10 +133,21 @@
     <script src="menu.js"></script>
     <script>
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbznCForFxpY6CAU6W3UgglusC8oqyfDz0dqM-l_95xtr9CK9TcFvbw_V7LJQk8jTZH-/exec';
-        Chart.register(ChartDataLabels);
+        Chart.register(ChartDataLabels );
 
         let dadosBrutos = [];
         let charts = {};
+        let filtrosAtivos = { periodos: [] };
+
+        // LÓGICA PARA FECHAR DROPDOWNS AO CLICAR FORA
+        function toggleDropdown(event, id) {
+            event.stopPropagation();
+            const content = document.getElementById(id);
+            const isShown = content.classList.contains('show');
+            document.querySelectorAll('.filter-content').forEach(c => c.classList.remove('show'));
+            if (!isShown) content.classList.add('show');
+        }
+        window.onclick = () => document.querySelectorAll('.filter-content').forEach(c => c.classList.remove('show'));
 
         async function carregarDadosAtendimento() {
             try {
@@ -114,7 +159,7 @@
         }
 
         function popularFiltroMeses(dados) {
-            const seletor = document.getElementById('filtroMesAno');
+            const container = document.getElementById('filtroPeriodoContainer');
             const periodos = new Set();
             dados.forEach(d => {
                 const data = new Date(d[7]); // Coluna H
@@ -123,27 +168,68 @@
                     periodos.add(label);
                 }
             });
+            
             const ordenados = Array.from(periodos).sort((a,b) => {
                 const [mA, aA] = a.split('/'); const [mB, aB] = b.split('/');
-                return new Date(aA, mA) - new Date(aB, mB);
+                return new Date(aA, mA - 1) - new Date(bB, mB - 1);
             });
-            seletor.innerHTML = '<option value="todos">Todos os Meses (Histórico)</option>';
-            ordenados.forEach(p => seletor.innerHTML += `<option value="${p}">${p}</option>`);
+
+            // Define o filtro padrão como o último mês disponível
+            if (ordenados.length > 0) {
+                filtrosAtivos.periodos = [ordenados[ordenados.length - 1]];
+            }
+
+            let html = `<div class="btn-clear-filter" onclick="limparFiltroPeriodo()">Limpar e Ver Todos</div>`;
+            ordenados.forEach(p => {
+                const isChecked = filtrosAtivos.periodos.includes(p);
+                html += `
+                    <label class="filter-option" onclick="event.stopPropagation()">
+                        <input type="checkbox" value="${p}" onchange="toggleFiltroPeriodo('${p}')" ${isChecked ? 'checked' : ''}>
+                        ${p}
+                    </label>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function toggleFiltroPeriodo(periodo) {
+            const idx = filtrosAtivos.periodos.indexOf(periodo);
+            if (idx > -1) {
+                filtrosAtivos.periodos.splice(idx, 1);
+            } else {
+                filtrosAtivos.periodos.push(periodo);
+            }
+            aplicarFiltros();
+        }
+
+        function limparFiltroPeriodo() {
+            filtrosAtivos.periodos = [];
+            document.querySelectorAll('#filtroPeriodoContainer input').forEach(i => i.checked = false);
+            aplicarFiltros();
         }
 
         function aplicarFiltros() {
-            const filtro = document.getElementById('filtroMesAno').value;
             let filtrados = dadosBrutos;
 
-            if (filtro !== 'todos') {
+            if (filtrosAtivos.periodos.length > 0) {
                 filtrados = dadosBrutos.filter(d => {
                     const data = new Date(d[7]);
+                    if (isNaN(data)) return false;
                     const label = `${String(data.getMonth() + 1).padStart(2, '0')}/${data.getFullYear()}`;
-                    return label === filtro;
+                    return filtrosAtivos.periodos.includes(label);
                 });
             }
             
-            // Divisor sempre baseado no histórico total (meses de Junho até hoje)
+            // Atualiza o texto do botão de filtro
+            const labelPeriodo = document.getElementById('labelPeriodo');
+            if (filtrosAtivos.periodos.length === 0) {
+                labelPeriodo.innerText = 'Todos os Meses';
+            } else if (filtrosAtivos.periodos.length === 1) {
+                labelPeriodo.innerText = filtrosAtivos.periodos[0];
+            } else {
+                labelPeriodo.innerText = `${filtrosAtivos.periodos.length} meses selecionados`;
+            }
+            
             const divisorHistorico = contarMesesDiferentes(dadosBrutos);
             processarDashboard(filtrados, divisorHistorico);
         }
@@ -157,48 +243,47 @@
         }
 
         function processarDashboard(dadosFiltrados, divisorMediaHistorica) {
-            // Contagem Filtro (Para Totais e Líder por Loja)
             const contLojas = {}; const contVends = {}; const contResp = {}; const vendLoja = {};
-            // Contagem Geral (Para as Médias Históricas Fixas)
             const contLojasGeral = {}; const contVendsGeral = {};
 
             dadosFiltrados.forEach(d => {
                 const vend = d[2]; const loja = d[3]; const resp = d[11];
-                contLojas[loja] = (contLojas[loja] || 0) + 1;
-                contVends[vend] = (contVends[vend] || 0) + 1;
-                contResp[resp] = (contResp[resp] || 0) + 1;
-                if (!vendLoja[loja]) vendLoja[loja] = {};
-                vendLoja[loja][vend] = (vendLoja[loja][vend] || 0) + 1;
+                if (loja) contLojas[loja] = (contLojas[loja] || 0) + 1;
+                if (vend) contVends[vend] = (contVends[vend] || 0) + 1;
+                if (resp) contResp[resp] = (contResp[resp] || 0) + 1;
+                if (loja && vend) {
+                    if (!vendLoja[loja]) vendLoja[loja] = {};
+                    vendLoja[loja][vend] = (vendLoja[loja][vend] || 0) + 1;
+                }
             });
 
             dadosBrutos.forEach(d => {
-                contLojasGeral[d[3]] = (contLojasGeral[d[3]] || 0) + 1;
-                contVendsGeral[d[2]] = (contVendsGeral[d[2]] || 0) + 1;
+                if (d[3]) contLojasGeral[d[3]] = (contLojasGeral[d[3]] || 0) + 1;
+                if (d[2]) contVendsGeral[d[2]] = (contVendsGeral[d[2]] || 0) + 1;
             });
 
             document.getElementById('cardTotalAtendimentos').innerText = dadosFiltrados.length;
             document.getElementById('cardColaboradoresUnicos').innerText = new Set(dadosFiltrados.map(d => d[2])).size;
 
-            // 1. Gráficos de Lojas
             const labelsL = Object.keys(contLojas).sort();
             renderHorizontalChart('chartLojas', labelsL, labelsL.map(l => contLojas[l] || 0), '#3b82f6', '');
             renderHorizontalChart('chartMediaLojas', labelsL, labelsL.map(l => ((contLojasGeral[l] || 0) / divisorMediaHistorica).toFixed(1)), '#94a3b8', ' média/mês');
 
-            // 2. Gráficos de Vendedores
             const top10 = Object.entries(contVends).sort((a,b)=>b[1]-a[1]).slice(0,10);
             const labelsV = top10.map(v=>v[0]);
             renderHorizontalChart('chartVendedores', labelsV, top10.map(v=>v[1]), '#E30613', '');
             renderHorizontalChart('chartMediaVendedores', labelsV, labelsV.map(v => ((contVendsGeral[v] || 0) / divisorMediaHistorica).toFixed(1)), '#fca5a5', ' média/mês');
 
-            // 3. Líder por Loja (% Baseado no Filtro Atual)
             const labelsLider = []; const valoresLider = []; const percsLider = [];
-            Object.keys(vendLoja).forEach(loja => {
+            Object.keys(vendLoja).sort().forEach(loja => {
                 const lider = Object.entries(vendLoja[loja]).sort((a,b)=>b[1]-a[1])[0];
-                const totalLojaFiltro = contLojas[loja];
-                const percentual = ((lider[1] / totalLojaFiltro) * 100).toFixed(0);
-                labelsLider.push(lider[0]);
-                valoresLider.push(lider[1]);
-                percsLider.push(`${percentual}%`);
+                if (lider) {
+                    const totalLojaFiltro = contLojas[loja];
+                    const percentual = ((lider[1] / totalLojaFiltro) * 100).toFixed(0);
+                    labelsLider.push(lider[0]);
+                    valoresLider.push(lider[1]);
+                    percsLider.push(`${percentual}%`);
+                }
             });
             renderHorizontalChart('chartVendedorPorLoja', labelsLider, valoresLider, '#111827', '', percsLider);
 
@@ -236,11 +321,22 @@
 
         function renderPieChart(id, labels, data) {
             if (charts[id]) charts[id].destroy();
+            
+            // MELHORIA: Paleta de cores distintas para o gráfico de rosca
+            const pieColors = [
+                '#E30613', '#111827', '#3b82f6', '#10b981', '#f59e0b', 
+                '#8b5cf6', '#ec4899', '#64748b', '#ef4444', '#f97316'
+            ];
+
             charts[id] = new Chart(document.getElementById(id).getContext('2d'), {
                 type: 'doughnut',
                 data: {
                     labels: labels,
-                    datasets: [{ data: data, backgroundColor: ['#E30613', '#111827', '#3b82f6', '#10b981', '#f59e0b'], borderWidth: 0 }]
+                    datasets: [{ 
+                        data: data, 
+                        backgroundColor: pieColors, 
+                        borderWidth: 0 
+                    }]
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
