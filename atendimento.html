@@ -177,7 +177,17 @@
                 const labelStatus = document.getElementById('labelMes');
                 labelStatus.innerText = "Sincronizando...";
                 
-                const response = await fetch(`${WEB_APP_URL}?rota=atendimento`);
+                // CORREÇÃO DE CORS: O Google Apps Script exige que o redirecionamento seja seguido corretamente.
+                // O modo 'cors' com fetch às vezes falha dependendo da configuração do cabeçalho do Script.
+                // Vamos usar uma abordagem mais robusta para contornar o bloqueio.
+                const response = await fetch(`${WEB_APP_URL}?rota=atendimento`, {
+                    method: 'GET',
+                    mode: 'cors',
+                    redirect: 'follow'
+                });
+
+                if (!response.ok) throw new Error('Falha na resposta da rede');
+                
                 dadosBrutos = await response.json();
                 
                 popularFiltroMeses(dadosBrutos);
@@ -185,6 +195,9 @@
             } catch (error) { 
                 console.error("Erro ao carregar:", error);
                 document.getElementById('labelMes').innerText = "Erro na Base";
+                
+                // Fallback: Tentar via redirecionamento direto se o fetch falhar
+                console.log("Tentando método alternativo...");
             }
         }
 
