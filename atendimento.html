@@ -158,9 +158,6 @@
             event.stopPropagation();
             const dropdown = document.getElementById('dropdownMes');
             const content = document.getElementById('checklistMes');
-            const isActive = dropdown.classList.contains('active');
-            
-            // Fecha outros se houvesse
             dropdown.classList.toggle('active');
             content.classList.toggle('show');
         }
@@ -173,12 +170,17 @@
         }
 
         // FUNÇÃO DE CALLBACK PARA JSONP (CORREÇÃO DEFINITIVA DE CORS)
-        function retornoDadosAtendimento(dados) {
+        window.retornoDadosAtendimento = function(dados) {
+            console.log("Dados recebidos via JSONP:", dados ? "Sucesso" : "Vazio");
+            if (!dados || !Array.isArray(dados)) {
+                document.getElementById('labelMes').innerText = "Base Vazia";
+                return;
+            }
             dadosBrutos = dados;
             popularFiltroMeses(dadosBrutos);
             aplicarFiltros();
             document.getElementById('labelMes').innerText = mesSelecionado === 'todos' ? 'Histórico Total' : mesSelecionado;
-        }
+        };
 
         function carregarDadosAtendimento() {
             const labelStatus = document.getElementById('labelMes');
@@ -189,13 +191,13 @@
             if (antigo) antigo.remove();
 
             // Cria um novo elemento de script para carregar os dados (Técnica JSONP)
-            // Isso ignora as restrições de CORS do navegador
             const script = document.createElement('script');
             script.id = 'scriptDados';
-            script.src = `${WEB_APP_URL}?rota=atendimento&callback=retornoDadosAtendimento`;
+            // Adicionamos um timestamp para evitar cache do navegador
+            script.src = `${WEB_APP_URL}?rota=atendimento&callback=retornoDadosAtendimento&t=${new Date().getTime()}`;
             
             script.onerror = function() {
-                console.error("Erro ao carregar via JSONP");
+                console.error("Erro crítico: Falha ao carregar o script de dados do Google.");
                 labelStatus.innerText = "Erro na Base";
             };
 
@@ -219,16 +221,14 @@
 
             const ordenados = Array.from(periodos).sort((a,b) => {
                 const [mA, aA] = a.split('/'); const [mB, aB] = b.split('/');
-                return new Date(aB, mB-1) - new Date(aA, mA-1); // Ordem decrescente (mais recente primeiro)
+                return new Date(aB, mB-1) - new Date(aA, mA-1); // Ordem decrescente
             });
 
-            // Definir o mês mais recente como padrão na primeira carga
             if (mesSelecionado === "todos" && ordenados.length > 0) {
                 mesSelecionado = ordenados[0];
             }
 
             let html = `<div class="btn-clear-filter" onclick="selecionarMes('todos')">Todos os Meses (Histórico)</div>`;
-            
             ordenados.forEach(p => {
                 html += `
                     <div class="filter-option" onclick="selecionarMes('${p}')">
@@ -237,30 +237,19 @@
                     </div>
                 `;
             });
-            
             container.innerHTML = html;
-            atualizarLabelFiltro();
         }
 
         function selecionarMes(mes) {
             mesSelecionado = mes;
-            atualizarLabelFiltro();
             aplicarFiltros();
-            // Fecha o dropdown
             document.getElementById('dropdownMes').classList.remove('active');
             document.getElementById('checklistMes').classList.remove('show');
-            // Re-renderiza as opções para atualizar o rádio marcado
             popularFiltroMeses(dadosBrutos);
-        }
-
-        function atualizarLabelFiltro() {
-            const label = document.getElementById('labelMes');
-            label.innerText = mesSelecionado === 'todos' ? 'Histórico Total' : mesSelecionado;
         }
 
         function aplicarFiltros() {
             let filtrados = dadosBrutos;
-
             if (mesSelecionado !== 'todos') {
                 filtrados = dadosBrutos.filter(d => {
                     const data = new Date(d[7]);
@@ -268,7 +257,7 @@
                     return label === mesSelecionado;
                 });
             }
-            
+            document.getElementById('labelMes').innerText = mesSelecionado === 'todos' ? 'Histórico Total' : mesSelecionado;
             const divisorHistorico = contarMesesDiferentes(dadosBrutos);
             processarDashboard(filtrados, divisorHistorico);
         }
@@ -323,7 +312,6 @@
                 percsLider.push(`${percentual}%`);
             });
             renderHorizontalChart('chartVendedorPorLoja', labelsLider, valoresLider, '#111827', '', percsLider);
-
             renderPieChart('chartResponsaveis', Object.keys(contResp), Object.values(contResp));
         }
 
@@ -350,10 +338,7 @@
                             }
                         }
                     },
-                    scales: { 
-                        x: { display: false }, 
-                        y: { grid: { display: false }, ticks: { font: { size: 9, weight: 'bold' }, color: '#444' } } 
-                    }
+                    scales: { x: { display: false }, y: { grid: { display: false }, ticks: { font: { size: 9, weight: 'bold' }, color: '#444' } } }
                 }
             });
         }
