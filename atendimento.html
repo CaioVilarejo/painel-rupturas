@@ -172,33 +172,34 @@
             }
         }
 
-        async function carregarDadosAtendimento() {
-            try {
-                const labelStatus = document.getElementById('labelMes');
-                labelStatus.innerText = "Sincronizando...";
-                
-                // CORREÇÃO DE CORS: O Google Apps Script exige que o redirecionamento seja seguido corretamente.
-                // O modo 'cors' com fetch às vezes falha dependendo da configuração do cabeçalho do Script.
-                // Vamos usar uma abordagem mais robusta para contornar o bloqueio.
-                const response = await fetch(`${WEB_APP_URL}?rota=atendimento`, {
-                    method: 'GET',
-                    mode: 'cors',
-                    redirect: 'follow'
-                });
+        // FUNÇÃO DE CALLBACK PARA JSONP (CORREÇÃO DEFINITIVA DE CORS)
+        function retornoDadosAtendimento(dados) {
+            dadosBrutos = dados;
+            popularFiltroMeses(dadosBrutos);
+            aplicarFiltros();
+            document.getElementById('labelMes').innerText = mesSelecionado === 'todos' ? 'Histórico Total' : mesSelecionado;
+        }
 
-                if (!response.ok) throw new Error('Falha na resposta da rede');
-                
-                dadosBrutos = await response.json();
-                
-                popularFiltroMeses(dadosBrutos);
-                aplicarFiltros();
-            } catch (error) { 
-                console.error("Erro ao carregar:", error);
-                document.getElementById('labelMes').innerText = "Erro na Base";
-                
-                // Fallback: Tentar via redirecionamento direto se o fetch falhar
-                console.log("Tentando método alternativo...");
-            }
+        function carregarDadosAtendimento() {
+            const labelStatus = document.getElementById('labelMes');
+            labelStatus.innerText = "Sincronizando...";
+            
+            // Remove script anterior se existir
+            const antigo = document.getElementById('scriptDados');
+            if (antigo) antigo.remove();
+
+            // Cria um novo elemento de script para carregar os dados (Técnica JSONP)
+            // Isso ignora as restrições de CORS do navegador
+            const script = document.createElement('script');
+            script.id = 'scriptDados';
+            script.src = `${WEB_APP_URL}?rota=atendimento&callback=retornoDadosAtendimento`;
+            
+            script.onerror = function() {
+                console.error("Erro ao carregar via JSONP");
+                labelStatus.innerText = "Erro na Base";
+            };
+
+            document.body.appendChild(script);
         }
 
         function popularFiltroMeses(dados) {
