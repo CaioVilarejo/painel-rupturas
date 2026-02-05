@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Dashboard Atendimento - Vilarejo</title>
     
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     
@@ -22,6 +22,46 @@
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
         .chart-container { position: relative; height: 380px; width: 100%; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        /* ESTILO DOS FILTROS (PADRÃO DASHBOARD) */
+        .filter-dropdown { position: relative; display: inline-block; }
+        .filter-content { 
+            display: none; 
+            position: absolute; 
+            background-color: white; 
+            min-width: 220px; 
+            box-shadow: 0px 10px 25px rgba(0,0,0,0.15); 
+            z-index: 100; 
+            border-radius: 0 0 12px 12px; 
+            padding: 12px; 
+            border: 1px solid #e5e7eb; 
+            border-top: none; 
+            margin-top: 0; 
+            max-height: 350px; 
+            overflow-y: auto; 
+            right: 0;
+            animation: fadeIn 0.15s ease-out;
+        }
+        .filter-content.show { display: block; }
+        .filter-dropdown.active button {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            border-color: #E30613;
+            background-color: #fff;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .filter-option { 
+            display: flex; align-items: center; gap: 10px; padding: 8px 4px; 
+            cursor: pointer; font-size: 12px; font-weight: 600; color: #4b5563; 
+            border-radius: 6px; transition: background 0.2s;
+        }
+        .filter-option:hover { background-color: #f9fafb; }
+        .filter-option input { cursor: pointer; accent-color: #E30613; border-radius: 4px; }
+        .btn-clear-filter { 
+            width: 100%; text-align: center; padding: 10px; font-size: 11px; 
+            font-weight: 800; text-transform: uppercase; color: #E30613; 
+            border-bottom: 1px solid #f3f4f6; margin-bottom: 10px; cursor: pointer; 
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-900">
@@ -37,12 +77,17 @@
                         <p class="text-xs text-gray-500 font-bold uppercase tracking-widest">Base completa de atendimentos via Octadesk</p>
                     </div>
 
-                    <div class="flex items-center gap-3 bg-white p-2 rounded-2xl shadow-sm border">
-                        <label class="text-[10px] font-black text-gray-400 uppercase ml-2">Filtrar Período:</label>
-                        <select id="filtroMesAno" onchange="aplicarFiltros()" class="border-none bg-transparent font-bold text-sm outline-none focus:ring-0 cursor-pointer">
-                            <option value="todos">Todos os Meses (Histórico)</option>
-                        </select>
-                        <button onclick="carregarDadosAtendimento()" class="p-2 hover:bg-gray-100 rounded-xl transition-all">
+                    <div class="flex items-center gap-3">
+                        <div class="filter-dropdown" id="dropdownMes">
+                            <button onclick="toggleDropdown(event)" class="bg-white border border-gray-300 rounded-xl px-4 py-2 flex items-center gap-2 shadow-sm hover:border-primary transition-all">
+                                <span class="text-[10px] font-black text-gray-400 uppercase">Período:</span>
+                                <span id="labelMes" class="font-bold text-sm text-gray-700">Carregando...</span>
+                                <span class="material-symbols-outlined text-sm text-gray-400">expand_more</span>
+                            </button>
+                            <div class="filter-content" id="checklistMes"></div>
+                        </div>
+
+                        <button onclick="carregarDadosAtendimento()" class="bg-white p-2 border border-gray-300 rounded-xl shadow-sm hover:bg-gray-50 transition-all">
                             <span class="material-symbols-outlined text-gray-600 text-sm">refresh</span>
                         </button>
                     </div>
@@ -91,7 +136,6 @@
                         <div class="h-[300px] w-full"><canvas id="chartResponsaveis"></canvas></div>
                     </div>
                 </div>
-
             </div>
         </main>
     </div>
@@ -103,49 +147,111 @@
 
         let dadosBrutos = [];
         let charts = {};
+        let mesSelecionado = "todos";
+
+        function toggleDropdown(event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById('dropdownMes');
+            const content = document.getElementById('checklistMes');
+            dropdown.classList.toggle('active');
+            content.classList.toggle('show');
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.closest('.filter-dropdown')) {
+                document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('active'));
+                document.querySelectorAll('.filter-content').forEach(c => c.classList.remove('show'));
+            }
+        }
 
         async function carregarDadosAtendimento() {
             try {
-                const response = await fetch(`${WEB_APP_URL}?rota=atendimento`);
-                dadosBrutos = await response.json();
-                popularFiltroMeses(dadosBrutos);
-                aplicarFiltros();
-            } catch (error) { console.error("Erro ao carregar:", error); }
+                const labelStatus = document.getElementById('labelMes');
+                labelStatus.innerText = "Sincronizando...";
+                
+                const response = await fetch(`${WEB_APP_URL}?rota=atendimento`, {
+                    method: 'GET',
+                    redirect: 'follow'
+                });
+                
+                const texto = await response.text();
+                
+                // Tenta processar o JSON. Se falhar, mostra o erro do servidor.
+                try {
+                    dadosBrutos = JSON.parse(texto);
+                } catch (e) {
+                    console.error("Resposta do servidor não é um JSON válido:", texto);
+                    labelStatus.innerText = "Erro no Script";
+                    return;
+                }
+                
+                if (dadosBrutos && Array.isArray(dadosBrutos)) {
+                    popularFiltroMeses(dadosBrutos);
+                    aplicarFiltros();
+                } else {
+                    labelStatus.innerText = "Base Vazia";
+                }
+            } catch (error) { 
+                console.error("Erro na requisição:", error);
+                document.getElementById('labelMes').innerText = "Erro na Rede";
+            }
         }
 
         function popularFiltroMeses(dados) {
-            const seletor = document.getElementById('filtroMesAno');
+            const container = document.getElementById('checklistMes');
             const periodos = new Set();
+            
             dados.forEach(d => {
-                const data = new Date(d[7]); // Coluna H
-                if(!isNaN(data)){
-                    const label = `${String(data.getMonth() + 1).padStart(2, '0')}/${data.getFullYear()}`;
-                    periodos.add(label);
+                const dataStr = d[7];
+                if (dataStr) {
+                    const data = new Date(dataStr);
+                    if(!isNaN(data)){
+                        const label = `${String(data.getMonth() + 1).padStart(2, '0')}/${data.getFullYear()}`;
+                        periodos.add(label);
+                    }
                 }
             });
+
             const ordenados = Array.from(periodos).sort((a,b) => {
                 const [mA, aA] = a.split('/'); const [mB, aB] = b.split('/');
-                return new Date(aA, mA) - new Date(aB, mB);
+                return new Date(aB, mB-1) - new Date(aA, mA-1);
             });
-            seletor.innerHTML = '<option value="todos">Todos os Meses (Histórico)</option>';
-            ordenados.forEach(p => seletor.innerHTML += `<option value="${p}">${p}</option>`);
+
+            if (mesSelecionado === "todos" && ordenados.length > 0) {
+                mesSelecionado = ordenados[0];
+            }
+
+            let html = `<div class="btn-clear-filter" onclick="selecionarMes('todos')">Todos os Meses (Histórico)</div>`;
+            ordenados.forEach(p => {
+                html += `
+                    <div class="filter-option" onclick="selecionarMes('${p}')">
+                        <input type="radio" name="mesRadio" ${mesSelecionado === p ? 'checked' : ''}>
+                        <span>${p}</span>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function selecionarMes(mes) {
+            mesSelecionado = mes;
+            aplicarFiltros();
+            document.getElementById('dropdownMes').classList.remove('active');
+            document.getElementById('checklistMes').classList.remove('show');
+            popularFiltroMeses(dadosBrutos);
         }
 
         function aplicarFiltros() {
-            const filtro = document.getElementById('filtroMesAno').value;
             let filtrados = dadosBrutos;
-
-            if (filtro !== 'todos') {
+            if (mesSelecionado !== 'todos') {
                 filtrados = dadosBrutos.filter(d => {
                     const data = new Date(d[7]);
                     const label = `${String(data.getMonth() + 1).padStart(2, '0')}/${data.getFullYear()}`;
-                    return label === filtro;
+                    return label === mesSelecionado;
                 });
             }
-            
-            // Divisor sempre baseado no histórico total (meses de Junho até hoje)
-            const divisorHistorico = contarMesesDiferentes(dadosBrutos);
-            processarDashboard(filtrados, divisorHistorico);
+            document.getElementById('labelMes').innerText = mesSelecionado === 'todos' ? 'Histórico Total' : mesSelecionado;
+            processarDashboard(filtrados, contarMesesDiferentes(dadosBrutos));
         }
 
         function contarMesesDiferentes(dados) {
@@ -157,57 +263,55 @@
         }
 
         function processarDashboard(dadosFiltrados, divisorMediaHistorica) {
-            // Contagem Filtro (Para Totais e Líder por Loja)
             const contLojas = {}; const contVends = {}; const contResp = {}; const vendLoja = {};
-            // Contagem Geral (Para as Médias Históricas Fixas)
             const contLojasGeral = {}; const contVendsGeral = {};
 
             dadosFiltrados.forEach(d => {
                 const vend = d[2]; const loja = d[3]; const resp = d[11];
-                contLojas[loja] = (contLojas[loja] || 0) + 1;
-                contVends[vend] = (contVends[vend] || 0) + 1;
-                contResp[resp] = (contResp[resp] || 0) + 1;
-                if (!vendLoja[loja]) vendLoja[loja] = {};
-                vendLoja[loja][vend] = (vendLoja[loja][vend] || 0) + 1;
+                if(loja) contLojas[loja] = (contLojas[loja] || 0) + 1;
+                if(vend) contVends[vend] = (contVends[vend] || 0) + 1;
+                if(resp) contResp[resp] = (contResp[resp] || 0) + 1;
+                if (loja && vend) {
+                    if (!vendLoja[loja]) vendLoja[loja] = {};
+                    vendLoja[loja][vend] = (vendLoja[loja][vend] || 0) + 1;
+                }
             });
 
             dadosBrutos.forEach(d => {
-                contLojasGeral[d[3]] = (contLojasGeral[d[3]] || 0) + 1;
-                contVendsGeral[d[2]] = (contVendsGeral[d[2]] || 0) + 1;
+                if(d[3]) contLojasGeral[d[3]] = (contLojasGeral[d[3]] || 0) + 1;
+                if(d[2]) contVendsGeral[d[2]] = (contVendsGeral[d[2]] || 0) + 1;
             });
 
             document.getElementById('cardTotalAtendimentos').innerText = dadosFiltrados.length;
             document.getElementById('cardColaboradoresUnicos').innerText = new Set(dadosFiltrados.map(d => d[2])).size;
 
-            // 1. Gráficos de Lojas
             const labelsL = Object.keys(contLojas).sort();
             renderHorizontalChart('chartLojas', labelsL, labelsL.map(l => contLojas[l] || 0), '#3b82f6', '');
             renderHorizontalChart('chartMediaLojas', labelsL, labelsL.map(l => ((contLojasGeral[l] || 0) / divisorMediaHistorica).toFixed(1)), '#94a3b8', ' média/mês');
 
-            // 2. Gráficos de Vendedores
             const top10 = Object.entries(contVends).sort((a,b)=>b[1]-a[1]).slice(0,10);
             const labelsV = top10.map(v=>v[0]);
             renderHorizontalChart('chartVendedores', labelsV, top10.map(v=>v[1]), '#E30613', '');
             renderHorizontalChart('chartMediaVendedores', labelsV, labelsV.map(v => ((contVendsGeral[v] || 0) / divisorMediaHistorica).toFixed(1)), '#fca5a5', ' média/mês');
 
-            // 3. Líder por Loja (% Baseado no Filtro Atual)
             const labelsLider = []; const valoresLider = []; const percsLider = [];
             Object.keys(vendLoja).forEach(loja => {
                 const lider = Object.entries(vendLoja[loja]).sort((a,b)=>b[1]-a[1])[0];
                 const totalLojaFiltro = contLojas[loja];
-                const percentual = ((lider[1] / totalLojaFiltro) * 100).toFixed(0);
-                labelsLider.push(lider[0]);
+                const percentual = totalLojaFiltro > 0 ? ((lider[1] / totalLojaFiltro) * 100).toFixed(0) : 0;
+                labelsLider.push(`${loja}: ${lider[0]}`);
                 valoresLider.push(lider[1]);
                 percsLider.push(`${percentual}%`);
             });
             renderHorizontalChart('chartVendedorPorLoja', labelsLider, valoresLider, '#111827', '', percsLider);
-
             renderPieChart('chartResponsaveis', Object.keys(contResp), Object.values(contResp));
         }
 
         function renderHorizontalChart(id, labels, data, color, sufixo, extraInfo = []) {
             if (charts[id]) charts[id].destroy();
-            charts[id] = new Chart(document.getElementById(id).getContext('2d'), {
+            const canvas = document.getElementById(id);
+            if (!canvas) return;
+            charts[id] = new Chart(canvas.getContext('2d'), {
                 type: 'bar',
                 data: {
                     labels: labels,
@@ -220,23 +324,19 @@
                         legend: { display: false },
                         datalabels: {
                             anchor: 'end', align: 'right', color: '#333', font: { weight: 'bold', size: 10 },
-                            formatter: (val, ctx) => {
-                                const extra = extraInfo[ctx.dataIndex] ? ` (${extraInfo[ctx.dataIndex]})` : '';
-                                return val + sufixo + extra;
-                            }
+                            formatter: (val, ctx) => val + sufixo + (extraInfo[ctx.dataIndex] ? ` (${extraInfo[ctx.dataIndex]})` : '')
                         }
                     },
-                    scales: { 
-                        x: { display: false }, 
-                        y: { grid: { display: false }, ticks: { font: { size: 9, weight: 'bold' }, color: '#444' } } 
-                    }
+                    scales: { x: { display: false }, y: { grid: { display: false }, ticks: { font: { size: 9, weight: 'bold' }, color: '#444' } } }
                 }
             });
         }
 
         function renderPieChart(id, labels, data) {
             if (charts[id]) charts[id].destroy();
-            charts[id] = new Chart(document.getElementById(id).getContext('2d'), {
+            const canvas = document.getElementById(id);
+            if (!canvas) return;
+            charts[id] = new Chart(canvas.getContext('2d'), {
                 type: 'doughnut',
                 data: {
                     labels: labels,
