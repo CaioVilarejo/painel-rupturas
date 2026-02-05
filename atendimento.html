@@ -82,7 +82,7 @@
                         <div class="filter-dropdown" id="dropdownMes">
                             <button onclick="toggleDropdown(event)" class="bg-white border border-gray-300 rounded-xl px-4 py-2 flex items-center gap-2 shadow-sm hover:border-primary transition-all">
                                 <span class="text-[10px] font-black text-gray-400 uppercase">Período:</span>
-                                <span id="labelMes" class="font-bold text-sm text-gray-700 text-sm">Carregando...</span>
+                                <span id="labelMes" class="font-bold text-sm text-gray-700">Carregando...</span>
                                 <span class="material-symbols-outlined text-sm text-gray-400">expand_more</span>
                             </button>
                             <div class="filter-content" id="checklistMes">
@@ -146,6 +146,7 @@
 
     <script src="menu.js"></script>
     <script>
+        // URL validada pelo usuário
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbznCForFxpY6CAU6W3UgglusC8oqyfDz0dqM-l_95xtr9CK9TcFvbw_V7LJQk8jTZH-/exec';
         Chart.register(ChartDataLabels);
 
@@ -169,39 +170,27 @@
             }
         }
 
-        // FUNÇÃO DE CALLBACK PARA JSONP (CORREÇÃO DEFINITIVA DE CORS)
-        window.retornoDadosAtendimento = function(dados) {
-            console.log("Dados recebidos via JSONP:", dados ? "Sucesso" : "Vazio");
-            if (!dados || !Array.isArray(dados)) {
-                document.getElementById('labelMes').innerText = "Base Vazia";
-                return;
+        async function carregarDadosAtendimento() {
+            try {
+                const labelStatus = document.getElementById('labelMes');
+                labelStatus.innerText = "Sincronizando...";
+                
+                // Usando o método fetch padrão que funciona nas outras páginas
+                const response = await fetch(`${WEB_APP_URL}?rota=atendimento`);
+                if (!response.ok) throw new Error('Erro na resposta do servidor');
+                
+                dadosBrutos = await response.json();
+                
+                if (dadosBrutos && Array.isArray(dadosBrutos)) {
+                    popularFiltroMeses(dadosBrutos);
+                    aplicarFiltros();
+                } else {
+                    labelStatus.innerText = "Base Vazia";
+                }
+            } catch (error) { 
+                console.error("Erro ao carregar:", error);
+                document.getElementById('labelMes').innerText = "Erro na Base";
             }
-            dadosBrutos = dados;
-            popularFiltroMeses(dadosBrutos);
-            aplicarFiltros();
-            document.getElementById('labelMes').innerText = mesSelecionado === 'todos' ? 'Histórico Total' : mesSelecionado;
-        };
-
-        function carregarDadosAtendimento() {
-            const labelStatus = document.getElementById('labelMes');
-            labelStatus.innerText = "Sincronizando...";
-            
-            // Remove script anterior se existir
-            const antigo = document.getElementById('scriptDados');
-            if (antigo) antigo.remove();
-
-            // Cria um novo elemento de script para carregar os dados (Técnica JSONP)
-            const script = document.createElement('script');
-            script.id = 'scriptDados';
-            // Adicionamos um timestamp para evitar cache do navegador
-            script.src = `${WEB_APP_URL}?rota=atendimento&callback=retornoDadosAtendimento&t=${new Date().getTime()}`;
-            
-            script.onerror = function() {
-                console.error("Erro crítico: Falha ao carregar o script de dados do Google.");
-                labelStatus.innerText = "Erro na Base";
-            };
-
-            document.body.appendChild(script);
         }
 
         function popularFiltroMeses(dados) {
@@ -224,6 +213,7 @@
                 return new Date(aB, mB-1) - new Date(aA, mA-1); // Ordem decrescente
             });
 
+            // Definir o mês mais recente como padrão na primeira carga
             if (mesSelecionado === "todos" && ordenados.length > 0) {
                 mesSelecionado = ordenados[0];
             }
@@ -306,7 +296,7 @@
             Object.keys(vendLoja).forEach(loja => {
                 const lider = Object.entries(vendLoja[loja]).sort((a,b)=>b[1]-a[1])[0];
                 const totalLojaFiltro = contLojas[loja];
-                const percentual = ((lider[1] / totalLojaFiltro) * 100).toFixed(0);
+                const percentual = totalLojaFiltro > 0 ? ((lider[1] / totalLojaFiltro) * 100).toFixed(0) : 0;
                 labelsLider.push(`${loja}: ${lider[0]}`);
                 valoresLider.push(lider[1]);
                 percsLider.push(`${percentual}%`);
